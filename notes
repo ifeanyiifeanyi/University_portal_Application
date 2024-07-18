@@ -19,3 +19,6 @@ git push -u personal main
 
 # If your personal repository already has some code and history, and you want to keep it, you'll need to pull first and then push:
 git pull personal main --allow-unrelated-histories
+git add .
+git commit -m "Merged personal repo with local main"
+git push -u personal main
