@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,6 +12,18 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
     
+=======
+use Illuminate\Support\Str;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable, SoftDeletes;
+
+>>>>>>> origin/master
     public const TYPE_ADMIN = 1;
     public const TYPE_TEACHER = 2;
     public const TYPE_STUDENT = 3;
@@ -22,11 +35,54 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+<<<<<<< HEAD
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
+=======
+    protected $guarded = [];
+
+
+    public function teacher(){
+        return $this->hasOne(Teacher::class);
+    }
+
+    public function profileImage(){
+        return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);
+    }
+
+    public function fullName(){
+        return Str::title($this->first_name.' '.$this->last_name. ' '. $this->other_name ?? '');
+    }
+
+    public function admin(){
+        return $this->hasOne(Admin::class);
+    }
+
+
+    public function isAdmin()
+    {
+        return $this->user_type == 1;
+    }
+
+    public function isTeacher()
+    {
+        return $this->user_type == 2;
+    }
+
+    public function isStudent()
+    {
+        return $this->user_type == 3;
+    }
+
+    public function isParent()
+    {
+        return $this->user_type == 4;
+    }
+
+>>>>>>> origin/master
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,7 +106,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+<<<<<<< HEAD
     public function teacher(){
         return $this->hasOne(Teacher::class, 'user_id', 'id');
     }
+=======
+>>>>>>> origin/master
 }

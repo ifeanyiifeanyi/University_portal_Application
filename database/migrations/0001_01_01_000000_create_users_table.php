@@ -1,8 +1,15 @@
 <?php
 
+<<<<<<< HEAD
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+=======
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+>>>>>>> origin/master
 
 return new class extends Migration
 {
@@ -13,13 +20,30 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+<<<<<<< HEAD
             $table->enum('user_type', [1, 2, 3, 4])->comment('1. admin, 2. teacher, 3. student, .4 parent');
             $table->string('name');
             $table->string('email')->unique();
+=======
+            $table->enum('user_type', [1, 2, 3, 4])->comment('1. admin, 2. teacher, 3. student, 4. parent');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('other_name')->nullable();
+            $table->string('username')->unique();
+            $table->string('slug')->unique();
+            $table->string('phone')->nullable();
+            $table->string('email')->unique();
+            $table->string('profile_photo')->nullable();
+>>>>>>> origin/master
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+<<<<<<< HEAD
+=======
+            $table->softDeletes(); // Add soft deletes
+
+>>>>>>> origin/master
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

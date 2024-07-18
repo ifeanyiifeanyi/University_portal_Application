@@ -1,0 +1,31 @@
+git checkout main
+git remote add upstream https://github.com/original-username/original-repo.git
+git checkout -b ifeanyi
+git push -u upstream ifeanyi
+git add
+git commit
+git push  upstream ifeanyi
+
+git push https://github.com/izuuarch/ggt-shanahan-pt.git --delete master
+
+
+
+
+personal
+
+git checkout main
+git remote add personal https://github.com/your-username/your-personal-repo.git
+git push -u personal main
+
+# If your personal repository already has some code and history, and you want to keep it, you'll need to pull first and then push:
+git pull personal main --allow-unrelated-histories
+git add .
+git commit -m "Merged personal repo with local main"
+git push -u personal main
+
+
+git push personal main --force
+
+
+git push upstream your-branch-name  # push to the upstream repo
+git push personal main  # push to your personal repo
