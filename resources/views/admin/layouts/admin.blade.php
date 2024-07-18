@@ -34,7 +34,17 @@
     <link rel="stylesheet" href="{{ asset('') }}assets/css/dark-theme.css" />
     <link rel="stylesheet" href="{{ asset('') }}assets/css/semi-dark.css" />
     <link rel="stylesheet" href="{{ asset('') }}assets/css/header-colors.css" />
+
     <title>{{ config('app.name') }} - @yield('title')</title>
+
+    <link href="{{ asset('') }}assets/plugins/fancy-file-uploader/fancy_fileupload.css" rel="stylesheet" />
+	<link href="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
+	<link href="{{ asset('') }}assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+	<link href="{{ asset('') }}assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+	<!-- loader-->
+	<link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
+	<script src="{{ asset('') }}assets/js/pace.min.js"></script>
+
     @yield('css')
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
 
@@ -158,7 +168,6 @@
     <script src="{{ asset('') }}assets/js/index.js"></script>
     <!--app JS-->
     <script src="{{ asset('') }}assets/js/app.js"></script>
-    @yield('javascript')
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
@@ -199,6 +208,26 @@
             allowClear: Boolean($(this).data('allow-clear')),
         });
     </script>
+    @yield('javascript')
+	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.ui.widget.js"></script>
+	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fileupload.js"></script>
+	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.iframe-transport.js"></script>
+	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fancy-fileupload.js"></script>
+	<script src="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js"></script>
+	<script>
+		$('#fancy-file-upload').FancyFileUpload({
+			params: {
+				action: 'fileuploader'
+			},
+			maxfilesize: 1000000
+		});
+	</script>
+	<script>
+		$(document).ready(function () {
+			$('#image-uploadify').imageuploadify();
+		})
+	</script>
+
 </body>
 
 </html>

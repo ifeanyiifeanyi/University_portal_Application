@@ -77,6 +77,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('manage-lecturers/{teacher}', 'show')->name('admin.teacher.show');
         Route::get('manage-lecturers/{teacher}/edit', 'edit')->name('admin.teacher.edit');
         Route::put('manage-lecturers/{teacher}/update', 'update')->name('admin.teachers.update');
+        Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
     });
 
 });

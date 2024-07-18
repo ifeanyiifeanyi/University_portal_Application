@@ -11,10 +11,12 @@
             <div class="col-md-12">
                 <div class="card shadow">
                     <div class="card-body">
-                        <div class="card-title d-flex align-items-center">
-                            <div><i class="bx bxs-user me-1 font-22 text-primary"></i>
+                        <div class="card-title d-flex align-items-center gap-5">
+                            <div>
+                                <p> <a href="" class="btn btn-primary float-left" style="text-align: right">Create New
+                                        Account</a>
+                                </p>
                             </div>
-                            <h5 class="mb-0 text-primary">Lecturers List</h5>
                         </div>
                         <hr>
                         <div class="table-responsive">
@@ -33,7 +35,8 @@
                                     @forelse ($teachers as  $teacher)
                                         <tr>
                                             <th scope="row">{{ $loop->iteration }}</th>
-                                            <th scope="row">{{ $teacher->teacher_title }} {{ $teacher->user->fullName() }}</th>
+                                            <th scope="row">{{ $teacher->teacher_title }}
+                                                {{ $teacher->user->fullName() }}</th>
                                             <th scope="row">{{ $teacher->date_of_employment }}</th>
                                             <th scope="row">{{ $teacher->employment_id }}</th>
                                             <th scope="row">{{ $teacher->teacher_type }}</th>
@@ -42,25 +45,29 @@
                                                     <div class="dropdown">
                                                         <span class=" dropdown-toggle" type="button"
                                                             data-bs-toggle="dropdown" aria-expanded="false">....</span>
-                                                        <ul class="dropdown-menu custom-dropdown-menu">
+                                                        <ul class="dropdown-menu custom-dropdown-menu"
+                                                            style="text-align: justify">
                                                             <li><a class="dropdown-item"
-                                                                    href="{{ route('admin.teacher.edit', $teacher) }}">Edit</a>
+                                                                    href="{{ route('admin.teacher.edit', $teacher) }}">
+                                                                    <i class="bx bx-edit me-0"></i> Edit
+
+                                                                </a>
                                                             </li>
                                                             <li><a class="dropdown-item"
-                                                                    href="{{ route('admin.teacher.show', $teacher) }}">Details</a>
+                                                                    href="{{ route('admin.teacher.show', $teacher) }}">
+                                                                    <i class="bx bx-coin-stack me-0"></i> View Details
+
+                                                                </a>
                                                             </li>
-                                                            <li><a class="dropdown-item" href="#"> -----------------
-                                                                </a></li>
                                                             <li>
                                                                 <form
-                                                                    action=""
-                                                                    method="post">
+                                                                    action="{{ route('admin.teachers.delete', $teacher) }}"
+                                                                    method="post" id="deleteTeacher">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button
-                                                                        onclick="return preventDefault() confirm('Are you sure of this action ?')"
-                                                                        class="dropdown-item text-danger" type="submit">
-                                                                        Delete
+                                                                    <button id="deleteTeacherButton"
+                                                                        class="dropdown-item  bg-danger" type="submit">
+                                                                        <i class="bx bx-trash-alt me-0"></i> Delete
                                                                     </button>
                                                                 </form>
                                                             </li>
@@ -83,5 +90,12 @@
 @endsection
 
 @section('javascript')
-
+    <script>
+        document.getElementById('deleteTeacher').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this teacher?')) {
+                document.getElementById('deleteTeacher').submit();
+            }
+        });
+    </script>
 @endsection
