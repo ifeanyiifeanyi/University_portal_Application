@@ -22,3 +22,10 @@ git pull personal main --allow-unrelated-histories
 git add .
 git commit -m "Merged personal repo with local main"
 git push -u personal main
+
+
+git push personal main --force
+
+
+git push upstream your-branch-name  # push to the upstream repo
+git push personal main  # push to your personal repo
