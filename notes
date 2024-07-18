@@ -9,8 +9,6 @@ git push  upstream ifeanyi
 git push https://github.com/izuuarch/ggt-shanahan-pt.git --delete master
 
 
-
-
 personal
 
 git checkout main
