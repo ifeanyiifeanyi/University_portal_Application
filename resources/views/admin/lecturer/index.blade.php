@@ -13,7 +13,7 @@
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
-                                <p> <a href="" class="btn btn-primary float-left" style="text-align: right">Create New
+                                <p> <a href="{{ route('admin.teacher.create') }}" class="btn btn-primary float-left" style="text-align: right">Create New
                                         Account</a>
                                 </p>
                             </div>

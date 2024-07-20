@@ -25,7 +25,7 @@
 
                             @if (isset($departmentSingle))
                                 <form class="row g-3" method="POST"
-                                    action="{{ route('admin.department.update', $departmentSingle->id) }}">
+                                    action="{{ url('manage-department/update/'.$departmentSingle->id) }}">
 
                                     @csrf
                                     @method('PUT')
@@ -69,13 +69,9 @@
                                     </div>
                                 </form>
                             @else
-                                <form class="row g-3" method="POST"
-                                    action="{{ isset($department) ? route('admin.department.update', $department->id) : route('admin.department.store') }}">
+                                <form class="row g-3" method="POST" action="{{ route('admin.department.store') }}">
 
                                     @csrf
-                                    @isset($department)
-                                        @method('PUT')
-                                    @endisset
 
                                     <div class="col-md-12 mb-3">
                                         <label for="inputFirstName" class="form-label">Department Name</label>
@@ -154,7 +150,9 @@
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('admin.department.edit', $department) }}">Edit</a>
                                                             </li>
-                                                            <li><a class="dropdown-item" href="{{ route('admin.department.show', $department) }}">Details</a></li>
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('admin.department.show', $department) }}">Details</a>
+                                                            </li>
                                                             <li><a class="dropdown-item" href="#"> -----------------
                                                                 </a></li>
                                                             <li>

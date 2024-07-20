@@ -22,28 +22,33 @@ class UpdateTeacherRequest extends FormRequest
     public function rules()
     {
         return [
+            // User fields
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'other_name' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'required|email|max:255|unique:users,email,' . $this->teacher->user->id,
-            'date_of_birth' => 'nullable|date',
-            'gender' => 'nullable|string|in:Male,Female,Other',
-            'teaching_experience' => 'nullable|string|max:255',
-            'teacher_type' => 'nullable|string|in:Full-time,Part-time,Auxiliary',
-            'teacher_qualification' => 'nullable|string|max:255',
-            'teacher_title' => 'nullable|string|max:255',
-            'office_hours' => 'nullable|string|max:255',
-            'office_address' => 'nullable|string|max:255',
-            'biography' => 'nullable|string',
-            'certifications' => 'nullable|string',
-            'publications' => 'nullable|string',
-            'number_of_awards' => 'nullable|integer|min:0',
-            'date_of_employment' => 'nullable|date',
-            'address' => 'nullable|string|max:255',
-            'nationality' => 'nullable|string|max:255',
-            'level' => 'nullable|string|in:Senior Lecturer,Junior Lecturer,Technician',
+            'phone' => 'nullable|string|max:15',
+            'email' => 'required|email|max:255|unique:users,email,' . $this->route('teacher')->user_id,
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+
+            // Teacher fields
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string',
+            'teaching_experience' => 'nullable|string',
+            'teacher_type' => 'nullable|string',
+            'teacher_qualification' => 'nullable|string',
+            'teacher_title' => 'nullable|string',
+            'office_hours' => 'nullable|string',
+            'office_address' => 'nullable|string',
+            'biography' => 'nullable|string',
+            'certifications' => 'nullable|array',
+            'certifications.*' => 'nullable|string',
+            'publications' => 'nullable|array',
+            'publications.*' => 'nullable|string',
+            'number_of_awards' => 'nullable|numeric',
+            'date_of_employment' => 'nullable|date',
+            'address' => 'nullable|string',
+            'nationality' => 'nullable|string',
+            'level' => 'nullable|string',
         ];
     }
 }
