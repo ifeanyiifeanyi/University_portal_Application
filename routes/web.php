@@ -11,6 +11,7 @@ use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\AcademicSessionController;
+use App\Http\Controllers\Admin\AdminStudentController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -82,26 +83,34 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
     });
 
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Route::prefix('teacher')->middleware('teacher')->group(function () {
-    Route::controller(TeacherController::class)->group(function () {
-        Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+    Route::controller(AdminStudentController::class)->group(function(){
+        Route::get('student-manager', 'index')->name('admin.student.view');
+        Route::get('student-manager/create', 'create')->name('admin.student.create');
+        Route::get('student-manager/edit/{student}', 'edit')->name('admin.student.edit');
+        Route::post('student-manager/store', 'store')->name('admin.student.store');
+        Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
     });
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Route::prefix('teacher')->middleware('teacher')->group(function () {
+//     Route::controller(TeacherController::class)->group(function () {
+//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+//     });
+// });
 
 
 

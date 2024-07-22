@@ -30,3 +30,8 @@ git push upstream your-branch-name  # push to the upstream repo
 git push personal main  # push to your personal repo
 
 git push https://github.com/ifeanyiifeanyi/portal-starter.git
+
+
+// my
+repo
+git push -u https://github.com/ifeanyiifeanyi/portal-starter.git

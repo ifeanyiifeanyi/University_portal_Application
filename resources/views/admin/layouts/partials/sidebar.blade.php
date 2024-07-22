@@ -47,38 +47,19 @@
                 </li>
                 <li> <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Department</a>
                 </li>
-                <li> <a href="app-to-do.html"><i class="bx bx-right-arrow-alt"></i>Todo List</a>
-                </li>
-                <li> <a href="app-invoice.html"><i class="bx bx-right-arrow-alt"></i>Invoice</a>
-                </li>
-                <li> <a href="app-fullcalender.html"><i class="bx bx-right-arrow-alt"></i>Calendar</a>
                 </li>
             </ul>
-        </li>
-        <li class="menu-label">UI Elements</li>
-        <li>
-            <a href="widgets.html">
-                <div class="parent-icon"><i class='bx bx-cookie'></i>
-                </div>
-                <div class="menu-title">Widgets</div>
-            </a>
         </li>
         <li>
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class='bx bx-slider-alt'></i>
                 </div>
-                <div class="menu-title">Manage Lecturers</div>
+                <div class="menu-title">Academics Manager</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.teacher.view') }}"><i class="bx bx-right-arrow-alt"></i>Lecturers</a>
+                <li> <a href="{{ route('admin.teacher.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Lecturers</a>
                 </li>
-                <li> <a href="ecommerce-products-details.html"><i class="bx bx-right-arrow-alt"></i>Product
-                        Details</a>
-                </li>
-                <li> <a href="ecommerce-add-new-products.html"><i class="bx bx-right-arrow-alt"></i>Add New
-                        Products</a>
-                </li>
-                <li> <a href="ecommerce-orders.html"><i class="bx bx-right-arrow-alt"></i>Orders</a>
+                <li> <a href="{{ route('admin.student.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Students</a>
                 </li>
             </ul>
         </li>

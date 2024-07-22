@@ -26,7 +26,7 @@ class UpdateTeacherRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'other_name' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:15',
+            'phone' => 'nullable|string',
             'email' => 'required|email|max:255|unique:users,email,' . $this->route('teacher')->user_id,
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
@@ -50,5 +50,6 @@ class UpdateTeacherRequest extends FormRequest
             'nationality' => 'nullable|string',
             'level' => 'nullable|string',
         ];
+
     }
 }

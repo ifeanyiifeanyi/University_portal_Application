@@ -55,6 +55,7 @@ class TeacherController extends Controller
         ]);
 
         $user = User::create([
+            'user_type' => User::TYPE_TEACHER,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'other_name' => $request->other_name,

@@ -20,7 +20,7 @@
     <link href="{{ asset('') }}assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
     <link href="{{ asset('') }}assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
-	<link href="{{ asset('') }}assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
+    <link href="{{ asset('') }}assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
 
 
     <!-- loader-->
@@ -38,15 +38,20 @@
     <title>{{ config('app.name') }} - @yield('title')</title>
 
     <link href="{{ asset('') }}assets/plugins/fancy-file-uploader/fancy_fileupload.css" rel="stylesheet" />
-	<link href="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
-	<link href="{{ asset('') }}assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
-	<link href="{{ asset('') }}assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
-	<!-- loader-->
-	<link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
-	<script src="{{ asset('') }}assets/js/pace.min.js"></script>
+    <link href="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
+    <link href="{{ asset('') }}assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="{{ asset('') }}assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+    <!-- loader-->
+    <link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
+    <script src="{{ asset('') }}assets/js/pace.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"/>
+    
     @yield('css')
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
+
+    {{-- ckeditor  --}}
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.css">
 
 </head>
 
@@ -209,24 +214,53 @@
         });
     </script>
     @yield('javascript')
-	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.ui.widget.js"></script>
-	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fileupload.js"></script>
-	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.iframe-transport.js"></script>
-	<script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fancy-fileupload.js"></script>
-	<script src="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js"></script>
-	<script>
-		$('#fancy-file-upload').FancyFileUpload({
-			params: {
-				action: 'fileuploader'
-			},
-			maxfilesize: 1000000
-		});
-	</script>
-	<script>
-		$(document).ready(function () {
-			$('#image-uploadify').imageuploadify();
-		})
-	</script>
+    <script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.ui.widget.js"></script>
+    <script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fileupload.js"></script>
+    <script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.iframe-transport.js"></script>
+    <script src="{{ asset('') }}assets/plugins/fancy-file-uploader/jquery.fancy-fileupload.js"></script>
+    <script src="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.js",
+                "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/42.0.1/"
+            }
+        }
+    </script>
+    <script type="module">
+        import {
+            ClassicEditor,
+            Essentials,
+            Paragraph,
+            Bold,
+            Italic,
+            Font
+        } from 'ckeditor5';
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                plugins: [Essentials, Paragraph, Bold, Italic, Font],
+                toolbar: [
+                    'undo', 'redo', '|', 'bold', 'italic', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+                ]
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <!-- A friendly reminder to run on a server, remove this during the integration. -->
+    <script>
+        window.onload = function() {
+            if (window.location.protocol === "file:") {
+                alert("This sample requires an HTTP server. Please serve this file with a web server.");
+            }
+        };
+    </script>
+
 
 </body>
 

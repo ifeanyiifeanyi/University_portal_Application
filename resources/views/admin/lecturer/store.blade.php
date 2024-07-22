@@ -151,10 +151,8 @@
                         <label for="gender">Gender</label>
                         <select class="form-select @error('gender') is-invalid @enderror" id="gender" name="gender">
                             <option value="">Select Gender</option>
-                            <option value="Male" {{ old('gender') }}>Male
-                            </option>
-                            <option value="Female" {{ old('gender') }}>
-                                Female</option>
+                            <option value="Male" {{ old('gender') == 'Male' ? 'selected' : ''  }}>Male</option>
+                            <option value="Female" {{ old('gender') == 'Male' ? 'Female' : ''  }}>  Female</option>
 
                         </select>
                         @error('gender')
@@ -177,9 +175,9 @@
                         <select class="form-select @error('teacher_type') is-invalid @enderror" id="teacher_type"
                             name="teacher_type">
                             <option value="">Select Teacher Type</option>
-                            <option value="Full-time" {{ old('teacher_type') }}> Full-time</option>
-                            <option value="Part-time" {{ old('teacher_type') }}> Part-time</option>
-                            <option value="Auxiliary" {{ old('teacher_type') }}> Auxiliary</option>
+                            <option value="Full-time" {{ old('teacher_type') == "Full-time" ? 'selected' : '' }}> Full-time</option>
+                            <option value="Part-time" {{ old('teacher_type') == 'Part-time' ? 'selected' : '' }}> Part-time</option>
+                            <option value="Auxiliary" {{ old('teacher_type') == 'Auxiliary' ? 'selected' : '' }}> Auxiliary</option>
                         </select>
                         @error('teacher_type')
                             <div class="error-message">{{ $message }}</div>
@@ -245,8 +243,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="biography">Biography</label>
-                        <textarea class="form-control @error('biography') is-invalid @enderror" id="biography" name="biography"
+                        <label for="editor">Biography</label>
+                        <textarea class="form-control @error('biography') is-invalid @enderror" id="editor" name="biography"
                             rows="3">{{ old('biography') }}</textarea>
                         @error('biography')
                             <div class="error-message">{{ $message }}</div>
@@ -330,9 +328,9 @@
                         <label for="level">Level</label>
                         <select class="form-select @error('level') is-invalid @enderror" id="level" name="level">
                             <option value="">Select Level</option>
-                            <option value="Senior Lecturer" {{ old('level') }}>Senior Lecturer </option>
-                            <option value="Junior Lecturer" {{ old('level') }}>Junior Lecturer</option>
-                            <option value="Technician" {{ old('level') }}>Technician</option>
+                            <option value="Senior Lecturer" {{ old('level') == 'Senior Lecturer' ? 'selected' : ''  }}>Senior Lecturer </option>
+                            <option value="Junior Lecturer" {{ old('level') == 'Junior Lecturer' ? 'selected' : '' }}>Junior Lecturer</option>
+                            <option value="Technician" {{ old('level') == 'Technician' ? 'selected' : '' }}>Technician</option>
                         </select>
                         @error('level')
                             <div class="error-message">{{ $message }}</div>

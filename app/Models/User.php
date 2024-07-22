@@ -31,6 +31,10 @@ class User extends Authenticatable
         return $this->hasOne(Teacher::class);
     }
 
+    public function student(){
+        return $this->hasOne(Student::class);
+    }
+
     public function profileImage(){
         return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);
     }

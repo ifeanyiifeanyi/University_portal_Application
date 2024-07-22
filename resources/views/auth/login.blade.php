@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-    </div><i class="fas fa-eye-slash"></i>
+
 
 @endsection
 @section('js')
