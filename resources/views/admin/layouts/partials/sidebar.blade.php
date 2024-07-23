@@ -43,6 +43,8 @@
                 </li>
                 <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
                 </li>
+                <li> <a href="{{ route('semester-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage Semester</a>
+                </li>
                 <li> <a href="{{ route('faculty-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage Faculties</a>
                 </li>
                 <li> <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Department</a>
@@ -65,10 +67,10 @@
         </li>
 
         <li>
-            <a href="https://codervent.com/rukada/documentation/index.html" target="_blank">
+            <a href="{{ route('course-assignments.index') }}" target="_blank">
                 <div class="parent-icon"><i class="bx bx-folder"></i>
                 </div>
-                <div class="menu-title">Documentation</div>
+                <div class="menu-title">Course | Semester Manager</div>
             </a>
         </li>
         <li>
