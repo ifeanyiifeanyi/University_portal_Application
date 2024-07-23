@@ -41,7 +41,10 @@
                                     @forelse ($students as $student)
                                         <tr>
                                             <th>{{ $loop->iteration }}</th>
-                                            <th>{{ $student->user->first_name . ' ' . $student->user->last_name }}</th>
+                                            <th>
+
+                                                {{ $student->user->fullName() ?? '' }}
+                                            </th>
                                             <th>{{ $student->matric_number }}</th>
                                             <th>{{ $student->department->name }}</th>
                                             <th>{{ $student->year_of_admission }}</th>
@@ -55,7 +58,8 @@
                                                             data-bs-toggle="dropdown" aria-expanded="false">....</span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">
-                                                            <li><a class="dropdown-item" href="">
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ route('admin.student.edit', $student) }}">
                                                                     <i class="bx bx-edit me-0"></i> Edit
 
                                                                 </a>
@@ -67,11 +71,12 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <form action="" method="post" id="deleteStudent">
+                                                                <form
+                                                                    action="{{ route('admin.student.delete', $student) }}"
+                                                                    method="post" class="delete-student-form">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button id="deleteStudentButton"
-                                                                        class="dropdown-item  bg-danger" type="submit">
+                                                                    <button class="dropdown-item bg-danger" type="submit">
                                                                         <i class="bx bx-trash-alt me-0"></i> Delete
                                                                     </button>
                                                                 </form>
@@ -91,16 +96,18 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('javascript')
     <script>
-        document.getElementById('deleteStudent').addEventListener('submit', function(event) {
-            event.preventDefault();
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.delete-student-form')) {
+                event.preventDefault();
 
-            if (confirm('Are you sure you want to delete this teacher?')) {
-
-                document.getElementById('deleteStudentButton').submit();
+                if (confirm('Are you sure you want to delete this student?')) {
+                    event.target.closest('.delete-student-form').submit();
+                }
             }
         });
     </script>

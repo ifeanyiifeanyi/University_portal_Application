@@ -18,7 +18,16 @@ class AdminStudentController extends Controller
      */
     public function index()
     {
-        $students = Student::query()->latest()->get();
+        $studentsWithUsers = Student::with('user')->latest()->get();
+
+        // Filter out students with null users
+        $students = $studentsWithUsers->filter(function ($student) {
+            return $student->user !== null;
+        });
+
+        // If you want to see what's going on, you can dd here:
+        // dd($studentsWithUsers);
+
         return view('admin.student.index', compact('students'));
     }
 
@@ -152,7 +161,7 @@ class AdminStudentController extends Controller
     public function edit(Student $student)
     {
         $departments = Department::all(); // Assuming you have a Department model
-        return view('admin.teacher.edit', compact('student', 'departments'));
+        return view('admin.student.edit', compact('student', 'departments'));
     }
 
 
@@ -165,9 +174,8 @@ class AdminStudentController extends Controller
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:students,email,' . $student->user_id,
+            'email' => 'required|email|unique:users,email,' . $student->user_id,
             'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
             'department_id' => 'required|exists:departments,id',
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
@@ -192,34 +200,74 @@ class AdminStudentController extends Controller
             'profile_photo' => 'nullable|image|max:2048', // 2MB Max
 
         ]);
+        DB::beginTransaction();
+        try {
+            if ($request->hasFile('profile_photo')) {
+                // Get the old image path
+                $old_image = $student->user->profile_photo;
 
-        if ($request->hasFile('profile_photo')) {
-            // Get the old image path
-            $old_image = $student->user->profile_photo;
+                // Delete the old image if it exists
+                if (!empty($old_image) && file_exists(public_path($old_image))) {
+                    unlink(public_path($old_image));
+                }
 
-            // Delete the old image if it exists
-            if (!empty($old_image) && file_exists(public_path($old_image))) {
-                unlink(public_path($old_image));
+                // Handle the new image upload
+                $thumb = $request->file('profile_photo');
+                $extension = $thumb->getClientOriginalExtension();
+                $profilePhoto = time() . "." . $extension;
+                $thumb->move('admin/students/profile/', $profilePhoto);
+                $student->user->profile_photo = 'admin/students/profile/' . $profilePhoto;
+                $student->user->save();
             }
 
-            // Handle the new image upload
-            $thumb = $request->file('profile_photo');
-            $extension = $thumb->getClientOriginalExtension();
-            $profilePhoto = time() . "." . $extension;
-            $thumb->move('admin/students/profile/', $profilePhoto);
-            $student->user->profile_photo = 'admin/students/profile/' . $profilePhoto;
+            // Update user data
+            $student->user->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'other_name' => $request->other_name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+            ]);
+            // Update student data
+            $student->update([
+                'department_id' => $validatedData['department_id'],
+                'date_of_birth' => $validatedData['date_of_birth'],
+                'gender' => $validatedData['gender'],
+                'state_of_origin' => $validatedData['state_of_origin'],
+                'lga_of_origin' => $validatedData['lga_of_origin'],
+                'hometown' => $validatedData['hometown'],
+                'residential_address' => $validatedData['residential_address'],
+                'permanent_address' => $validatedData['permanent_address'],
+                'nationality' => $validatedData['nationality'],
+                'marital_status' => $validatedData['marital_status'],
+                'religion' => $validatedData['religion'],
+                'blood_group' => $validatedData['blood_group'],
+                'genotype' => $validatedData['genotype'],
+                'next_of_kin_name' => $validatedData['next_of_kin_name'],
+                'next_of_kin_relationship' => $validatedData['next_of_kin_relationship'],
+                'next_of_kin_phone' => $validatedData['next_of_kin_phone'],
+                'next_of_kin_address' => $validatedData['next_of_kin_address'],
+                'jamb_registration_number' => $validatedData['jamb_registration_number'],
+                'year_of_admission' => $validatedData['year_of_admission'],
+                'mode_of_entry' => $validatedData['mode_of_entry'],
+                'current_level' => $validatedData['current_level'],
+            ]);
+
+            DB::commit();
+            $notification = [
+                'message' => 'Student account Updated successfully.',
+                'alert-type' => 'success'
+            ];
+
+            return redirect()->route('admin.student.view')->with($notification);
+        } catch (\Exception $e) {
+            $notification = [
+                'message' => 'An error occurred while updating the student account. Please try again.' . $e->getMessage(),
+                'alert-type' => 'error'
+            ];
+            DB::rollback();
+            return back()->with($notification);
         }
-
-        // Update user data
-        $student->user->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'other_name' => $validatedData['other_name'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'profile_photo' => $student->user->profile_photo ?? $student->user->profile_photo,
-
-        ]);
     }
 
     /**
@@ -227,7 +275,16 @@ class AdminStudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        DB::transaction(function () use ($student) {
+            $student->delete();  // This will soft delete the student
+            $student->user->delete();  // This will soft delete the associated user
+        });
+
+        $notification = [
+            'message' => 'Student account deleted successfully.',
+            'alert-type' => 'success'
+        ];
+        return redirect()->route('admin.student.view')->with($notification);
     }
 
     private function generateMatricNumber($departmentId)

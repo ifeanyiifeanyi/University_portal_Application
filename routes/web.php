@@ -87,8 +87,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('student-manager', 'index')->name('admin.student.view');
         Route::get('student-manager/create', 'create')->name('admin.student.create');
         Route::get('student-manager/edit/{student}', 'edit')->name('admin.student.edit');
+        Route::put('student-manager/update/{student}', 'update')->name('admin.student.update');
         Route::post('student-manager/store', 'store')->name('admin.student.store');
         Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
+        Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
     });
 
 });
