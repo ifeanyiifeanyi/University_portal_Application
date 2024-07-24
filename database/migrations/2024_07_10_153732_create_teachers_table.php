@@ -20,12 +20,16 @@ return new class extends Migration
             $table->string('teacher_type')->nullable()->comment('eg. fulltime, part time, auxillary teacher');
             $table->string('teacher_qualification')->nullable()->comment('eg. master of computer science, PHD Software Engineering');
             $table->string('teacher_title')->nullable()->comment("eg. mr. mrs. Doctor. prof.");
+
             $table->string('office_hours')->nullable();
             $table->string('office_address')->nullable();
             $table->text('biography')->nullable();
             $table->json('certifications')->nullable();
             $table->json('publications')->nullable();
             $table->string('number_of_awards')->nullable();
+
+
+            
             $table->string('employment_id')->nullable();
             $table->string('date_of_employment')->nullable();
             $table->string('address')->nullable();

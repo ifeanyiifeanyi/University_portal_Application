@@ -1,11 +1,24 @@
+@include('messages')
 <form action="{{route('teacher.update.profile')}}" method="POST" id="requestForm">
     @csrf
 <input type="hidden" value="{{$profile->user_id}}" name="user_id">
 
   <div class="row mb-3">
-    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">First name</label>
     <div class="col-md-8 col-lg-9">
-      <input name="full_name" type="text" class="form-control" id="fullName" value="{{$getuser->name}}" readonly>
+      <input name="" type="text" class="form-control" value="{{$getuser->first_name}}" readonly>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Last name</label>
+    <div class="col-md-8 col-lg-9">
+      <input name="" type="text" class="form-control" value="{{$getuser->last_name}}" readonly>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Other name</label>
+    <div class="col-md-8 col-lg-9">
+      <input name="" type="text" class="form-control" value="{{$getuser->other_name}}" readonly>
     </div>
   </div>
   <div class="row mb-3">
@@ -130,6 +143,152 @@
         @endif
     </div>
   </div>
+
+
+{{-- not done --}}
+
+  <div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Office hours</label>
+    <div class="col-md-8 col-lg-9">
+      
+        <input name="office_hours" type="text" class="form-control" value="{{$profile->office_hours}}">
+        @if ($errors->has('office_hours'))
+        <span class="text-danger">{{$errors->first('office_hours')}}</span>
+        @endif
+    </div>
+  </div>
+
+<div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Office address</label>
+    <div class="col-md-8 col-lg-9">
+      
+        <input name="office_address" type="text" class="form-control" value="{{$profile->office_address}}">
+        @if ($errors->has('office_address'))
+        <span class="text-danger">{{$errors->first('office_address')}}</span>
+        @endif
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Biography</label>
+    <div class="col-md-8 col-lg-9">
+      <textarea name="biography" cols="20" class="form-control" rows="10">{{$profile->biography}}</textarea>
+        @if ($errors->has('biography'))
+        <span class="text-danger">{{$errors->first('biography')}}</span>
+        @endif
+    </div>
+  </div>
+  <div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Certificates</label>
+    <div class="col-md-8 col-lg-9">
+      
+         <table class="table" id="displaycertificates">
+                <thead>
+                  <tr>
+                    
+                    <th>Certificate name</th>
+                    
+                    <th>Actions</th>                   
+                  </tr>
+                </thead>
+               
+                <tr>
+                
+                  <td>
+                  
+                             <div class="form-group">
+                                 
+                                 <input type="text" class="form-control" name="">
+                               
+                             </div>
+                           </td>
+                         
+                             <td>
+                                 <button type="button" id="cancelcert" class="btn btn-danger">X</button>
+                             </td>
+                         </tr>
+                    
+           
+     
+              </table>
+     <button class="btn btn-primary mt-3 w-50" type="button" id="addcert">Add certificate</button>
+    </div>
+  </div>
+
+
+  <div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Publications</label>
+    <div class="col-md-8 col-lg-9">
+      
+         <table class="table" id="displaypublications">
+                <thead>
+                  <tr>
+                    
+                    <th>Publication name</th>
+                    <th>Publication year</th>
+                    
+                    <th>Actions</th>                   
+                  </tr>
+                </thead>
+                @if (is_array(json_decode($profile->publications)) && count(json_decode($profile->publications)) > 0)
+                @foreach (json_decode($profile->publications) as $index => $publication)
+                    @php
+                        $parts = explode(' - ', $publication);
+                        $title = $parts[0] ?? '';
+                        $year = $parts[1] ?? '';
+                       
+                        
+                    @endphp
+                   
+
+                    <tr>
+               
+                      <td>
+                                 <div class="form-group">
+                                     
+                                     <input type="text" class="form-control" name="" value="{{ $title }}">
+                                   
+                                 </div>
+                                 
+                               </td>
+                               <td>
+                                <div class="form-group">
+                                     
+                                  <input type="text" class="form-control" name="" value="{{ $year }}">
+                                
+                              </div>
+                               </td>
+                             
+                                 <td>
+                                     <button type="button" id="cancelpub" class="btn btn-danger">X</button>
+                                 </td>
+                             </tr>
+                @endforeach
+            @else
+                <p>No publications found.</p>
+            @endif
+                    
+          
+     
+              </table>
+     <button class="btn btn-primary mt-3 w-50" type="button" id="addpub">Add publication</button>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <label class="col-md-4 col-lg-3 col-form-label">Number of awards</label>
+    <div class="col-md-8 col-lg-9">
+      
+        <input name="number_of_awards" type="text" class="form-control" value="{{$profile->number_of_awards}}">
+        @if ($errors->has('number_of_awards'))
+        <span class="text-danger">{{$errors->first('number_of_awards')}}</span>
+        @endif
+    </div>
+  </div>
+  {{-- not done --}}
+
+
+
   <div class="text-center">
     <button type="submit" class="btn btn-warning w-100">Update profile</button>
   </div>

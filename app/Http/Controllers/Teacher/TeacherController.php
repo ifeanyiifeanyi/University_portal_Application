@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Teacher;
 
-<<<<<<< HEAD
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
@@ -25,20 +24,10 @@ class TeacherController extends Controller
         $this->authService = $authService;
     }
     
-=======
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Teacher;
-use Illuminate\Support\Facades\Auth;
-
-class TeacherController extends Controller
-{
->>>>>>> origin/master
     public function index(){
         if (!Auth::check()) {
             return redirect()->route('login.view');
         }
-<<<<<<< HEAD
 
         return view('teacher.dashboard');
     }
@@ -57,9 +46,5 @@ class TeacherController extends Controller
     }
     public function updateprofile(Profilerequest $updateprofile, TeacherService $teacherservice){
         return $teacherservice->updateprofile($updateprofile);
-=======
-        $teachers = Teacher::query()->latest()->get();
-        return view('admin.lecturer.index', compact('teachers'));
->>>>>>> origin/master
     }
 }

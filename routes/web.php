@@ -57,6 +57,10 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
 Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
+        Route::get('profile', 'profile')->name('student.view.profile');
+        // post requests
+        Route::post('createprofile', 'createprofile')->name('student.create.profile');
+        Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
     });
 });
 

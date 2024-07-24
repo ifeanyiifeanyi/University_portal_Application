@@ -31,7 +31,11 @@ class Profilerequest extends FormRequest
             'date_of_employment'=>'required|string',
             'address'=>'required|string',
             'nationality'=>'required|string',
-            'teacher_level'=>'required|string'
+            'teacher_level'=>'required|string',
+            'office_hours'=>'required|string',
+            'office_address'=>'required|string',
+            'biography'=>'required|string',
+            'number_of_awards'=>'required|string'
         ];
     }
 }

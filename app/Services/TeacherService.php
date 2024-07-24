@@ -52,6 +52,7 @@ class TeacherService
         
     }
     public function updateprofile(Profilerequest $updateprofile){
+        
        
             $updateteacher = Teacher::where('user_id',$updateprofile->user_id)->update([
                 'date_of_birth'=>$updateprofile->date_of_birth,
@@ -63,7 +64,9 @@ class TeacherService
                 'date_of_employment'=>$updateprofile->date_of_employment,
                 'address'=>$updateprofile->address,
                 'nationality'=>$updateprofile->nationality,
-                'level'=>$updateprofile->teacher_level
+                'level'=>$updateprofile->teacher_level,
+                'office_hours'=>$updateprofile->office_hours,
+                'office_address'=>$updateprofile->office_address
             ]);
             if($updateteacher){
                 return redirect(route('teacher.view.profile'))->with('success','Profile updated successfully');

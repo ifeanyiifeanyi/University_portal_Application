@@ -3,16 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-<<<<<<< HEAD
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable;
-    
-=======
 use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +13,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
->>>>>>> origin/master
     public const TYPE_ADMIN = 1;
     public const TYPE_TEACHER = 2;
     public const TYPE_STUDENT = 3;
@@ -35,18 +24,14 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-<<<<<<< HEAD
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-=======
     protected $guarded = [];
 
 
     public function teacher(){
         return $this->hasOne(Teacher::class);
+    }
+    public function student(){
+        return $this->hasOne(Student::class);
     }
 
     public function profileImage(){
@@ -82,7 +67,6 @@ class User extends Authenticatable
         return $this->user_type == 4;
     }
 
->>>>>>> origin/master
 
     /**
      * The attributes that should be hidden for serialization.
@@ -106,10 +90,4 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-<<<<<<< HEAD
-    public function teacher(){
-        return $this->hasOne(Teacher::class, 'user_id', 'id');
-    }
-=======
->>>>>>> origin/master
 }

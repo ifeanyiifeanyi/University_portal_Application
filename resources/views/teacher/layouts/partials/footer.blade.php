@@ -20,6 +20,7 @@
   
   <!-- Template Main JS File -->
   <script src="{{asset('teacher/js/main.js')}}"></script>
+  <script src="{{asset('teacher/js/jquery-3.2.1.min.js')}}"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {

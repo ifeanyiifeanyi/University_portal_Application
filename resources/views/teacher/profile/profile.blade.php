@@ -28,8 +28,8 @@
         <div class="card">
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
-            <img src="{{asset('teacher/img/profile-img.jpg')}}" alt="Profile" class="rounded-circle">
-            <h2>{{$getuser->name}}</h2>
+            <img src="{{$getuser->profileimage()}}" alt="Profile" class="rounded-circle">
+            <h2>{{$getuser->fullname()}}</h2>
           </div>
         </div>
 

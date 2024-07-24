@@ -45,11 +45,7 @@
                             <div class="input-group" id="show_hide_password">
                                 <input type="password" class="form-control border-end-0" id="inputChoosePassword"
                                     value="" name="password" placeholder="Enter Password"> <a href="javascript:;"
-<<<<<<< HEAD
-                                    class="input-group-text bg-transparent"><i class='bx bx-hide'></i></a>
-=======
                                     class="input-group-text bg-transparent"><i class='fas fa-eye'></i></a>
->>>>>>> origin/master
 
                             </div>
                             @error('password')
@@ -58,11 +54,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-check form-switch">
-<<<<<<< HEAD
-                                <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="remeber"
-=======
                                 <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="remember"
->>>>>>> origin/master
                                     checked>
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Remember Me</label>
                             </div>
@@ -79,11 +71,7 @@
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
-    </div>
-=======
     </div><i class="fas fa-eye-slash"></i>
->>>>>>> origin/master
 
 @endsection
 @section('js')

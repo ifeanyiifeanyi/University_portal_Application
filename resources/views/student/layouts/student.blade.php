@@ -18,11 +18,39 @@
         <!-- Icons -->
         <link href="{{asset('student/assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
         @yield('css')
+        <style>
+            /* Basic styling for the preloader and greyed background */
+            #preloader {
+                display: none; /* Hidden by default */
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9999;
+                text-align: center;
+                padding-top: 20%;
+                color: #fff;
+                font-size: 1.5em;
+            }
+        
+              /* Initially show the preloader */
+              body.loading #preloader {
+                    display: block;
+                }
+        
+                /* Hide the preloader once the page is fully loaded */
+                body:not(.loading) #preloader {
+                    display: none;
+                }
+        </style>
 
     </head>
 
     <!-- body start -->
     <body data-menu-color="dark" data-sidebar="default">
+        <div id="preloader">Loading...</div>
 
         <!-- Begin page -->
         <div id="app-layout">
@@ -87,6 +115,27 @@
 
         <!-- App js-->
         <script src="{{asset('student/assets/js/app.js')}}"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const preloader = document.getElementById('preloader');
+                const form = document.getElementById('requestForm');
+        
+                
+                 window.addEventListener('load', function() {
+                        document.body.classList.remove('loading');
+                    });
+        
+                form.addEventListener('submit', function(event) {
+                   
+                    preloader.style.display = 'block';
+        
+                  
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                });
+            });
+        </script>
         
     </body>
 </html>
