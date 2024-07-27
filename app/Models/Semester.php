@@ -25,10 +25,23 @@ class Semester extends Model
         return $this->hasMany(CourseAssignment::class);
     }
 
+    public function teacherAssignments()
+    {
+        return $this->hasMany(TeacherAssignment::class);
+    }
+
+
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'course_assignments')
             ->withPivot('department_id', 'level')
             ->withTimestamps();
     }
+
+
+    protected $casts = [
+        // 'start_date' => 'date',
+        // 'end_date' => 'date',
+        'is_current' => 'boolean',
+    ];
 }

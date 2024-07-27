@@ -31,10 +31,18 @@ class Department extends Model
         return $this->hasMany(CourseAssignment::class);
     }
 
+
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'course_assignments')
             ->withPivot('semester_id', 'level')
+            ->withTimestamps();
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class, 'teacher_assignments')
+            ->withPivot('academic_session_id', 'semester_id', 'course_id')
             ->withTimestamps();
     }
 }

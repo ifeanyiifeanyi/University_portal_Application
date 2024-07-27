@@ -28,6 +28,7 @@
                             <tr>
                                 <th>Course Code</th>
                                 <th>Course Title</th>
+                                <th>Credit load</th>
                                 <th>Level</th>
                                 <th>Actions</th>
                             </tr>
@@ -37,6 +38,7 @@
                                 <tr>
                                     <td>{{ $assignment->course->code }}</td>
                                     <td>{{ $assignment->course->title }}</td>
+                                    <td>{{ $assignment->course->credit_hours }}</td>
                                     <td>{{ $assignment->level }}</td>
                                     <td>
                                         <a href="{{ route('course-assignments.edit', $assignment) }}"

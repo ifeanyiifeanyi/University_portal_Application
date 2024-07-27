@@ -19,7 +19,8 @@
 
             <div class="card mb-4 {{ $isCurrentSession ? 'border-primary' : '' }}">
                 <div class="card-header {{ $isCurrentSession ? 'bg-primary text-white' : '' }}">
-                    <h2 class="{{ $isCurrentSession ? 'text-white' : '' }}">{{ $academicSession->name }} {{ $isCurrentSession ? '(Current Academic Session)' : '' }}</h2>
+                    <h4 class="{{ $isCurrentSession ? 'text-white' : '' }}">{{ $academicSession->name }}
+                        {{ $isCurrentSession ? '(Current Academic Session)' : '' }}</h4>
                 </div>
                 <div class="card-body">
                     @php
@@ -32,15 +33,30 @@
                             $isCurrentSemester = $semester->is_current;
                         @endphp
 
-                        <div class="card mb-3 {{ $isCurrentSemester ? 'border-success' : '' }}">
-                            <div class="card-header {{ $isCurrentSemester ? 'bg-success text-white' : '' }}">
-                                <h3 class="{{ $isCurrentSemester ? 'text-white' : '' }}">{{ $semester->name }} {{ $isCurrentSemester ? '(Current Semester)' : '' }}</h3>
+                        <div class="shadow card mb-5 {{ $isCurrentSemester ? 'border-success' : '' }}">
+                            <div class="card-header {{ $isCurrentSemester ? 'card border-top border-0 border-4 border-primary' : '' }}">
+                                <h5 class="{{ $isCurrentSemester ? 'text-muted' : '' }}">{{ $semester->name }}
+                                    {{ $isCurrentSemester ? '(Current Semester)' : '' }}</h5>
                             </div>
                             <div class="card-body">
                                 <p>Total Assignments: {{ $assignments->count() }}</p>
-                                <p>Departments: {{ $assignments->pluck('department.name')->unique()->implode(', ') }}</p>
-                                <a href="{{ route('course-assignments.show', $semester->id) }}" class="btn btn-info">View Details</a>
+                                <p>Departments:</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach ($assignments->pluck('department.name')->unique() as $department)
+                                        <div class="chip chip-md bg-info text-white">
+                                            {{ $department }}
+                                            <span class="closebtn"
+                                                onclick="this.parentElement.style.display='none'">
+                                                <i class="fas fa-thumbtack"></i>
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <a href="{{ route('course-assignments.show', $semester->id) }}"
+                                    class="btn btn-info mt-3">View Details</a>
                             </div>
+
                         </div>
                     @endforeach
                 </div>

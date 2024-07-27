@@ -54,4 +54,18 @@ class AdminCourseAssignmentController extends Controller
 
         return view('admin.course_assignments.show', compact('semester'));
     }
+
+    public function destroy(CourseAssignment $courseAssignment)
+    {
+        // dd($courseAssignment);
+        $courseAssignment->delete();
+
+        $notification = [
+            'message' => 'Course assignment deleted successfully!!',
+            'alert-type' => 'success'
+        ];
+
+        return redirect()->back()->with($notification);
+    }
+
 }

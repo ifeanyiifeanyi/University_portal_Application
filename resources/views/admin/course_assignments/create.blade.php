@@ -12,7 +12,7 @@
                         @csrf
                         <div class="form-group mb-3">
                             <label for="course_id">Course</label>
-                            <select class="form-control" id="course_id" name="course_id" required>
+                            <select class="form-control single-select" id="course_id" name="course_id" required>
                                 <option value="">Select Course</option>
                                 @foreach ($courses as $course)
                                     <option value="{{ $course->id }}"
@@ -36,7 +36,7 @@
                         </div>
                         <div class="form-group mb-3">
                             <label for="semester_id">Semester</label>
-                            <select class="form-control" id="semester_id" name="semester_id" required>
+                            <select class="form-control single-select" id="semester_id" name="semester_id" required>
                                 <option value="">Select Semester</option>
                                 @foreach ($semesters as $semester)
                                     <option value="{{ $semester->id }}" {{ $semester->is_current ? 'selected' : '' }}>
@@ -52,7 +52,7 @@
                                 @forelse ($department_levels as $department_level)
                                     <option value="{{ $department_level }}">{{ $department_level }}</option>
                                 @empty
-                                    
+
                                 @endforelse --}}
                             </select>
                         </div>

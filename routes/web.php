@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -57,7 +58,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::resource('course-assignments', AdminCourseAssignmentController::class);
 
-    
+
 
     Route::controller(CourseController::class)->group(function () {
         Route::get('course-managers', 'index')->name('admin.courses.view');
@@ -99,6 +100,22 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('student-manager/store', 'store')->name('admin.student.store');
         Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
         Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
+    });
+
+    Route::controller(AdminTeacherAssignmentController::class)->group(function () {
+        Route::get('teacher-assignment', 'index')->name('admin.teacher.assignment.view');
+        Route::get('teacher-assignment/create/{teacher?}', 'create')->name('admin.teacher.assignment.create');
+        Route::get('get-department-courses', 'getDepartmentCourses')->name('admin.get-department-courses');
+        Route::get('get-assigned-lecturer-details/{teacherAssignment}', 'show')->name('admin.teacher.assignment.show');
+
+
+
+        Route::post('teacher-assignment', 'store')->name('admin.teacher.assignment.store');
+        Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
+        Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
+        // Route::delete('teacher-assignment/delete/{id}', 'destroy')->name('admin.teacher.assignment.delete');
+        Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
+
     });
 });
 
