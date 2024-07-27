@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Faculty;
+use App\Models\Department;
+use Illuminate\Http\Request;
+use App\Models\CourseAssignment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DepartmentRequest;
-use App\Models\Department;
-use App\Models\Faculty;
-use Illuminate\Http\Request;
 use Symfony\Component\ErrorHandler\Debug;
 
 class DepartmentController extends Controller
@@ -14,7 +15,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $faculties = Faculty::query()->latest()->get();
-        $departments = Department::query()->latest()->get();
+        $departments = Department::query()->oldest()->get();
         return view('admin.departments.index', compact('faculties', 'departments'));
     }
 
@@ -61,11 +62,46 @@ class DepartmentController extends Controller
         return redirect()->route('admin.department.view')->with($notification);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $department = Department::findOrFail($id);
-        return view('admin.departments.detail', compact('department'));
+        $query = CourseAssignment::with(['course', 'semester.academicSession', 'teacherAssignment.teacher.user'])->where('department_id', $id);
+
+
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->whereHas('course', function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            })->orWhereHas('teacherAssignments.teacher.user', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('session')) {
+            $query->whereHas('semester.academicSession', function ($q) use ($request) {
+                $q->where('name', $request->input('session'));
+            });
+        }
+
+        if ($request->has('semester')) {
+            $query->whereHas('semester', function ($q) use ($request) {
+                $q->where('name', $request->input('semester'));
+            });
+        }
+
+        if ($request->has('level')) {
+            $query->where('level', $request->input('level'));
+        }
+
+        $assignments = $query->orderBy('semester_id', 'desc')->paginate(15);
+
+
+        return view('admin.departments.detail', compact('department', 'assignments'));
     }
+
 
 
     public function destroy($id)
@@ -80,6 +116,7 @@ class DepartmentController extends Controller
         return redirect()->back()->with($notification);
     }
 
+    // fetch the department academic levels
     public function levels(Department $department)
     {
         return response()->json($department->levels);

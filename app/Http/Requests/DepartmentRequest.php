@@ -24,7 +24,8 @@ class DepartmentRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'faculty_id' => ['required', 'integer'],
-            'description' => ['nullable', 'string']
+            'duration' => ['required', 'integer', 'max:8', 'min:1'],
+            'description' => ['nullable', 'string'],
         ];
     }
 
@@ -32,6 +33,7 @@ class DepartmentRequest extends FormRequest
     {
         return [
             'name.required' => 'The department name field is required.',
+            'duration.required' => 'This must be a whole positive single digit.',
             'faculty_id.required' => 'The faculty field is required.',
             'description.string' => 'The description field should be a string.',
             'description.max' => 'The description field should not exceed 255 characters.',

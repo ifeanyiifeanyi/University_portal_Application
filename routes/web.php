@@ -79,6 +79,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::put('manage-department/update/{id}', 'update')->name('admin.department.update');
         Route::delete('manage-department/del/{id}', 'destroy')->name('admin.department.delete');
 
+        // unique route that helps separate the levels of study for a department
         Route::get('departments/{department}/levels', 'levels');
     });
 

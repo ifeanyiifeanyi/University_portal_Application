@@ -26,6 +26,7 @@
                                 <h5 class="mb-0 text-primary">Update Department details</h5>
 
                             </div>
+                            {{-- @dd($departmentSingle->duration) --}}
                             <form class="row g-3" method="POST"
                                 action="{{ route('admin.department.update', $departmentSingle->id) }}">
 
@@ -40,6 +41,15 @@
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="duration" class="form-label">Total number of acaemic level to graduate</label>
+                                    <input type="number" class="form-control" id="duration" name="duration"
+                                        value="{{ old('duration', $departmentSingle->duration ?? '') }}">
+                                    @error('duration')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-m
                                 <div class="col-md-12 mb-3">
                                     <label for="description" class="form-label">Description</label>
                                     <textarea type="password" class="form-control" id="description" name="description"">{{ old('name', $departmentSingle->description ?? '') }}</textarea>
@@ -85,6 +95,14 @@
                                     <input type="text" class="form-control" id="inputFirstName" name="name"
                                         value="{{ old('name', $department->name ?? '') }}">
                                     @error('name')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="duration" class="form-label">Total number of acaemic level to graduate</label>
+                                    <input type="number" class="form-control" id="level" name="duration"
+                                        value="{{ old('duration', $department->duration ?? '') }}">
+                                    @error('duration')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -140,6 +158,7 @@
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Faculty</th>
+                                        <th scope="col">Duration</th>
                                         <th scope="col">Date Created</th>
                                         <th scope="col">Last Update Date</th>
                                         <th scope="col">Action</th>
@@ -151,6 +170,7 @@
                                             <th scope="row">{{ $loop->iteration }}</th>
                                             <th scope="row">{{ $department->name }}</th>
                                             <th scope="row">{{ $department->faculty->name }}</th>
+                                            <th scope="row">{{ $department->duration }}</th>
                                             <th scope="row">
                                                 {{ \Carbon\Carbon::parse($department->created_at)->format('jS F Y g:i A') }}
                                             </th>

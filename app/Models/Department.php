@@ -9,7 +9,7 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'faculty_id', 'description'];
+    protected $fillable = ['code', 'name', 'faculty_id', 'description', 'duration'];
 
     public function faculty()
     {
@@ -45,4 +45,11 @@ class Department extends Model
             ->withPivot('academic_session_id', 'semester_id', 'course_id')
             ->withTimestamps();
     }
+    public function teacherAssignments()
+    {
+        return $this->hasMany(TeacherAssignment::class);
+    }
+
+
+
 }

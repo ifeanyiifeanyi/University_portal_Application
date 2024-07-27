@@ -40,8 +40,7 @@ class TeacherAssignment extends Model
 
     public function courseAssignment()
     {
-        return $this->hasOne(CourseAssignment::class, 'course_id', 'course_id')
-            ->where('department_id', $this->department_id)
+        return $this->belongsTo(CourseAssignment::class, 'course_id', 'course_id')
             ->where('semester_id', $this->semester_id);
     }
 }
