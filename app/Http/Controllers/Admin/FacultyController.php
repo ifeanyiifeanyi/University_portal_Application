@@ -15,7 +15,7 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        $faculties = Faculty::query()->latest()->get();
+        $faculties = Faculty::with('departments')->oldest()->get();
         return view('admin.faculties.index', compact('faculties'));
     }
 
