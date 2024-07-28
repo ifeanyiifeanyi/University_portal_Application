@@ -58,6 +58,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::resource('course-assignments', AdminCourseAssignmentController::class);
 
+    Route::resource('faculty-manager', FacultyController::class);
 
 
     Route::controller(CourseController::class)->group(function () {
@@ -68,7 +69,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
 
-    Route::resource('faculty-manager', FacultyController::class);
 
 
     Route::controller(DepartmentController::class)->group(function () {
@@ -114,7 +114,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('teacher-assignment', 'store')->name('admin.teacher.assignment.store');
         Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
         Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
-        // Route::delete('teacher-assignment/delete/{id}', 'destroy')->name('admin.teacher.assignment.delete');
         Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
 
     });

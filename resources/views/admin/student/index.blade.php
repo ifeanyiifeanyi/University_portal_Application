@@ -32,8 +32,7 @@
                                         <th scope="col">Department</th>
                                         <th scope="col">Year of Admission</th>
                                         <th scope="col">Current Level</th>
-                                        <th scope="col">Mode of Entry</th>
-                                        <th scope="col">cgpa</th>
+                                        
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
@@ -49,13 +48,13 @@
                                             <th>{{ $student->department->name }}</th>
                                             <th>{{ $student->year_of_admission }}</th>
                                             <th>{{ $student->current_level }}</th>
-                                            <th>{{ $student->mode_of_entry }}</th>
-                                            <th>{{ $student->cgpa ?? 'loading' }}</th>
                                             <th scope="row">
                                                 <div class="col">
                                                     <div class="dropdown">
-                                                        <span class=" dropdown-toggle" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">....</span>
+                                                        <span class=" dropdown-toggle text-primary" type="button"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <x-menu-icon />
+                                                        </span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">
                                                             <li><a class="dropdown-item"

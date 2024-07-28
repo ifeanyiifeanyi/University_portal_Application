@@ -36,13 +36,13 @@
                                     <td>{{ formatDateWithOrdinal($faculty->created_at) }}</td>
                                     <!-- Using the helper function -->
                                     <td class="d-flex justify-content-center">
-                                        <button class="btn btn-sm btn-info editFacultyBtn" data-id="{{ $faculty->id }}"
+                                        <button style="background: transparent" class="border-0 editFacultyBtn" data-id="{{ $faculty->id }}"
                                             data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
                                             data-description="{{ $faculty->description }}">
                                             <x-edit-icon />
 
                                         </button>
-                                        <button class="btn btn-sm btn-link viewFacutlyBtn" data-id="{{ $faculty->id }}"
+                                        <button style="background: transparent" class="border-0 viewFacutlyBtn" data-id="{{ $faculty->id }}"
                                             data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
                                             data-description="{{ $faculty->description }}"
                                             data-departments="{{ $faculty->departments->pluck('name') }}"
@@ -53,8 +53,8 @@
                                             action="{{ route('faculty-manager.destroy', $faculty) }}" method="post">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fadeIn animated bx bx-trash"></i>
+                                            <button style="background: transparent" type="submit" class="text-danger border-0">
+                                                <x-delete-icon />
                                             </button>
                                         </form>
                                     </td>
