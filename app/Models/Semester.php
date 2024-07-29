@@ -38,6 +38,11 @@ class Semester extends Model
             ->withTimestamps();
     }
 
+    public function canBeDeleted()
+    {
+        return !$this->is_current && !$this->courseAssignments()->exists() && !$this->teacherAssignments()->exists();
+    }
+
 
     protected $casts = [
         // 'start_date' => 'date',

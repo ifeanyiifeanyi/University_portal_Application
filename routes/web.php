@@ -54,7 +54,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('academic-session-manager/delete/{id}', 'destroy')->name('admin.academic.delete');
     });
 
+    Route::get('/semester-manager/search', [AdminSemesterController::class, 'show'])->name('semester.manager.search');
+    Route::patch('semester-managers/bulk-action', [AdminSemesterController::class, 'bulkAction'])->name('semester.manager.bulk-action');
+    Route::patch('semester-managers/{semester_manager}/toggle-current', [AdminSemesterController::class, 'toggleCurrent'])->name('semester-manager.toggle-current');
+
     Route::resource('semester-manager', AdminSemesterController::class);
+
 
     Route::resource('course-assignments', AdminCourseAssignmentController::class);
 
@@ -115,7 +120,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
         Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
         Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
-
     });
 });
 
