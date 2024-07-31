@@ -33,7 +33,7 @@
 <script>
      $(document).ready(function(){
         $(document).on('click', '#addpub', function(){
-          $('#displaypublications').append("<tr><td><div class='form-group'><input type='text' class='form-control' value='' name='drugprescription[]'></div></td><td><div class='form-group'><input type='text' class='form-control' name=''></div></td><td><button type='button' id='cancelpub' class='btn btn-danger'>X</button></td></tr>");
+          $('#displaypublications').append("<tr><td><div class='form-group'><input type='text' class='form-control' value='' name='publications[]'></div></td><td><button type='button' id='cancelpub' class='btn btn-danger'>X</button></td></tr>");
     });
     $(document).on('click','#cancelpub', function() {
       $(this).closest('tr').remove();
@@ -43,7 +43,7 @@
 
   $(document).ready(function(){
         $(document).on('click', '#addcert', function(){
-          $('#displaycertificates').append("<tr><td><div class='form-group'><input type='text' class='form-control' value='' name='drugprescription[]' readonly></div></td><td><button type='button' id='cancelcert' class='btn btn-danger'>X</button></td></tr>");
+          $('#displaycertificates').append("<tr><td><div class='form-group'><input type='text' class='form-control' name='certifications[]'></div></td><td><button type='button' id='cancelcert' class='btn btn-danger'>X</button></td></tr>");
     });
     $(document).on('click','#cancelcert', function() {
       $(this).closest('tr').remove();

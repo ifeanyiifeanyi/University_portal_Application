@@ -191,22 +191,42 @@
                     <th>Actions</th>                   
                   </tr>
                 </thead>
-               
-                <tr>
+                @if (is_array(json_decode($profile->certifications)) && count(json_decode($profile->certifications)) > 0)
+                @foreach (json_decode($profile->certifications) as $index => $certification)
+                   <tr>
                 
-                  <td>
-                  
-                             <div class="form-group">
+                    <td>
+                    
+                               <div class="form-group">
+                                   
+                                   <input type="text" class="form-control" name="certifications[]" value="{{$certification}}">
                                  
-                                 <input type="text" class="form-control" name="">
-                               
-                             </div>
-                           </td>
-                         
-                             <td>
-                                 <button type="button" id="cancelcert" class="btn btn-danger">X</button>
+                               </div>
                              </td>
-                         </tr>
+                           
+                               <td>
+                                   <button type="button" id="cancelcert" class="btn btn-danger">X</button>
+                               </td>
+                           </tr>
+                @endforeach
+            @else
+            <tr>
+                
+              <td>
+              
+                         <div class="form-group">
+                             
+                             <input type="text" class="form-control" name="certifications[]">
+                           
+                         </div>
+                       </td>
+                     
+                         <td>
+                             <button type="button" id="cancelcert" class="btn btn-danger">X</button>
+                         </td>
+                     </tr>
+            @endif
+               
                     
            
      
@@ -225,12 +245,44 @@
                   <tr>
                     
                     <th>Publication name</th>
-                    <th>Publication year</th>
-                    
-                    <th>Actions</th>                   
+                                    
                   </tr>
                 </thead>
-                @if (is_array(json_decode($profile->publications)) && count(json_decode($profile->publications)) > 0)
+              
+                @forelse(json_decode($profile->publications ?? '[]') as $publication)
+                <tr>
+               
+                  <td>
+                             <div class="form-group">
+                                 
+                                 <input type="text" class="form-control" name="publications[]" value="{{ $publication }}">
+                               
+                             </div>
+                             
+                           </td>
+                           <td>
+                            <button type="button" id="cancelpub" class="btn btn-danger">X</button>
+                        </td>
+                </tr>
+                              
+                            @empty
+                            <tr>
+               
+                              <td>
+                                         <div class="form-group">
+                                             
+                                             <input type="text" class="form-control" name="publications[]">
+                                           
+                                         </div>
+                                         
+                                       </td>
+                                       <td>
+                                        <button type="button" id="cancelpub" class="btn btn-danger">X</button>
+                                    </td>
+                            </tr>
+                            @endforelse
+
+                {{-- @if (is_array(json_decode($profile->publications)) && count(json_decode($profile->publications)) > 0)
                 @foreach (json_decode($profile->publications) as $index => $publication)
                     @php
                         $parts = explode(' - ', $publication);
@@ -246,7 +298,7 @@
                       <td>
                                  <div class="form-group">
                                      
-                                     <input type="text" class="form-control" name="" value="{{ $title }}">
+                                     <input type="text" class="form-control" name="publication_name[]" value="{{ $title }}">
                                    
                                  </div>
                                  
@@ -254,7 +306,7 @@
                                <td>
                                 <div class="form-group">
                                      
-                                  <input type="text" class="form-control" name="" value="{{ $year }}">
+                                  <input type="text" class="form-control" name="publication_year[]" value="{{ $year }}">
                                 
                               </div>
                                </td>
@@ -265,8 +317,29 @@
                              </tr>
                 @endforeach
             @else
-                <p>No publications found.</p>
-            @endif
+            <tr>
+               
+              <td>
+                         <div class="form-group">
+                             
+                             <input type="text" class="form-control" name="publications[]">
+                           
+                         </div>
+                         
+                       </td>
+                       <td>
+                        <div class="form-group">
+                             
+                          <input type="text" class="form-control" name="publications[]">
+                        
+                      </div>
+                       </td>
+                     
+                         <td>
+                             <button type="button" id="cancelpub" class="btn btn-danger">X</button>
+                         </td>
+                     </tr>
+            @endif --}}
                     
           
      
@@ -279,7 +352,7 @@
     <label class="col-md-4 col-lg-3 col-form-label">Number of awards</label>
     <div class="col-md-8 col-lg-9">
       
-        <input name="number_of_awards" type="text" class="form-control" value="{{$profile->number_of_awards}}">
+        <input name="number_of_awards" type="number" class="form-control" value="{{$profile->number_of_awards}}">
         @if ($errors->has('number_of_awards'))
         <span class="text-danger">{{$errors->first('number_of_awards')}}</span>
         @endif

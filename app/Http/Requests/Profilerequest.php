@@ -35,6 +35,10 @@ class Profilerequest extends FormRequest
             'office_hours'=>'required|string',
             'office_address'=>'required|string',
             'biography'=>'required|string',
+            'certifications' => 'nullable|array',
+            'certifications.*' => 'nullable|string',
+            'publications' => 'nullable|array',
+            'publications.*' => 'nullable|string',
             'number_of_awards'=>'required|string'
         ];
     }

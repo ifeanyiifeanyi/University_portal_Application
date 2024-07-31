@@ -61,7 +61,8 @@ class DepartmentController extends Controller
         return redirect()->route('admin.department.view')->with($notification);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $department = Department::findOrFail($id);
         return view('admin.departments.detail', compact('department'));
     }
@@ -77,5 +78,10 @@ class DepartmentController extends Controller
             'alert-type' => 'success'
         ];
         return redirect()->back()->with($notification);
+    }
+
+    public function levels(Department $department)
+    {
+        return response()->json($department->levels);
     }
 }

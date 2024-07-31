@@ -47,4 +47,6 @@ class StudentController extends Controller
     public function updateprofile(StudentprofileRequest $updatestudentprofile, StudentService $studentservice){
         return $studentservice->updateprofile($updatestudentprofile);
     }
+
+    
 }

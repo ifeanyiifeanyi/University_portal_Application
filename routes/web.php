@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
+use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
 use App\Http\Controllers\Teacher\TeacherDepartmentController;
@@ -54,19 +55,55 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+// Route::prefix('teacher')->middleware('teacher')->group(function () {
+//     Route::controller(TeacherController::class)->group(function () {
+//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+//     });
+// });
+
+
+
 Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
         Route::get('profile', 'profile')->name('student.view.profile');
+
+        
         // post requests
         Route::post('createprofile', 'createprofile')->name('student.create.profile');
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
+
+        Route::controller(StudentCourseRegistrationController::class)->group(function () {
+            Route::prefix('course_registration')->group(function () {
+                Route::get('/', 'courseregistration')->name('student.view.courseregistration');
+                Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
+                Route::get('/session', 'sessioncourse')->name('student.view.sessioncourse');
+                Route::get('/register/{semester_regid}/{session_id}/{semester_id}/{level}', 'registercourse')->name('student.view.registercourse');
+                Route::get('departments/{department}/levels', 'levels');
+
+                Route::post('/check-credit-load','checkCreditLoad')->name('check.credit.load');
+
+                Route::post('/proceedsession', 'proceedsession')->name('student.proceed.session');
+                Route::post('/courseregister', 'courseregister')->name('student.proceed.courseregister');
+            });
+        });
     });
 });
 
 
-Route::prefix('parent')->middleware('parent')->group(function(){
-    Route::controller(ParentController::class)->group(function(){
+Route::prefix('parent')->middleware('parent')->group(function () {
+    Route::controller(ParentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('parent.view.dashboard');
     });
 });

@@ -66,7 +66,9 @@ class TeacherService
                 'nationality'=>$updateprofile->nationality,
                 'level'=>$updateprofile->teacher_level,
                 'office_hours'=>$updateprofile->office_hours,
-                'office_address'=>$updateprofile->office_address
+                'office_address'=>$updateprofile->office_address,
+                'certifications'=>$updateprofile->certifications,
+                'publications'=>$updateprofile->publications
             ]);
             if($updateteacher){
                 return redirect(route('teacher.view.profile'))->with('success','Profile updated successfully');
