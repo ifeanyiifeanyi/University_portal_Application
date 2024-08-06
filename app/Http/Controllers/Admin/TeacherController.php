@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\Course;
 use App\Models\Teacher;
+use App\Models\Department;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\TeacherAssignment;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,12 +17,23 @@ use App\Http\Requests\UpdateTeacherRequest;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function __construct()
     {
         if (!Auth::check()) {
             return redirect()->route('login.view');
         }
-        $teachers = Teacher::query()->latest()->get();
+    }
+    public function index()
+    {
+
+        $teachers = Teacher::with([
+            'user',
+            'teacherAssignments.course',
+            'teacherAssignments.department',
+            'teacherAssignments.academicSession',
+            'teacherAssignments.semester'
+        ])->latest()->get();
+
         return view('admin.lecturer.index', compact('teachers'));
     }
 
@@ -59,8 +73,8 @@ class TeacherController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'other_name' => $request->other_name,
-            'username' => $request->first.'.'.$request->last_name,
-            'slug' => Str::slug($request->first.'.'.$request->last_name),
+            'username' => $request->first . '.' . $request->last_name,
+            'slug' => Str::slug($request->first . '.' . $request->last_name),
             'phone' => $request->phone,
             'email' => $request->email,
             'password' => Hash::make('12345678'), // Change this to a generated password if needed
@@ -103,9 +117,27 @@ class TeacherController extends Controller
         ]);
     }
 
+    // view details of courses assign to the teacher
+    public function courseDetails($courseId)
+    {
+        $course = Course::with(['departments', 'teachers'])->findOrFail($courseId);
+        // dd($course);
+        return view('admin.lecturer.courses.details', compact('course'));
+    }
+
 
     public function show(Teacher $teacher)
     {
+        $teacher->load([
+            'user',
+            'teacherAssignments.course',
+            'teacherAssignments.department',
+            'teacherAssignments.academicSession',
+            'teacherAssignments.semester',
+            'teacherAssignments.courseAssignment',
+            'teacherAssignments.teacher'
+        ]);
+
         return view('admin.lecturer.detail', compact('teacher'));
     }
 
@@ -186,4 +218,46 @@ class TeacherController extends Controller
 
         return redirect()->back()->with($notification);
     }
+
+
+    public function departmentDetails($departmentId, $teacherId)
+    {
+        $department = Department::with(['faculty'])->findOrFail($departmentId);
+        $teacher = Teacher::findOrFail($teacherId);
+
+        $teacherAssignments = TeacherAssignment::where('teacher_id', $teacherId)
+            ->where('department_id', $departmentId)
+            ->with(['course', 'academicSession', 'semester', 'courseAssignment'])
+            ->get();
+
+        $levels = $department->levels;
+
+        return view('admin.lecturer.courses.department', compact('department', 'teacher', 'teacherAssignments', 'levels'));
+    }
+
+
+    public function submitScores(Request $request, $assignmentId)
+    {
+        $assignment = TeacherAssignment::findOrFail($assignmentId);
+
+        $request->validate([
+            'assessment.*' => 'nullable|numeric|min:0|max:40',
+            'exam.*' => 'nullable|numeric|min:0|max:60',
+        ]);
+
+        foreach ($request->assessment as $studentId => $score) {
+            $assignment->course->students()->updateExistingPivot($studentId, [
+                'assessment_score' => $score,
+                'exam_score' => $request->exam[$studentId] ?? null,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Scores submitted successfully.');
+    }
+
+    // public function departmentDetails($departmentId)
+    // {
+    //     $department = Department::with(['faculty', 'courses', 'students'])->findOrFail($departmentId);
+    //     return view('admin.department.details', compact('department'));
+    // }
 }

@@ -11,6 +11,8 @@ use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\AcademicSessionController;
+use App\Http\Controllers\Admin\AdminAccountsManagersController;
+use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminStudentController;
@@ -96,6 +98,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('manage-lecturers/{teacher}/edit', 'edit')->name('admin.teacher.edit');
         Route::put('manage-lecturers/{teacher}/update', 'update')->name('admin.teachers.update');
         Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
+
+        Route::get('lecturer-courses/{courseId}', 'courseDetails')->name('admin.teacher.course.show');
+        Route::get('department/{department}/teacher/{teacher}', 'departmentDetails')->name('admin.teacher.department.show');
     });
 
     Route::controller(AdminStudentController::class)->group(function () {
@@ -120,6 +125,29 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
         Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
         Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
+    });
+
+
+    Route::controller(AdminAssignStudentCourseController::class)->group(function () {
+        Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
+        Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
+        Route::get('students/{student}/course-registrations', 'showStudentCourseRegistrations')->name('admin.students.course-registrations');
+    });
+
+
+
+
+
+
+
+    Route::controller(AdminAccountsManagersController::class)->group(function () {
+        Route::get('accounts-managers', 'index')->name('admin.accounts.managers.view');
+        Route::get('accounts-managers/create', 'create')->name('admin.accounts.managers.create');
+        Route::get('accounts-managers/edit/{admin}', 'edit')->name('admin.accounts.managers.edit');
+        Route::put('accounts-managers/update/{admin}', 'update')->name('admin.accounts.managers.update');
+        Route::post('accounts-managers', 'store')->name('admin.accounts.managers.store');
+        Route::get('accounts-managers/details/{admin}', 'show')->name('admin.accounts.managers.details');
+        Route::delete('accounts-managers/del/{admin}', 'destroy')->name('admin.accounts.managers.delete');
     });
 });
 

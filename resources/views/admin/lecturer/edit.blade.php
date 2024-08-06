@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Edit '. $teacher->user->first_name .' Details')
+@section('title', 'Edit ' . $teacher->user->first_name . ' Details')
 
 @section('css')
     <style>
@@ -225,7 +225,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <img class="w-50" src="{{ empty($teacher->user->profile_photo) ? asset('no_image.jpg') : asset($teacher->user->profile_photo) }}"
+                            <img class="w-50"
+                                src="{{ empty($teacher->user->profile_photo) ? asset('no_image.jpg') : asset($teacher->user->profile_photo) }}"
                                 alt="">
                         </div>
                         <div class="col-md-6">
@@ -292,18 +293,26 @@
                     <div class="form-group">
                         <label for="publications">Publications</label>
                         <div id="publications-container">
-                            @forelse(json_decode($teacher->publications) as $publication)
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" name="publications[]"
-                                        value="{{ $publication }}">
-                                    <button type="button" class="btn btn-danger remove-publication">Remove</button>
-                                </div>
-                            @empty
+                            @if (count(json_decode($teacher->publications)) > 0)
+                                @forelse(json_decode($teacher->publications) as $publication)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" name="publications[]"
+                                            value="{{ $publication }}">
+                                        <button type="button" class="btn btn-danger remove-publication">Remove</button>
+                                    </div>
+                                @empty
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" name="publications[]" value="">
+                                        <button type="button" class="btn btn-danger remove-publication">Remove</button>
+                                    </div>
+                                @endforelse
+                            @else
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" name="publications[]" value="">
                                     <button type="button" class="btn btn-danger remove-publication">Remove</button>
                                 </div>
-                            @endforelse
+                            @endif
+
 
                         </div>
                         <button type="button" class="btn btn-primary mt-2" id="add-publication">Add Publication</button>

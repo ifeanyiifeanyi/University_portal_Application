@@ -89,6 +89,20 @@
                 <div class="menu-title">Deparment | lecturer | Courses</div>
             </a>
         </li>
+        <li>
+            <a class="has-arrow" href="javascript:;">
+                <div class="parent-icon"><i class="bx bx-lock"></i>
+                </div>
+                <div class="menu-title">Administrators</div>
+            </a>
+            <ul class="mm-collapse">
+                <li> <a href="{{ route('admin.accounts.managers.view') }}"><i class="bx bx-right-arrow-alt"></i>Members</a>
+                </li>
+                <li> <a href="{{ route('admin.accounts.managers.create') }}"><i class="bx bx-right-arrow-alt"></i>Create Member</a>
+                </li>
+                </li>
+            </ul>
+        </li>
     </ul>
     <!--end navigation-->
 </div>

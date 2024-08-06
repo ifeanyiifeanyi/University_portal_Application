@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// THIS IS USED TO ASSIGN COURSES TO DEPARTMENT, SEMESTER, AND ACADEMIC SESSION
 class CourseAssignment extends Model
 {
     use HasFactory;
