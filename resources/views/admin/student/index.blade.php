@@ -43,6 +43,8 @@
                                             <th>
 
                                                 {{ $student->user->fullName() ?? '' }}
+                                                <br>
+                                               st {{ $student->id }} usrt {{ $student->user_id }}
                                             </th>
                                             <th>{{ $student->matric_number }}</th>
                                             <th>{{ $student->department->name }}</th>
@@ -61,8 +63,8 @@
                                                             <li>
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('admin.students.course-registrations', $student) }}">
-                                                                    <i class="bx bx-book-add me-0"></i> View Course
-                                                                    Registrations
+                                                                    <i class="bx bx-book-add me-0"></i>
+                                                                    View Course Registrations
                                                                 </a>
                                                             </li>
 

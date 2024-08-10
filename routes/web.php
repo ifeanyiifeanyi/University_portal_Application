@@ -132,6 +132,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
         Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
         Route::get('students/{student}/course-registrations', 'showStudentCourseRegistrations')->name('admin.students.course-registrations');
+
+
+
+        Route::get('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
+        Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
     });
 
 

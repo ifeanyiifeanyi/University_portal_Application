@@ -15,32 +15,75 @@ use App\Models\SemesterCourseRegistration;
 
 class AdminAssignStudentCourseController extends Controller
 {
-    public function index($student_id = null)
-    {
-    }
+    public function index($student_id = null) {}
+
+    // public function showSemesterCourses($studentId)
+    // {
+    //     $student = Student::findOrFail($studentId);
+    //     $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
+    //     $currentSemester = Semester::where('is_current', true)->firstOrFail();
+
+    //     // Fetch the max credit hours from the pivot table
+    //     $maxCreditHours = $student->department->semesters()
+    //         ->where('semester_id', $currentSemester->id)
+    //         ->firstOrFail()
+    //         ->pivot
+    //         ->max_credit_hours;
+
+    //     // Fetch Course Assignments for the student's department and current semester
+    //     $courseAssignments = CourseAssignment::where('department_id', $student->department_id)
+    //         ->where('semester_id', $currentSemester->id)
+    //         ->with('course')
+    //         ->get();
+
+    //     // Fetch the student's semester registration
+    //     $semesterRegistration = SemesterCourseRegistration::where([
+    //         'student_id' => $student->id,
+    //         'academic_session_id' => $currentAcademicSession->id,
+    //         'semester_id' => $currentSemester->id,
+    //     ])->first();
+
+    //     // If the registration is approved, fetch the enrolled courses
+    //     if ($semesterRegistration && $semesterRegistration->status == 'approved') {
+    //         $enrolledCourses = CourseEnrollment::where('student_id', $student->id)
+    //             ->where('semester_course_registration_id', $semesterRegistration->id)
+    //             ->whereIn('course_id', $courseAssignments->pluck('course_id')) // Ensure courses are assigned
+    //             ->pluck('course_id')
+    //             ->toArray();
+    //     } else {
+    //         $enrolledCourses = []; // Or handle differently if needed
+    //     }
+
+    //     return view('admin.course_registrations.index', compact(
+    //         'courseAssignments',
+    //         'enrolledCourses',
+    //         'student',
+    //         'maxCreditHours',
+    //         'currentSemester',
+    //         'currentAcademicSession'
+    //     ));
+    // }
 
 
     public function showSemesterCourses($studentId)
     {
-        // Fetch the student
         $student = Student::findOrFail($studentId);
+        $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
+        $currentSemester = Semester::where('is_current', true)->firstOrFail();
 
-        // Fetch the current academic session and semester
-        $currentAcademicSession = AcademicSession::where('is_current', true)->first();
-        $currentSemester = Semester::where('is_current', true)->first();
+        // Fetch the max credit hours from the pivot table
+        $maxCreditHours = $student->department->semesters()
+            ->where('semester_id', $currentSemester->id)
+            ->firstOrFail()
+            ->pivot
+            ->max_credit_hours;
+        // dd($maxCreditHours);
 
-        // Ensure both the academic session and semester are set
-        if (!$currentAcademicSession || !$currentSemester) {
-            return redirect()->back()->with('error', 'Current academic session or semester not set.');
-        }
-
-        // Fetch the course assignments for the student's department and current semester
         $courseAssignments = CourseAssignment::where('department_id', $student->department_id)
             ->where('semester_id', $currentSemester->id)
             ->with('course')
             ->get();
 
-        // Check for already enrolled courses
         $enrolledCourses = CourseEnrollment::where('student_id', $student->id)
             ->where('semester_course_registration_id', function ($query) use ($currentSemester, $currentAcademicSession, $student) {
                 $query->select('id')
@@ -52,83 +95,72 @@ class AdminAssignStudentCourseController extends Controller
             ->pluck('course_id')
             ->toArray();
 
-        // Fetch carryover courses (courses not passed previously)
-        $carryoverAssignments = CourseEnrollment::where('student_id', $student->id)
-            ->whereNull('grade')
-            ->whereNotIn('course_id', $enrolledCourses)
-            ->with('course')
-            ->get()
-            ->pluck('course')
-            ->unique('id')
-            ->values();
-
-        // Fetch the maximum credit hours from the pivot table
-        $maxCreditHours = $student->department->semesters()
-            ->where('semester_id', $currentSemester->id)
-            ->first()
-            ->pivot
-            ->max_credit_hours ?? null;
-
-        // $maxCreditHours = $pivotRecord ? $pivotRecord->pivot->max_credit_hours : null;
-
-
-
         return view('admin.course_registrations.index', compact(
             'courseAssignments',
             'enrolledCourses',
-            'carryoverAssignments',
             'student',
             'maxCreditHours',
             'currentSemester',
             'currentAcademicSession'
         ));
+
+        $semesterRegistration = SemesterCourseRegistration::where([
+            'student_id' => $student->id,
+            'semester_id' => $currentSemester->id,
+            'academic_session_id' => $currentAcademicSession->id,
+        ])->first();
+
+        if ($semesterRegistration && $semesterRegistration->status == 'approved') {
+            $enrolledCourses = CourseEnrollment::where('student_id', $student->id)
+                ->where('semester_course_registration_id', $semesterRegistration->id)
+                ->pluck('course_id')
+                ->toArray();
+        } else {
+            // If registration is not approved, you might want to return an empty array
+            // or display a message saying the registration is pending approval.
+            $enrolledCourses = [];
+        }
     }
+
 
 
     public function registerCourses(Request $request, $studentId)
     {
-        $student = Student::findOrFail($studentId);
-        $department = $student->department;
+        $request->validate([
+            'courses' => 'required|array|min:1',
+            'courses.*' => 'exists:courses,id',
+        ]);
 
-        // Fetch the current academic session and semester
+        $student = Student::findOrFail($studentId);
         $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
         $currentSemester = Semester::where('is_current', true)->firstOrFail();
 
-        // Fetch the maximum credit hours from the pivot table
-        $maxCreditHours = $department->semesters()
+        $maxCreditHours = $student->department->semesters()
             ->where('semester_id', $currentSemester->id)
-            ->first()
+            ->firstOrFail()
             ->pivot
             ->max_credit_hours;
+        // dd($maxCreditHours);
 
-        // Ensure the semester course registration record exists
         $semesterRegistration = SemesterCourseRegistration::firstOrCreate(
             [
                 'semester_id' => $currentSemester->id,
                 'academic_session_id' => $currentAcademicSession->id,
                 'student_id' => $student->id,
             ],
-            [
-                'status' => SemesterCourseRegistration::STATUS_PENDING,
-            ]
+            ['status' => SemesterCourseRegistration::STATUS_PENDING]
         );
 
-        // Get selected regular courses and carryover courses
-        $selectedCourses = Course::whereIn('id', $request->courses)->get();
-        $carryoverCourses = Course::whereIn('id', $request->carryover_courses ?? [])->get();
+        $selectedCourses = $request->input('courses', []);
+        $courses = Course::whereIn('id', $selectedCourses)->get();
 
-        // Calculate credit hours
-        $regularCreditHours = $selectedCourses->sum('credit_hours');
-        $carryoverCreditHours = $carryoverCourses->sum('credit_hours');
-        $totalCreditHours = $regularCreditHours + $carryoverCreditHours;
+        $totalCreditHours = $courses->sum('credit_hours');
 
-        // Check if total credit hours exceed the maximum allowed
         if ($totalCreditHours > $maxCreditHours) {
             return redirect()->back()->with('error', 'Total credit hours exceed the maximum allowed for this semester.');
         }
 
-        // Function to create or update course enrollment
-        $createOrUpdateEnrollment = function ($course, $isCarryover) use ($student, $semesterRegistration, $currentAcademicSession) {
+        foreach ($courses as $course) {
             CourseEnrollment::updateOrCreate(
                 [
                     'student_id' => $student->id,
@@ -141,45 +173,65 @@ class AdminAssignStudentCourseController extends Controller
                     'status' => CourseEnrollment::STATUS_ENROLLED,
                     'academic_session_id' => $currentAcademicSession->id,
                     'registered_at' => now(),
-                    'is_carryover' => $isCarryover,
                 ]
             );
-        };
-
-        // Register regular courses
-        foreach ($selectedCourses as $course) {
-            $createOrUpdateEnrollment($course, false);
         }
 
-        // Register carryover courses
-        foreach ($carryoverCourses as $course) {
-            $createOrUpdateEnrollment($course, true);
-        }
-
-        // Update the total credit hours in the SemesterCourseRegistration
         $semesterRegistration->total_credit_hours = $totalCreditHours;
         $semesterRegistration->save();
 
-        return redirect()->route('admin.student.view', $student->id)
-            ->with([
-                'message' => 'Courses registered successfully.',
-                'alert-type' => 'success'
-            ]);
+        return redirect()->route('admin.students.course-registrations', $student->id)->with('success', 'Courses registered successfully.');
     }
 
 
 
+    // SHOW COURSES REGISTERED TO THE STUDENT
     public function showStudentCourseRegistrations($studentId)
     {
         $student = Student::findOrFail($studentId);
+        $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
+        $currentSemester = Semester::where('is_current', true)->firstOrFail();
 
-        $registrations = SemesterCourseRegistration::with(['semester', 'academicSession', 'courseEnrollments.course'])
-            ->where('student_id', $studentId)
-            ->orderBy('academic_session_id', 'desc')
-            ->orderBy('semester_id', 'desc')
-            ->get()
-            ->groupBy(['academic_session_id', 'semester_id']);
+        $semesterRegistration = SemesterCourseRegistration::where([
+            'student_id' => $student->id,
+            'academic_session_id' => $currentAcademicSession->id,
+            'semester_id' => $currentSemester->id,
+        ])->firstOrFail();
 
-        return view('admin.student.course_registrations', compact('student', 'registrations'));
+        $enrolledCourses = CourseEnrollment::where('semester_course_registration_id', $semesterRegistration->id)
+            ->with('course')
+            ->get();
+
+        $totalCreditHours = $enrolledCourses->sum('course.credit_hours');
+        return view('admin.student.course_registrations', compact('student', 'semesterRegistration', 'enrolledCourses', 'totalCreditHours', 'currentAcademicSession', 'currentSemester'));
+    }
+
+
+    // THIS IS FOR ANY WRONG REGISTRATION
+    public function removeCourse($studentId, $enrollmentId)
+    {
+        $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+        $enrollment->delete();
+
+        return redirect()->back()->with('success', 'Course removed successfully.');
+    }
+
+    // HERE WE ARE SUPPOSE TO APPROVE THE REGISTERED STUDENT COURSES
+    public function approveRegistration(Request $request, $studentId)
+    {
+        $student = Student::findOrFail($studentId);
+        $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
+        $currentSemester = Semester::where('is_current', true)->firstOrFail();
+
+        $semesterRegistration = SemesterCourseRegistration::where([
+            'student_id' => $student->id,
+            'academic_session_id' => $currentAcademicSession->id,
+            'semester_id' => $currentSemester->id,
+        ])->firstOrFail();
+
+        $semesterRegistration->status = $request->input('status');
+        $semesterRegistration->save();
+
+        return redirect()->back()->with('success', 'Registration status updated successfully.');
     }
 }

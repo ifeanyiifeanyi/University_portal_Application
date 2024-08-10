@@ -39,34 +39,6 @@
                 </table>
             </div>
 
-            <div class="table-responsive mt-5">
-                <h3>Carryover Courses</h3>
-                <table class="table table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>Course Code</th>
-                            <th>Course Title</th>
-                            <th>Credit Hours</th>
-                            <th>Enroll</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($carryoverAssignments as $course)
-                            <tr>
-                                <td>{{ $course->code }}</td>
-                                <td>{{ $course->title }}</td>
-                                <td>{{ $course->credit_hours }}</td>
-                                <td>
-                                    <input type="checkbox" name="carryover_courses[]" value="{{ $course->id }}"
-                                        {{ in_array($course->id, $enrolledCourses) ? 'checked disabled' : '' }}
-                                        class="course-checkbox" data-credit-hours="{{ $course->credit_hours }}">
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
             <div class="mt-3">
                 <p>Total Credit Hours: <span id="totalCreditHours">0</span></p>
             </div>
@@ -81,6 +53,10 @@
             const totalCreditHoursElement = document.getElementById('totalCreditHours');
             const registerButton = document.getElementById('registerButton');
             const maxCreditHours = {{ $maxCreditHours }};
+            const warningElement = document.createElement('p');
+            warningElement.id = 'creditHourWarning';
+            warningElement.style.color = 'orange';
+            totalCreditHoursElement.parentNode.insertBefore(warningElement, totalCreditHoursElement.nextSibling);
 
             function updateTotalCreditHours() {
                 let total = 0;
@@ -92,11 +68,10 @@
                 totalCreditHoursElement.textContent = total.toFixed(1);
 
                 if (total > maxCreditHours) {
-                    registerButton.disabled = true;
-                    totalCreditHoursElement.style.color = 'red';
+                    warningElement.textContent =
+                        `Warning: Total credit hours (${total.toFixed(1)}) exceed the maximum allowed (${maxCreditHours}).`;
                 } else {
-                    registerButton.disabled = false;
-                    totalCreditHoursElement.style.color = 'inherit';
+                    warningElement.textContent = '';
                 }
             }
 
@@ -105,6 +80,17 @@
             });
 
             updateTotalCreditHours(); // Initial update
+
+            registerButton.addEventListener('click', function(event) {
+                const total = parseFloat(totalCreditHoursElement.textContent);
+                if (total > maxCreditHours) {
+                    if (!confirm(
+                            `The total credit hours (${total.toFixed(1)}) exceed the maximum allowed (${maxCreditHours}). Are you sure you want to proceed with the registration?`
+                        )) {
+                        event.preventDefault();
+                    }
+                }
+            });
         });
     </script>
 @endsection
