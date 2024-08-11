@@ -192,6 +192,15 @@ class AdminAssignStudentCourseController extends Controller
         $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
         $currentSemester = Semester::where('is_current', true)->firstOrFail();
 
+        // get the max credit for the student department for thr semester
+        $maxCreditHours = $student->department->semesters()
+            ->where('semester_id', $currentSemester->id)
+            ->firstOrFail()
+            ->pivot
+            ->max_credit_hours;
+        // dd($maxCreditHours);
+
+
         $semesterRegistration = SemesterCourseRegistration::where([
             'student_id' => $student->id,
             'academic_session_id' => $currentAcademicSession->id,
@@ -203,7 +212,7 @@ class AdminAssignStudentCourseController extends Controller
             ->get();
 
         $totalCreditHours = $enrolledCourses->sum('course.credit_hours');
-        return view('admin.student.course_registrations', compact('student', 'semesterRegistration', 'enrolledCourses', 'totalCreditHours', 'currentAcademicSession', 'currentSemester'));
+        return view('admin.student.course_registrations', compact('student', 'semesterRegistration', 'enrolledCourses', 'totalCreditHours', 'currentAcademicSession', 'currentSemester', 'maxCreditHours'));
     }
 
 

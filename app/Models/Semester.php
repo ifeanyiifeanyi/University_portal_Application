@@ -38,10 +38,11 @@ class Semester extends Model
             ->withTimestamps();
     }
 
+
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'department_semester')
-            ->withPivot('max_credit_hours')
+            ->withPivot('max_credit_hours', 'level')
             ->withTimestamps();
     }
 

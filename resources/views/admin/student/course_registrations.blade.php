@@ -4,10 +4,19 @@
 
 @section('admin')
     <div class="container">
-        <h2>Registered Courses for {{ $student->user->fullName() }}</h2>
-        <p>Academic Session: {{ $currentAcademicSession->name }}</p>
-        <p>Semester: {{ $currentSemester->name }}</p>
-        <p>Total Credit Hours: {{ $totalCreditHours }}</p>
+        <div class="card px-3 py-3">
+            <h4>Registered Courses for {{ $student->user->fullName() }}</h4>
+            <p>Academic Session: {{ $currentAcademicSession->name }}</p>
+            <p>Semester: {{ $currentSemester->name }}</p>
+            <p>Total Credit Hours: {{ $totalCreditHours }}</p>
+            <p>Semester Max credit load: {{ $maxCreditHours }}</p>
+            <p>Remaining: <code>{{ $maxCreditHours - $totalCreditHours }}</code></p>
+            <span>
+                <a href="{{ route('admin.assign.courseForStudent', $student->id) }}" class="btn btn-success">
+                    Enroll in New Course
+                </a>
+            </span>
+        </div>
 
         <form action="{{ route('admin.students.approve-registration', $student->id) }}" method="POST">
             @csrf
@@ -38,19 +47,27 @@
                 </tbody>
             </table>
 
-            <div class="form-group">
-                <label for="status">Registration Status:</label>
-                <select name="status" id="status" class="form-control">
-                    <option value="pending" {{ $semesterRegistration->status == 'pending' ? 'selected' : '' }}>Pending
-                    </option>
-                    <option value="approved" {{ $semesterRegistration->status == 'approved' ? 'selected' : '' }}>Approved
-                    </option>
-                    <option value="rejected" {{ $semesterRegistration->status == 'rejected' ? 'selected' : '' }}>Rejected
-                    </option>
-                </select>
+            <div class="row">
+
+                <div class="col-md-4 mb-2">
+                    <div class="form-group">
+                        <label for="status">Student Registered Courses Status:</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="pending" {{ $semesterRegistration->status == 'pending' ? 'selected' : '' }}>
+                                Pending
+                            </option>
+                            <option value="approved" {{ $semesterRegistration->status == 'approved' ? 'selected' : '' }}>
+                                Approved
+                            </option>
+                            <option value="rejected" {{ $semesterRegistration->status == 'rejected' ? 'selected' : '' }}>
+                                Rejected
+                            </option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Update Registration Status</button>
+            <button type="submit" class="btn btn-primary btn-block">Update Registration Status</button>
         </form>
     </div>
 @endsection

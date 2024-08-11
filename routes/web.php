@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
+use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
@@ -154,6 +155,20 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('accounts-managers/details/{admin}', 'show')->name('admin.accounts.managers.details');
         Route::delete('accounts-managers/del/{admin}', 'destroy')->name('admin.accounts.managers.delete');
     });
+
+
+
+    Route::controller(AdminDepartmentCreditController::class)->group(function(){
+        Route::get('department-credit', 'index')->name('admin.department.credit.view');
+        Route::get('department-credit/create', 'create')->name('admin.department.credit.create');
+        Route::post('department-credit', 'store')->name('admin.department.credit.store');
+        Route::get('department-credit/edit/{departmentCredit}', 'edit')->name('admin.department.credit.edit');
+        Route::put('department-credit/update/{departmentCredit}', 'update')->name('admin.department.credit.update');
+        Route::delete('department-credit/{departmentCredit}', 'destroy')->name('admin.department.credit.delete');
+
+        Route::get('/departments/{department}/levels', 'levels');
+    });
+
 });
 
 

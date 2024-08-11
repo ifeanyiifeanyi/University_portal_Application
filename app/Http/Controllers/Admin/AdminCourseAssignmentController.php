@@ -34,7 +34,6 @@ class AdminCourseAssignmentController extends Controller
             'department_id' => 'required|exists:departments,id',
             'semester_id' => 'required|exists:semesters,id',
             'level' => 'required|integer|min:100|max:600|multiple_of:100',
-            'max_credit_hours' => 'required|integer|min:1'
         ]);
 
         $department = Department::findOrFail($request->department_id);
@@ -46,11 +45,6 @@ class AdminCourseAssignmentController extends Controller
 
         CourseAssignment::create($request->all());
 
-        // Set the max credit hours for the department-semester pairing
-        $department = Department::find($request->department_id);
-        $department->semesters()->syncWithoutDetaching([
-            $request->semester_id => ['max_credit_hours' => $request->max_credit_hours]
-        ]);
 
 
         return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');

@@ -10,7 +10,7 @@
 @section('admin')
     <div class="container">
         <div class="row">
-            <div class="col-md-8 mx-auto">
+            <div class="col-md-4">
                 <div class="card shadow">
                     <div class="card-body p-5">
                         <a href="{{ route('admin.department.view') }}">
@@ -140,9 +140,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-8">
                 <div class="card shadow">
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center">
@@ -158,9 +156,9 @@
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Faculty</th>
-                                        <th scope="col">Duration</th>
-                                        <th scope="col">Date Created</th>
-                                        <th scope="col">Last Update Date</th>
+                                        <th scope="col">Duration(years)</th>
+                                        {{-- <th scope="col">Date Created</th>
+                                        <th scope="col">Last Update Date</th> --}}
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -170,13 +168,13 @@
                                             <th scope="row">{{ $loop->iteration }}</th>
                                             <th scope="row">{{ $department->name }}</th>
                                             <th scope="row">{{ $department->faculty->name }}</th>
-                                            <th scope="row">{{ $department->duration }}</th>
-                                            <th scope="row">
+                                            <th scope="row">{{ $department->duration. ' years course' }}</th>
+                                            {{-- <th scope="row">
                                                 {{ \Carbon\Carbon::parse($department->created_at)->format('jS F Y g:i A') }}
                                             </th>
                                             <th scope="row">
                                                 {{ \Carbon\Carbon::parse($department->updated_at)->format('jS F Y g:i A') }}
-                                            </th>
+                                            </th> --}}
                                             <th scope="row">
                                                 <div class="col">
                                                     <div class="dropdown">
@@ -227,6 +225,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row">
+
         </div>
     @endsection
 

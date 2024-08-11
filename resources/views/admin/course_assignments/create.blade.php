@@ -56,11 +56,7 @@
                                 @endforelse --}}
                             </select>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="max_credit_hours">Max Credit Hours</label>
-                            <input type="number" class="form-control" id="max_credit_hours" name="max_credit_hours"
-                                required min="1">
-                        </div>
+
 
                         <button type="submit"
                             class="btn btn-primary">{{ isset($assignment) ? 'Update' : 'Create' }}</button>

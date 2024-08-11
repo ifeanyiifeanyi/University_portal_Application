@@ -75,6 +75,7 @@
                                                                     <i class="bx bx-book-add me-0"></i> Register Courses
                                                                 </a>
                                                             </li>
+                                                            <li>..............................</li>
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('admin.student.edit', $student) }}">
                                                                     <i class="bx bx-edit me-0"></i> Edit

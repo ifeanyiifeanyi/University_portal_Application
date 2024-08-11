@@ -55,6 +55,10 @@
                     <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Department</a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign
+                        Department Credits</a>
+                </li>
                 <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
                 </li>
             </ul>
@@ -76,14 +80,14 @@
         </li>
 
         <li>
-            <a href="{{ route('course-assignments.index') }}" target="_blank">
+            <a href="{{ route('course-assignments.index') }}">
                 <div class="parent-icon"><i class="bx bx-folder"></i>
                 </div>
                 <div class="menu-title">Course | Semester Manager</div>
             </a>
         </li>
         <li>
-            <a href="{{ route('admin.teacher.assignment.view') }}" target="_blank">
+            <a href="{{ route('admin.teacher.assignment.view') }}">
                 <div class="parent-icon"><i class="fadeIn animated bx bx-select-multiple"></i>
                 </div>
                 <div class="menu-title">Deparment | lecturer | Courses</div>
