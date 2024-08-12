@@ -32,31 +32,31 @@
                            
 
                             <li>
-                                <a href="{{route('student.view.dashboard')}}">
+                                <a href="{{route('student.view.dashboard')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="{{route('student.view.acceptance.all')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span> Acceptance </span>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="{{route('student.view.fees.all')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span>School fees</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{route('student.view.courseregistration')}}">
+                                <a href="{{route('student.view.courseregistration')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span>Course registration</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="{{route('student.view.result.select')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span>Results</span>
                                 </a>

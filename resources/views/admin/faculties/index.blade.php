@@ -23,7 +23,7 @@
                                 <th>sn</th>
                                 <th>Code</th>
                                 <th>Name</th>
-                                <th>Created</th>
+                                <th>Created </th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -36,22 +36,25 @@
                                     <td>{{ formatDateWithOrdinal($faculty->created_at) }}</td>
                                     <!-- Using the helper function -->
                                     <td class="d-flex justify-content-center">
-                                        <button class="btn btn-sm btn-info editFacultyBtn" data-id="{{ $faculty->id }}"
+                                        <button style="background: transparent" class="border-0 editFacultyBtn" data-id="{{ $faculty->id }}"
                                             data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
                                             data-description="{{ $faculty->description }}">
-                                            <i class="fadeIn animated bx bx-edit-alt"></i>
+                                            <x-edit-icon />
+
                                         </button>
-                                        <button class="btn btn-sm btn-primary viewFacutlyBtn" data-id="{{ $faculty->id }}"
+                                        <button style="background: transparent" class="border-0 viewFacutlyBtn" data-id="{{ $faculty->id }}"
                                             data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
-                                            data-description="{{ $faculty->description }}">
-                                            <i class="fadeIn animated bx bx-detail"></i>
+                                            data-description="{{ $faculty->description }}"
+                                            data-departments="{{ $faculty->departments->pluck('name') }}"
+                                            data-faculty="{{ $faculty }}">
+                                            <x-view-icon />
                                         </button>
-                                        <form action="{{ route('faculty-manager.destroy', $faculty) }}" method="post">
+                                        <form onsubmit="return confirm('Are you sure ?')"
+                                            action="{{ route('faculty-manager.destroy', $faculty) }}" method="post">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Are you sure ?')" href=""
-                                                class="btn btn-sm btn-danger">
-                                                <i class="fadeIn animated bx bx-trash"></i>
+                                            <button style="background: transparent" type="submit" class="text-danger border-0">
+                                                <x-delete-icon />
                                             </button>
                                         </form>
                                     </td>
@@ -71,7 +74,7 @@
 @section('javascript')
     <script>
         $(document).ready(function() {
-            // show modal to create course
+            // show modal to create faculty
             $('#addFacultyBtn').click(function() {
                 $('#facultyModalLabel').text('Create new faculty');
                 $('#facultyform').trigger('reset');
@@ -80,7 +83,7 @@
                 $('#facultyModal').modal('show');
             });
 
-            // show modal to edit course
+            // show modal to edit faculty
             $('.editFacultyBtn').click(function() {
                 $('#facultyModalLabel').text('Edit Faculty');
                 $('#faculty_id').val($(this).data('id'));
@@ -91,19 +94,29 @@
                 $('#facultyModal').modal('show');
             });
 
-            // view modal
+            // show modal to view faculty details
             $('.viewFacutlyBtn').click(function() {
-
-                // Setting the modal title and content
                 $('#facultyModalLabel').text('View Faculty Details');
                 $('#modal_code').text($(this).data('code'));
                 $('#modal_name').text($(this).data('name'));
                 $('#modal_description').text($(this).data('description'));
 
-                // Showing the modal
+                // Handle departments
+                let departments = $(this).data('departments');
+                let departmentsList = $('#modal_departments');
+                departmentsList.empty();
+                if (departments && departments.length > 0) {
+                    departments.forEach(function(dept) {
+                        departmentsList.append('<li>' + dept + '</li>');
+                    });
+                } else {
+                    departmentsList.append('<li>No departments assigned</li>');
+                }
+
                 $('#courseView').modal('show');
             });
 
+            // submite & update for faculty
             $('#facultyform').submit(function(e) {
                 e.preventDefault();
                 let formData = $(this).serialize();

@@ -31,29 +31,29 @@
               <thead>
                 <tr>
                   <th>
-                    <b>N</b>ame
+                    <b>C</b>ourse name
                   </th>
-                  <th>Ext.</th>
-                  <th>City</th>
-                  <th data-type="date" data-format="YYYY/DD/MM">Start Date</th>
-                  <th>Completion</th>
+                  <th>Course code</th>
+                  <th>Department</th>
+                  <th>Semester</th>
+                  
+                  <th>Session</th>
                 </tr>
               </thead>
               <tbody>
-             <tr>
-                  <td>Cathleen Kramer</td>
-                  <td>3380</td>
-                  <td>Crowsnest Pass</td>
-                  <td>2012/27/07</td>
-                  <td>53%</td>
-                </tr>
+                @forelse ($coursesassigned as $coursesassigned)
                 <tr>
-                  <td>Zelenia Roman</td>
-                  <td>7516</td>
-                  <td>Redwater</td>
-                  <td>2012/03/03</td>
-                  <td>31%</td>
+                  <td>{{$coursesassigned->course->title}}</td>
+                  <td>{{$coursesassigned->course->code}}</td>
+                  <td>{{$coursesassigned->department->name}}</td>
+                  <td>{{$coursesassigned->semester->name}}</td>
+                  <td>{{$coursesassigned->academicSession->name}}</td>
                 </tr>
+                @empty
+                  
+                @endforelse
+             
+                
               </tbody>
             </table>
             <!-- End Table with stripped rows -->

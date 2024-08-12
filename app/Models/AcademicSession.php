@@ -18,4 +18,21 @@ class AcademicSession extends Model
     {
         return $this->belongsTo(SemesterRegistration::class);
     }
+
+
+    public function teacherAssignments()
+    {
+        return $this->hasMany(TeacherAssignment::class);
+    }
+
+
+
+
+
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_current' => 'boolean',
+    ];
 }

@@ -33,27 +33,23 @@
                   <th>
                     <b>N</b>ame
                   </th>
-                  <th>Ext.</th>
-                  <th>City</th>
-                  <th data-type="date" data-format="YYYY/DD/MM">Start Date</th>
-                  <th>Completion</th>
+                  <th>Department code</th>
+                 
                 </tr>
               </thead>
               <tbody>
              <tr>
-                  <td>Cathleen Kramer</td>
-                  <td>3380</td>
-                  <td>Crowsnest Pass</td>
-                  <td>2012/27/07</td>
-                  <td>53%</td>
-                </tr>
-                <tr>
-                  <td>Zelenia Roman</td>
-                  <td>7516</td>
-                  <td>Redwater</td>
-                  <td>2012/03/03</td>
-                  <td>31%</td>
-                </tr>
+              @forelse ($departmentassigned as $departmentassigned)
+              <td>{{$departmentassigned->department->name}}</td>
+              <td>{{$departmentassigned->department->code}}</td>
+            </tr>
+              @empty
+                
+              @endforelse
+                
+                 
+                
+              
               </tbody>
             </table>
             <!-- End Table with stripped rows -->

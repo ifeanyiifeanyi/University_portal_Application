@@ -9,10 +9,12 @@ class Course extends Model
 {
     use HasFactory;
     protected $fillable = ['code', 'title', 'description', 'credit_hours'];
-    public function assignments()
+
+    public function courseAssignments()
     {
         return $this->hasMany(CourseAssignment::class);
     }
+
 
     public function departments()
     {
@@ -20,6 +22,7 @@ class Course extends Model
             ->withPivot('semester_id', 'level')
             ->withTimestamps();
     }
+
 
     public function semesters()
     {
@@ -31,5 +34,11 @@ class Course extends Model
     public function courseRegistration()
     {
         return $this->hasMany(Course::class,);
+    }
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class, 'teacher_assignments')
+            ->withPivot('department_id', 'academic_session_id', 'semester_id')
+            ->withTimestamps();
     }
 }

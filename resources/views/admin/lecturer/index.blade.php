@@ -13,7 +13,8 @@
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
-                                <p> <a href="{{ route('admin.teacher.create') }}" class="btn btn-primary float-left" style="text-align: right">Create New
+                                <p> <a href="{{ route('admin.teacher.create') }}" class="btn btn-primary float-left"
+                                        style="text-align: right">Create New
                                         Account</a>
                                 </p>
                             </div>
@@ -43,8 +44,10 @@
                                             <th scope="row">
                                                 <div class="col">
                                                     <div class="dropdown">
-                                                        <span class=" dropdown-toggle" type="button"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">....</span>
+                                                        <span class=" dropdown-toggle text-primary" type="button"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <x-menu-icon />
+                                                        </span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">
                                                             <li><a class="dropdown-item"

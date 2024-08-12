@@ -25,4 +25,34 @@ class CourseAssignment extends Model
     {
         return $this->belongsTo(Semester::class);
     }
+
+    public function teacherAssignments()
+    {
+        return $this->hasMany(TeacherAssignment::class, 'course_id', 'course_id')
+            ->where('semester_id', $this->semester_id)
+            ->where('department_id', $this->department_id);
+    }
+
+
+
+    public function teacherAssignment()
+    {
+        return $this->hasOne(TeacherAssignment::class, 'course_id', 'course_id')
+            ->where('semester_id', $this->semester_id)
+            ->where('department_id', $this->department_id);
+    }
+
+
+    public function assignedTeacher()
+    {
+        return $this->hasOneThrough(
+            Teacher::class,
+            TeacherAssignment::class,
+            'course_id', // Foreign key on TeacherAssignment table
+            'id', // Foreign key on Teacher table
+            'course_id', // Local key on CourseAssignment table
+            'teacher_id' // Local key on TeacherAssignment table
+        )->where('teacher_assignments.semester_id', $this->semester_id)
+            ->where('teacher_assignments.department_id', $this->department_id);
+    }
 }

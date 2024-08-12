@@ -49,16 +49,23 @@
                 <div class="menu-title">App Manager</div>
             </a>
             <ul>
-                <li class="active"> <a href="{{ route('admin.academic.session') }}"><i class="bx bx-right-arrow-alt"></i>Manage Academic Sessions</a>
+                <li class="active"> <a href="{{ route('admin.academic.session') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Manage Academic Sessions</a>
+                </li>
+
+                <li>
+                    <a href="{{ route('semester-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Semester</a>
+                </li>
+
+                <li> <a href="{{ route('faculty-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Faculties</a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Department</a>
                 </li>
                 <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
-                </li>
-                <li> <a href="{{ route('semester-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage Semester</a>
-                </li>
-                <li> <a href="{{ route('faculty-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage Faculties</a>
-                </li>
-                <li> <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Department</a>
-                </li>
                 </li>
             </ul>
         </li>
@@ -69,9 +76,11 @@
                 <div class="menu-title">Academics Manager</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.teacher.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Lecturers</a>
+                <li> <a href="{{ route('admin.teacher.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Lecturers</a>
                 </li>
-                <li> <a href="{{ route('admin.student.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Students</a>
+                <li> <a href="{{ route('admin.student.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Students</a>
                 </li>
             </ul>
         </li>
@@ -84,10 +93,10 @@
             </a>
         </li>
         <li>
-            <a href="https://themeforest.net/user/codervent" target="_blank">
-                <div class="parent-icon"><i class="bx bx-support"></i>
+            <a href="{{ route('admin.teacher.assignment.view') }}" target="_blank">
+                <div class="parent-icon"><i class="fadeIn animated bx bx-select-multiple"></i>
                 </div>
-                <div class="menu-title">Support</div>
+                <div class="menu-title">Deparment | lecturer | Courses</div>
             </a>
         </li>
 >>>>>>> origin/master

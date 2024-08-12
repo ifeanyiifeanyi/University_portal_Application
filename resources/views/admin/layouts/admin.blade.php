@@ -37,16 +37,17 @@
 
     <title>{{ config('app.name') }} - @yield('title')</title>
 
-    <link href="{{ asset('') }}assets/plugins/fancy-file-uploader/fancy_fileupload.css" rel="stylesheet" />
-    <link href="{{ asset('') }}assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
     <link href="{{ asset('') }}assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
     <link href="{{ asset('') }}assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+    <link href="{{ asset('') }}assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="{{ asset('') }}assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
+
     <!-- loader-->
     <link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
     <script src="{{ asset('') }}assets/js/pace.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"/>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" />
+
     @yield('css')
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
 
@@ -252,13 +253,27 @@
                 console.error(error);
             });
     </script>
-    <!-- A friendly reminder to run on a server, remove this during the integration. -->
+    <script src="{{ asset('') }}assets/plugins/select2/js/select2.min.js"></script>
     <script>
-        window.onload = function() {
-            if (window.location.protocol === "file:") {
-                alert("This sample requires an HTTP server. Please serve this file with a web server.");
-            }
-        };
+        $('.single-select').select2({
+            theme: 'bootstrap4',
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            placeholder: $(this).data('placeholder'),
+            allowClear: Boolean($(this).data('allow-clear')),
+        });
+        $('.multiple-select').select2({
+            theme: 'bootstrap4',
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            placeholder: $(this).data('placeholder'),
+            allowClear: Boolean($(this).data('allow-clear')),
+        });
+    </script>
+
+    <script>
+        $(function() {
+            $('[data-bs-toggle="popover"]').popover();
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        })
     </script>
 
 

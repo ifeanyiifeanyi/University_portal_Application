@@ -5,10 +5,13 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
-use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Teacher\TeacherController;
+use App\Http\Controllers\Student\StudentFeesController;
+use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
+use App\Http\Controllers\Student\StudentAcceptanceController;
 use App\Http\Controllers\Teacher\TeacherDepartmentController;
+use App\Http\Controllers\Student\StudentCourseRegistrationController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -84,19 +87,39 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::post('createprofile', 'createprofile')->name('student.create.profile');
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
 
-        Route::controller(StudentCourseRegistrationController::class)->group(function () {
-            Route::prefix('course_registration')->group(function () {
-                Route::get('/', 'courseregistration')->name('student.view.courseregistration');
-                Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
-                Route::get('/session', 'sessioncourse')->name('student.view.sessioncourse');
-                Route::get('/register/{semester_regid}/{session_id}/{semester_id}/{level}', 'registercourse')->name('student.view.registercourse');
-                Route::get('departments/{department}/levels', 'levels');
+        
+    });
+    Route::controller(StudentCourseRegistrationController::class)->group(function () {
+        Route::prefix('course_registration')->group(function () {
+            Route::get('/', 'courseregistration')->name('student.view.courseregistration');
+            Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
+            Route::get('/session', 'sessioncourse')->name('student.view.sessioncourse');
+            Route::get('/register/{semester_regid}/{session_id}/{semester_id}/{level}', 'registercourse')->name('student.view.registercourse');
+            Route::get('departments/{department}/levels', 'levels');
 
-                Route::post('/check-credit-load','checkCreditLoad')->name('check.credit.load');
+            Route::post('/check-credit-load','checkCreditLoad')->name('check.credit.load');
 
-                Route::post('/proceedsession', 'proceedsession')->name('student.proceed.session');
-                Route::post('/courseregister', 'courseregister')->name('student.proceed.courseregister');
-            });
+            Route::post('/proceedsession', 'proceedsession')->name('student.proceed.session');
+            Route::post('/courseregister', 'courseregister')->name('student.proceed.courseregister');
+        });
+    });
+
+    Route::controller(StudentResultController::class)->group(function () {
+        Route::prefix('/result')->group(function () {
+            Route::get('/select', 'index')->name('student.view.result.select');
+            Route::get('/view', 'view')->name('student.view.result');
+        });
+    });
+    Route::controller(StudentAcceptanceController::class)->group(function () {
+        Route::prefix('/acceptance')->group(function () {
+            Route::get('/', 'index')->name('student.view.acceptance.all');
+            Route::get('/view', 'view')->name('student.view.acceptance');
+        });
+    });
+    Route::controller(StudentFeesController::class)->group(function () {
+        Route::prefix('/fees')->group(function () {
+            Route::get('/', 'index')->name('student.view.fees.all');
+            Route::get('/view', 'view')->name('student.view.fees');
         });
     });
 });
