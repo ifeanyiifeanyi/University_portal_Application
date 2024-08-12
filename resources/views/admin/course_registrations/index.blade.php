@@ -12,13 +12,14 @@
         <form action="{{ route('admin.students.register-courses.store', $student->id) }}" method="POST">
             @csrf
             <div class="table-responsive mb-5">
-                <h3>Regular Courses</h3>
+                <h3>Available Courses</h3>
                 <table class="table table-striped w-100">
                     <thead>
                         <tr>
                             <th>Course Code</th>
                             <th>Course Title</th>
                             <th>Credit Hours</th>
+                            <th>Course Level</th>
                             <th>Enroll</th>
                         </tr>
                     </thead>
@@ -28,6 +29,7 @@
                                 <td>{{ $assignment->course->code }}</td>
                                 <td>{{ $assignment->course->title }}</td>
                                 <td>{{ $assignment->course->credit_hours }}</td>
+                                <td>{{ $assignment->level }}</td>
                                 <td>
                                     <input type="checkbox" name="courses[]" value="{{ $assignment->course_id }}"
                                         {{ in_array($assignment->course_id, $enrolledCourses) ? 'checked disabled' : '' }}
@@ -40,7 +42,7 @@
             </div>
 
             <div class="mt-3">
-                <p>Total Credit Hours: <span id="totalCreditHours">0</span></p>
+                <p>Total Credit Hours: <span id="totalCreditHours">{{ $totalCreditHours }}</span></p>
             </div>
 
             <button type="submit" class="btn btn-primary" id="registerButton">Register Courses</button>

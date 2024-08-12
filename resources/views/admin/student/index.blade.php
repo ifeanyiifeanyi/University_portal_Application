@@ -43,8 +43,7 @@
                                             <th>
 
                                                 {{ $student->user->fullName() ?? '' }}
-                                                <br>
-                                               st {{ $student->id }} usrt {{ $student->user_id }}
+
                                             </th>
                                             <th>{{ $student->matric_number }}</th>
                                             <th>{{ $student->department->name }}</th>
@@ -70,12 +69,11 @@
 
 
                                                             <li>
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('admin.assign.courseForStudent', $student) }}">
+                <a class="dropdown-item" href="{{ route('admin.assign.courseForStudent', $student) }}">
                                                                     <i class="bx bx-book-add me-0"></i> Register Courses
                                                                 </a>
                                                             </li>
-                                                            <li>..............................</li>
+                                                            <li class="dropdown-divider mb-0"> </li>
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('admin.student.edit', $student) }}">
                                                                     <i class="bx bx-edit me-0"></i> Edit
@@ -88,13 +86,15 @@
 
                                                                 </a>
                                                             </li>
+                                                            <li class="dropdown-divider mb-2"> </li>
+
                                                             <li>
                                                                 <form
                                                                     action="{{ route('admin.student.delete', $student) }}"
                                                                     method="post" class="delete-student-form">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button class="dropdown-item bg-danger" type="submit">
+                                                                    <button class="dropdown-item bg-danger text-light" type="submit">
                                                                         <i class="bx bx-trash-alt me-0"></i> Delete
                                                                     </button>
                                                                 </form>

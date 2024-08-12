@@ -138,6 +138,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         Route::get('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
         Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
+        Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
     });
 
 
@@ -158,7 +159,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-    Route::controller(AdminDepartmentCreditController::class)->group(function(){
+    Route::controller(AdminDepartmentCreditController::class)->group(function () {
         Route::get('department-credit', 'index')->name('admin.department.credit.view');
         Route::get('department-credit/create', 'create')->name('admin.department.credit.create');
         Route::post('department-credit', 'store')->name('admin.department.credit.store');
@@ -168,7 +169,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         Route::get('/departments/{department}/levels', 'levels');
     });
-
 });
 
 

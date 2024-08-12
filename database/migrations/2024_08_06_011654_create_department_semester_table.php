@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->foreignId('semester_id')->constrained()->onDelete('cascade');
             $table->integer('level');
-            $table->unique(['department_id', 'semester_id', 'level']);
+            // $table->unique(['department_id', 'semester_id', 'level']);
             $table->integer('max_credit_hours');
             $table->timestamps();
         });
