@@ -6,10 +6,10 @@
     <div class="container">
         <div class="card py-3 px-3">
             <h4>Registered Courses for {{ $student->user->fullName() }} | Level: {{ $student->current_level }}</h4>
-            <p>Academic Session: {{ $currentAcademicSession->name }}</p>
-            <p>Semester: {{ $currentSemester->name }}</p>
-            <p>Department: {{ $enrolledCourses->first()->department->name }}</p>
-            <p>Faculty: {{ $enrolledCourses->first()->department->faculty->name }}</p>
+            <p>Academic Session: {{ $currentAcademicSession->name ?? '' }}</p>
+            <p>Semester: {{ $currentSemester->name  ?? '' }}</p>
+            <p>Department: {{ $enrolledCourses->first()->department->name ?? '' }}</p>
+            <p>Faculty: {{ $enrolledCourses->first()->department->faculty->name ?? '' }}</p>
             <p>Total Credit Hours: {{ $totalCreditHours }} / {{ $maxCreditHours }}</p>
             <p>Registration Status: {{ ucfirst($semesterRegistration->status) }}</p>
             <span>

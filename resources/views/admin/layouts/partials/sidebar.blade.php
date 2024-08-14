@@ -106,6 +106,8 @@
                 </li>
                 <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i class="bx bx-right-arrow-alt"></i>Deparment | lecturer | Courses</a>
                 </li>
+                <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i class="bx bx-right-arrow-alt"></i>Students Registered Courses</a>
+                </li>
             </ul>
         </li>
 

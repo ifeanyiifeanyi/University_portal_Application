@@ -54,6 +54,11 @@ public function getUserAccessTypeAttribute(){
         return Str::title($this->first_name.' '.$this->last_name. ' '. $this->other_name ?? '');
     }
 
+    public function getFullNameAttribute(){
+        return Str::title($this->first_name.' '.$this->last_name. ' '. $this->other_name ?? '');
+    }
+
+
     public function admin(){
         return $this->hasOne(Admin::class);
     }

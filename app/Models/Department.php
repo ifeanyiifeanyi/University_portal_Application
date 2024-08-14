@@ -57,4 +57,12 @@ class Department extends Model
             ->withPivot('max_credit_hours', 'level')
             ->withTimestamps();
     }
+
+    // this builds a relationship between courses student registers for
+    public function courseEnrollments()
+    {
+        return $this->hasManyThrough(CourseEnrollment::class, Student::class);
+    }
+
+
 }

@@ -10,14 +10,15 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminAccountsManagersController;
-use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
-use App\Http\Controllers\Admin\AdminSemesterController;
-use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
+use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -129,6 +130,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
 
+    // this route was used or creating courses for student via students view table
     Route::controller(AdminAssignStudentCourseController::class)->group(function () {
         Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
         Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
@@ -136,9 +138,20 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-        Route::get('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
+        Route::delete('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
         Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
         Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
+    });
+
+
+    Route::controller(AdminStudentRegisteredCoursesController::class)->group(function(){
+        Route::get('student-registered-courses', 'index')->name('admin.students.all-course-registrations');
+
+        Route::get('/student-course-registrations/export',  'export')->name('admin.course-registrations.export');
+        Route::get('/student-course-registrations/{registration}',  'show')->name('admin.course-registrations.show');
+        Route::patch('/student-course-registrations/{registration}/approve',  'approve')->name('admin.course-registrations.approve');
+        Route::patch('/student-course-registrations/{registration}/reject',  'reject')->name('admin.course-registrations.reject');
+
     });
 
 
