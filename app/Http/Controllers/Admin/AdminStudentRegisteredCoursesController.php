@@ -71,6 +71,8 @@ class AdminStudentRegisteredCoursesController extends Controller
             });
         }
 
+
+
         if ($request->filled('academic_session_id')) {
             $query->where('academic_session_id', $request->academic_session_id);
         }
@@ -107,10 +109,17 @@ class AdminStudentRegisteredCoursesController extends Controller
             });
         }
 
+
+
+        $query->orderBy('academic_session_id', 'desc')
+            ->orderBy('semester_id', 'desc')
+            ->orderBy('created_at', 'desc');
+
+
         $registrations = $query->paginate(200)->appends($request->all());
 
         $departments = Department::all();
-        $academicSessions = AcademicSession::all();
+        $academicSessions = AcademicSession::orderBy('start_date', 'desc')->get();
         $semesters = Semester::all();
 
         // Get statistics
@@ -149,10 +158,25 @@ class AdminStudentRegisteredCoursesController extends Controller
         return view('admin.all_course_registrations.index', compact('registrations', 'departments', 'academicSessions', 'semesters', 'stats', 'topDepartments', 'topDepartmentRegistered'));
     }
 
+    // public function show(SemesterCourseRegistration $registration)
+    // {
+    //     $registration->load(['student', 'semester', 'academicSession', 'courseEnrollments.course', 'courseEnrollments']);
+    //     return view('admin.all_course_registrations.show', compact('registration'));
+    // }
+
+
     public function show(SemesterCourseRegistration $registration)
     {
-        $registration->load(['student', 'semester', 'academicSession', 'courseEnrollments.course', 'courseEnrollments']);
-        return view('admin.all_course_registrations.show', compact('registration'));
+        $registration->load(['student', 'semester', 'academicSession', 'courseEnrollments.course']);
+
+        // Fetch all course registrations for this student
+        $allRegistrations = SemesterCourseRegistration::where('student_id', $registration->student_id)
+            ->with(['semester', 'academicSession', 'courseEnrollments.course'])
+            ->orderBy('academic_session_id', 'desc')
+            ->orderBy('semester_id', 'desc')
+            ->get();
+
+        return view('admin.all_course_registrations.show', compact('registration', 'allRegistrations'));
     }
 
     public function export(Request $request)

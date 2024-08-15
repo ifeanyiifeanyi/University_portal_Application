@@ -113,6 +113,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('student-manager/store', 'store')->name('admin.student.store');
         Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
         Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
+
+
+        Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
     });
 
     Route::controller(AdminTeacherAssignmentController::class)->group(function () {
@@ -144,14 +147,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
 
-    Route::controller(AdminStudentRegisteredCoursesController::class)->group(function(){
+    Route::controller(AdminStudentRegisteredCoursesController::class)->group(function () {
         Route::get('student-registered-courses', 'index')->name('admin.students.all-course-registrations');
 
         Route::get('/student-course-registrations/export',  'export')->name('admin.course-registrations.export');
         Route::get('/student-course-registrations/{registration}',  'show')->name('admin.course-registrations.show');
         Route::patch('/student-course-registrations/{registration}/approve',  'approve')->name('admin.course-registrations.approve');
         Route::patch('/student-course-registrations/{registration}/reject',  'reject')->name('admin.course-registrations.reject');
-
     });
 
 

@@ -46,73 +46,75 @@
         </div>
 
         <div class="card py-3 px-3">
-        <form action="{{ route('admin.students.all-course-registrations') }}" method="GET">
-            <div class="row">
-                <div class="col-md-3">
-                    <select name="department_id" class="form-control">
-                        <option value="">All Departments</option>
-                        @foreach ($departments as $department)
-                            <option value="{{ $department->id }}"
-                                {{ request('department_id') == $department->id ? 'selected' : '' }}>
-                                {{ $department->name }}
+            <form action="{{ route('admin.students.all-course-registrations') }}" method="GET">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="department_id" class="form-control">
+                            <option value="">All Departments</option>
+                            @foreach ($departments as $department)
+                                <option value="{{ $department->id }}"
+                                    {{ request('department_id') == $department->id ? 'selected' : '' }}>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="academic_session_id" class="form-control">
+                            <option value="">All Academic Sessions</option>
+                            @foreach ($academicSessions as $session)
+                                <option value="{{ $session->id }}"
+                                    {{ request('academic_session_id') == $session->id ? 'selected' : '' }}>
+                                    {{ $session->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="semester_id" class="form-control">
+                            <option value="">All Semesters</option>
+                            @foreach ($semesters as $semester)
+                                <option value="{{ $semester->id }}"
+                                    {{ request('semester_id') == $semester->id ? 'selected' : '' }}>
+                                    {{ $semester->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="academic_session_id" class="form-control">
-                        <option value="">All Academic Sessions</option>
-                        @foreach ($academicSessions as $session)
-                            <option value="{{ $session->id }}"
-                                {{ request('academic_session_id') == $session->id ? 'selected' : '' }}>
-                                {{ $session->name }}
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
                             </option>
-                        @endforeach
-                    </select>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select name="semester_id" class="form-control">
-                        <option value="">All Semesters</option>
-                        @foreach ($semesters as $semester)
-                            <option value="{{ $semester->id }}"
-                                {{ request('semester_id') == $semester->id ? 'selected' : '' }}>
-                                {{ $semester->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}"
+                            placeholder="Start Date">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}"
+                            placeholder="End Date">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" value="{{ request('search') }}"
+                            placeholder="Search by student name, ID, session, or semester">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select name="status" class="form-control">
-                        <option value="">All Statuses</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-3">
-                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}"
-                        placeholder="Start Date">
-                </div>
-                <div class="col-md-3">
-                    <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}"
-                        placeholder="End Date">
-                </div>
-                <div class="col-md-4">
-                    <input type="text" name="search" class="form-control" value="{{ request('search') }}"
-                        placeholder="Search by student name, ID, session, or semester">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </div>
-            </div>
-        </form>
+            </form>
 
-        <div class="mt-4">
-            <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-success">Export to CSV</a>
+            <div class="mt-4">
+                <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-success">Export to CSV</a>
+            </div>
         </div>
-    </div>
         <div class="card py-3 px-3">
             <div class="table-responsive">
                 <table class="table mt-4">
@@ -142,6 +144,26 @@
                                 <td>
                                     <a href="{{ route('admin.course-registrations.show', $registration) }}"
                                         class="btn btn-sm btn-info">View</a>
+
+                                    @if ($registration->status == 'approved')
+                                        <form onsubmit="return confirm('Are sure of this action')"
+                                            action="{{ route('admin.course-registrations.reject', $registration) }}"
+                                            method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    @endif
+
+                                    @if ($registration->status == 'rejected')
+                                        <form onsubmit="return confirm('Are sure of this action')"
+                                            action="{{ route('admin.course-registrations.approve', $registration) }}"
+                                            method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                    @endif
                                     @if ($registration->status == 'pending')
                                         <form onsubmit="return confirm('Are sure of this action')"
                                             action="{{ route('admin.course-registrations.approve', $registration) }}"

@@ -14,6 +14,9 @@
             <p>Registration Status: {{ ucfirst($semesterRegistration->status) }}</p>
             <span>
             <a href="{{ route('admin.assign.courseForStudent', $student) }}" class="btn btn-primary">Continue Registration</a></span>
+            <span>
+                <button onclick="history.back()" class="btn btn-info">Back</button>
+            </span>
         </div>
 
         <div class="card py-3 px-3">
@@ -72,6 +75,7 @@
                                 </td>
                             </tr>
                         @endforeach
+
                     </tbody>
                 </table>
             </div>

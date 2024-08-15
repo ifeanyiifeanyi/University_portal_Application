@@ -23,6 +23,7 @@ class CourseEnrollment extends Model
         'registered_at',
         'is_carryover'
     ];
+    
 
     protected $casts = [
         'registered_at' => 'datetime',

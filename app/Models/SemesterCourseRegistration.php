@@ -46,12 +46,12 @@ class SemesterCourseRegistration extends Model
 
     // Custom methods
     public function updateTotalCreditHours()
-{
-    $this->total_credit_hours = $this->courseEnrollments()
-        ->join('courses', 'course_enrollments.course_id', '=', 'courses.id')
-        ->sum('courses.credit_hours');
-    $this->save();
-}
+    {
+        $this->total_credit_hours = $this->courseEnrollments()
+            ->join('courses', 'course_enrollments.course_id', '=', 'courses.id')
+            ->sum('courses.credit_hours');
+        $this->save();
+    }
 
 
     public function isPending()
@@ -71,14 +71,21 @@ class SemesterCourseRegistration extends Model
 
     public function approve()
     {
-        $this->status = self::STATUS_APPROVED;
+        $this->status = 'approved';
         $this->save();
+
+        // Update all associated CourseEnrollments
+        $this->courseEnrollments()->update(['status' => 'enrolled']);
     }
+
 
     public function reject()
     {
-        $this->status = self::STATUS_REJECTED;
+        $this->status = 'rejected';
         $this->save();
+
+        // Update all associated CourseEnrollments
+        $this->courseEnrollments()->update(['status' => 'withdrawn']);
     }
 
     // Scopes for easy querying
@@ -96,5 +103,4 @@ class SemesterCourseRegistration extends Model
     {
         return $query->where('status', self::STATUS_REJECTED);
     }
-
 }
