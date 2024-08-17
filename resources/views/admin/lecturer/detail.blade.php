@@ -139,6 +139,7 @@
 
 
 @section('admin')
+{{-- @dd($teacher) --}}
     <div class="container" style="overflow-x: hidden !important">
         <div class=" mt-5">
             <div class="row mb-4">

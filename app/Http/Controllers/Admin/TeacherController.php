@@ -6,9 +6,14 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Teacher;
 use App\Models\Department;
+use App\Models\GradeSystem;
 use Illuminate\Support\Str;
+use App\Models\StudentScore;
 use Illuminate\Http\Request;
+use App\Models\CourseEnrollment;
 use App\Models\TeacherAssignment;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -236,28 +241,72 @@ class TeacherController extends Controller
     }
 
 
-    public function submitScores(Request $request, $assignmentId)
+    public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     {
-        $assignment = TeacherAssignment::findOrFail($assignmentId);
 
-        $request->validate([
-            'assessment.*' => 'nullable|numeric|min:0|max:40',
-            'exam.*' => 'nullable|numeric|min:0|max:60',
-        ]);
+        //find if  teacher was really assigned to the course
+        $assignment = TeacherAssignment::where('teacher_id', $teacherId)
+            ->where('course_id', $courseId)
+            ->where('semester_id', $semesterId)
+            ->where('academic_session_id', $academicSessionId)
+            ->firstOrFail();
 
-        foreach ($request->assessment as $studentId => $score) {
-            $assignment->course->students()->updateExistingPivot($studentId, [
-                'assessment_score' => $score,
-                'exam_score' => $request->exam[$studentId] ?? null,
-            ]);
-        }
+        $enrollments = CourseEnrollment::where('course_id', $courseId)
+            ->where('academic_session_id', $academicSessionId)
+            ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+                $query->where('semester_id', $semesterId)
+                    ->where('academic_session_id', $academicSessionId)
+                    ->where('status', 'approved');
+            })
+            ->with(['student.user', 'semesterCourseRegistration'])
+            ->get();
 
-        return redirect()->back()->with('success', 'Scores submitted successfully.');
+
+        return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'));
     }
 
-    // public function departmentDetails($departmentId)
-    // {
-    //     $department = Department::with(['faculty', 'courses', 'students'])->findOrFail($departmentId);
-    //     return view('admin.department.details', compact('department'));
-    // }
+
+
+    public function storeScores(Request $request, $assignmentId)
+    {
+        // dd($request);
+        $assignment = TeacherAssignment::findOrFail($assignmentId);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->scores as $enrollmentId => $scoreData) {
+                $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+
+                $totalScore = $scoreData['assessment'] + $scoreData['exam'];
+                $grade = GradeSystem::getGrade($totalScore);
+                $isFailed = $grade === 'F';
+
+                StudentScore::updateOrCreate(
+                    [
+                        'student_id' => $enrollment->student_id,
+                        'course_id' => $assignment->course_id,
+                        'academic_session_id' => $assignment->academic_session_id,
+                        'semester_id' => $assignment->semester_id,
+                    ],
+                    [
+                        'teacher_id' => $assignment->teacher_id,
+                        'department_id' => $enrollment->student->department_id,
+                        'assessment_score' => $scoreData['assessment'],
+                        'exam_score' => $scoreData['exam'],
+                        'total_score' => $totalScore,
+                        'grade' => $grade,
+                        'is_failed' => $isFailed,
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Scores have been saved successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error saving scores: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+        }
+    }
 }

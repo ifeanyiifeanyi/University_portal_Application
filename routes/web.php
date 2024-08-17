@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminGradeController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 
 // Route::get('/', function () {
@@ -101,9 +102,23 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::put('manage-lecturers/{teacher}/update', 'update')->name('admin.teachers.update');
         Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
 
+        // view department and courses the teacher as assigned to
         Route::get('lecturer-courses/{courseId}', 'courseDetails')->name('admin.teacher.course.show');
         Route::get('department/{department}/teacher/{teacher}', 'departmentDetails')->name('admin.teacher.department.show');
+
+        // the teacher views students registered to the course assigned to them
+        Route::get('/teacher/{teacherId}/course/{courseId}/semester/{semesterId}/academic-session/{academicSessionId}/students', 'viewRegisteredStudents')->name('teacher.course.students');
+
+        Route::post('submit-student-assessment{assignmentId}', 'storeScores')->name('admin.store.scores');
     });
+
+    // for controlling the grade types
+    Route::controller(AdminGradeController::class)->group(function(){
+        Route::get('/get-grade/{score}', 'getGrade');
+    });
+
+
+
 
     Route::controller(AdminStudentController::class)->group(function () {
         Route::get('student-manager', 'index')->name('admin.student.view');
