@@ -23,7 +23,7 @@
                         </div>
                         <hr>
                         <div class="table-responsive">
-                            <table id="example2" class="table table-striped">
+                            <table id="example" class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
@@ -32,7 +32,6 @@
                                         <th scope="col">Department</th>
                                         <th scope="col">Year of Admission</th>
                                         <th scope="col">Current Level</th>
-                                        
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
@@ -43,6 +42,8 @@
                                             <th>
 
                                                 {{ $student->user->fullName() ?? '' }}
+                                                <br>
+                                               st {{ $student->id }} usrt {{ $student->user_id }}
                                             </th>
                                             <th>{{ $student->matric_number }}</th>
                                             <th>{{ $student->department->name }}</th>
@@ -57,6 +58,23 @@
                                                         </span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">
+
+                                                            <li>
+                                                                <a class="dropdown-item"
+                                                                    href="{{ route('admin.students.course-registrations', $student) }}">
+                                                                    <i class="bx bx-book-add me-0"></i>
+                                                                    View Course Registrations
+                                                                </a>
+                                                            </li>
+
+
+                                                            <li>
+                                                                <a class="dropdown-item"
+                                                                    href="{{ route('admin.assign.courseForStudent', $student) }}">
+                                                                    <i class="bx bx-book-add me-0"></i> Register Courses
+                                                                </a>
+                                                            </li>
+                                                            <li>..............................</li>
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('admin.student.edit', $student) }}">
                                                                     <i class="bx bx-edit me-0"></i> Edit

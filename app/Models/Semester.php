@@ -25,11 +25,6 @@ class Semester extends Model
         return $this->hasMany(CourseAssignment::class);
     }
 
-    public function semesterRegistration()
-    {
-        return $this->hasMany(SemesterRegistration::class);
-    }
-
     public function teacherAssignments()
     {
         return $this->hasMany(TeacherAssignment::class);
@@ -40,6 +35,14 @@ class Semester extends Model
     {
         return $this->belongsToMany(Course::class, 'course_assignments')
             ->withPivot('department_id', 'level')
+            ->withTimestamps();
+    }
+
+
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_semester')
+            ->withPivot('max_credit_hours', 'level')
             ->withTimestamps();
     }
 

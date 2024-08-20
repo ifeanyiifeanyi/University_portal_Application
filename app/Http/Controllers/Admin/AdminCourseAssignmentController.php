@@ -45,16 +45,11 @@ class AdminCourseAssignmentController extends Controller
 
         CourseAssignment::create($request->all());
 
+
+
         return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');
     }
 
-    // public function show($semesterId)
-    // {
-    //     $semester = Semester::with(['academicSession', 'courseAssignments.course', 'courseAssignments.department'])
-    //         ->findOrFail($semesterId);
-
-    //     return view('admin.course_assignments.show', compact('semester'));
-    // }
 
     public function show($semesterId, Request $request)
     {

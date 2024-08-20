@@ -14,10 +14,6 @@ class AcademicSession extends Model
     {
         return $this->hasMany(Semester::class);
     }
-    public function semesterRegistration()
-    {
-        return $this->belongsTo(SemesterRegistration::class);
-    }
 
 
     public function teacherAssignments()

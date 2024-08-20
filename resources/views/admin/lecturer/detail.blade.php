@@ -3,10 +3,6 @@
 @section('title', 'Lecturer Details')
 @section('css')
     <style>
-        body {
-            background-color: #f0f2f5;
-        }
-
         .lecturer-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -105,36 +101,37 @@
         .certification-title {
             font-weight: bold;
         }
+
         .teacher-header {
-    padding: 20px;
-    border-radius: 10px;
-}
+            padding: 20px;
+            border-radius: 10px;
+        }
 
-.gradient-text {
-    background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-}
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
 
-h1.gradient-text {
-    font-size: 2.5rem;
-    font-weight: bold;
-}
+        h1.gradient-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
 
-h1.gradient-text small {
-    font-size: 1.5rem;
-    display: block;
-    margin-bottom: 5px;
-}
+        h1.gradient-text small {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
 
-code.gradient-text {
-    font-size: 1.8rem;
-    padding: 5px 10px;
-    border: 2px solid;
-    border-image: linear-gradient(135deg, #ff6b6b, #4ecdc4) 1;
-}
+        code.gradient-text {
+            font-size: 1.8rem;
+            padding: 5px 10px;
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #ff6b6b, #4ecdc4) 1;
+        }
     </style>
 
 @endsection
@@ -144,17 +141,59 @@ code.gradient-text {
 @section('admin')
     <div class="container" style="overflow-x: hidden !important">
         <div class=" mt-5">
-            <div class="lecturer-header text-center">
-                <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
-                    alt="Lecturer" class="profile-image mb-3">
-                    <div class="teacher-header">
-                        <h1 class="gradient-text">
-                            <small>{{ $teacher->teacher_title ?? ' N/A' }}</small>
-                            {{ Str::title($teacher->user->fullName() ?? ' N/A') }}
-                        </h1>
-                        <code class="lead gradient-text">{{ $teacher->employment_id ?? ' N/A' }}</code>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card text-center p-3">
+                        <center>
+                        <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
+                            alt="Lecturer" class="profile-image mb-3 text-center">
+                        </center>
+                        <div class="">
+                            <h1 class="gradient-text">
+                                <small>{{ $teacher->teacher_title ?? ' N/A' }}</small>
+                                {{ Str::title($teacher->user->fullName() ?? ' N/A') }}
+                            </h1>
+                            <code class="lead gradient-text">{{ $teacher->employment_id ?? ' N/A' }}</code>
+                        </div>
+
                     </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-card text-center">
+                        <i class="fas fa-book info-card-icon"></i>
+                        <h3>{{ $teacher->teacher_qualification ?? ' N/A' }}</h3>
+                        <p>Highest Qualification</p>
+                    </div>
+                    <div class="col-md-12">
+                        {{-- <h2 class="section-title">Contact Information</h2> --}}
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope contact-icon"></i>
+                                {{ $teacher->user->email ?? ' N/A' }}
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone contact-icon"></i>
+                                {{ $teacher->user->phone ?? ' N/A' }}
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt contact-icon"></i>
+                                {{ $teacher->office_address ?? ' N/A' }}
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt contact-icon"></i>
+                                {{ $teacher->address ?? ' N/A' }}
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-clock contact-icon"></i>
+                                {{ $teacher->office_hours ?? ' N/A' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
+
 
             <div class="row">
                 <div class="col-md-4 h-50">
@@ -171,13 +210,7 @@ code.gradient-text {
                         <p>Years of Experience</p>
                     </div>
                 </div>
-                <div class="col-md-4 h-50">
-                    <div class="info-card text-center">
-                        <i class="fas fa-book info-card-icon"></i>
-                        <h3>{{ $teacher->teacher_qualification ?? ' N/A' }}</h3>
-                        <p>Highest Qualification</p>
-                    </div>
-                </div>
+
                 <div class="col-md-4 h-50">
                     <div class="info-card text-center">
                         <i class="fas fa-award info-card-icon"></i>
@@ -190,25 +223,39 @@ code.gradient-text {
             <div class="row mt-5">
                 <div class="col-md-6">
                     <h2 class="section-title">Current Courses</h2>
-                    <div class="course-item">
-                        <h4>CS101: Introduction to Programming</h4>
-                        <p>Fall 2023 | Tuesdays and Thursdays, 10:00 AM - 11:30 AM</p>
-                    </div>
-                    <div class="course-item">
-                        <h4>CS301: Data Structures and Algorithms</h4>
-                        <p>Fall 2023 | Mondays and Wednesdays, 2:00 PM - 3:30 PM</p>
-                    </div>
+                    @if ($teacher->teacherAssignments->isNotEmpty())
+                        @foreach ($teacher->teacherAssignments as $assignment)
+                            <div class="course-item">
+                                <h4>{{ $assignment->course->code }}: {{ $assignment->course->title }}</h4>
+                                <p>{{ $assignment->academicSession->name }} | {{ $assignment->semester->name }}</p>
+                                <p>Department: {{ $assignment->department->name }} </p>
+                                <a href="{{ route('admin.teacher.course.show', $assignment->course->id) }}"
+                                    class="btn btn-primary btn-sm">Course Details <i
+                                        class="fadeIn animated bx bx-chevrons-right"></i></a>
+                            </div>
+                        @endforeach
+                    @else
+                        <p>No courses assigned.</p>
+                    @endif
                 </div>
+
                 <div class="col-md-6">
                     <h2 class="section-title">Current Departments</h2>
-                    <div class="publication-item">
-                        <h5>"Machine Learning Approaches in Cybersecurity"</h5>
-                        <p>Journal of Computer Science, 2023</p>
-                    </div>
-                    <div class="publication-item">
-                        <h4>"Advancements in Quantum Computing"</h4>
-                        <p>International Conference on Quantum Technologies, 2022</p>
-                    </div>
+                    @php
+                        $departments = $teacher->teacherAssignments->pluck('department')->unique('id');
+                    @endphp
+                    @if ($departments->isNotEmpty())
+                        @foreach ($departments as $department)
+                            <div class="publication-item">
+                                <h5>{{ $department->name }}</h5>
+                                <p>Faculty: {{ $department->faculty->name }}</p>
+                                <a href="{{ route('admin.teacher.department.show', ['department' => $department->id, 'teacher' => $teacher->id]) }}"
+                                    class="btn btn-primary btn-sm">Department Details</a>
+                            </div>
+                        @endforeach
+                    @else
+                        <p>No departments assigned.</p>
+                    @endif
                 </div>
             </div>
 
@@ -296,31 +343,7 @@ code.gradient-text {
         </div>
 
         <div class="row mt-5">
-            <div class="col-md-12">
-                <h2 class="section-title">Contact Information</h2>
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope contact-icon"></i>
-                        {{ $teacher->user->email ?? ' N/A' }}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone contact-icon"></i>
-                        {{ $teacher->user->phone ?? ' N/A' }}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt contact-icon"></i>
-                        {{ $teacher->office_address ?? ' N/A' }}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt contact-icon"></i>
-                        {{ $teacher->address ?? ' N/A' }}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-clock contact-icon"></i>
-                        {{ $teacher->office_hours ?? ' N/A' }}
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 

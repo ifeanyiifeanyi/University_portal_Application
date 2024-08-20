@@ -31,14 +31,23 @@ class Course extends Model
             ->withTimestamps();
     }
 
-    public function courseRegistration()
-    {
-        return $this->hasMany(Course::class,);
-    }
     public function teachers()
     {
         return $this->belongsToMany(Teacher::class, 'teacher_assignments')
             ->withPivot('department_id', 'academic_session_id', 'semester_id')
             ->withTimestamps();
+    }
+    public function students(){
+        return $this->belongsToMany(Student::class, 'enrollments')
+            ->withPivot('semester_id', 'grade', 'assessment_score', 'exam_score')
+            ->withTimestamps();
+    }
+    public function enrollments()
+    {
+        return $this->hasMany(CourseEnrollment::class);
+    }
+
+    public function teacherAssignments(){
+        return $this->hasMany(TeacherAssignment::class);
     }
 }

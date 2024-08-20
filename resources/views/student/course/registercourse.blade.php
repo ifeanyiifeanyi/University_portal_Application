@@ -9,6 +9,9 @@
         <a href="#" class="btn w-100 text-white" style="background: #AE152D;" data-bs-toggle="modal" data-bs-target=".bs-example-modal-center">Add courses</a>
     </div>
     </div> --}}
+    @if ($semesterregistration)
+        
+    
 <div class="row mt-4">
     <div class="col-12">
         <div class="card">
@@ -17,13 +20,16 @@
             </div><!-- end card header -->
 
             <div class="card-body">
+                @include('messages')
+                <form action="{{route('student.proceed.courseregister')}}" method="POST">
                 <div class="table-responsive">
-                    <form action="{{route('student.proceed.courseregister')}}" method="POST">
+                    
                         @csrf
                         <input type="hidden" name="session" value="{{ $session }}">
                         <input type="hidden" name="semester" value="{{ $semester }}">
                         <input type="hidden" name="level" value="{{ $level }}">
                         <input type="hidden" name="semesterregid" value="{{$semesterregid}}">
+                        <input type="text" name="TotalCreditLoadCount" id="TotalCreditLoadCount">
                     <table class="table mb-0">
                         <thead>
                             <tr>
@@ -58,15 +64,17 @@
                     <div class="mt-5">
                         <button class="btn w-100 text-white" style="background: #AE152D;">Submit</button>
                       </div>
-                    </form>
+                    
                 </div>
                 <div class="mt-3">
                     <strong>Total Credit Load: <span id="totalCreditLoad">0</span></strong>
                 </div>
+            </form>
             </div>
         </div>
     </div>
 </div>
+@endif
 </div>
 
 
@@ -133,6 +141,7 @@
             totalCreditLoad += parseInt(checkbox.dataset.creditHours);
         });
         document.getElementById('totalCreditLoad').innerText = totalCreditLoad;
+        document.getElementById('TotalCreditLoadCount').value = totalCreditLoad;
     }
     window.addEventListener('DOMContentLoaded', updateCreditLoad);   
 </script>

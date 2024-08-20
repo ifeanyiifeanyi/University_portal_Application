@@ -39,7 +39,7 @@
                                     <td>{{$registered->course->title}}</td>
                                     <td>{{$registered->course->credit_hours}}</td>
                                     <td>Compulsory</td>
-                                    <td>{{$registered->status}}</td>
+                                    <td>{{$registered->semesterCourseRegistration->status}}</td>
                                 </tr>
                                 @empty
                                     

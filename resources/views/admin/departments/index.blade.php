@@ -152,15 +152,15 @@
                         </div>
                         <hr>
                         <div class="table-responsive">
-                            <table id="example2" class="table table-striped">
+                            <table id="example" class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Faculty</th>
-                                        <th scope="col">Duration</th>
-                                        <th scope="col">Date Created</th>
-                                        <th scope="col">Last Update Date</th>
+                                        <th scope="col">Duration(years)</th>
+                                        {{-- <th scope="col">Date Created</th>
+                                        <th scope="col">Last Update Date</th> --}}
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -170,13 +170,13 @@
                                             <th scope="row">{{ $loop->iteration }}</th>
                                             <th scope="row">{{ $department->name }}</th>
                                             <th scope="row">{{ $department->faculty->name }}</th>
-                                            <th scope="row">{{ $department->duration }}</th>
-                                            <th scope="row">
+                                            <th scope="row">{{ $department->duration. ' years course' }}</th>
+                                            {{-- <th scope="row">
                                                 {{ \Carbon\Carbon::parse($department->created_at)->format('jS F Y g:i A') }}
                                             </th>
                                             <th scope="row">
                                                 {{ \Carbon\Carbon::parse($department->updated_at)->format('jS F Y g:i A') }}
-                                            </th>
+                                            </th> --}}
                                             <th scope="row">
                                                 <div class="col">
                                                     <div class="dropdown">
@@ -227,6 +227,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row">
+
         </div>
     @endsection
 

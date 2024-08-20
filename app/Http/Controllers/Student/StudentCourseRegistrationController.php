@@ -15,6 +15,8 @@ use App\Http\Controllers\Controller;
 use App\Models\SemesterRegistration;
 use App\Http\Requests\ProceedSessionRequest;
 use App\Http\Requests\CourseRegistrationRequest;
+use App\Models\CourseEnrollment;
+use App\Models\SemesterCourseRegistration;
 
 class StudentCourseRegistrationController extends Controller
 {
@@ -32,14 +34,14 @@ class StudentCourseRegistrationController extends Controller
     //   get the student id of the user
     $student = Student::where('user_id',$this->authService->user()->id)->first();
     // query the session_registration table to get the history
-    $reghistorys = SemesterRegistration::with(['semester','AcademicSession'])->where('student_id',$student->id)->get();
+    $reghistorys = SemesterCourseRegistration::with(['semester','AcademicSession'])->where('student_id',$student->id)->get();
         return view('student.course.registration',[
             'reghistorys'=>$reghistorys
         ]);
     }
 
     public function viewregistered($id){
-        $registered = Courseregistration::with(['course'])->where('semester_regid',$id)->get();
+        $registered = CourseEnrollment::with(['course','semesterCourseRegistration'])->where('semester_course_registration_id',$id)->get();
         return view('student.course.courseregistered',[
             'registered'=>$registered
         ]);
@@ -62,26 +64,33 @@ class StudentCourseRegistrationController extends Controller
 
     public function proceedsession(ProceedSessionRequest $proceedsession){
          // check for existing session
-        $checksession = SemesterRegistration::where('semester_id',$proceedsession->semester)->where('academic_session_id',$proceedsession->session)->exists();
+        $checksession = SemesterCourseRegistration::where('semester_id',$proceedsession->semester)->where('academic_session_id',$proceedsession->session)->exists();
         if($checksession){
-            return redirect(route('student.view.sessioncourse'))->with('success','You have already registered courses for this session');
+            return redirect(route('student.view.sessioncourse'))->with('error','You have already registered courses for this session');
         }
-        $createsemesterreggistration = SemesterRegistration::create([
+        $student = Student::findOrFail($proceedsession->student_id);
+        $maxCreditHours = $student->department->semesters()
+            ->where('semester_id', $proceedsession->semester)
+            ->firstOrFail()
+            ->pivot
+            ->max_credit_hours;
+            
+        $createsemesterreggistration = SemesterCourseRegistration::create([
             'semester_id'=>$proceedsession->semester,
             'academic_session_id'=>$proceedsession->session,
-            'level'=>$proceedsession->level,
             'student_id'=>$proceedsession->student_id,
-            'user_id'=>$this->authService->user()->id
+            'total_credit_hours'=>$maxCreditHours
         ]);
         if($createsemesterreggistration){
             // redirect user to the main course registration page
-            return redirect(route('student.view.registercourse',['semester_regid'=>$createsemesterreggistration->id,'session_id'=>$createsemesterreggistration->semester_id,'semester_id'=>$createsemesterreggistration->academic_session_id,'level'=>$createsemesterreggistration->level]));
+            return redirect(route('student.view.registercourse',['semester_regid'=>$createsemesterreggistration->id,'session_id'=>$createsemesterreggistration->semester_id,'semester_id'=>$createsemesterreggistration->academic_session_id,'level'=>$proceedsession->level]));
         }
     }
     public function registercourse($semesterregid,$session,$semester,$level){
         // load the studentprofile
+        $semesterregistration = SemesterCourseRegistration::where('id',$semesterregid)->first();
         $student = Student::where('user_id',$this->authService->user()->id)->first();
-        $selectcoursesassigned = CourseAssignment::with(['course'])->where('department_id',$student->department_id)->where('semester_id',$semester)->where('level',$level)->get();
+        $selectcoursesassigned = CourseAssignment::with(['course'])->where('department_id',$student->department_id)->where('semester_id',$semester)->get();
 
         // get all the courses for that actual section
         $getsemestercourses = CourseAssignment::with(['course'])->where('semester_id',$semester)->get();
@@ -89,27 +98,41 @@ class StudentCourseRegistrationController extends Controller
             'courses'=>$selectcoursesassigned,
             'semester'=>$semester,
             'session'=>$session,
-            'level'=>$level,
             'semesterregid'=>$semesterregid,
-            'semestercourses'=>$getsemestercourses
+            'semestercourses'=>$getsemestercourses,
+            'semesterregistration'=>$semesterregistration,
+            'level'=>$level
         ]);
     }
     public function courseregister(CourseRegistrationRequest $courseregister){
-       
-        $student = Student::where('user_id',$this->authService->user()->id)->first();
-        // $totalCreditLoad = 0;
-        // $totalCreditLoad += $course->credit_hours;
+    //    check if it exceeds the total credit load
 
+        $student = Student::where('user_id',$this->authService->user()->id)->first();
+        $maxCreditHours = $student->department->semesters()
+            ->where('semester_id', $courseregister->semester)
+            ->firstOrFail()
+            ->pivot
+            ->max_credit_hours;
+            if($courseregister->TotalCreditLoadCount > $maxCreditHours){
+                return redirect()->back()->with('error','The credit load have exceeded the initial credit load');
+            }
         foreach ($courseregister->course_id as $courseId) {
-            Courseregistration::create([
-                'course_id'=> $courseId, 
-                'department_id'=>$student->department_id, 
-                'semester_id'=>$courseregister->semester, 
-                'session_id'=>$courseregister->session,
-                'user_id'=>$this->authService->user()->id,
+            CourseEnrollment::create([
                 'student_id'=>$student->id,
+                'course_id'=> $courseId,
+                'department_id'=>$student->department_id,
                 'level'=>$courseregister->level,
-                'semester_regid'=>$courseregister->semesterregid
+                'semester_course_registration_id'=>$courseregister->semesterregid,
+                'academic_session_id'=>$courseregister->session,
+                // 'course_id'=> $courseId, 
+                // 'department_id'=>$student->department_id,
+
+                // 'semester_id'=>$courseregister->semester, 
+                // 'session_id'=>$courseregister->session,
+                // 'user_id'=>$this->authService->user()->id,
+                // 'student_id'=>$student->id,
+                // 'level'=>$courseregister->level,
+                // 'semester_regid'=>$courseregister->semesterregid
             ]);
         }
         return redirect(route('student.view.courseregistration'))->with('success','Courses created successfully and awaiting approval');

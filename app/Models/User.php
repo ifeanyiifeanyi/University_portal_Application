@@ -26,7 +26,18 @@ class User extends Authenticatable
      */
     protected $guarded = [];
 
-
+public function getUserAccessTypeAttribute(){
+    if($this->user_type == self::TYPE_ADMIN){
+        return "ADMIN";
+    } else if($this->user_type == self::TYPE_TEACHER){
+        return "LECTURER";
+    }else if($this->user_type == self::TYPE_STUDENT){
+        return "STUDENT";
+    }else if($this->user_type == self::TYPE_PARENT){
+        return "PARENT";
+    }
+    return null;
+}
     public function teacher(){
         return $this->hasOne(Teacher::class);
     }
