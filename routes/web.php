@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 
 // Route::get('/', function () {
@@ -110,11 +111,25 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/teacher/{teacherId}/course/{courseId}/semester/{semesterId}/academic-session/{academicSessionId}/students', 'viewRegisteredStudents')->name('teacher.course.students');
 
         Route::post('submit-student-assessment{assignmentId}', 'storeScores')->name('admin.store.scores');
+
+
+        // exporting the table for submitting students scores as csv
+        Route::get('export-scores/{assignmentId}', 'exportScores')->name('admin.export.scores');
+        Route::post('import-scores/{assignmentId}', 'importScores')->name('admin.import.scores');
     });
 
     // for controlling the grade types
     Route::controller(AdminGradeController::class)->group(function(){
         Route::get('/get-grade/{score}', 'getGrade');
+    });
+
+    Route::controller(AdminScoreApprovalController::class)->group(function(){
+        Route::get('score-approval', 'index')->name('admin.score.approval.view');
+        Route::post('score-approval/approve', 'approveScore')->name('admin.score.approval.approve');
+        Route::post('score-approval/reject', 'rejectScore')->name('admin.score.approval.reject');
+
+        Route::get('/scores/export', 'export')->name('admin.score.export');
+        Route::post('/scores/import', 'import')->name('admin.score.import');
     });
 
 

@@ -35,4 +35,8 @@ class Teacher extends Model
             ->withPivot('department_id', 'academic_session_id', 'semester_id')
             ->withTimestamps();
     }
+    public function scores()
+    {
+        return $this->hasMany(StudentScore::class);
+    }
 }

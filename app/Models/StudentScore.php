@@ -19,10 +19,45 @@ class StudentScore extends Model
         'exam_score',
         'total_score',
         'grade',
-        'is_failed', 'status'
+        'is_failed',
+        'status'
     ];
 
     protected $casts = [
         'is_failed' => 'boolean',
     ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+    public function audits()
+    {
+        return $this->hasMany(ScoreAudit::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function academicSession()
+    {
+        return $this->belongsTo(AcademicSession::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Course;
+use League\Csv\Reader;
+use League\Csv\Writer;
+use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\Department;
 use App\Models\GradeSystem;
@@ -18,6 +21,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\UpdateTeacherRequest;
 
 class TeacherController extends Controller
@@ -241,9 +245,106 @@ class TeacherController extends Controller
     }
 
 
+    // public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
+    // {
+
+    //     //find if  teacher was really assigned to the course
+    //     $assignment = TeacherAssignment::where('teacher_id', $teacherId)
+    //         ->where('course_id', $courseId)
+    //         ->where('semester_id', $semesterId)
+    //         ->where('academic_session_id', $academicSessionId)
+    //         ->firstOrFail();
+
+    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
+    //     //     ->where('academic_session_id', $academicSessionId)
+    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+    //     //         $query->where('semester_id', $semesterId)
+    //     //             ->where('academic_session_id', $academicSessionId)
+    //     //             ->where('status', 'approved');
+    //     //     })
+    //     //     ->with(['student.user', 'semesterCourseRegistration'])
+    //     //     ->get();
+
+    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
+    //     //     ->where('academic_session_id', $academicSessionId)
+    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+    //     //         $query->where('semester_id', $semesterId)
+    //     //             ->where('academic_session_id', $academicSessionId)
+    //     //             ->where('status', 'approved');
+    //     //     })
+    //     //     ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
+    //     //     ->get();
+
+
+    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
+    //     //     ->where('academic_session_id', $academicSessionId)
+    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+    //     //         $query->where('semester_id', $semesterId)
+    //     //             ->where('academic_session_id', $academicSessionId)
+    //     //             ->where('status', 'approved');
+    //     //     })
+    //     //     ->with(['student.user', 'semesterCourseRegistration', 'studentScore' => function ($query) use ($assignment) {
+    //     //         $query->where('course_id', $assignment->course_id)
+    //     //             ->where('academic_session_id', $assignment->academic_session_id)
+    //     //             ->where('semester_id', $assignment->semester_id);
+    //     //     }])
+    //     //     ->get();
+    //     $enrollments = CourseEnrollment::where('course_id', $courseId)
+    //         ->where('academic_session_id', $academicSessionId)
+    //         ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+    //             $query->where('semester_id', $semesterId)
+    //                 ->where('academic_session_id', $academicSessionId)
+    //                 ->where('status', 'approved');
+    //         })
+    //         ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
+    //         ->get();
+
+    //     // dd($enrollments);
+    //     $studentScores = $enrollments->mapWithKeys(function ($enrollment) {
+    //         $studentScore = $enrollment->studentScore;
+    //         return $studentScore ? [$enrollment->id => $studentScore->first()] : [];
+    //     });
+    //     // foreach ($enrollments as $enrollment) {
+    //     //     dd($enrollment->studentScore);
+    //     // }
+
+
+    //     return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
+    // }
+
+    // public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
+    // {
+    //     //find if  teacher was really assigned to the course
+    //     $assignment = TeacherAssignment::where('teacher_id', $teacherId)
+    //         ->where('course_id', $courseId)
+    //         ->where('semester_id', $semesterId)
+    //         ->where('academic_session_id', $academicSessionId)
+    //         ->firstOrFail();
+
+    //     $enrollments = CourseEnrollment::where('course_id', $courseId)
+    //         ->where('academic_session_id', $academicSessionId)
+    //         ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+    //             $query->where('semester_id', $semesterId)
+    //                 ->where('academic_session_id', $academicSessionId)
+    //                 ->where('status', 'approved');
+    //         })
+    //         ->with(['student.user', 'semesterCourseRegistration', 'studentScore' => function ($query) use ($assignment) {
+    //             $query->where('course_id', $assignment->course_id)
+    //                 ->where('academic_session_id', $assignment->academic_session_id)
+    //                 ->where('semester_id', $assignment->semester_id);
+    //         }])
+    //         ->get();
+
+    //     $studentScores = $enrollments->mapWithKeys(function ($enrollment) {
+    //         $studentScore = $enrollment->studentScore()->first();
+    //         return $studentScore ? [$enrollment->id => $studentScore] : [];
+    //     });
+
+    //     return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
+    // }
+
     public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     {
-
         //find if  teacher was really assigned to the course
         $assignment = TeacherAssignment::where('teacher_id', $teacherId)
             ->where('course_id', $courseId)
@@ -258,11 +359,19 @@ class TeacherController extends Controller
                     ->where('academic_session_id', $academicSessionId)
                     ->where('status', 'approved');
             })
-            ->with(['student.user', 'semesterCourseRegistration'])
+            ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
             ->get();
 
+        $studentScores = StudentScore::where('course_id', $courseId)
+            ->where('academic_session_id', $academicSessionId)
+            ->where('semester_id', $semesterId)
+            ->whereIn('student_id', $enrollments->pluck('student_id'))
+            ->get()
+            ->keyBy('student_id');
 
-        return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'));
+            // dd($studentScores);
+
+        return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
     }
 
 
@@ -271,6 +380,19 @@ class TeacherController extends Controller
     {
         // dd($request);
         $assignment = TeacherAssignment::findOrFail($assignmentId);
+        $validator = Validator::make($request->all(), [
+            'scores.*.assessment' => 'required|numeric|min:0|max:40',
+            'scores.*.exam' => 'required|numeric|min:0|max:60',
+        ], [
+            'scores.*.assessment.required' => 'Assessment score is required for all students.',
+            'scores.*.exam.required' => 'Exam score is required for all students.',
+            'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
+            'scores.*.exam.max' => 'Exam score cannot exceed 60.',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
 
         try {
             DB::beginTransaction();
@@ -307,6 +429,89 @@ class TeacherController extends Controller
             DB::rollBack();
             Log::error('Error saving scores: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+        }
+    }
+
+    public function exportScores($assignmentId)
+    {
+        $assignment = TeacherAssignment::findOrFail($assignmentId);
+        $enrollments = CourseEnrollment::where('course_id', $assignment->course_id)
+            ->where('academic_session_id', $assignment->academic_session_id)
+            ->whereHas('semesterCourseRegistration', function ($query) use ($assignment) {
+                $query->where('semester_id', $assignment->semester_id)
+                    ->where('academic_session_id', $assignment->academic_session_id)
+                    ->where('status', 'approved');
+            })
+            ->with(['student.user', 'studentScore'])
+            ->get();
+
+        $csv = Writer::createFromString('');
+        $csv->insertOne(['Student ID', 'Name', 'Assessment Score', 'Exam Score']);
+
+        foreach ($enrollments as $enrollment) {
+            $csv->insertOne([
+                $enrollment->student->matric_number,
+                $enrollment->student->user->fullName(),
+                $enrollment->studentScore->assessment_score ?? '',
+                $enrollment->studentScore->exam_score ?? ''
+            ]);
+        }
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="scores.csv"',
+        ];
+
+        return response($csv->getContent(), 200, $headers);
+    }
+
+    public function importScores(Request $request, $assignmentId)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $assignment = TeacherAssignment::findOrFail($assignmentId);
+
+        $csv = Reader::createFromPath($request->file('csv_file')->getPathname());
+        $csv->setHeaderOffset(0);
+
+        $records = $csv->getRecords();
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($records as $record) {
+                $student = Student::where('matric_number', $record['Student ID'])->firstOrFail();
+
+                $totalScore = $record['Assessment Score'] + $record['Exam Score'];
+                $grade = GradeSystem::getGrade($totalScore);
+                $isFailed = $grade === 'F';
+
+                StudentScore::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'course_id' => $assignment->course_id,
+                        'academic_session_id' => $assignment->academic_session_id,
+                        'semester_id' => $assignment->semester_id,
+                    ],
+                    [
+                        'teacher_id' => $assignment->teacher_id,
+                        'department_id' => $student->department_id,
+                        'assessment_score' => $record['Assessment Score'],
+                        'exam_score' => $record['Exam Score'],
+                        'total_score' => $totalScore,
+                        'grade' => $grade,
+                        'is_failed' => $isFailed,
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Scores have been imported successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'An error occurred while importing scores: ' . $e->getMessage());
         }
     }
 }

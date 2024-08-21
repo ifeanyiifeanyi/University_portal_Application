@@ -102,11 +102,17 @@
                 <div class="menu-title">Academic Records</div>
             </a>
             <ul>
-                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Course | Semester Manager</a>
+                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Course |
+                        Semester Manager</a>
                 </li>
-                <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i class="bx bx-right-arrow-alt"></i>Deparment | lecturer | Courses</a>
+                <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Deparment | lecturer | Courses</a>
                 </li>
-                <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i class="bx bx-right-arrow-alt"></i>Students Registered Courses</a>
+                <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Students Registered Courses</a>
+                </li>
+                <li> <a href="{{ route('admin.score.approval.view') }}"><i class="bx bx-right-arrow-alt"></i>Submitted
+                        Students Scores</a>
                 </li>
             </ul>
         </li>
@@ -125,13 +131,15 @@
                 <div class="menu-title">Administrators</div>
             </a>
             <ul class="mm-collapse">
-                <li> <a href="{{ route('admin.accounts.managers.view') }}"><i class="bx bx-right-arrow-alt"></i>Members</a>
+                <li> <a href="{{ route('admin.accounts.managers.view') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Members</a>
                 </li>
-                <li> <a href="{{ route('admin.accounts.managers.create') }}"><i class="bx bx-right-arrow-alt"></i>Create Member</a>
+                <li> <a href="{{ route('admin.accounts.managers.create') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Create Member</a>
                 </li>
-                </li>
-            </ul>
         </li>
+    </ul>
+    </li>
     </ul>
     <!--end navigation-->
 </div>
