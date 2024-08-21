@@ -88,6 +88,7 @@
                                                 <p class="mb-0"><strong>Mode of Entry:</strong> <br>
                                                     {{ $student->mode_of_entry }}</p>
                                             </div>
+                                            <a href="{{ route('admin.students.registration-history', $student->id) }}" class="btn btn-primary">View Registered courses History</a>
                                         </div>
                                     </div>
                                     <div class="col-lg-8">

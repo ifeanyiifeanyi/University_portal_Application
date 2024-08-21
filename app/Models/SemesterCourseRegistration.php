@@ -53,6 +53,7 @@ class SemesterCourseRegistration extends Model
         $this->save();
     }
 
+
     public function isPending()
     {
         return $this->status === self::STATUS_PENDING;
@@ -70,14 +71,21 @@ class SemesterCourseRegistration extends Model
 
     public function approve()
     {
-        $this->status = self::STATUS_APPROVED;
+        $this->status = 'approved';
         $this->save();
+
+        // Update all associated CourseEnrollments
+        $this->courseEnrollments()->update(['status' => 'enrolled']);
     }
+
 
     public function reject()
     {
-        $this->status = self::STATUS_REJECTED;
+        $this->status = 'rejected';
         $this->save();
+
+        // Update all associated CourseEnrollments
+        $this->courseEnrollments()->update(['status' => 'withdrawn']);
     }
 
     // Scopes for easy querying

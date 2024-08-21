@@ -8,7 +8,33 @@
   <title>{{config('app.name')}} - @yield('title')</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
-
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <script defer>
+    function calculateTotalAndGrade(rowNumber) {
+        const assessmentScore = parseFloat(document.getElementById(`assessment${rowNumber}`).value) || 0;
+        const examScore = parseFloat(document.getElementById(`exam${rowNumber}`).value) || 0;
+        const total = assessmentScore + examScore;
+  
+        // Fetch the CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+        // Call the Laravel backend
+        fetch({{route('calculatetotalgrade')}}, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ total: total })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById(`total${rowNumber}`).value = total;
+            document.getElementById(`grade${rowNumber}`).value = data.grade;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
   @include('teacher.layouts.partials.navbar')
   @yield('css')
 </head>

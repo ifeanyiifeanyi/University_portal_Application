@@ -39,3 +39,7 @@ git push -u https://github.com/ifeanyiifeanyi/portal-starter.git
 // another method for selecting and displaying values via relationships
 <td>{{ $departments->find($assignment->department_id)->name }}</td>
 <td>{{ $semesters->find($assignment->semester_id)->name }}</td>
+
+
+// NOTE TO SELF how, registere courses pening status
+// works needs to be improved

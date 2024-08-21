@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Models\SemesterCourseRegistration;
 
 class AdminStudentController extends Controller
 {
@@ -310,5 +311,19 @@ class AdminStudentController extends Controller
 
         // Generate the matric number
         return sprintf("%s/%s/%s/%04d", $schoolCode, $departmentCode, $year, $newNumber);
+    }
+
+
+    public function studentRegistrationHistory($studentId)
+    {
+        $student = Student::findOrFail($studentId);
+
+        $registrationHistory = SemesterCourseRegistration::where('student_id', $studentId)
+            ->with(['academicSession', 'semester', 'courseEnrollments.course', 'courseEnrollments'])
+            ->orderBy('academic_session_id', 'desc')
+            ->orderBy('semester_id', 'desc')
+            ->get();
+
+        return view('admin.student.registration_history', compact('student', 'registrationHistory'));
     }
 }
