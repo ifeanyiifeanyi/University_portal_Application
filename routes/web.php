@@ -119,17 +119,40 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
     // for controlling the grade types
-    Route::controller(AdminGradeController::class)->group(function(){
+    Route::controller(AdminGradeController::class)->group(function () {
         Route::get('/get-grade/{score}', 'getGrade');
     });
 
-    Route::controller(AdminScoreApprovalController::class)->group(function(){
+    Route::controller(AdminScoreApprovalController::class)->group(function () {
         Route::get('score-approval', 'index')->name('admin.score.approval.view');
         Route::post('score-approval/approve', 'approveScore')->name('admin.score.approval.approve');
         Route::post('score-approval/reject', 'rejectScore')->name('admin.score.approval.reject');
 
+        // export and import the table records
         Route::get('/scores/export', 'export')->name('admin.score.export');
         Route::post('/scores/import', 'import')->name('admin.score.import');
+
+        // view approved scores
+        Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
+
+        // revert back approved scores in single an bulk
+        Route::post('/approved/bulk-revert', 'bulkRevertApproval')->name('admin.score.approval.approved.bulk-revert');
+        Route::post('/approved/{score}/revert', 'revertApproval')->name('admin.score.approval.approved.revert');
+
+
+
+        Route::post('/rejected/bulk-accept', 'bulkAcceptRejection')->name('rejected.bulk-accept');
+        Route::post('/rejected/bulk-revert', 'bulkRevertRejection')->name('rejected.bulk-revert');
+        Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
+
+
+
+
+        Route::get('/approved/export', 'exportApprovedScores')->name('admin.score.approval.approved.export');
+        Route::post('/approved/import', 'importApprovedScores')->name('admin.score.approval.approved.import');
+        Route::get('/rejected/export', 'exportRejectedScores')->name('rejected.export');
+        Route::post('/rejected/import', 'importRejectedScores')->name('rejected.import');
+
     });
 
 

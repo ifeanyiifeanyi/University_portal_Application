@@ -21,10 +21,13 @@
                 <div class="me-3">
                     <a href="{{ route('admin.export.scores', $assignment->id) }}" class="btn btn-primary">Export Template</a>
                 </div>
-                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST" enctype="multipart/form-data"
-                    class="d-flex align-items-center">
+                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST"
+                    enctype="multipart/form-data" class="d-flex align-items-center">
                     @csrf
                     <input type="file" name="csv_file" class="form-control me-2" required>
+                    @error('csv_file')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                     <button type="submit" class="btn btn-dark">Import</button>
                 </form>
             </div>
@@ -154,5 +157,6 @@
             });
         });
     </script>
+    
 
 @endsection

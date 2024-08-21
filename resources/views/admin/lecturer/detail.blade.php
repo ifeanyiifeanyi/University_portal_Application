@@ -139,15 +139,15 @@
 
 
 @section('admin')
-{{-- @dd($teacher) --}}
+    {{-- @dd($teacher) --}}
     <div class="container" style="overflow-x: hidden !important">
         <div class=" mt-5">
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="card text-center p-3">
                         <center>
-                        <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
-                            alt="Lecturer" class="profile-image mb-3 text-center">
+                            <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
+                                alt="Lecturer" class="profile-image mb-3 text-center">
                         </center>
                         <div class="">
                             <h1 class="gradient-text">

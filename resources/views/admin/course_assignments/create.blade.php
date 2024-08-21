@@ -1,10 +1,10 @@
 @extends('admin.layouts.admin')
 
-@section('title', isset($assignment) ? 'Edit Course Assignment' : 'Create Course Assignment')
+@section('title', isset($assignment) ? 'Edit Course Assignment' : 'Assign Course To Departments')
 
 @section('admin')
     <div class="container">
-        <h1>Create Course Assignment</h1>
+        <h3 class="text-center">@yield('title')</h3>
         <div class="row">
             <div class="col-md-6 mx-auto shadow-sm">
                 <div class="card-body">

@@ -114,6 +114,12 @@
                 <li> <a href="{{ route('admin.score.approval.view') }}"><i class="bx bx-right-arrow-alt"></i>Submitted
                         Students Scores</a>
                 </li>
+                <li> <a href="{{ route('admin.approved_scores.view') }}"><i class="bx bx-right-arrow-alt"></i>Approved
+                        Students Assessment score</a>
+                </li>
+                <li> <a href="{{ route('admin.score.rejected.view') }}"><i class="bx bx-right-arrow-alt"></i>Rejected
+                        Students Assessment score</a>
+                </li>
             </ul>
         </li>
 

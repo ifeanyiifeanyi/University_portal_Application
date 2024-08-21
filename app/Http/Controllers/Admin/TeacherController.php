@@ -137,8 +137,13 @@ class TeacherController extends Controller
 
     public function show(Teacher $teacher)
     {
+
         $teacher->load([
             'user',
+            'teacherAssignments' => function ($query) use ($teacher) {
+                $query->where('teacher_id', $teacher->id)
+                    ->with(['course', 'department', 'academicSession', 'semester', 'courseAssignment', 'teacher']);
+            },
             'teacherAssignments.course',
             'teacherAssignments.department',
             'teacherAssignments.academicSession',
@@ -146,6 +151,8 @@ class TeacherController extends Controller
             'teacherAssignments.courseAssignment',
             'teacherAssignments.teacher'
         ]);
+
+
 
         return view('admin.lecturer.detail', compact('teacher'));
     }
@@ -239,15 +246,18 @@ class TeacherController extends Controller
             ->with(['course', 'academicSession', 'semester', 'courseAssignment'])
             ->get();
 
+
+
         $levels = $department->levels;
 
         return view('admin.lecturer.courses.department', compact('department', 'teacher', 'teacherAssignments', 'levels'));
     }
 
 
+
+
     // public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     // {
-
     //     //find if  teacher was really assigned to the course
     //     $assignment = TeacherAssignment::where('teacher_id', $teacherId)
     //         ->where('course_id', $courseId)
@@ -255,40 +265,6 @@ class TeacherController extends Controller
     //         ->where('academic_session_id', $academicSessionId)
     //         ->firstOrFail();
 
-    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
-    //     //     ->where('academic_session_id', $academicSessionId)
-    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
-    //     //         $query->where('semester_id', $semesterId)
-    //     //             ->where('academic_session_id', $academicSessionId)
-    //     //             ->where('status', 'approved');
-    //     //     })
-    //     //     ->with(['student.user', 'semesterCourseRegistration'])
-    //     //     ->get();
-
-    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
-    //     //     ->where('academic_session_id', $academicSessionId)
-    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
-    //     //         $query->where('semester_id', $semesterId)
-    //     //             ->where('academic_session_id', $academicSessionId)
-    //     //             ->where('status', 'approved');
-    //     //     })
-    //     //     ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
-    //     //     ->get();
-
-
-    //     // $enrollments = CourseEnrollment::where('course_id', $courseId)
-    //     //     ->where('academic_session_id', $academicSessionId)
-    //     //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
-    //     //         $query->where('semester_id', $semesterId)
-    //     //             ->where('academic_session_id', $academicSessionId)
-    //     //             ->where('status', 'approved');
-    //     //     })
-    //     //     ->with(['student.user', 'semesterCourseRegistration', 'studentScore' => function ($query) use ($assignment) {
-    //     //         $query->where('course_id', $assignment->course_id)
-    //     //             ->where('academic_session_id', $assignment->academic_session_id)
-    //     //             ->where('semester_id', $assignment->semester_id);
-    //     //     }])
-    //     //     ->get();
     //     $enrollments = CourseEnrollment::where('course_id', $courseId)
     //         ->where('academic_session_id', $academicSessionId)
     //         ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
@@ -299,50 +275,17 @@ class TeacherController extends Controller
     //         ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
     //         ->get();
 
-    //     // dd($enrollments);
-    //     $studentScores = $enrollments->mapWithKeys(function ($enrollment) {
-    //         $studentScore = $enrollment->studentScore;
-    //         return $studentScore ? [$enrollment->id => $studentScore->first()] : [];
-    //     });
-    //     // foreach ($enrollments as $enrollment) {
-    //     //     dd($enrollment->studentScore);
-    //     // }
-
-
-    //     return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
-    // }
-
-    // public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
-    // {
-    //     //find if  teacher was really assigned to the course
-    //     $assignment = TeacherAssignment::where('teacher_id', $teacherId)
-    //         ->where('course_id', $courseId)
+    //     $studentScores = StudentScore::where('course_id', $courseId)
+    //         ->where('academic_session_id', $academicSessionId)
     //         ->where('semester_id', $semesterId)
-    //         ->where('academic_session_id', $academicSessionId)
-    //         ->firstOrFail();
+    //         ->whereIn('student_id', $enrollments->pluck('student_id'))
+    //         ->get()
+    //         ->keyBy('student_id');
 
-    //     $enrollments = CourseEnrollment::where('course_id', $courseId)
-    //         ->where('academic_session_id', $academicSessionId)
-    //         ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
-    //             $query->where('semester_id', $semesterId)
-    //                 ->where('academic_session_id', $academicSessionId)
-    //                 ->where('status', 'approved');
-    //         })
-    //         ->with(['student.user', 'semesterCourseRegistration', 'studentScore' => function ($query) use ($assignment) {
-    //             $query->where('course_id', $assignment->course_id)
-    //                 ->where('academic_session_id', $assignment->academic_session_id)
-    //                 ->where('semester_id', $assignment->semester_id);
-    //         }])
-    //         ->get();
-
-    //     $studentScores = $enrollments->mapWithKeys(function ($enrollment) {
-    //         $studentScore = $enrollment->studentScore()->first();
-    //         return $studentScore ? [$enrollment->id => $studentScore] : [];
-    //     });
+    //         // dd($studentScores);
 
     //     return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
     // }
-
     public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     {
         //find if  teacher was really assigned to the course
@@ -359,6 +302,9 @@ class TeacherController extends Controller
                     ->where('academic_session_id', $academicSessionId)
                     ->where('status', 'approved');
             })
+            ->whereHas('student', function ($query) use ($assignment) {
+                $query->where('department_id', $assignment->department_id);
+            })
             ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
             ->get();
 
@@ -369,11 +315,8 @@ class TeacherController extends Controller
             ->get()
             ->keyBy('student_id');
 
-            // dd($studentScores);
-
         return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
     }
-
 
 
     public function storeScores(Request $request, $assignmentId)
