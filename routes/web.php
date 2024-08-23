@@ -14,11 +14,13 @@ use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminAccountsManagersController;
+use App\Http\Controllers\Admin\AdminApprovedScoreController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 
@@ -123,6 +125,39 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/get-grade/{score}', 'getGrade');
     });
 
+    Route::controller(AdminApprovedScoreController::class)->group(function () {
+        // view approved scores
+        Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
+
+        // revert score to pending -- single
+        Route::get('/approved/{score}/revert', 'revertApproval')->name('admin.score.approval.approved.revert');
+
+        // revert back approved scores in bulk
+        Route::post('/approved/bulk-revert', 'bulkRevertApproval')->name('admin.score.approval.approved.bulk-revert');
+
+        //export n import
+        Route::get('/approved/export', 'exportApprovedScores')->name('admin.score.approval.approved.export');
+        Route::post('/approved/import', 'importApprovedScores')->name('admin.score.approval.approved.import');
+    });
+
+    Route::controller(AdminRejectedScoreController::class)->group(function () {
+        Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
+
+        // --single revert
+        Route::post('/rejected/{score}/single-revert', 'revertRejection')->name('admin.score.approval.rejected.revert');
+
+
+        // -- bulk revert
+        Route::post('/rejected/bulk-revert', 'bulkRevertRejection')->name('admin.score.approval.rejected.bulk-revert');
+
+        // -- accept/approve rejected scores
+        Route::post('/rejected/bulk-accept', 'bulkAcceptRejection')->name('admin.score.approval.rejected.bulk-accept');
+
+
+        Route::get('/rejected/export', 'exportRejectedScores')->name('admin.rejected.score.export');
+        Route::post('/rejected/import', 'importRejectedScores')->name('admin.rejected.score.import');
+    });
+
     Route::controller(AdminScoreApprovalController::class)->group(function () {
         Route::get('score-approval', 'index')->name('admin.score.approval.view');
         Route::post('score-approval/approve', 'approveScore')->name('admin.score.approval.approve');
@@ -131,28 +166,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // export and import the table records
         Route::get('/scores/export', 'export')->name('admin.score.export');
         Route::post('/scores/import', 'import')->name('admin.score.import');
-
-        // view approved scores
-        Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
-
-        // revert back approved scores in single an bulk
-        Route::post('/approved/bulk-revert', 'bulkRevertApproval')->name('admin.score.approval.approved.bulk-revert');
-        Route::post('/approved/{score}/revert', 'revertApproval')->name('admin.score.approval.approved.revert');
-
-
-
-        Route::post('/rejected/bulk-accept', 'bulkAcceptRejection')->name('rejected.bulk-accept');
-        Route::post('/rejected/bulk-revert', 'bulkRevertRejection')->name('rejected.bulk-revert');
-        Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
-
-
-
-
-        Route::get('/approved/export', 'exportApprovedScores')->name('admin.score.approval.approved.export');
-        Route::post('/approved/import', 'importApprovedScores')->name('admin.score.approval.approved.import');
-        Route::get('/rejected/export', 'exportRejectedScores')->name('rejected.export');
-        Route::post('/rejected/import', 'importRejectedScores')->name('rejected.import');
-
     });
 
 
@@ -168,7 +181,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
 
 
+        // view registered courses
         Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
+        // view score history
+        Route::get('/student/{student}/approved-score-history',  'viewApprovedScoreHistory')->name('admin.student.approved-score-history');
     });
 
     Route::controller(AdminTeacherAssignmentController::class)->group(function () {

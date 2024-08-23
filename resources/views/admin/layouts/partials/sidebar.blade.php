@@ -102,14 +102,13 @@
                 <div class="menu-title">Academic Records</div>
             </a>
             <ul>
-                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Course |
-                        Semester Manager</a>
+                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Assign Semester Courses to Department</a>
                 </li>
                 <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i
-                            class="bx bx-right-arrow-alt"></i>Deparment | lecturer | Courses</a>
+                            class="bx bx-right-arrow-alt"></i>Assign Department and Courses to Lecturers</a>
                 </li>
                 <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i
-                            class="bx bx-right-arrow-alt"></i>Students Registered Courses</a>
+                            class="bx bx-right-arrow-alt"></i>Manage Students Registered Courses</a>
                 </li>
                 <li> <a href="{{ route('admin.score.approval.view') }}"><i class="bx bx-right-arrow-alt"></i>Submitted
                         Students Scores</a>

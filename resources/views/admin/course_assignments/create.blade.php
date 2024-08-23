@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', isset($assignment) ? 'Edit Course Assignment' : 'Assign Course To Departments')
+@section('title', isset($assignment) ? 'Edit Department Assigned Course' : 'Assign Course To Departments')
 
 @section('admin')
     <div class="container">

@@ -326,4 +326,20 @@ class AdminStudentController extends Controller
 
         return view('admin.student.registration_history', compact('student', 'registrationHistory'));
     }
+
+
+    public function viewApprovedScoreHistory(Student $student)
+    {
+        $scores = $student->scores()
+            ->where('status', 'approved')
+            ->with(['course', 'teacher', 'scoreAudits', 'academicSession', 'semester'])
+            ->orderBy('academic_session_id', 'desc')
+            ->orderBy('semester_id', 'desc')
+            ->get()
+            ->groupBy(function ($score) {
+                return $score->academicSession->name . ' - ' . $score->semester->name;
+            });
+
+        return view('admin.student.score_approval_score_history', compact('scores', 'student'));
+    }
 }

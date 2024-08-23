@@ -8,7 +8,7 @@
 
 
 @section('admin')
-    <div class="container">
+    <div class="container-fluid">
         <h2>Approved Scores</h2>
         <p>
             <a href="{{ route('admin.score.approval.view') }}" class="btn"
@@ -67,8 +67,9 @@
                     <div class="row">
                         <div class="col-md-4">
                             <a href="{{ route('admin.score.approval.approved.export', ['academic_session_id' => $selectedSession, 'semester_id' => $selectedSemester]) }}"
-                                class="btn" style="background-color: purple;color:white">Export to Excel</a>
+                                class="btn" style="background-color: purple;color:white">Export to CSV</a>
                         </div>
+
                         <div class="col-md-8">
                             <form style="float: left" action="{{ route('admin.score.approval.approved.import') }}"
                                 method="POST" enctype="multipart/form-data">
@@ -92,8 +93,8 @@
 
             <form id="approvedScoresForm" action="{{ route('admin.score.approval.approved.bulk-revert') }}" method="POST">
                 @csrf
-                <div class="table-responsive">
-                    <table class="table table-striped">
+                <div class="table-responsive mt-4">
+                    <table class="table table-striped table-bordered" id="example">
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
@@ -106,7 +107,7 @@
                                 <th>Exam</th>
                                 <th>Total</th>
                                 <th>Grade</th>
-                                <th>Status</th>
+                                {{-- <th>Status</th> --}}
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -115,7 +116,10 @@
                                 <tr>
                                     <td><input type="checkbox" name="score_ids[]" value="{{ $score->id }}"></td>
                                     <th>{{ $loop->iteration }}</th>
-                                    <td>{{ $score->student->user->fullName() }}</td>
+                                    <td>
+                                        {{ $score->student->user->fullName() }}
+                                        <p class="sm">{{ $score->student->matric_number }}</p>
+                                    </td>
                                     <td>{{ $score->course->title }}</td>
                                     <td>{{ $score->department->name }}</td>
                                     <td>{{ $score->teacher->teacher_title }} {{ $score->teacher->user->fullName() }}</td>
@@ -123,12 +127,10 @@
                                     <td>{{ $score->exam_score }}</td>
                                     <td>{{ $score->total_score }}</td>
                                     <td>{{ $score->grade }}</td>
-                                    <td>{{ ucfirst($score->status) }}</td>
+                                    {{-- <td>{{ ucfirst($score->status) }}</td> --}}
                                     <td>
-                                        <a href="{{ route('admin.score.approval.approved.revert', $score) }}"
-                                            class="btn btn-danger btn-sm">
-                                            Revert Approval
-                                        </a>
+                                        <a onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.approved.revert', $score) }}" class="btn btn-sm btn-danger">Revert</a>
+                                    
                                     </td>
                                 </tr>
                             @endforeach
@@ -141,7 +143,8 @@
                 </div>
 
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-danger">Revert Selected</button>
+                    <button onclick="return confirm('Are you sure of this action ?')" type="submit"
+                        class="btn btn-danger">Revert Selected</button>
                 </div>
             </form>
 

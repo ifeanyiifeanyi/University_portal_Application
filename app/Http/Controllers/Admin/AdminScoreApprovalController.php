@@ -11,11 +11,19 @@ use App\Models\StudentScore;
 use Illuminate\Http\Request;
 use App\Models\AcademicSession;
 use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ApprovedScoresExport;
 
 class AdminScoreApprovalController extends Controller
 {
+    // function for storing the audits
+    private function auditScore($scoreId, $action, $comment)
+    {
+        ScoreAudit::create([
+            'student_score_id' => $scoreId,
+            'user_id' => auth()->id(),
+            'action' => $action,
+            'comment' => $comment,
+        ]);
+    }
     public function index(Request $request)
     {
         $academicSessions = AcademicSession::orderBy('name', 'desc')->get();
@@ -29,6 +37,7 @@ class AdminScoreApprovalController extends Controller
 
         $selectedDepartment = $request->input('department_id');
 
+        // -- select students score still pending
         $query = StudentScore::where('status', 'pending')
             ->where('academic_session_id', $selectedSession)
             ->where('semester_id', $selectedSemester);
@@ -44,6 +53,7 @@ class AdminScoreApprovalController extends Controller
 
         return view('admin.score_approval.index', compact('pendingScores', 'academicSessions', 'semesters', 'selectedSession', 'selectedSemester', 'selectedDepartment', 'departments', 'currentAcademicSession', 'currentSemester'));
     }
+
     public function approveScore(Request $request)
     {
         $scoreIds = $request->input('score_ids', []);
@@ -53,18 +63,19 @@ class AdminScoreApprovalController extends Controller
 
         foreach ($scores as $score) {
             $score->update(['status' => 'approved']);
-            ScoreAudit::create([
-                'student_score_id' => $score->id,
-                'user_id' => auth()->id(),
-                'action' => 'approved',
-                'comment' => $comment,
-            ]);
+            $this->auditScore($scores->id, 'Approved_Scores', $comment);
+            // ScoreAudit::create([
+            //     'student_score_id' => $score->id,
+            //     'user_id' => auth()->id(),
+            //     'action' => 'approved',
+            //     'comment' => $comment,
+            // ]);
         }
 
         return redirect()->back()->with('success', 'Selected scores have been approved.');
     }
 
-    public function reject(Request $request)
+    public function rejectScore(Request $request)
     {
         $scoreIds = $request->input('score_ids', []);
         $comment = $request->input('comment');
@@ -73,12 +84,14 @@ class AdminScoreApprovalController extends Controller
 
         foreach ($scores as $score) {
             $score->update(['status' => 'rejected']);
-            ScoreAudit::create([
-                'student_score_id' => $score->id,
-                'user_id' => auth()->id(),
-                'action' => 'rejected',
-                'comment' => $comment,
-            ]);
+            $this->auditScore($scores->id, 'Rejected_Scores', $comment);
+
+            // ScoreAudit::create([
+            //     'student_score_id' => $score->id,
+            //     'user_id' => auth()->id(),
+            //     'action' => 'rejected',
+            //     'comment' => $comment,
+            // ]);
         }
 
         return redirect()->back()->with('success', 'Selected scores have been rejected.');
@@ -191,7 +204,10 @@ class AdminScoreApprovalController extends Controller
                     ]
                 );
 
+                $this->auditScore($student->id, 'Imported_Scores', 'CSV import');
+
                 $imported++;
+
             }
 
             $message = "Imported $imported records successfully. ";
@@ -232,102 +248,5 @@ class AdminScoreApprovalController extends Controller
         }
 
         return true;
-    }
-
-
-
-
-
-    // view approved exam scores
-    public function approvedScores(Request $request)
-    {
-        $academicSessions = AcademicSession::orderBy('name', 'desc')->get();
-        $semesters = Semester::all();
-
-        $currentAcademicSession = AcademicSession::where('is_current', true)->first();
-        $currentSemester = Semester::where('is_current', true)->first();
-
-        $selectedSession = $request->input('academic_session_id', $currentAcademicSession ? $currentAcademicSession->id : $academicSessions->first()->id);
-        $selectedSemester = $request->input('semester_id', $currentSemester ? $currentSemester->id : $semesters->first()->id);
-
-        $selectedDepartment = $request->input('department_id');
-
-        $approvedScores = StudentScore::where('status', 'approved')
-            ->where('academic_session_id', $selectedSession)
-            ->where('semester_id', $selectedSemester)
-            ->when($selectedDepartment, function ($query) use ($selectedDepartment) {
-                return $query->where('department_id', $selectedDepartment);
-            })
-            ->with(['student', 'course', 'teacher', 'department'])
-            ->paginate(50);
-
-        $departments = Department::all();
-
-        return view('admin.score_approval.approved_result', compact(
-            'approvedScores',
-            'academicSessions',
-            'semesters',
-            'selectedSession',
-            'selectedSemester',
-            'selectedDepartment',
-            'departments',
-            'currentAcademicSession',
-            'currentSemester'
-        ));
-    }
-
-    public function exportApprovedScores(Request $request)
-    {
-        $academicSessionId = $request->input('academic_session_id');
-        $semesterId = $request->input('semester_id');
-        $approvedScores = StudentScore::with(['student.user', 'course', 'teacher.user'])
-            ->where('academic_session_id', $academicSessionId)
-            ->where('semester_id', $semesterId)
-            ->where('status', 'approved')
-            ->get();
-
-        return Excel::download(new \App\Exports\ApprovedScoresExport($approvedScores), 'approved_scores.xlsx');
-    }
-
-
-
-
-
-
-    public function rejectedScores(Request $request)
-    {
-        $academicSessions = AcademicSession::orderBy('name', 'desc')->get();
-        $semesters = Semester::all();
-
-        $currentAcademicSession = AcademicSession::where('is_current', true)->first();
-        $currentSemester = Semester::where('is_current', true)->first();
-
-        $selectedSession = $request->input('academic_session_id', $currentAcademicSession ? $currentAcademicSession->id : $academicSessions->first()->id);
-        $selectedSemester = $request->input('semester_id', $currentSemester ? $currentSemester->id : $semesters->first()->id);
-
-        $selectedDepartment = $request->input('department_id');
-
-        $rejectedScores = StudentScore::where('status', 'rejected')
-            ->where('academic_session_id', $selectedSession)
-            ->where('semester_id', $selectedSemester)
-            ->when($selectedDepartment, function ($query) use ($selectedDepartment) {
-                return $query->where('department_id', $selectedDepartment);
-            })
-            ->with(['student', 'course', 'teacher', 'department'])
-            ->paginate(50);
-
-        $departments = Department::all();
-
-        return view('admin.score_approval.rejected_result', compact(
-            'rejectedScores',
-            'academicSessions',
-            'semesters',
-            'selectedSession',
-            'selectedSemester',
-            'selectedDepartment',
-            'departments',
-            'currentAcademicSession',
-            'currentSemester'
-        ));
     }
 }

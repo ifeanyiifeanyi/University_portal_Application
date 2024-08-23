@@ -60,4 +60,9 @@ class StudentScore extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function scoreAudits()
+    {
+        return $this->hasMany(ScoreAudit::class);
+    }
 }
