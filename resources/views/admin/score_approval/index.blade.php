@@ -135,6 +135,15 @@
                                 <td>{{ $score->exam_score }}</td>
                                 <td>{{ $score->total_score }}</td>
                                 <td>{{ $score->grade }}</td>
+                                <td>
+                                    <a style="background: rgb(119, 44, 113)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.approve', $score->id) }}" class="btn text-light">
+                                        Approve Score
+                                    </a>
+
+                                    <a style="background: rgb(219, 30, 93)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.reject', $score->id) }}" class="btn text-light">
+                                        Reject Score
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

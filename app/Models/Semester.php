@@ -51,6 +51,27 @@ class Semester extends Model
         return !$this->is_current && !$this->courseAssignments()->exists() && !$this->teacherAssignments()->exists();
     }
 
+    public function getCourseAssignmentsByCourse($courseId)
+    {
+        return CourseAssignment::where('course_id', $courseId)->where('semester_id', $this->id)->get();
+    }
+
+    public function getCourseAssignmentsByTeacher($teacherId)
+    {
+        return TeacherAssignment::where('teacher_id', $teacherId)->where('semester_id', $this->id)->get();
+    }
+
+    public static function getCurrentSemester()
+    {
+        return self::where('is_current', true)->first();
+    }
+    public function getPreviousSemesters(){
+        return self::where('is_current', false)->get();
+    }
+    public function getActiveSemester(){
+        return self::where('is_current', true)->orWhere('is_current', false)->first();
+    }
+
 
     protected $casts = [
         // 'start_date' => 'date',

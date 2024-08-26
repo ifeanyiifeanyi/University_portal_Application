@@ -158,6 +158,10 @@
                         </div>
 
                     </div>
+                    <div class="card p-3">
+                        <a href="{{ route('admin.teacher.audits', ['teacher' => $teacher->id]) }}" class="btn btn-primary">View Score Audits</a>
+
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="info-card text-center">

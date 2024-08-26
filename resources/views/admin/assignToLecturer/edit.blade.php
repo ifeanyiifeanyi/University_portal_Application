@@ -6,6 +6,8 @@
 @endsection
 
 @section('admin')
+@include('admin.return_btn')
+
     <div class="container">
         <div class="row">
             <div class="card col-md-8 px-2 py-3 mx-auto">

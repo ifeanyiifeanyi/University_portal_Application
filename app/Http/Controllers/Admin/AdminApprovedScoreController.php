@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
+use App\ScoreAuditable;
 use App\Models\Semester;
 use App\Models\Department;
 use App\Models\ScoreAudit;
@@ -16,15 +17,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminApprovedScoreController extends Controller
 {
-    private function auditScore($scoreId, $action, $comment)
-    {
-        ScoreAudit::create([
-            'student_score_id' => $scoreId,
-            'user_id' => auth()->id(),
-            'action' => $action,
-            'comment' => $comment,
-        ]);
-    }
+    use ScoreAuditable;
+
+
     // view approved exam scores
     public function approvedScores(Request $request)
     {
@@ -67,8 +62,22 @@ class AdminApprovedScoreController extends Controller
     //revert the approved score to pending
     public function revertApproval(Request $request, StudentScore $score)
     {
-        $score->update(['status' => 'pending']);
-        $this->auditScore($score->id, 'Reverted_Approval', $request->input('comment') ?? 'Reverted Approval');
+        $oldValue = $score->getOriginal();
+
+        // Directly update the database
+        StudentScore::where('id', $score->id)->update(['status' => 'pending']);
+
+        // Refresh the model to get updated attributes
+        $score->refresh();
+        $newValue = $score->getAttributes();
+
+        $this->auditScore(
+            $score->id,
+            'Revert',
+            $request->input('comment') ?? 'Reverted Approval',
+            $oldValue,
+            $newValue
+        );
 
         return redirect()->back()->with('success', 'The approval has been reverted.');
     }
@@ -77,7 +86,7 @@ class AdminApprovedScoreController extends Controller
         $validator = Validator::make($request->all(), [
             'score_ids' => 'required|array|min:1',
             'score_ids.*' => 'exists:student_scores,id',
-            'comment' => 'required|string|max:255',
+            'comment' => 'nullable|string|max:255',
         ]);
         if ($validator->fails()) {
             return redirect()->back()
@@ -88,16 +97,22 @@ class AdminApprovedScoreController extends Controller
         $scoreIds = $request->input('score_ids');
         $comment = $request->input('comment');
 
-        StudentScore::whereIn('id', $scoreIds)->update(['status' => 'pending']);
-
         foreach ($scoreIds as $scoreId) {
-            $this->auditScore($scoreId, 'Reverted_Approval_In_Bulk', $comment ?? "Reverted Approval in bulk");
-        }
+            $score = StudentScore::findOrFail($scoreId);
+            $oldValue = $score->getOriginal();
 
+            // Directly update the database
+            StudentScore::where('id', $scoreId)->update(['status' => 'pending']);
+
+            // Refresh the model to get updated attributes
+            $score->refresh();
+            $newValue = $score->getAttributes();
+
+            $this->auditScore($score->id, 'Revert', $comment ?? "Reverted Approval in bulk", $oldValue, $newValue);
+        }
 
         return redirect()->back()->with('success', 'The selected approved scores have been reverted.');
     }
-
 
     public function exportApprovedScores(Request $request)
     {
@@ -124,9 +139,16 @@ class AdminApprovedScoreController extends Controller
                 $score->total_score,
                 $score->grade,
             ]);
+            $this->auditScore($score->id, 'Export', 'Scores exported to CSV', null, [
+                'academic_session_id' => $request->input('academic_session_id'),
+                'semester_id' => $request->input('semester_id'),
+            ]);
         }
 
         $filename = 'approved_scores_' . date('Y-m-d') . '.csv';
+
+
+
         return response($csv->getContent())
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', "attachment; filename=\"$filename\"");
@@ -151,8 +173,16 @@ class AdminApprovedScoreController extends Controller
         $records = $csv->getRecords();
 
         foreach ($records as $record) {
-            // Assuming the CSV columns match the database columns
-            StudentScore::updateOrCreate(
+            $oldScore = StudentScore::where([
+                'student_id' => $record['student_id'],
+                'course_id' => $record['course_id'],
+                'academic_session_id' => $record['academic_session_id'],
+                'semester_id' => $record['semester_id'],
+            ])->first();
+
+            $oldValue = $oldScore ? $oldScore->getAttributes() : null;
+
+            $score = StudentScore::updateOrCreate(
                 [
                     'student_id' => $record['student_id'],
                     'course_id' => $record['course_id'],
@@ -169,7 +199,8 @@ class AdminApprovedScoreController extends Controller
                     'status' => 'approved',
                 ]
             );
-            $this->auditScore($record['student_id'], 'Import_Approved_Score', 'CSV File Import');
+
+            $this->auditScore($score->id, 'Import', 'Score imported from CSV', $oldValue, $score->getAttributes());
         }
 
         return redirect()->back()->with('success', 'CSV file has been imported successfully.');

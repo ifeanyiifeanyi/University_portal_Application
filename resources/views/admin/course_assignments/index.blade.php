@@ -3,6 +3,7 @@
 @section('title', 'Course | Academic Session Manager')
 
 @section('admin')
+@include('admin.return_btn')
     <div class="container">
         <h1>Semester Manager</h1>
         <a href="{{ route('course-assignments.create') }}" class="btn btn-primary mb-3">Create New Assignment</a>

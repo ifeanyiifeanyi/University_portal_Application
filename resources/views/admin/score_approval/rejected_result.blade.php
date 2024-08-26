@@ -91,7 +91,7 @@
         <form id="rejectedScoresForm" action="{{ route('admin.score.approval.rejected.bulk-accept') }}" method="POST">
             @csrf
             <div class="table-responsive">
-                <table class="table table-striped" id="example">
+                <table class="table table-striped table-bordered" id="example">
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="select-all"></th>
@@ -125,14 +125,9 @@
                                 <td>{{ $score->grade }}</td>
                                 <td>{{ ucfirst($score->status) }}</td>
                                 <td>
-                                    <form action="{{ route('admin.score.approval.rejected.revert', $score->id) }}"
-                                        method="post">
-                                        @csrf
-                                        <button onclick="return confirm('Are you sure of this action ?')" type="submit"
-                                            class="btn btn-primary btn-sm">
-                                            Revert
-                                        </button>
-                                    </form>
+                                    <a style="background: rgb(119, 44, 113)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.rejected.revert', $score->id) }}" class="btn text-light">
+                                        Revert to pending
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -145,10 +140,11 @@
             </div>
 
             <div class="mt-3">
-                <button onclick="return confirm('Are you sure of this action ?')" type="submit"
-                    class="btn btn-success">Accept Selected</button>
-                <button onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn btn-danger"
-                    formaction="{{ route('admin.score.approval.rejected.bulk-revert') }}">Revert Selected</button>
+                <button style="background-color: rgb(37, 88, 37)" onclick="return confirm('Are you sure of this action ?')" type="submit"
+                    class="btn text-light">Bulk Approve Selected</button>
+
+                <button style="background: rgb(221, 4, 185)" onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn text-light"
+                    formaction="{{ route('admin.score.approval.rejected.bulk-revert') }}">Bulk Revert To Pending</button>
             </div>
 
         </form>

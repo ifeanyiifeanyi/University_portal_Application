@@ -219,21 +219,23 @@ class TeacherController extends Controller
         return redirect()->back()->with($notification);
     }
 
-    public function destroy(Teacher $teacher)
-    {
-        // Delete the teacher
-        $teacher->delete();
+    // public function destroy(Teacher $teacher)
+    // {
+    //     // Delete the teacher
+    //     $teacher->delete();
 
-        // Delete the user associated with the teacher
-        $teacher->user->delete();
+    //     // Delete the user associated with the teacher
+    //     $teacher->user->delete();
 
-        $notification = [
-            'message' => 'Teacher deleted successfully.',
-            'alert-type' => 'danger'
-        ];
+    //     $notification = [
+    //         'message' => 'Teacher deleted successfully.',
+    //         'alert-type' => 'danger'
+    //     ];
 
-        return redirect()->back()->with($notification);
-    }
+    //     return redirect()->back()->with($notification);
+    // }
+
+
 
 
     public function departmentDetails($departmentId, $teacherId)
@@ -253,39 +255,6 @@ class TeacherController extends Controller
         return view('admin.lecturer.courses.department', compact('department', 'teacher', 'teacherAssignments', 'levels'));
     }
 
-
-
-
-    // public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
-    // {
-    //     //find if  teacher was really assigned to the course
-    //     $assignment = TeacherAssignment::where('teacher_id', $teacherId)
-    //         ->where('course_id', $courseId)
-    //         ->where('semester_id', $semesterId)
-    //         ->where('academic_session_id', $academicSessionId)
-    //         ->firstOrFail();
-
-    //     $enrollments = CourseEnrollment::where('course_id', $courseId)
-    //         ->where('academic_session_id', $academicSessionId)
-    //         ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
-    //             $query->where('semester_id', $semesterId)
-    //                 ->where('academic_session_id', $academicSessionId)
-    //                 ->where('status', 'approved');
-    //         })
-    //         ->with(['student.user', 'semesterCourseRegistration', 'studentScore'])
-    //         ->get();
-
-    //     $studentScores = StudentScore::where('course_id', $courseId)
-    //         ->where('academic_session_id', $academicSessionId)
-    //         ->where('semester_id', $semesterId)
-    //         ->whereIn('student_id', $enrollments->pluck('student_id'))
-    //         ->get()
-    //         ->keyBy('student_id');
-
-    //         // dd($studentScores);
-
-    //     return view('admin.lecturer.courses.registered_students', compact('assignment', 'enrollments'))->with('studentScores', $studentScores);
-    // }
     public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     {
         //find if  teacher was really assigned to the course
@@ -319,23 +288,141 @@ class TeacherController extends Controller
     }
 
 
+    // public function storeScores(Request $request, $assignmentId)
+    // {
+    //     // dd($request->all());
+    //     // dd($request);
+    //     $assignment = TeacherAssignment::findOrFail($assignmentId);
+    //     $validator = Validator::make($request->all(), [
+    //         'scores.*.assessment' => 'required|numeric|min:0|max:40',
+    //         'scores.*.exam' => 'required|numeric|min:0|max:60',
+    //     ], [
+    //         'scores.*.assessment.required' => 'Assessment score is required for all students.',
+    //         'scores.*.exam.required' => 'Exam score is required for all students.',
+    //         'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
+    //         'scores.*.exam.max' => 'Exam score cannot exceed 60.',
+    //     ]);
+    //     if ($validator->fails()) {
+    //         return redirect()->back()->withErrors($validator)->withInput();
+    //     }
+
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         foreach ($request->scores as $enrollmentId => $scoreData) {
+    //             $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+
+    //             // $totalScore = floatval($scoreData['assessment']) + floatval($scoreData['exam']);
+    //             // $grade = GradeSystem::getGrade($totalScore);
+    //             // $isFailed = $grade === 'F';
+
+    //             $assessmentScore = floatval($scoreData['assessment']);
+    //             $examScore = floatval($scoreData['exam']);
+    //             $totalScore = $assessmentScore + $examScore;
+    //             $grade = GradeSystem::getGrade($totalScore);
+    //             $isFailed = $grade === 'F';
+
+
+    //             StudentScore::updateOrCreate(
+    //                 [
+    //                     'student_id' => $enrollment->student_id,
+    //                     'course_id' => $assignment->course_id,
+    //                     'academic_session_id' => $assignment->academic_session_id,
+    //                     'semester_id' => $assignment->semester_id,
+    //                 ],
+    //                 [
+    //                     'teacher_id' => $assignment->teacher_id,
+    //                     'department_id' => $enrollment->student->department_id,
+    //                     'assessment_score' => $assessmentScore,
+    //                     'exam_score' => $examScore,
+    //                     'total_score' => $totalScore,
+    //                     'grade' => $grade,
+    //                     'is_failed' => $isFailed,
+    //                 ]
+    //             );
+    //         }
+
+    //         DB::commit();
+    //         return redirect()->back()->with('success', 'Scores have been saved successfully.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Error saving scores: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+    //     }
+    // }
+
+    // public function storeScores(Request $request, $assignmentId)
+    // {
+    //     $assignment = TeacherAssignment::findOrFail($assignmentId);
+    //     $validator = Validator::make($request->all(), [
+    //         'scores.*.assessment' => 'required|numeric|min:0|max:40',
+    //         'scores.*.exam' => 'required|numeric|min:0|max:60',
+    //     ], [
+    //         'scores.*.assessment.required' => 'Assessment score is required for all students.',
+    //         'scores.*.exam.required' => 'Exam score is required for all students.',
+    //         'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
+    //         'scores.*.exam.max' => 'Exam score cannot exceed 60.',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->back()->withErrors($validator)->withInput();
+    //     }
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         foreach ($request->scores as $enrollmentId => $scoreData) {
+    //             $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+
+    //             $assessmentScore = floatval($scoreData['assessment']);
+    //             $examScore = floatval($scoreData['exam']);
+    //             $totalScore = $assessmentScore + $examScore;
+    //             $grade = GradeSystem::getGrade($totalScore);
+    //             $isFailed = $grade === 'F';
+
+    //             StudentScore::updateOrCreate(
+    //                 [
+    //                     'student_id' => $enrollment->student_id,
+    //                     'course_id' => $assignment->course_id,
+    //                     'academic_session_id' => $assignment->academic_session_id,
+    //                     'semester_id' => $assignment->semester_id,
+    //                 ],
+    //                 [
+    //                     'teacher_id' => $assignment->teacher_id,
+    //                     'department_id' => $enrollment->student->department_id,
+    //                     'assessment_score' => $assessmentScore,
+    //                     'exam_score' => $examScore,
+    //                     'total_score' => $totalScore,
+    //                     'grade' => $grade,
+    //                     'is_failed' => $isFailed,
+    //                 ]
+    //             );
+    //         }
+
+    //         DB::commit();
+    //         return redirect()->back()->with('success', 'Scores have been saved successfully.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Error saving scores: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+    //     }
+    // }
+
     public function storeScores(Request $request, $assignmentId)
     {
-        // dd($request);
         $assignment = TeacherAssignment::findOrFail($assignmentId);
         $validator = Validator::make($request->all(), [
-            'scores.*.assessment' => 'required|numeric|min:0|max:40',
-            'scores.*.exam' => 'required|numeric|min:0|max:60',
+            'scores.*.assessment' => 'required',
+            'scores.*.exam' => 'required',
         ], [
             'scores.*.assessment.required' => 'Assessment score is required for all students.',
             'scores.*.exam.required' => 'Exam score is required for all students.',
-            'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
-            'scores.*.exam.max' => 'Exam score cannot exceed 60.',
         ]);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
 
         try {
             DB::beginTransaction();
@@ -343,7 +430,18 @@ class TeacherController extends Controller
             foreach ($request->scores as $enrollmentId => $scoreData) {
                 $enrollment = CourseEnrollment::findOrFail($enrollmentId);
 
-                $totalScore = $scoreData['assessment'] + $scoreData['exam'];
+                $assessmentScore = floatval($this->extractScore($scoreData['assessment']));
+                // dd($assessmentScore);
+                $examScore = floatval($this->extractScore($scoreData['exam']));
+                // dd($examScore);
+
+                if ($assessmentScore > 40 || $examScore > 60) {
+                    throw new \Exception("Invalid score range for enrollment ID: $enrollmentId");
+                }
+
+                $totalScore = $assessmentScore + $examScore;
+                // dd($totalScore);
+
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
 
@@ -357,13 +455,23 @@ class TeacherController extends Controller
                     [
                         'teacher_id' => $assignment->teacher_id,
                         'department_id' => $enrollment->student->department_id,
-                        'assessment_score' => $scoreData['assessment'],
-                        'exam_score' => $scoreData['exam'],
-                        'total_score' => $totalScore,
+                        'assessment_score' => $assessmentScore,
+                        'exam_score' => $examScore,
+                        'total_score' => floatval($totalScore),
                         'grade' => $grade,
                         'is_failed' => $isFailed,
                     ]
                 );
+
+                Log::debug('Score data', [
+                    'enrollment_id' => $enrollmentId,
+                    'student_id' => $enrollment->student_id,
+                    'assessment_score' => $assessmentScore,
+                    'exam_score' => $examScore,
+                    'total_score' => $totalScore,
+                    'grade' => $grade,
+                    'is_failed' => $isFailed,
+                ]);
             }
 
             DB::commit();
@@ -373,6 +481,14 @@ class TeacherController extends Controller
             Log::error('Error saving scores: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
         }
+    }
+
+    private function extractScore($scoreData)
+    {
+        if (is_array($scoreData)) {
+            return isset($scoreData['to']) ? floatval($scoreData['to']) : floatval($scoreData[0]);
+        }
+        return floatval($scoreData);
     }
 
     public function exportScores($assignmentId)
@@ -456,5 +572,26 @@ class TeacherController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'An error occurred while importing scores: ' . $e->getMessage());
         }
+    }
+
+
+    public function viewAudits(Teacher $teacher)
+    {
+        $groupedAudits = $teacher->scoreAudits()
+            ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
+            ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
+            ->join('courses', 'student_scores.course_id', '=', 'courses.id')
+            ->select(
+                'score_audits.*',
+                'academic_sessions.name as session_name',
+                'semesters.name as semester_name',
+                'courses.title as course_title'
+            )
+            ->orderBy('academic_sessions.name', 'desc')
+            ->orderBy('semesters.name', 'asc')
+            ->get()
+            ->groupBy(['session_name', 'semester_name', 'course_title']);
+
+        return view('admin.lecturer.courses.audits', compact('teacher', 'groupedAudits'));
     }
 }

@@ -342,4 +342,27 @@ class AdminStudentController extends Controller
 
         return view('admin.student.score_approval_score_history', compact('scores', 'student'));
     }
+
+
+    // public function viewAudits(Student $student)
+    // {
+    //     $groupedAudits = $student->getAuditsBySessionAndSemester();
+    //     return view('admin.student.audits', compact('student', 'groupedAudits'));
+    // }
+
+    public function viewAudits(Student $student)
+    {
+        $groupedAudits = $student->scoreAudits()
+            ->join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
+            ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
+            ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
+            ->join('courses', 'student_scores.course_id', '=', 'courses.id')
+            ->select('score_audits.*', 'academic_sessions.name as session_name', 'semesters.name as semester_name', 'courses.title as course_title')
+            ->orderBy('academic_sessions.name', 'desc')
+            ->orderBy('semesters.name', 'asc')
+            ->get()
+            ->groupBy(['session_name', 'semester_name', 'course_title']);
+
+        return view('admin.student.audit', compact('student', 'groupedAudits'));
+    }
 }

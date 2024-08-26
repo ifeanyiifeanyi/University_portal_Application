@@ -9,6 +9,7 @@
 @section('admin')
     <div class="container">
         <h4>Course Registration Management</h4>
+        <button class="btn btn-dark mb-3" onclick="history.back()">Back</button>
 
         <div class="row mb-4">
             <div class="col-md-3">

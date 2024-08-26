@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
+use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 
 // Route::get('/', function () {
@@ -81,9 +82,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('courses/delete/{id}', 'destroy')->name('admin.courses.delete');
     });
 
-
-
-
     Route::controller(DepartmentController::class)->group(function () {
         Route::get('manage-department', 'index')->name('admin.department.view');
         Route::post('manage-department', 'store')->name('admin.department.store');
@@ -118,6 +116,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // exporting the table for submitting students scores as csv
         Route::get('export-scores/{assignmentId}', 'exportScores')->name('admin.export.scores');
         Route::post('import-scores/{assignmentId}', 'importScores')->name('admin.import.scores');
+
+        // view assessments audits
+        Route::get('/teacher/{teacher}/audits',  'viewAudits')->name('admin.teacher.audits');
+
     });
 
     // for controlling the grade types
@@ -144,7 +146,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
 
         // --single revert
-        Route::post('/rejected/{score}/single-revert', 'revertRejection')->name('admin.score.approval.rejected.revert');
+        Route::get('/rejected/{score}/single-revert', 'revertRejection')->name('admin.score.approval.rejected.revert');
 
 
         // -- bulk revert
@@ -160,15 +162,24 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminScoreApprovalController::class)->group(function () {
         Route::get('score-approval', 'index')->name('admin.score.approval.view');
-        Route::post('score-approval/approve', 'approveScore')->name('admin.score.approval.approve');
+        Route::post('score-approval/approve/bulk', 'approveScore')->name('admin.score.approval.approve');
         Route::post('score-approval/reject', 'rejectScore')->name('admin.score.approval.reject');
+
+        // --single approve
+        Route::get('/approve/{score}/single-approve', 'singleApproveScore')->name('admin.score.approval.single.approve');
+
+        // --single reject
+        Route::get('/approve/{score}/single-reject', 'singleRejectScore')->name('admin.score.approval.single.reject');
 
         // export and import the table records
         Route::get('/scores/export', 'export')->name('admin.score.export');
         Route::post('/scores/import', 'import')->name('admin.score.import');
     });
 
-
+    Route::controller(AdminScoreAuditController::class)->group(function () {
+        Route::get('score-audit', 'index')->name('admin.score.audit.view');
+        Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
+    });
 
 
     Route::controller(AdminStudentController::class)->group(function () {
@@ -185,6 +196,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
         // view score history
         Route::get('/student/{student}/approved-score-history',  'viewApprovedScoreHistory')->name('admin.student.approved-score-history');
+
+        //assessment score audit history
+        Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
     });
 
     Route::controller(AdminTeacherAssignmentController::class)->group(function () {

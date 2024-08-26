@@ -3,20 +3,21 @@
 @section('title', 'Registered Courses')
 
 @section('admin')
+    @include('admin.return_btn')
     <div class="container">
+        @include('admin.alert')
         <div class="card py-3 px-3">
             <h4>Registered Courses for {{ $student->user->fullName() }} | Level: {{ $student->current_level }}</h4>
             <p>Academic Session: {{ $currentAcademicSession->name ?? '' }}</p>
-            <p>Semester: {{ $currentSemester->name  ?? '' }}</p>
+            <p>Semester: {{ $currentSemester->name ?? '' }}</p>
             <p>Department: {{ $enrolledCourses->first()->department->name ?? '' }}</p>
             <p>Faculty: {{ $enrolledCourses->first()->department->faculty->name ?? '' }}</p>
             <p>Total Credit Hours: {{ $totalCreditHours }} / {{ $maxCreditHours }}</p>
             <p>Registration Status: {{ ucfirst($semesterRegistration->status) }}</p>
             <span>
-            <a href="{{ route('admin.assign.courseForStudent', $student) }}" class="btn btn-primary">Continue Registration</a></span>
-            <span>
-                <button onclick="history.back()" class="btn btn-info">Back</button>
-            </span>
+                <a href="{{ route('admin.assign.courseForStudent', $student) }}" class="btn btn-primary">Continue
+                    Registration</a></span>
+
         </div>
 
         <div class="card py-3 px-3">

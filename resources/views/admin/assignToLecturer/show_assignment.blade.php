@@ -6,8 +6,11 @@
 @endsection
 
 @section('admin')
+@include('admin.return_btn')
     <div class="container">
-        <h1>@yield('title')</h1>
+@include('admin.return_btn')
+
+        <h5>@yield('title')</h5>
         <hr>
         <div class="row">
             <!-- Left side: Assignment Details -->
@@ -35,7 +38,7 @@
                     <p>
                         <a href="{{ route('admin.teacher.assignment.view') }}" class="btn btn-secondary">Back to List</a>
                         <a href="{{ route('admin.teacher.assignment.edit', $assignment->id) }}" class="btn btn-primary">Edit Assignment</a>
-                        
+
                     </p>
                     <p>
 

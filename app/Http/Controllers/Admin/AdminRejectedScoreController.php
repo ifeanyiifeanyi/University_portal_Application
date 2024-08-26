@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
+use App\ScoreAuditable;
 use App\Models\Semester;
 use App\Models\Department;
 use App\Models\ScoreAudit;
@@ -15,6 +16,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminRejectedScoreController extends Controller
 {
+    use ScoreAuditable;
+
+
 
     public function rejectedScores(Request $request)
     {
@@ -65,14 +69,20 @@ class AdminRejectedScoreController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $score->update(['status' => 'pending']);
+        $oldValue = $score->getOriginal();
+        StudentScore::where('id', $score->id)->update(['status' => 'pending']);
+        $score->refresh();
+        $newValue = $score->getAttributes();
 
-        ScoreAudit::create([
-            'student_score_id' => $score->id,
-            'user_id' => auth()->id(),
-            'action' => 'reverted_rejection',
-            'comment' => $request->input('comment', 'Single revert action'),
-        ]);
+        $this->auditScore(
+            $score->id,
+            'Revert',
+            $request->input('comment', 'Single revert action'),
+            $oldValue,
+            $newValue
+        );
+
+
 
         return redirect()->back()->with('success', 'The rejection has been reverted.');
     }
@@ -97,16 +107,22 @@ class AdminRejectedScoreController extends Controller
             return redirect()->back()->with('error', 'No scores were selected for reversion.');
         }
 
-        StudentScore::whereIn('id', $scoreIds)->update(['status' => 'pending']);
-
         foreach ($scoreIds as $scoreId) {
-            ScoreAudit::create([
-                'student_score_id' => $scoreId,
-                'user_id' => auth()->id(),
-                'action' => 'reverted_rejection',
-                'comment' => $comment,
-            ]);
+            $score = StudentScore::findOrFail($scoreId);
+            $oldValue = $score->getOriginal();
+
+            // Directly update the database
+            StudentScore::where('id', $scoreId)->update(['status' => 'pending']);
+
+            // Refresh the model to get updated attributes
+            $score->refresh();
+            $newValue = $score->getAttributes();
+
+            $this->auditScore($score->id, 'Revert',
+             $comment ?? 'Bulk revert action', $oldValue, $newValue);
         }
+
+
 
         return redirect()->back()->with('success', 'The selected rejected scores have been reverted.');
     }
@@ -128,15 +144,18 @@ class AdminRejectedScoreController extends Controller
             return redirect()->back()->with('error', 'No scores were selected for acceptance.');
         }
 
-        StudentScore::whereIn('id', $scoreIds)->update(['status' => 'approved']);
-
         foreach ($scoreIds as $scoreId) {
-            ScoreAudit::create([
-                'student_score_id' => $scoreId,
-                'user_id' => auth()->id(),
-                'action' => 'accepted_rejection',
-                'comment' => $comment,
-            ]);
+            $score = StudentScore::findOrFail($scoreId);
+            $oldValue = $score->getOriginal();
+
+            // Directly update the database
+            StudentScore::where('id', $scoreId)->update(['status' => 'approved']);
+
+            // Refresh the model to get updated attributes
+            $score->refresh();
+            $newValue = $score->getAttributes();
+
+            $this->auditScore($score->id, 'Approved', $comment ?? 'Courses Submission Approved from Rejected Scores Section', $oldValue, $newValue);
         }
 
         return redirect()->back()->with('success', 'The selected rejected scores have been accepted.');
@@ -161,7 +180,7 @@ class AdminRejectedScoreController extends Controller
             ->get();
 
         $csv = Writer::createFromString('');
-        $csv->insertOne(['Student','Mat ID', 'Course', 'Department', 'Lecturer', 'Assessment', 'Exam', 'Total', 'Grade']);
+        $csv->insertOne(['Student', 'Mat ID', 'Course', 'Department', 'Lecturer', 'Assessment', 'Exam', 'Total', 'Grade']);
 
         foreach ($scores as $score) {
             $csv->insertOne([
@@ -174,6 +193,11 @@ class AdminRejectedScoreController extends Controller
                 $score->exam_score,
                 $score->total_score,
                 $score->grade,
+            ]);
+
+            $this->auditScore($score->id, 'Export', 'Scores exported to CSV', null, [
+                'academic_session_id' => $request->input('academic_session_id'),
+                'semester_id' => $request->input('semester_id'),
             ]);
         }
 
@@ -200,8 +224,18 @@ class AdminRejectedScoreController extends Controller
         $records = $csv->getRecords();
 
         foreach ($records as $record) {
+            $oldScore = StudentScore::where([
+                'student_id' => $record['student_id'],
+                'course_id' => $record['course_id'],
+                'academic_session_id' => $record['academic_session_id'],
+                'semester_id' => $record['semester_id'],
+            ])->first();
+
+            $oldValue = $oldScore ? $oldScore->getAttributes() : null;
+
+
             // Assuming the CSV columns match the database columns
-            StudentScore::updateOrCreate(
+            $score = StudentScore::updateOrCreate(
                 [
                     'student_id' => $record['student_id'],
                     'course_id' => $record['course_id'],
@@ -218,8 +252,9 @@ class AdminRejectedScoreController extends Controller
                     'status' => 'rejected',
                 ]
             );
-        }
+            $this->auditScore($score->id, 'Import', 'Score imported from CSV', $oldValue, $score->getAttributes());
 
+        }
         return redirect()->back()->with('success', 'CSV file has been imported successfully.');
     }
 }

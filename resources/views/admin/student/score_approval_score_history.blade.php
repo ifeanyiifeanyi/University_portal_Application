@@ -2,19 +2,21 @@
 @section('title', 'Student Score History')
 @section('admin')
     <div class="container">
-        <h2>Score History for {{ $student->user->fullName() }}</h2>
         <p>
             <button onclick="history.back()" class="btn" style="background-color: rgb(81, 0, 128); color:white">
                 Back
             </button>
         </p>
+        <h4>Result History <code>{{ $student->user->fullName() }}</code></h4>
+
         <div class="card py-3 px-3">
             @foreach ($scores as $sessionSemester => $sessionScores)
-                <h3>{{ $sessionSemester }}</h3>
+                <h5 class="mb-3">{{ $sessionSemester }}</h5>
                 <div class="table-responsive mb-4">
-                    <table class="table table-striped">
+                    <table id="example" class="table table-bordered table-striped border-dark">
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Course</th>
                                 <th>Teacher</th>
                                 <th>Assessment</th>
@@ -22,12 +24,13 @@
                                 <th>Total</th>
                                 <th>Grade</th>
                                 <th>Status</th>
-                                <th>History</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($sessionScores as $score)
                                 <tr>
+                                    <th>{{ $loop->iteration }}</th>
                                     <td>{{ $score->course->title }}</td>
                                     <td>{{ $score->teacher->teacher_title }} {{ $score->teacher->user->fullName() }}</td>
                                     <td>{{ $score->assessment_score }}</td>
@@ -36,11 +39,12 @@
                                     <td>{{ $score->grade }}</td>
                                     <td>{{ ucfirst($score->status) }}</td>
                                     <td>
-                                        {{-- <a href="{{ route('admin.score.approval.approved.audit-log', $score) }}"
-                                            class="btn btn-primary btn-sm">
-                                            View Audit Log
-                                        </a> --}}
-                                        Log
+                                        @if ($score->is_failed)
+                                        <p class="badge bg-danger">FAILED</p>
+                                        @else
+                                        <p class="badge bg-primary">PASSED</p>
+
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

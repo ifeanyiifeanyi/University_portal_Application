@@ -4,49 +4,53 @@
 
 @section('admin')
     <div class="container">
-        <h4>Register Courses for <u>{{ $student->user->fullName() }}</u></h4>
-        <p>Department: {{ $student->department->name }}</p>
-        <p>Current Level: {{ $student->current_level }}</p>
-        <p>Maximum Credit Hours: {{ $maxCreditHours }}</p>
-
-        <form action="{{ route('admin.students.register-courses.store', $student->id) }}" method="POST">
-            @csrf
-            <div class="table-responsive mb-5">
-                <h3>Available Courses</h3>
-                <table class="table table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>Course Code</th>
-                            <th>Course Title</th>
-                            <th>Credit Hours</th>
-                            <th>Course Level</th>
-                            <th>Enroll</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($courseAssignments as $assignment)
+        <div class="card p-3">
+            <h4>Register Courses for <u>{{ $student->user->fullName() }}</u></h4>
+            <p>Department: {{ $student->department->name }}</p>
+            <p>Current Level: {{ $student->current_level }}</p>
+            <p>Maximum Credit Hours: {{ $maxCreditHours }}</p>
+        </div>
+        <div class="card p-3">
+            <form action="{{ route('admin.students.register-courses.store', $student->id) }}" method="POST">
+                @csrf
+                <div class="table-responsive mb-5">
+                    <h3>Available Courses</h3>
+                    <table class="table table-striped w-100">
+                        <thead>
                             <tr>
-                                <td>{{ $assignment->course->code }}</td>
-                                <td>{{ $assignment->course->title }}</td>
-                                <td>{{ $assignment->course->credit_hours }}</td>
-                                <td>{{ $assignment->level }}</td>
-                                <td>
-                                    <input type="checkbox" name="courses[]" value="{{ $assignment->course_id }}"
-                                        {{ in_array($assignment->course_id, $enrolledCourses) ? 'checked disabled' : '' }}
-                                        class="course-checkbox" data-credit-hours="{{ $assignment->course->credit_hours }}">
-                                </td>
+                                <th>Course Code</th>
+                                <th>Course Title</th>
+                                <th>Credit Hours</th>
+                                <th>Course Level</th>
+                                <th>Enroll</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($courseAssignments as $assignment)
+                                <tr>
+                                    <td>{{ $assignment->course->code }}</td>
+                                    <td>{{ $assignment->course->title }}</td>
+                                    <td>{{ $assignment->course->credit_hours }}</td>
+                                    <td>{{ $assignment->level }}</td>
+                                    <td>
+                                        <input type="checkbox" name="courses[]" value="{{ $assignment->course_id }}"
+                                            {{ in_array($assignment->course_id, $enrolledCourses) ? 'checked disabled' : '' }}
+                                            class="course-checkbox"
+                                            data-credit-hours="{{ $assignment->course->credit_hours }}">
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="mt-3">
-                <p>Total Credit Hours: <span id="totalCreditHours">{{ $totalCreditHours }}</span></p>
-            </div>
+                <div class="mt-3">
+                    <p>Total Credit Hours: <span id="totalCreditHours">{{ $totalCreditHours }}</span></p>
+                </div>
 
-            <button type="submit" class="btn btn-primary" id="registerButton">Register Courses</button>
-        </form>
+                <button type="submit" class="btn btn-primary" id="registerButton">Register Courses</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -65,6 +69,8 @@
                 checkboxes.forEach(checkbox => {
                     if (checkbox.checked) {
                         total += parseFloat(checkbox.getAttribute('data-credit-hours'));
+                    } else if (!checkbox.disabled) {
+                        allChecked = false; //added
                     }
                 });
                 totalCreditHoursElement.textContent = total.toFixed(1);
@@ -72,8 +78,12 @@
                 if (total > maxCreditHours) {
                     warningElement.textContent =
                         `Warning: Total credit hours (${total.toFixed(1)}) exceed the maximum allowed (${maxCreditHours}).`;
+                    registerButton.disabled = true; //added
+
                 } else {
                     warningElement.textContent = '';
+                    registerButton.disabled = allChecked; //added
+
                 }
             }
 

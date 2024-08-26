@@ -3,6 +3,7 @@
 @section('title', isset($assignment) ? 'Edit Department Assigned Course' : 'Assign Course To Departments')
 
 @section('admin')
+@include('admin.return_btn')
     <div class="container">
         <h3 class="text-center">@yield('title')</h3>
         <div class="row">
