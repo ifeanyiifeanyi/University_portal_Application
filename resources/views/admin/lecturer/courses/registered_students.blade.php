@@ -85,7 +85,7 @@
                                         </td> --}}
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][assessment]"
-                                                value="{{ $previousScore->assessment_score ?? '' }}" min="0"
+                                                value="{{ $previousScore->assessment_score ?? 0 }}" min="0"
                                                 max="40" step="0.01" required class="form-control assessment-score">
 
                                             @error('scores.' . $enrollment->id . '.assessment')
@@ -96,7 +96,7 @@
 
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][exam]"
-                                                value="{{ $previousScore->exam_score ?? '' }}" min="0"
+                                                value="{{ $previousScore->exam_score ?? 0 }}" min="0"
                                                 max="60" step="0.01" required class="form-control exam-score">
                                             @error('scores.' . $enrollment->id . '.exam')
                                                 <span class="text-danger">{{ $message }}</span>
@@ -108,8 +108,7 @@
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][total]"
                                                 class="form-control total-score"
-                                                value="{{ $previousScore->total_score ?? '' }}"        style="background-color: #eee; pointer-events: none;"
-                                                tabindex="-1">
+                                                value="{{ $previousScore->total_score ?? 0 }}" readonly>
                                         </td>
                                         <td>
                                             <input type="text" name="scores[{{ $enrollment->id }}][grade]"

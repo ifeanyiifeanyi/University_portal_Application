@@ -219,21 +219,21 @@ class TeacherController extends Controller
         return redirect()->back()->with($notification);
     }
 
-    // public function destroy(Teacher $teacher)
-    // {
-    //     // Delete the teacher
-    //     $teacher->delete();
+    public function destroy(Teacher $teacher)
+    {
+        // Delete the teacher
+        $teacher->delete();
 
-    //     // Delete the user associated with the teacher
-    //     $teacher->user->delete();
+        // Delete the user associated with the teacher
+        $teacher->user->delete();
 
-    //     $notification = [
-    //         'message' => 'Teacher deleted successfully.',
-    //         'alert-type' => 'danger'
-    //     ];
+        $notification = [
+            'message' => 'Teacher deleted successfully.',
+            'alert-type' => 'danger'
+        ];
 
-    //     return redirect()->back()->with($notification);
-    // }
+        return redirect()->back()->with($notification);
+    }
 
 
 
@@ -436,7 +436,9 @@ class TeacherController extends Controller
                 // dd($examScore);
 
                 if ($assessmentScore > 40 || $examScore > 60) {
-                    throw new \Exception("Invalid score range for enrollment ID: $enrollmentId");
+                    // throw new \Exception("Invalid score range for enrollment ID: $enrollmentId");
+                    return redirect()->back()->withErrors("Invalid score range for enrollment ID: $enrollmentId")->withInput();
+
                 }
 
                 $totalScore = $assessmentScore + $examScore;
@@ -463,15 +465,6 @@ class TeacherController extends Controller
                     ]
                 );
 
-                Log::debug('Score data', [
-                    'enrollment_id' => $enrollmentId,
-                    'student_id' => $enrollment->student_id,
-                    'assessment_score' => $assessmentScore,
-                    'exam_score' => $examScore,
-                    'total_score' => $totalScore,
-                    'grade' => $grade,
-                    'is_failed' => $isFailed,
-                ]);
             }
 
             DB::commit();
@@ -523,7 +516,7 @@ class TeacherController extends Controller
 
         return response($csv->getContent(), 200, $headers);
     }
-
+//STUDENT SCORE TABLE ADD LEVEL
     public function importScores(Request $request, $assignmentId)
     {
         $request->validate([

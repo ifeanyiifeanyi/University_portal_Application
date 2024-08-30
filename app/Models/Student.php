@@ -22,12 +22,12 @@ class Student extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function courses()
-    {
-        return $this->belongsToMany(Course::class, 'enrollments')
-            ->withPivot('assessment_score', 'exam_score', 'grade', 'semester_id')
-            ->withTimestamps();
-    }
+    // public function courses()
+    // {
+    //     return $this->belongsToMany(Course::class, 'enrollments')
+    //         ->withPivot('assessment_score', 'exam_score', 'grade', 'semester_id')
+    //         ->withTimestamps();
+    // }
 
     public function enrollments()
     {
@@ -68,5 +68,11 @@ class Student extends Model
         //     ->orderBy('semesters.name', 'asc')
         //     ->get()
         //     ->groupBy(['session_name', 'semester_name']);
+    }
+
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

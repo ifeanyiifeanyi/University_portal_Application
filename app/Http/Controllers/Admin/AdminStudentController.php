@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\Course;
 use App\Models\Student;
+use App\Models\Semester;
 use App\Models\Department;
+use App\Models\ScoreAudit;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -39,6 +43,12 @@ class AdminStudentController extends Controller
     {
         $departments = Department::query()->latest()->get();
         return view('admin.student.create', compact('departments'));
+    }
+
+    // fetch the department academic levels
+    public function levels(Department $department)
+    {
+        return response()->json($department->levels);
     }
 
     /**
@@ -343,26 +353,104 @@ class AdminStudentController extends Controller
         return view('admin.student.score_approval_score_history', compact('scores', 'student'));
     }
 
+    // public function viewAudits(Student $student)
+    // {
+    //     $groupedAudits = $student->scoreAudits()
+    //         ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
+    //         ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
+    //         ->join('courses', 'student_scores.course_id', '=', 'courses.id')
+    //         ->select('score_audits.*', 'academic_sessions.name as session_name', 'semesters.name as semester_name', 'courses.title as course_title')
+    //         ->orderBy('academic_sessions.name', 'desc')
+    //         ->orderBy('semesters.name', 'asc')
+    //         ->get()
+    //         ->groupBy(['session_name', 'semester_name', 'course_title']);
+
+    //     return view('admin.student.audit', compact('student', 'groupedAudits'));
+    // }
+
 
     // public function viewAudits(Student $student)
     // {
-    //     $groupedAudits = $student->getAuditsBySessionAndSemester();
-    //     return view('admin.student.audits', compact('student', 'groupedAudits'));
+    //     $groupedAudits = ScoreAudit::join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
+    //         ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
+    //         ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
+    //         ->join('courses', 'student_scores.course_id', '=', 'courses.id')
+    //         ->join('teachers', 'student_scores.teacher_id', '=', 'teachers.id')
+    //         ->join('users', 'teachers.user_id', '=', 'users.id')
+    //         ->where('student_scores.student_id', $student->id)
+    //         ->select(
+    //             'score_audits.*',
+    //             'academic_sessions.name as session_name',
+    //             'semesters.name as semester_name',
+    //             'courses.title as course_title',
+    //             DB::raw("CONCAT(users.first_name, ' ', users.last_name, ' ', COALESCE(users.other_name, '')) as teacher_name")
+    //         )
+    //         ->orderBy('academic_sessions.name', 'desc')
+    //         ->orderBy('semesters.name', 'asc')
+    //         ->orderBy('courses.title', 'asc')
+    //         ->get()
+    //         ->groupBy(['session_name', 'semester_name', 'course_title']);
+
+    //     return view('admin.student.audit', compact('student', 'groupedAudits'));
     // }
 
-    public function viewAudits(Student $student)
+    public function viewAudits(Student $student, Request $request)
     {
-        $groupedAudits = $student->scoreAudits()
-            ->join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
+        $query = $this->buildAuditQuery($student);
+
+        // Apply search filters
+        $query = $this->applySearchFilters($query, $request);
+
+        $groupedAudits = $query->get()->groupBy(['session_name', 'semester_name', 'course_title']);
+
+        // Get unique values for dropdowns
+        $academicSessions = AcademicSession::pluck('name', 'id');
+        $semesters = Semester::pluck('name', 'id');
+        $courses = Course::pluck('title', 'id');
+
+        return view('admin.student.audit', compact('student', 'groupedAudits', 'academicSessions', 'semesters', 'courses'));
+    }
+
+    private function buildAuditQuery($student)
+    {
+        return ScoreAudit::join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
             ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
             ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
             ->join('courses', 'student_scores.course_id', '=', 'courses.id')
-            ->select('score_audits.*', 'academic_sessions.name as session_name', 'semesters.name as semester_name', 'courses.title as course_title')
+            ->join('teachers', 'student_scores.teacher_id', '=', 'teachers.id')
+            ->join('users as teachers_users', 'teachers.user_id', '=', 'teachers_users.id')
+            ->join('users as students_users', 'student_scores.student_id', '=', 'students_users.id')
+            ->where('student_scores.student_id', $student->id)
+            ->select(
+                'score_audits.*',
+                'academic_sessions.name as session_name',
+                'semesters.name as semester_name',
+                'courses.title as course_title',
+                DB::raw("CONCAT(teachers_users.first_name, ' ', teachers_users.last_name, ' ', COALESCE(teachers_users.other_name, '')) as teacher_name"),
+                DB::raw("CONCAT(students_users.first_name, ' ', students_users.last_name, ' ', COALESCE(students_users.other_name, '')) as student_name")
+            )
             ->orderBy('academic_sessions.name', 'desc')
             ->orderBy('semesters.name', 'asc')
-            ->get()
-            ->groupBy(['session_name', 'semester_name', 'course_title']);
+            ->orderBy('courses.title', 'asc');
+    }
 
-        return view('admin.student.audit', compact('student', 'groupedAudits'));
+    private function applySearchFilters($query, $request)
+    {
+        if ($request->filled('academic_session')) {
+            $query->where('academic_sessions.id', $request->academic_session);
+        }
+        if ($request->filled('semester')) {
+            $query->where('semesters.id', $request->semester);
+        }
+        if ($request->filled('course')) {
+            $query->where('courses.id', $request->course);
+        }
+        if ($request->filled('student_name')) {
+            $query->where(DB::raw("CONCAT(students_users.first_name, ' ', students_users.last_name, ' ', COALESCE(students_users.other_name, ''))"), 'LIKE', '%' . $request->student_name . '%');
+        }
+        if ($request->filled('teacher_name')) {
+            $query->where(DB::raw("CONCAT(teachers_users.first_name, ' ', teachers_users.last_name, ' ', COALESCE(teachers_users.other_name, ''))"), 'LIKE', '%' . $request->teacher_name . '%');
+        }
+        return $query;
     }
 }

@@ -19,11 +19,13 @@ use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
+use App\Http\Controllers\Admin\AdminTimeTableController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -41,11 +43,21 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('logout');
 });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
+    Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
+    Route::get('/timetables/{id}/version-history', [AdminTimeTableController::class, 'versionHistory'])->name('admin.timetables.version-history');
+    Route::get('/timetables/clone', [AdminTimeTableController::class, 'cloneTimetable'])->name('admin.timetables.clone');
+    Route::get('/timetables/{id}/export-to-google-calendar', [AdminTimeTableController::class, 'exportToGoogleCalendar'])->name('admin.timetables.export-to-google-calendar');
+    Route::get('/timetables/{id}/export', [AdminTimeTableController::class, 'export'])->name('admin.timetables.export');
+});
 
+Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
 Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminController::class)->group(function () {
         Route::get('dashboard', 'index')->name('admin.view.dashboard');
+        Route::post('logout', 'logout')->name('admin.logout');
     });
 
     Route::controller(ProfileController::class)->group(function () {
@@ -119,7 +131,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         // view assessments audits
         Route::get('/teacher/{teacher}/audits',  'viewAudits')->name('admin.teacher.audits');
-
     });
 
     // for controlling the grade types
@@ -181,7 +192,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
     });
 
-
     Route::controller(AdminStudentController::class)->group(function () {
         Route::get('student-manager', 'index')->name('admin.student.view');
         Route::get('student-manager/create', 'create')->name('admin.student.create');
@@ -191,7 +201,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
         Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
 
+        // fetching the levels for departments based on the department selected
+        Route::get('/departments/{department}/levels', 'levels');
 
+
+        Route::get('students/{student}/audit', 'viewAudits')->name('admin.student.audit');
         // view registered courses
         Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
         // view score history
@@ -215,7 +229,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
     });
 
-
     // this route was used or creating courses for student via students view table
     Route::controller(AdminAssignStudentCourseController::class)->group(function () {
         Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
@@ -229,7 +242,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
     });
 
-
     Route::controller(AdminStudentRegisteredCoursesController::class)->group(function () {
         Route::get('student-registered-courses', 'index')->name('admin.students.all-course-registrations');
 
@@ -238,12 +250,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::patch('/student-course-registrations/{registration}/approve',  'approve')->name('admin.course-registrations.approve');
         Route::patch('/student-course-registrations/{registration}/reject',  'reject')->name('admin.course-registrations.reject');
     });
-
-
-
-
-
-
 
     Route::controller(AdminAccountsManagersController::class)->group(function () {
         Route::get('accounts-managers', 'index')->name('admin.accounts.managers.view');
@@ -255,8 +261,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('accounts-managers/del/{admin}', 'destroy')->name('admin.accounts.managers.delete');
     });
 
-
-
     Route::controller(AdminDepartmentCreditController::class)->group(function () {
         Route::get('department-credit', 'index')->name('admin.department.credit.view');
         Route::get('department-credit/create', 'create')->name('admin.department.credit.create');
@@ -266,6 +270,38 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('department-credit/{departmentCredit}', 'destroy')->name('admin.department.credit.delete');
 
         Route::get('/departments/{department}/levels', 'levels');
+    });
+
+    Route::controller(AdminAttendanceController::class)->group(function () {
+        Route::get('create-attendance', 'createAttendance')->name('admin.attendance.create');
+        Route::post('create-attendance/create', 'storeAttendance')->name('admin.attendance.store');
+
+        // API route for fetching students based on course
+        Route::get('courses/{course}/students', 'getStudentsByCourse');
+    });
+
+    Route::controller(AdminTimeTableController::class)->group(function () {
+        Route::get('timetable', 'index')->name('admin.timetable.view');
+        Route::get('timetable/create', 'create')->name('admin.timetable.create');
+        Route::post('timetable', 'store')->name('admin.timetable.store');
+        Route::get('timetable/edit/{timetable}', 'edit')->name('admin.timetable.edit');
+        Route::put('timetable/update/{timetable}', 'update')->name('admin.timetable.update');
+        Route::delete('timetable/{timetable}', 'destroy')->name('admin.timetable.delete');
+
+        Route::get('/courses/{course}/timetables', 'getTimetablesByCourse');
+
+
+
+        Route::get('/department/{department}/levels', 'getDepartmentLevels');
+        Route::get('/courses', 'getCourses');
+        Route::get('/course-assignment', 'getCourseAssignment');
+
+
+        Route::post('timetable/{timetable}/submit-for-approval', 'submitForApproval')->name('admin.timetable.submit-for-approval');
+        Route::post('timetable/{timetable}/approve', 'approve')->name('admin.timetable.approve');
+        Route::post('timetable/{timetable}/archive', 'archive')->name('admin.timetable.archive');
+        Route::get('timetable/export/{format}', 'export')->name('admin.timetable.export');
+        Route::get('timetable/print', 'printView')->name('admin.timetable.print');
     });
 });
 

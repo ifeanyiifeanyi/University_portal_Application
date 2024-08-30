@@ -9,24 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
-        Schema::create('student_scores', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
-            $table->foreignId('teacher_id')->constrained('teachers')->onDelete('cascade');
+            $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
             $table->foreignId('academic_session_id')->constrained()->onDelete('cascade');
             $table->foreignId('semester_id')->constrained()->onDelete('cascade');
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
-            $table->bigInteger('assessment_score')->nullable();
-            $table->bigInteger('exam_score')->nullable();
-            $table->bigInteger('total_score')->nullable();
-            $table->char('grade', 2)->nullable();
-            $table->boolean('is_failed')->default(false);
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-
+            $table->date('date');
+            $table->boolean('is_present');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->text('notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -36,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('student_scores');
+        Schema::dropIfExists('attendances');
     }
 };

@@ -78,4 +78,8 @@ class Teacher extends Model
         //     ->orderBy('semesters.name', 'asc')
         //     ->get();
     }
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

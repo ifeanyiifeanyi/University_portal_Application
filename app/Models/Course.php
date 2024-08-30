@@ -10,6 +10,11 @@ class Course extends Model
     use HasFactory;
     protected $fillable = ['code', 'title', 'description', 'credit_hours'];
 
+
+public function teacher(){
+    return $this->belongsTo(Teacher::class);
+}
+
     public function courseAssignments()
     {
         return $this->hasMany(CourseAssignment::class);
@@ -37,11 +42,15 @@ class Course extends Model
             ->withPivot('department_id', 'academic_session_id', 'semester_id')
             ->withTimestamps();
     }
-    public function students()
-    {
-        return $this->belongsToMany(Student::class, 'enrollments')
-            ->withPivot('semester_id', 'grade', 'assessment_score', 'exam_score')
-            ->withTimestamps();
+    // public function students()
+    // {
+    //     return $this->belongsToMany(Student::class, 'enrollments')
+    //         ->withPivot('semester_id', 'grade', 'assessment_score', 'exam_score')
+    //         ->withTimestamps();
+    // }
+
+    public function students(){
+        return $this->belongToMany(CourseEnrollment::class);
     }
     public function enrollments()
     {
@@ -57,4 +66,10 @@ class Course extends Model
     {
         return $this->hasMany(StudentScore::class);
     }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
 }

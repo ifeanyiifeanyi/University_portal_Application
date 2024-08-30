@@ -147,13 +147,35 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
+                        {{-- <div class="col-md-6 mb-3">
+                            <label for="current_level" class="form-label">Current Academic Level</label>
+                            <input type="text" class="form-control @error('current_level') is-invalid @enderror"
+                                id="current_level" name="current_level" value="{{ old('current_level') }}" required>
+                            @error('current_level')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div> --}}
+
+                        <div class="form-group mb-3">
+                            <label for="level">Academic Level</label>
+                            <select class="form-control @error('current_level') is-invalid @enderror" id="level"
+                                name="current_level" required>
+
+                            </select>
+                            @error('current_level')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                    </div>
+                    {{-- <div class="col-md-6 mb-3">
                         <label for="religion" class="form-label">Religion</label>
                         <input type="text" class="form-control @error('religion') is-invalid @enderror" id="religion"
                             name="religion" value="{{ old('religion') }}" required>
                         @error('religion')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="row">
@@ -196,10 +218,10 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="current_level" class="form-label">Current Academic Level</label>
-                        <input type="text" class="form-control @error('current_level') is-invalid @enderror"
-                            id="current_level" name="current_level" value="{{ old('current_level') }}" required>
-                        @error('current_level')
+                        <label for="religion" class="form-label">Religion</label>
+                        <input type="text" class="form-control @error('religion') is-invalid @enderror"
+                            id="religion" name="religion" value="{{ old('religion') }}" required>
+                        @error('religion')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -412,6 +434,31 @@
                     reader.readAsDataURL(file);
                 }
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const departmentSelect = document.getElementById('department_id');
+            const levelSelect = document.getElementById('level');
+
+            function updateLevels() {
+                const departmentId = departmentSelect.value;
+                fetch(`/admin/departments/${departmentId}/levels`)
+                    .then(response => response.json())
+                    .then(levels => {
+                        levelSelect.innerHTML = '';
+                        levels.forEach(level => {
+                            const option = document.createElement('option');
+                            option.value = level;
+                            option.textContent = level;
+                            levelSelect.appendChild(option);
+                        });
+                    });
+            }
+
+            departmentSelect.addEventListener('change', updateLevels);
+            updateLevels(); // Initial population
         });
     </script>
 @endsection

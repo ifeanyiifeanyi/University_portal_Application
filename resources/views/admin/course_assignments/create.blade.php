@@ -47,7 +47,7 @@
                             </select>
                         </div>
                         <div class="form-group mb-3">
-                            <label for="level">Level</label>
+                            <label for="level">Academic Level</label>
                             <select class="form-control" id="level" name="level" required>
                                 {{-- <option value="#!">Select Deparament Level</option>
                                 @forelse ($department_levels as $department_level)
@@ -57,6 +57,7 @@
                                 @endforelse --}}
                             </select>
                         </div>
+
 
 
                         <button type="submit"
