@@ -283,6 +283,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::controller(AdminTimeTableController::class)->group(function () {
         Route::get('timetable', 'index')->name('admin.timetable.view');
         Route::get('timetable/create', 'create')->name('admin.timetable.create');
+        Route::get('timetable/details/{timeTable}', 'show')->name('admin.timetable.show');
         Route::post('timetable', 'store')->name('admin.timetable.store');
         Route::get('timetable/edit/{timetable}', 'edit')->name('admin.timetable.edit');
         Route::put('timetable/update/{timetable}', 'update')->name('admin.timetable.update');
@@ -302,6 +303,22 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('timetable/{timetable}/archive', 'archive')->name('admin.timetable.archive');
         Route::get('timetable/export/{format}', 'export')->name('admin.timetable.export');
         Route::get('timetable/print', 'printView')->name('admin.timetable.print');
+
+
+        Route::get('timetables/bulk-create',  'bulkCreate')->name('admin.timetables.bulk_create');
+        Route::post('timetables/bulk-store',  'bulkStore')->name('admin.timetables.bulk_store');
+        Route::get('timetables/check-conflicts', 'checkConflicts')->name('admin.timetables.check');
+
+        Route::get('timetables-by-department', 'viewByDepartment')->name('admin.timetables.by_department');
+        Route::get('timetables-by-teacher', 'viewByTeacher')->name('admin.timetables.by_teacher');
+
+
+        Route::get('/admin/timetable/calendar-data',  'getCalendarData')->name('admin.timetable.calendar-data');
+
+
+        Route::get('timetable/drafts', 'draftIndex')->name('admin.timetable.draftIndex');
+        Route::post('/admin/timetable/{timetable}/submit-for-approval',  'submitForApproval')->name('admin.timetable.submitForApproval');
+        Route::post('/admin/timetable/{timetable}/archive',  'archive')->name('admin.timetable.archive');
     });
 });
 

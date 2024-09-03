@@ -9,6 +9,11 @@ class Semester extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'season', 'start_date', 'end_date', 'is_current', 'academic_session_id'];
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
+
 
     public function academicSession()
     {

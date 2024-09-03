@@ -10,10 +10,15 @@ class Course extends Model
     use HasFactory;
     protected $fillable = ['code', 'title', 'description', 'credit_hours'];
 
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
 
-public function teacher(){
-    return $this->belongsTo(Teacher::class);
-}
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 
     public function courseAssignments()
     {
@@ -49,7 +54,8 @@ public function teacher(){
     //         ->withTimestamps();
     // }
 
-    public function students(){
+    public function students()
+    {
         return $this->belongToMany(CourseEnrollment::class);
     }
     public function enrollments()
@@ -71,5 +77,4 @@ public function teacher(){
     {
         return $this->hasMany(Attendance::class);
     }
-
 }

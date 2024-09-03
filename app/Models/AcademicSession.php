@@ -21,29 +21,39 @@ class AcademicSession extends Model
         return $this->hasMany(TeacherAssignment::class);
     }
 
-    public function getCurrentSession(){
+    public function getCurrentSession()
+    {
         return $this->where('is_current', true)->first();
     }
-    public function getPreviousSessions(){
+    public function getPreviousSessions()
+    {
         return $this->where('is_current', false)->get();
     }
-    public function getActiveSession(){
+    public function getActiveSession()
+    {
         return $this->where('is_current', true)->orWhere('is_current', false)->first();
     }
 
-    public function getSemesterCourses($semesterId){
+    public function getSemesterCourses($semesterId)
+    {
         return SemesterCourseRegistration::where('semester_id', $semesterId)->get();
     }
 
-    public function getSemesterCourseRegistrationsByCourse($courseId){
+    public function getSemesterCourseRegistrationsByCourse($courseId)
+    {
         return SemesterCourseRegistration::where('course_id', $courseId)->get();
     }
 
-    public function getSemesterCourseRegistrationsByStudent($studentId){
+    public function getSemesterCourseRegistrationsByStudent($studentId)
+    {
         return SemesterCourseRegistration::where('student_id', $studentId)->get();
     }
 
-    
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
+
 
 
 

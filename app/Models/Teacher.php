@@ -10,10 +10,25 @@ class Teacher extends Model
     use HasFactory;
     protected $guarded = [];
 
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getTitleAndFullNameAttribute()
+    {
+        $user = $this->user;
+        $fullName = $user->first_name . ' ' . ($user->other_name ?? '') . ' ' . $user->last_name;
+
+        return $this->teacher_title . ' ' . trim($fullName);
+    }
+
 
     public function teacherAssignments()
     {

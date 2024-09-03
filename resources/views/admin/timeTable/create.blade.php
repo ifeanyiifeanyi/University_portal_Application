@@ -97,7 +97,8 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="teacher">Teacher:</label>
-                                    <input type="text" id="teacher" name="teacher_id" class="form-control" readonly>
+                                    <input type="text" id="teacher" name="teacher" class="form-control" readonly>
+                                    <input type="hidden" id="teacher_id" name="teacher_id" class="form-control" readonly>
                                     @error('teacher_id')
                                         <p class="text-danger">{{ $message }}</p>
                                     @enderror
@@ -229,7 +230,9 @@
                         department_id: departmentId,
                         level: level
                     }, function(data) {
+                    console.log(data)
                         $('#teacher').val(data.teacher_name);
+                        $('#teacher_id').val(data.teacher_id);
                     });
                 }
             }

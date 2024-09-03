@@ -10,6 +10,10 @@ class Department extends Model
     use HasFactory;
 
     protected $fillable = ['code', 'name', 'faculty_id', 'description', 'duration'];
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
 
     public function faculty()
     {
@@ -63,6 +67,4 @@ class Department extends Model
     {
         return $this->hasManyThrough(CourseEnrollment::class, Student::class);
     }
-
-
 }

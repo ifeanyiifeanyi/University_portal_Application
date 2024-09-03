@@ -25,6 +25,7 @@ class TimeTable extends Model
         'course_id',
         'teacher_id',
         'room',
+
         'status',
         'created_by',
         'updated_by',
@@ -33,18 +34,34 @@ class TimeTable extends Model
         'class_date'
     ];
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        // 'start_time' => 'time',
+        // 'end_time' => 'time',
         'day_of_week' => 'integer',
         'level' => 'integer',
         'class_duration' => 'integer',
         'is_current' => 'boolean',
-        'class_date' => 'date'
-
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'class_date' => 'date',
     ];
-    public function getClassDateAttribute(){
-        return $this->class_date->format('Y-m-d');
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+
+
+    public function getClassDateAttribute()
+    {
+        return $this->attributes['class_date'] ? \Carbon\Carbon::parse($this->attributes['class_date'])->format('jS F Y') : null;
+    }
+
 
     public function getDurationAttribute()
     {

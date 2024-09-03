@@ -15,14 +15,14 @@
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class='bx bx-home-circle'></i>
                 </div>
-                <div class="menu-title">Dashboard</div>
+                <div class="menu-title">TimeTable Manager</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.attendance.create') }}"><i class="bx bx-right-arrow-alt"></i>Attendance Manager</a>
-                </li>
+                {{-- <li> <a href="{{ route('admin.attendance.create') }}"><i class="bx bx-right-arrow-alt"></i>Attendance Manager</a>
+                </li> --}}
                 <li> <a href="{{ route('admin.timetable.view') }}"><i class="bx bx-right-arrow-alt"></i>TimeTable</a>
                 </li>
-                <li> <a href="dashboard-analytics.html"><i class="bx bx-right-arrow-alt"></i>Analytics</a>
+                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft TimeTable</a>
                 </li>
                 <li> <a href="dashboard-digital-marketing.html"><i class="bx bx-right-arrow-alt"></i>Digital
                         Marketing</a>
