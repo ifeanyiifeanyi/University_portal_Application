@@ -56,14 +56,14 @@
             border: none;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             margin-bottom: 30px;
         }
 
         .course-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
         .course-card::before {
@@ -131,9 +131,11 @@
             </div>
         </div>
 
-        <h2 class="text-center mb-5">Taught by {{ $teacher->user->teacher->teacher_title }} {{ $teacher->user->fullName() }}</h2>
+        <h2 class="text-center mb-5">Taught by {{ $teacher->user->teacher->teacher_title }} {{ $teacher->user->fullName() }}
+        </h2>
 
         <div class="courses-container">
+            {{-- @dd($teacherAssignments) --}}
             @if ($teacherAssignments->isNotEmpty())
                 @foreach ($teacherAssignments as $assignment)
                     <div class="card course-card">
@@ -155,7 +157,8 @@
                                     @endif
                                 </span>
                             </p>
-                            <a href="#" class="btn btn-primary btn-submit-scores mt-3">Submit Scores</a>
+                            <a href="{{ route('teacher.course.students', ['teacherId' => $assignment->teacher_id,'courseId' => $assignment->course_id, 'semesterId' => $assignment->semester_id, 'academicSessionId' => $assignment->academic_session_id]) }}"
+                                class="btn btn-primary btn-submit-scores mt-3">View Students & Submit Scores</a>
                         </div>
                     </div>
                 @endforeach

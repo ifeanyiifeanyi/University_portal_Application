@@ -32,6 +32,13 @@
         </a>
       </li><!-- End courses Page Nav -->
 
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{{route('teacher.view.attendance')}}">
+          <i class="bi bi-person"></i>
+          <span>Attendance</span>
+        </a>
+      </li><!-- End courses Page Nav -->
+
   
 
     </ul>

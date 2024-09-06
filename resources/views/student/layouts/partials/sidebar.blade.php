@@ -61,6 +61,12 @@
                                     <span>Results</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{route('student.view.onlineclasses')}}" class="text-white">
+                                    <i data-feather="aperture"></i>
+                                    <span>Online classes</span>
+                                </a>
+                            </li>
 
 
 

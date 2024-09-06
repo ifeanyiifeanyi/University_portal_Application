@@ -37,7 +37,8 @@ class Course extends Model
             ->withPivot('department_id', 'academic_session_id', 'semester_id')
             ->withTimestamps();
     }
-    public function students(){
+    public function students()
+    {
         return $this->belongsToMany(Student::class, 'enrollments')
             ->withPivot('semester_id', 'grade', 'assessment_score', 'exam_score')
             ->withTimestamps();
@@ -47,7 +48,17 @@ class Course extends Model
         return $this->hasMany(CourseEnrollment::class);
     }
 
-    public function teacherAssignments(){
+    public function teacherAssignments()
+    {
         return $this->hasMany(TeacherAssignment::class);
+    }
+
+    public function scores()
+    {
+        return $this->hasMany(StudentScore::class);
+    }
+    public function attendance()
+    {
+        return $this->hasMany(Attendancee::class);
     }
 }

@@ -39,14 +39,22 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($availableResults as $result)
+                    <tr>
+                        <td>{{ $result['session'] }}</td>
+                        <td>100</td>
+                        <td>{{ $result['semester'] }}</td>
+                        <td>2355</td>
+                        <td>
+                            <a href="{{ route('student.view.result',[
+                                'session' => $result['sessionid'],
+                                'semester' => $result['semesterid'],
+                                'teacherid'=> $result['teacher']
+                            ]) }}" class="btn w-50 text-white" style="background: #AE152D;">View</a>
+                        </td>
+                    </tr>
+                    @endforeach
                                 
-                                <tr>
-                                    <td>2018-2019</td>
-                                    <td>100 level</td>
-                                    <td>First semester</td>
-                                    <td>5.00</td>
-                                    <td><a href="{{route('student.view.result')}}" class="btn w-50 text-white" style="background: #AE152D;">View</a></td>
-                                </tr>
                          
                                
                                

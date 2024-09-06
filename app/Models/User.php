@@ -44,6 +44,9 @@ public function getUserAccessTypeAttribute(){
     public function student(){
         return $this->hasOne(Student::class);
     }
+    public function parent(){
+        return $this->hasOne(Parents::class);
+    }
 
     public function profileImage(){
         return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);

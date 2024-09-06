@@ -37,4 +37,14 @@ class Student extends Model
     {
         return $this->hasMany(CourseEnrollment::class);
     }
+
+    public function scores()
+    {
+        return $this->hasMany(StudentScore::class);
+    }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendancee::class);
+    }
 }

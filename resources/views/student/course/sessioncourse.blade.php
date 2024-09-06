@@ -1,6 +1,6 @@
 @extends('student.layouts.student')
 
-@section('title', 'Teacher Dashboard')
+@section('title', 'Student session selection')
 @section('student')
 <div class="container-xxl mt-3">
 <div class="row">

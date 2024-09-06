@@ -50,6 +50,10 @@ class Semester extends Model
     {
         return !$this->is_current && !$this->courseAssignments()->exists() && !$this->teacherAssignments()->exists();
     }
+    public function attendance()
+    {
+        return $this->hasMany(Attendancee::class);
+    }
 
 
     protected $casts = [

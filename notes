@@ -43,3 +43,13 @@ git push -u https://github.com/ifeanyiifeanyi/portal-starter.git
 
 // NOTE TO SELF how, registere courses pening status
 // works needs to be improved
+
+
+        // $enrollments = CourseEnrollment::where('course_id', $courseId)
+        //     ->where('academic_session_id', $academicSessionId)
+        //     ->whereHas('semesterCourseRegistration', function ($query) use ($semesterId, $academicSessionId) {
+        //         $query->where('semester_id', $semesterId)
+        //             ->where('academic_session_id', $academicSessionId);
+        //     })
+        //     ->with(['student.user', 'semesterCourseRegistration'])
+        //     ->get();

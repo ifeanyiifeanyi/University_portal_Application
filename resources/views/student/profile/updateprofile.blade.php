@@ -9,7 +9,7 @@
 <div class="row mb-3">
   <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Jamb registration number</label>
   <div class="col-md-8 col-lg-9">
-    <input type="text" class="form-control" name="jamb_registration_number" value="{{$student->jamb_registration_number}}">
+    <input type="text" class="form-control" name="jamb_registration_number" value="{{$student->jamb_registration_number}}" readonly>
   </div>
 </div>
 @if ($errors->has('jamb_registration_number'))
@@ -19,14 +19,14 @@
   
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">First name</label>
-    <input type="text" class="form-control" name="firstname" id="" value="{{$getuser->first_name}}">
+    <input type="text" class="form-control" name="firstname" id="" value="{{$getuser->first_name}}" readonly>
     @if ($errors->has('firstname'))
     <span class="text-danger">{{$errors->first('firstname')}}</span>
     @endif
   </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Last Name</label>
-    <input type="text" class="form-control" name="lastname" value="{{$getuser->last_name}}">
+    <input type="text" class="form-control" name="lastname" value="{{$getuser->last_name}}" readonly>
     @if ($errors->has('lastname'))
     <span class="text-danger">{{$errors->first('lastname')}}</span>
     @endif

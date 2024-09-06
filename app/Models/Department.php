@@ -64,5 +64,10 @@ class Department extends Model
         return $this->hasManyThrough(CourseEnrollment::class, Student::class);
     }
 
+    public function attendance()
+    {
+        return $this->hasMany(Attendancee::class);
+    }
+
 
 }
