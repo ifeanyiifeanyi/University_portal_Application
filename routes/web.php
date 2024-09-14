@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminPaymentTypeController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
@@ -319,6 +320,17 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('timetable/drafts', 'draftIndex')->name('admin.timetable.draftIndex');
         Route::post('/admin/timetable/{timetable}/submit-for-approval',  'submitForApproval')->name('admin.timetable.submitForApproval');
         Route::post('/admin/timetable/{timetable}/archive',  'archive')->name('admin.timetable.archive');
+    });
+
+    Route::controller(AdminPaymentTypeController::class)->group(function(){
+        Route::get('payment-types', 'index')->name('admin.payment_type.index');
+        Route::get('payment-types/create', 'create')->name('admin.payment_type.create');
+        Route::post('payment-types/', 'store')->name('admin.payment_type.store');
+        Route::put('payment-types/{paymentType}', 'update')->name('admin.payment_type.update');
+
+        Route::get('payment-types/{paymentType}/edit', 'edit')->name('admin.payment_type.edit');
+        Route::get('payment-types/{paymentType}/show', 'show')->name('admin.payment_type.show');
+        Route::get('payment-types/{paymentType}', 'destroy')->name('admin.payment_type.destroy');
     });
 });
 

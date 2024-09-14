@@ -19,6 +19,11 @@ class Department extends Model
     {
         return $this->belongsTo(Faculty::class);
     }
+    public function paymentTypes()
+    {
+        return $this->belongsToMany(PaymentType::class)->withPivot('level');
+    }
+
 
     public function students()
     {

@@ -45,25 +45,15 @@
 @endif
 
 @if ($errors->any())
-    <div class="alert alert-danger">
         <ul>
             @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
+                
                 <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show">
                     <div class="text-white">{{ $error }}</div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endforeach
         </ul>
-    </div>
+
 @endif
 
-@if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
