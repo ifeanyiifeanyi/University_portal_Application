@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
@@ -331,6 +332,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('payment-types/{paymentType}/edit', 'edit')->name('admin.payment_type.edit');
         Route::get('payment-types/{paymentType}/show', 'show')->name('admin.payment_type.show');
         Route::get('payment-types/{paymentType}', 'destroy')->name('admin.payment_type.destroy');
+    });
+
+    Route::controller(AdminPaymentMethodController::class)->group(function(){
+        Route::get('payment-method', 'index')->name('admin.payment_method.index');
+        Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
+        Route::post('payment-method', 'store')->name('admin.payment_method.store');
     });
 });
 
