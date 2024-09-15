@@ -36,7 +36,11 @@
                                 <td>
                                     <a href="{{ route('admin.payment_method.show', $paymentMethod) }}" class="btn btn-sm btn-info">View</a>
                                     <a href="{{ route('admin.payment_method.edit', $paymentMethod) }}" class="btn btn-sm btn-primary">Edit</a>
-                                    <a href="{{ route('admin.payment_method.destroy', $paymentMethod) }}" class="btn btn-sm btn-danger">Delete</a>
+                                    <form action="{{ route('admin.payment_method.destroy', $paymentMethod) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn btn-danger btn-sm"  onclick="return confirm('Are you sure you want to delete this payment method?')">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                             @endforeach

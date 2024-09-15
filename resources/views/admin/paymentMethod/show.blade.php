@@ -39,7 +39,7 @@
                     <form action="{{ route('admin.payment_method.destroy', $paymentMethod) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this payment method?')">Delete</button>
+                        <button onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this payment method?')">Delete</button>
                     </form>
                 </div>
             </div>

@@ -127,7 +127,7 @@ class AdminPaymentMethodController extends Controller
 
         $paymentMethod->delete();
 
-        return redirect()->route('admin.payment_methods.index')
+        return redirect()->route('admin.payment_method.index')
             ->with('success', 'Payment method deleted successfully.');
     }
 }
