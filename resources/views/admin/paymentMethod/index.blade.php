@@ -36,7 +36,7 @@
                                 <td>
                                     <a href="{{ route('admin.payment_method.show', $paymentMethod) }}" class="btn btn-sm btn-info">View</a>
                                     <a href="{{ route('admin.payment_method.edit', $paymentMethod) }}" class="btn btn-sm btn-primary">Edit</a>
-                                    <a href="" class="btn btn-sm btn-danger">Delete</a>
+                                    <a href="{{ route('admin.payment_method.destroy', $paymentMethod) }}" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>
                             @endforeach
