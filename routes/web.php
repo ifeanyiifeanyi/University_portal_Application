@@ -338,6 +338,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('payment-method', 'index')->name('admin.payment_method.index');
         Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
         Route::post('payment-method', 'store')->name('admin.payment_method.store');
+        Route::get('payment-method/{paymentMethod}/edit', 'edit')->name('admin.payment_method.edit');
+        Route::get('payment-method/{paymentMethod}/details', 'show')->name('admin.payment_method.show');
+        Route::delete('payment-method/{paymentMethod}/del', 'destroy')->name('admin.payment_method.destroy');
     });
 });
 

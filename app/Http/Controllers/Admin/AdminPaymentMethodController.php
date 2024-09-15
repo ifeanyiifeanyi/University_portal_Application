@@ -33,23 +33,23 @@ class AdminPaymentMethodController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:payment_methods',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:500',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'config' => 'required|array',
             'config.payment_type' => 'required|string',
-            'config.gateway' => 'required_if:config.payment_type,credit_card|string',
+            'config.gateway' => 'required_if:config.payment_type,credit_card',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
-        // $validated['slug'] = Str::slug($validated['name']);
-          if ($request->hasFile('logo')) {
+
+        if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('payment_method_logos', 'public');
             $validated['logo'] = $logoPath;
         }
 
         // Remove any empty config values
-        $validated['config'] = array_filter($validated['config'], function($value) {
+        $validated['config'] = array_filter($request->input('config', []), function($value) {
             return $value !== null && $value !== '';
         });
 
@@ -64,7 +64,7 @@ class AdminPaymentMethodController extends Controller
      */
     public function show(PaymentMethod $paymentMethod)
     {
-        //
+        return view('admin.paymentMethod.show', compact('paymentMethod'));
     }
 
     /**

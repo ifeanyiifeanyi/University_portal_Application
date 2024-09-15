@@ -15,6 +15,7 @@
     <div>
         @include('admin.return_btn')
     </div>
+    @include('admin.alert')
     <hr />
     <div class="row">
         <div class="col-md-7 mx-auto">
@@ -171,7 +172,7 @@
                 div.className = 'form-group mb-3';
                 div.innerHTML = `
                     <label for="config_${field.name}">${field.label}</label>
-                    <input type="${field.type}" class="form-control" id="config_${field.name}" name="config[${field.name}]" ${field.required ? 'required' : ''}>
+                    <input type="${field.type}" class="form-control" id="config_${field.name}" name="config[${field.name}]" value="{{ old('config.${field.name}') }}" ${field.required ? 'required' : ''}>
                 `;
                 configFields.appendChild(div);
             });

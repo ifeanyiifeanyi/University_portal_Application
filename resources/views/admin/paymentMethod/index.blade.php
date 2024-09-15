@@ -30,12 +30,12 @@
                         @foreach($paymentMethods as $key => $paymentMethod)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>{{ $paymentMethod->name }}</td>
+                                <td>{{ Str::title($paymentMethod->name) }}</td>
 
-                                <td>{{ $paymentMethod->payment_type }}</td>
+                                <td>{{str_replace('_', ' ',  Str::title($paymentMethod->config['payment_type']) ) }}</td>
                                 <td>
-                                    <a href="" class="btn btn-sm btn-info">View</a>
-                                    <a href="" class="btn btn-sm btn-primary">Edit</a>
+                                    <a href="{{ route('admin.payment_method.show', $paymentMethod) }}" class="btn btn-sm btn-info">View</a>
+                                    <a href="{{ route('admin.payment_method.edit', $paymentMethod) }}" class="btn btn-sm btn-primary">Edit</a>
                                     <a href="" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>
