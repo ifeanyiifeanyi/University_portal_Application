@@ -29,5 +29,16 @@ class PaymentType extends Model
         return $this->belongsTo(AcademicSession::class);
     }
 
+    public function getAmount($departmentId, $level)
+    {
+        $pivot = $this->departments()
+            ->where('department_id', $departmentId)
+            ->where('level', $level)
+            ->first()
+            ->pivot;
+
+        return $pivot ? $pivot->amount : null;
+    }
+
     protected $casts = ['is_active' => 'boolean'];
 }

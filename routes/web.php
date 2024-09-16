@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
@@ -342,6 +343,18 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('payment-method/{paymentMethod}/edit', 'edit')->name('admin.payment_method.edit');
         Route::get('payment-method/{paymentMethod}/details', 'show')->name('admin.payment_method.show');
         Route::delete('payment-method/{paymentMethod}/del', 'destroy')->name('admin.payment_method.destroy');
+    });
+
+    Route::controller(AdminPaymentController::class)->group(function(){
+        Route::get('make-payments', 'index')->name('admin.payment.pay');
+
+        Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
+
+        // Route::get('/payment-types/get-amount',  'getAmount')->name('payment-types.getAmount');
+        Route::get('/payment-types/get-amount', [AdminPaymentController::class, 'getAmount'])->name('payment-types.getAmount');
+
+        Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
+
     });
 });
 

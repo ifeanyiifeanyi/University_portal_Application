@@ -34,7 +34,7 @@ class AdminPaymentMethodController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:payment_methods',
-            'description' => 'nullable|string|max:500',
+            'description' => 'nullable|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'config' => 'required|array',

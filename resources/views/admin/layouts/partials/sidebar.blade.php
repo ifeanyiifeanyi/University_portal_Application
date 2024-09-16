@@ -22,7 +22,8 @@
                 </li> --}}
                 <li> <a href="{{ route('admin.timetable.view') }}"><i class="bx bx-right-arrow-alt"></i>TimeTable</a>
                 </li>
-                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft TimeTable</a>
+                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft
+                        TimeTable</a>
                 </li>
                 <li> <a href="dashboard-digital-marketing.html"><i class="bx bx-right-arrow-alt"></i>Digital
                         Marketing</a>
@@ -43,7 +44,10 @@
                         Payment Types</a>
                 </li>
                 <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
-                    Payment Methods</a>
+                        Payment Methods</a>
+                </li>
+                <li> <a href="{{ route('admin.payment.pay') }}">
+                    <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
             </li>
             </ul>
         </li>

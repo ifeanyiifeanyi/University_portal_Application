@@ -16,10 +16,10 @@ class PaymentMethod extends Model
         'config' => 'array',
     ];
 
-    // public function payments()
-    // {
-    //     return $this->hasMany(Payment::class);
-    // }
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
     public function scopeActive($query)
     {
