@@ -355,6 +355,14 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
 
+        Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
+        Route::post('/payments/process', 'processPayment')->name('admin.payments.processPayment');
+
+
+        Route::get('/payments/invoice-details', 'showConfirmation')->name('admin.payments.showConfirmation');
+        Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+
+
     });
 });
 

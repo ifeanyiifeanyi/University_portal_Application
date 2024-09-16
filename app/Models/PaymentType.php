@@ -40,5 +40,8 @@ class PaymentType extends Model
         return $pivot ? $pivot->amount : null;
     }
 
+    public function payments(){
+        return $this->hasMany(Payment::class);
+    }
     protected $casts = ['is_active' => 'boolean'];
 }

@@ -9,12 +9,13 @@
 
 @section('admin')
 
-    .<div class="container">
+    <div class="container">
+        @include('admin.alert')
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <div class="card">
                     <div class="card-body">
-                        <form action="" method="POST">
+                        <form action="{{ route('admin.payments.submit') }}" method="POST">
                             @csrf
                             <div class="form-group mb-3">
                                 <label for="academic_session_id">Academic Session</label>
