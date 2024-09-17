@@ -58,7 +58,9 @@
 @endsection
 
 @section('admin')
+    @include('admin.return_btn')
     <div class="container-fluid">
+
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -78,17 +80,32 @@
                                             </div>
                                             <div class="card-body">
                                                 <p class="mb-0"><strong>Matric Number:</strong> <br>
-                                                    {{ $student->matric_number }}</p> <hr>
+                                                    {{ $student->matric_number }}</p>
+                                                <hr>
                                                 <p class="mb-0"><strong>Department:</strong> <br>
-                                                    {{ $student->department->name }}</p> <hr>
+                                                    {{ $student->department->name }}</p>
+                                                <hr>
                                                 <p class="mb-0"><strong>Current Level:</strong> <br>
-                                                    {{ $student->current_level }}</p> <hr>
+                                                    {{ $student->current_level }}</p>
+                                                <hr>
                                                 <p class="mb-0"><strong>Year of Admission:</strong>
-                                                    {{ $student->year_of_admission }}</p> <hr>
+                                                    {{ $student->year_of_admission }}</p>
+                                                <hr>
                                                 <p class="mb-0"><strong>Mode of Entry:</strong> <br>
                                                     {{ $student->mode_of_entry }}</p>
                                             </div>
-                                            <a href="{{ route('admin.students.registration-history', $student->id) }}" class="btn btn-primary">View Registered courses History</a>
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.students.registration-history', $student->id) }}"
+                                                    class="btn btn-info">courses</a>
+
+                                                <a href="{{ route('admin.student.approved-score-history', $student->id) }}"
+                                                    class="btn btn-primary">Scores</a>
+
+
+                                                <a href="{{ route('admin.student.audits', $student->id) }}"
+                                                    class="btn btn-info ">Audits</a>
+                                            </div>
+
                                         </div>
                                     </div>
                                     <div class="col-lg-8">

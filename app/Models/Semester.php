@@ -9,6 +9,11 @@ class Semester extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'season', 'start_date', 'end_date', 'is_current', 'academic_session_id'];
+    public function timetables()
+    {
+        return $this->hasMany(TimeTable::class);
+    }
+
 
     public function academicSession()
     {
@@ -53,6 +58,27 @@ class Semester extends Model
     public function attendance()
     {
         return $this->hasMany(Attendancee::class);
+    }
+
+    public function getCourseAssignmentsByCourse($courseId)
+    {
+        return CourseAssignment::where('course_id', $courseId)->where('semester_id', $this->id)->get();
+    }
+
+    public function getCourseAssignmentsByTeacher($teacherId)
+    {
+        return TeacherAssignment::where('teacher_id', $teacherId)->where('semester_id', $this->id)->get();
+    }
+
+    public static function getCurrentSemester()
+    {
+        return self::where('is_current', true)->first();
+    }
+    public function getPreviousSemesters(){
+        return self::where('is_current', false)->get();
+    }
+    public function getActiveSemester(){
+        return self::where('is_current', true)->orWhere('is_current', false)->first();
     }
 
 

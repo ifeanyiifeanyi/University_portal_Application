@@ -35,6 +35,7 @@
 
 @section('admin')
     <div class="container-fluid">
+        @include('admin.return_btn')
         <div class="sticky-header p-3">
             <div class="text-center">
                 <h3>Course Assignments for <br> <span class="lead"

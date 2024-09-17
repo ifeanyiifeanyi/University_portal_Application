@@ -139,15 +139,15 @@
 
 
 @section('admin')
-{{-- @dd($teacher) --}}
+    {{-- @dd($teacher) --}}
     <div class="container" style="overflow-x: hidden !important">
         <div class=" mt-5">
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="card text-center p-3">
                         <center>
-                        <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
-                            alt="Lecturer" class="profile-image mb-3 text-center">
+                            <img src="{{ empty($teacher->user->profile_photo) ? 'https://via.placeholder.com/150' : asset($teacher->user->profile_photo) }}"
+                                alt="Lecturer" class="profile-image mb-3 text-center">
                         </center>
                         <div class="">
                             <h1 class="gradient-text">
@@ -156,6 +156,10 @@
                             </h1>
                             <code class="lead gradient-text">{{ $teacher->employment_id ?? ' N/A' }}</code>
                         </div>
+
+                    </div>
+                    <div class="card p-3">
+                        <a href="{{ route('admin.teacher.audits', ['teacher' => $teacher->id]) }}" class="btn btn-primary">View Score Audits</a>
 
                     </div>
                 </div>

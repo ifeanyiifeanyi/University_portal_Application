@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
         Schema::create('student_scores', function (Blueprint $table) {
@@ -19,9 +20,9 @@ return new class extends Migration
             $table->foreignId('academic_session_id')->constrained()->onDelete('cascade');
             $table->foreignId('semester_id')->constrained()->onDelete('cascade');
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
-            $table->decimal('assessment_score', 5, 2)->nullable();
-            $table->decimal('exam_score', 5, 2)->nullable();
-            $table->decimal('total_score', 5, 2)->nullable();
+            $table->bigInteger('assessment_score')->nullable();
+            $table->bigInteger('exam_score')->nullable();
+            $table->bigInteger('total_score')->nullable();
             $table->char('grade', 2)->nullable();
             $table->boolean('is_failed')->default(false);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

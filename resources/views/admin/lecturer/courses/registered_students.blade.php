@@ -5,11 +5,10 @@
 
 @section('admin')
     <div class="container">
+        @include('admin.return_btn')
         @include('admin.alert')
         <div class="card py-3 px-3">
-            <span>
-                <button class="btn btn-primary mb-2" onclick="history.back()">Back</button>
-            </span>
+
             <p><b>Department: </b> {{ $assignment->department->name }}</p>
             <p>Registered Students for: <b>{{ $assignment->course->title }}</b></p>
             <p>
@@ -21,10 +20,13 @@
                 <div class="me-3">
                     <a href="{{ route('admin.export.scores', $assignment->id) }}" class="btn btn-primary">Export Template</a>
                 </div>
-                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST" enctype="multipart/form-data"
-                    class="d-flex align-items-center">
+                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST"
+                    enctype="multipart/form-data" class="d-flex align-items-center">
                     @csrf
                     <input type="file" name="csv_file" class="form-control me-2" required>
+                    @error('csv_file')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                     <button type="submit" class="btn btn-dark">Import</button>
                 </form>
             </div>
@@ -59,7 +61,7 @@
                                         <th>{{ $loop->iteration }}</th>
                                         <td>{{ $enrollment->student->matric_number }}</td>
                                         <td>{{ $enrollment->student->user->fullName() }}</td>
-                                        <td>
+                                        {{-- <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][assessment]"
                                                 class="form-control assessment-score" min="0" max="40"
                                                 step="0.01"
@@ -80,12 +82,33 @@
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
 
+                                        </td> --}}
+                                        <td>
+                                            <input type="number" name="scores[{{ $enrollment->id }}][assessment]"
+                                                value="{{ $previousScore->assessment_score ?? 0 }}" min="0"
+                                                max="40" step="0.01" required class="form-control assessment-score">
+
+                                            @error('scores.' . $enrollment->id . '.assessment')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+
                                         </td>
+
+                                        <td>
+                                            <input type="number" name="scores[{{ $enrollment->id }}][exam]"
+                                                value="{{ $previousScore->exam_score ?? 0 }}" min="0"
+                                                max="60" step="0.01" required class="form-control exam-score">
+                                            @error('scores.' . $enrollment->id . '.exam')
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+
+                                        </td>
+
 
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][total]"
                                                 class="form-control total-score"
-                                                value="{{ $previousScore->total_score ?? '' }}" readonly>
+                                                value="{{ $previousScore->total_score ?? 0 }}" readonly>
                                         </td>
                                         <td>
                                             <input type="text" name="scores[{{ $enrollment->id }}][grade]"
@@ -154,5 +177,6 @@
             });
         });
     </script>
+
 
 @endsection

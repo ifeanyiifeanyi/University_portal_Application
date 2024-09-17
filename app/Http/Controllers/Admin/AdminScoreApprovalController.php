@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Course;
+use App\ScoreAuditable;
 use App\Models\Semester;
 use App\Models\Department;
 use App\Models\ScoreAudit;
@@ -11,9 +12,12 @@ use App\Models\StudentScore;
 use Illuminate\Http\Request;
 use App\Models\AcademicSession;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class AdminScoreApprovalController extends Controller
 {
+    use ScoreAuditable;
+
     public function index(Request $request)
     {
         $academicSessions = AcademicSession::orderBy('name', 'desc')->get();
@@ -27,6 +31,7 @@ class AdminScoreApprovalController extends Controller
 
         $selectedDepartment = $request->input('department_id');
 
+        // -- select students score still pending
         $query = StudentScore::where('status', 'pending')
             ->where('academic_session_id', $selectedSession)
             ->where('semester_id', $selectedSemester);
@@ -42,6 +47,7 @@ class AdminScoreApprovalController extends Controller
 
         return view('admin.score_approval.index', compact('pendingScores', 'academicSessions', 'semesters', 'selectedSession', 'selectedSemester', 'selectedDepartment', 'departments', 'currentAcademicSession', 'currentSemester'));
     }
+
     public function approveScore(Request $request)
     {
         $scoreIds = $request->input('score_ids', []);
@@ -49,34 +55,91 @@ class AdminScoreApprovalController extends Controller
 
         $scores = StudentScore::whereIn('id', $scoreIds)->get();
 
-        foreach ($scores as $score) {
-            $score->update(['status' => 'approved']);
-            ScoreAudit::create([
-                'student_score_id' => $score->id,
-                'user_id' => auth()->id(),
-                'action' => 'approved',
-                'comment' => $comment,
-            ]);
+        foreach ($scoreIds as $scoreId) {
+            $score = StudentScore::findOrFail($scoreId);
+            $oldValue = $score->getAttributes();
+
+            // Directly update the status in the database
+            StudentScore::where('id', $scoreId)->update(['status' => 'approved']);
+
+            // Refresh the model to get the updated attributes
+            $score->refresh();
+            $newValue = $score->getAttributes();
+
+            $this->auditScore(
+                $score->id,
+                'Approve',
+                $comment ?? "Student assessment score approved",
+                $oldValue,
+                $newValue
+            );
         }
+
 
         return redirect()->back()->with('success', 'Selected scores have been approved.');
     }
 
-    public function reject(Request $request)
+    public function singleApproveScore(Request $request, StudentScore $score)
+    {
+        $oldValue = $score->getOriginal();
+        StudentScore::where('id', $score->id)->update(['status' => 'approved']);
+        $score->refresh();
+        $newValue = $score->getAttributes();
+
+        $this->auditScore(
+            $score->id,
+            'Approved',
+            $request->input('comment', 'Single approve action'),
+            $oldValue,
+            $newValue
+        );
+        return redirect()->back()->with('success', 'The Score has been approved.');
+    }
+
+    public function singleRejectScore(Request $request, StudentScore $score)
+    {
+
+        $oldValue = $score->getOriginal();
+        StudentScore::where('id', $score->id)->update(['status' => 'rejected']);
+        $score->refresh();
+        $newValue = $score->getAttributes();
+
+        $this->auditScore(
+            $score->id,
+            'Rejected',
+            $request->input('comment', 'Single reject action'),
+            $oldValue,
+            $newValue
+        );
+
+
+
+        return redirect()->back()->with('success', 'The score was rejected');
+    }
+
+    public function rejectScore(Request $request)
     {
         $scoreIds = $request->input('score_ids', []);
         $comment = $request->input('comment');
 
-        $scores = StudentScore::whereIn('id', $scoreIds)->get();
+        foreach ($scoreIds as $scoreId) {
+            $score = StudentScore::findOrFail($scoreId);
+            $oldValue = $score->getOriginal();
 
-        foreach ($scores as $score) {
-            $score->update(['status' => 'rejected']);
-            ScoreAudit::create([
-                'student_score_id' => $score->id,
-                'user_id' => auth()->id(),
-                'action' => 'rejected',
-                'comment' => $comment,
-            ]);
+            // Directly update the status in the database
+            StudentScore::where('id', $scoreId)->update(['status' => 'rejected']);
+
+            // Refresh the model to get the updated attributes
+            $score->refresh();
+            $newValue = $score->getAttributes();
+
+            $this->auditScore(
+                $score->id,
+                'Reject',
+                $comment ?? 'This result was rejected',
+                $oldValue,
+                $newValue
+            );
         }
 
         return redirect()->back()->with('success', 'Selected scores have been rejected.');
@@ -119,6 +182,11 @@ class AdminScoreApprovalController extends Controller
                 $row['Status'] = $score->status;
 
                 fputcsv($file, array($row['Student Name'], $row['Department'], $row['Course'], $row['Teacher'], $row['Assessment Score'], $row['Exam Score'], $row['Total Score'], $row['Grade'], $row['Status']));
+
+                $this->auditScore($score->id, 'Export', 'Scores exported to CSV', null, [
+                    'academic_session_id' => $score->academic_session_id,
+                    'semester_id' => $score->semester_id,
+                ]);
             }
 
             fclose($file);
@@ -189,6 +257,8 @@ class AdminScoreApprovalController extends Controller
                     ]
                 );
 
+                $this->auditScore($student->id, 'Imported_Scores', 'CSV import');
+
                 $imported++;
             }
 
@@ -202,6 +272,7 @@ class AdminScoreApprovalController extends Controller
 
         return redirect()->back()->with('error', 'No file was uploaded.');
     }
+
 
 
 

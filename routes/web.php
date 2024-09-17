@@ -8,17 +8,18 @@ use App\Http\Controllers\Parent\ChildrenController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Student\StudentFeesController;
+use App\Http\Controllers\Admin\AdminTimeTableController;
 use App\Http\Controllers\Student\OnlineClassesController;
 use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
 use App\Http\Controllers\Student\StudentAcceptanceController;
+use App\Http\Controllers\Teacher\TeacherAttendanceController;
 use App\Http\Controllers\Teacher\TeacherDepartmentController;
 use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
-use App\Http\Controllers\Teacher\TeacherAttendanceController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -36,11 +37,21 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('logout', 'logout')->name('logout');
 });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
+    Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
+    Route::get('/timetables/{id}/version-history', [AdminTimeTableController::class, 'versionHistory'])->name('admin.timetables.version-history');
+    Route::get('/timetables/clone', [AdminTimeTableController::class, 'cloneTimetable'])->name('admin.timetables.clone');
+    Route::get('/timetables/{id}/export-to-google-calendar', [AdminTimeTableController::class, 'exportToGoogleCalendar'])->name('admin.timetables.export-to-google-calendar');
+    Route::get('/timetables/{id}/export', [AdminTimeTableController::class, 'export'])->name('admin.timetables.export');
+});
 
+Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
 Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminController::class)->group(function () {
         Route::get('dashboard', 'index')->name('admin.view.dashboard');
+        Route::post('logout', 'logout')->name('admin.logout');
     });
 
 

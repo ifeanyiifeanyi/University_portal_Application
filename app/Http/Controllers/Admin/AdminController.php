@@ -15,4 +15,14 @@ class AdminController extends Controller
 
         return view('admin.dashboard');
     }
+
+    public function logout(Request $request){
+        Auth::logout();
+
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login.view');
+    }
 }

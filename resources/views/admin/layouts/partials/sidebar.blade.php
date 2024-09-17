@@ -15,14 +15,14 @@
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class='bx bx-home-circle'></i>
                 </div>
-                <div class="menu-title">Dashboard</div>
+                <div class="menu-title">TimeTable Manager</div>
             </a>
             <ul>
-                <li> <a href="index.html"><i class="bx bx-right-arrow-alt"></i>Default</a>
+                {{-- <li> <a href="{{ route('admin.attendance.create') }}"><i class="bx bx-right-arrow-alt"></i>Attendance Manager</a>
+                </li> --}}
+                <li> <a href="{{ route('admin.timetable.view') }}"><i class="bx bx-right-arrow-alt"></i>TimeTable</a>
                 </li>
-                <li> <a href="dashboard-eCommerce.html"><i class="bx bx-right-arrow-alt"></i>eCommerce</a>
-                </li>
-                <li> <a href="dashboard-analytics.html"><i class="bx bx-right-arrow-alt"></i>Analytics</a>
+                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft TimeTable</a>
                 </li>
                 <li> <a href="dashboard-digital-marketing.html"><i class="bx bx-right-arrow-alt"></i>Digital
                         Marketing</a>
@@ -55,11 +55,11 @@
                     <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Department</a>
                 </li>
+                <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
+                </li>
                 <li>
                     <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign
-                        Department Credits</a>
-                </li>
-                <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
+                        Department Course Credits</a>
                 </li>
             </ul>
         </li>
@@ -102,17 +102,26 @@
                 <div class="menu-title">Academic Records</div>
             </a>
             <ul>
-                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Course |
-                        Semester Manager</a>
+                <li> <a href="{{ route('course-assignments.index') }}"><i class="bx bx-right-arrow-alt"></i>Assign
+                        Semester Courses to Department</a>
                 </li>
-                <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i
-                            class="bx bx-right-arrow-alt"></i>Deparment | lecturer | Courses</a>
+                <li> <a href="{{ route('admin.teacher.assignment.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign
+                        Department and Courses to Lecturers</a>
                 </li>
                 <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i
-                            class="bx bx-right-arrow-alt"></i>Students Registered Courses</a>
+                            class="bx bx-right-arrow-alt"></i>Manage Students Registered Courses</a>
                 </li>
                 <li> <a href="{{ route('admin.score.approval.view') }}"><i class="bx bx-right-arrow-alt"></i>Submitted
                         Students Scores</a>
+                </li>
+                <li> <a href="{{ route('admin.approved_scores.view') }}"><i class="bx bx-right-arrow-alt"></i>Approved
+                        Students Assessment score</a>
+                </li>
+                <li> <a href="{{ route('admin.score.rejected.view') }}"><i class="bx bx-right-arrow-alt"></i>Rejected
+                        Students Assessment score</a>
+                </li>
+                <li> <a href="{{ route('admin.score.audit.view') }}"><i class="bx bx-right-arrow-alt"></i>Student Score
+                        Auditor</a>
                 </li>
             </ul>
         </li>

@@ -6,6 +6,8 @@
 @endsection
 
 @section('admin')
+    @include('admin.return_btn')
+
     <div class="container">
         <div class="row">
             <div class="card col-md-8 px-2 py-3 mx-auto">
@@ -18,7 +20,7 @@
                     @else
                         <div class="form-group mb-4">
                             <label for="teacher_id">Select Lecturer:</label>
-                            <select name="teacher_id" id="teacher_id" class="form-control single-select" >
+                            <select name="teacher_id" id="teacher_id" class="form-control single-select">
                                 <option value="">Select Lecturer</option>
                                 @foreach ($teachers as $teacher)
                                     <option value="{{ $teacher->user->id }}">
@@ -34,8 +36,7 @@
 
                     <div class="form-group mb-4">
                         <label for="academic_session_id">Academic Session:</label>
-                        <select name="academic_session_id" id="academic_session_id" class="form-control single-select"
-                            >
+                        <select name="academic_session_id" id="academic_session_id" class="form-control single-select">
                             <option value="{{ $currentAcademicSession->id }}" selected>{{ $currentAcademicSession->name }}
                                 (Current Session)</option>
                         </select>
@@ -44,7 +45,7 @@
 
                     <div class="form-group mb-4">
                         <label for="semester_id">Semester:</label>
-                        <select name="semester_id" id="semester_id" class="form-control single-select" >
+                        <select name="semester_id" id="semester_id" class="form-control single-select">
                             <option value="{{ $currentSemester->id }}" selected>{{ $currentSemester->name }} (Current
                                 Semester)</option>
                         </select>
@@ -52,7 +53,7 @@
 
                     <div class="form-group mb-4">
                         <label for="department_id">Department:</label>
-                        <select name="department_id" id="department_id" class="form-control" >
+                        <select name="department_id" id="department_id" class="form-control">
                             <option value="">Select Department</option>
                             @foreach ($departments as $department)
                                 <option value="{{ $department->id }}">
@@ -61,8 +62,8 @@
                             @endforeach
                         </select>
                         @error('department_id')
-                        <i class="text-danger">{{ $message }}</i>
-                    @enderror
+                            <i class="text-danger">{{ $message }}</i>
+                        @enderror
                     </div>
 
                     <div id="courses-container" style="display: none;">

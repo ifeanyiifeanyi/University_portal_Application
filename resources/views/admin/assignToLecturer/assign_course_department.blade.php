@@ -16,8 +16,9 @@
 
 @section('admin')
     <div class="container">
-        <h1>@yield('title')</h1>
-        <a href="{{ route('admin.teacher.assignment.create') }}" class="btn btn-primary mb-3">Assign Content</a>
+        <h4 class="mb-3 lead">@yield('title')</h4>
+        <a href="{{ route('admin.teacher.assignment.create') }}" class="btn btn-primary mb-3">Assign New Course and Department</a>
+        <button class="btn btn-dark mb-3" onclick="history.back()">Back</button>
         <hr>
 
         <div id="message"></div> <!-- Place to display messages -->
