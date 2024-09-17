@@ -1,7 +1,7 @@
 <div class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
         <div>
-            <img src="{{ asset('') }}assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+            <img src="{{ asset('') }}logo.png" class="logo-icon" alt="logo icon">
         </div>
         <div>
             <h4 class="logo-text">ADM</h4>
@@ -22,7 +22,8 @@
                 </li> --}}
                 <li> <a href="{{ route('admin.timetable.view') }}"><i class="bx bx-right-arrow-alt"></i>TimeTable</a>
                 </li>
-                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft TimeTable</a>
+                <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft
+                        TimeTable</a>
                 </li>
                 <li> <a href="dashboard-digital-marketing.html"><i class="bx bx-right-arrow-alt"></i>Digital
                         Marketing</a>
@@ -30,6 +31,24 @@
                 <li> <a href="dashboard-human-resources.html"><i class="bx bx-right-arrow-alt"></i>Human
                         Resources</a>
                 </li>
+            </ul>
+        </li>
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-money'></i>
+                </div>
+                <div class="menu-title">Payment Manager</div>
+            </a>
+            <ul>
+                <li> <a href="{{ route('admin.payment_type.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Payment Types</a>
+                </li>
+                <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Payment Methods</a>
+                </li>
+                <li> <a href="{{ route('admin.payment.pay') }}">
+                    <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
+            </li>
             </ul>
         </li>
         <li>

@@ -10,7 +10,7 @@ class GpaRecord extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'semester_id', 'gpa', 'cgpa'];
+    protected $fillable = ['student_id', 'semester_id', 'gpa', 'academic_session_id'];
 
     public function student(): BelongsTo
     {

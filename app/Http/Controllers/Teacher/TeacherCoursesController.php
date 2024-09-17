@@ -131,6 +131,7 @@ public function students($courseId)
                 $totalScore = $record['Assessment Score'] + $record['Exam Score'];
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
+                $gradePoint = $this->calculateGradePoint($grade);
 
                 StudentScore::updateOrCreate(
                     [
@@ -147,8 +148,12 @@ public function students($courseId)
                         'total_score' => $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
+                        'grade_point'=>$gradePoint
                     ]
                 );
+                 // cgpa
+
+        $this->updateGpaRecord($student->id, $assignment->academic_session_id, $assignment->semester_id);
             }
 
             DB::commit();
@@ -217,7 +222,7 @@ public function students($courseId)
 
                  // cgpa
 
-        $this->updateGpaRecord($enrollment->student_id, $enrollment->semester_id);
+        $this->updateGpaRecord($enrollment->student_id, $assignment->academic_session_id, $assignment->semester_id);
             }
 
             DB::commit();
@@ -240,10 +245,12 @@ public function students($courseId)
         }
     }
 
-    private function updateGpaRecord($studentId, $semesterId)
+    private function updateGpaRecord($studentId ,$acamdicsession, $semesterId)
     {
-        $enrollments = CourseEnrollment::where('student_id', $studentId)
-            ->where('semester_id', $semesterId)
+        $enrollments = CourseEnrollment::whereHas('semesterCourseRegistration', function ($query) use ($semesterId) {
+            $query->where('semester_id', $semesterId);
+        })
+            ->where('student_id', $studentId)
             ->with(['studentScore', 'course'])
             ->get();
 
@@ -252,7 +259,7 @@ public function students($courseId)
 
         foreach ($enrollments as $enrollment) {
             if ($enrollment->studentScore) {
-                $totalGradePoints += $enrollment->studentScore->grade * $enrollment->course->credit_hours;
+                $totalGradePoints += $enrollment->studentScore->grade_point * $enrollment->course->credit_hours;
                 $totalCreditUnits += $enrollment->course->credit_hours;
             }
         }
@@ -260,7 +267,7 @@ public function students($courseId)
         $gpa = $totalCreditUnits > 0 ? $totalGradePoints / $totalCreditUnits : 0;
 
         $gpaRecord = GpaRecord::updateOrCreate(
-            ['student_id' => $studentId, 'semester_id' => $semesterId],
+            ['student_id' => $studentId, 'semester_id' => $semesterId, 'academic_session_id'=>$acamdicsession],
             ['gpa' => $gpa]
         );
 
@@ -271,13 +278,16 @@ public function students($courseId)
 
     private function updateCGPA($studentId)
     {
+        
         $gpaRecords = GpaRecord::where('student_id', $studentId)->get();
-
         $totalGPA = $gpaRecords->sum('gpa');
         $cgpa = $gpaRecords->count() > 0 ? $totalGPA / $gpaRecords->count() : 0;
-
-        foreach ($gpaRecords as $record) {
-            $record->update(['cgpa' => $cgpa]);
-        }
+        $updatestudent = Student::where('id',$studentId)->update([
+            'cgpa'=>$cgpa
+        ]);
+        return $updatestudent;
+        // foreach ($gpaRecords as $record) {
+        //     $record->update(['cgpa' => $cgpa]);
+        // }
     }
 }

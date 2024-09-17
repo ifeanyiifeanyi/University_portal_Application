@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('academic_session_id')->constrained()->onDelete('cascade');
             $table->boolean('status')->default(true);
             $table->decimal('gpa', 3, 2);
-            $table->decimal('cgpa', 3, 2);
+            // $table->decimal('cgpa', 3, 2);
             $table->timestamps();
         });
     }
