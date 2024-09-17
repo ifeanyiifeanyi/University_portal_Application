@@ -20,7 +20,8 @@ class StudentScore extends Model
         'total_score',
         'grade',
         'is_failed',
-        'status'
+        'status',
+        'grade_point'
     ];
 
     protected $casts = [

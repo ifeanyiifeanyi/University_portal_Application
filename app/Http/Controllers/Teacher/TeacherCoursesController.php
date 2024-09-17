@@ -6,6 +6,7 @@ use App\Models\User;
 use League\Csv\Reader;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\GpaRecord;
 use App\Models\GradeSystem;
 use App\Models\StudentScore;
 use Illuminate\Http\Request;
@@ -69,6 +70,8 @@ public function students($courseId)
             'status' => $status,
         ]);
     }
+
+
 
     public function exportassessment($courseId){
 
@@ -166,6 +169,10 @@ public function students($courseId)
             'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
             'scores.*.exam.max' => 'Exam score cannot exceed 60.',
         ]);
+
+       
+
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -178,10 +185,16 @@ public function students($courseId)
 
             foreach ($uploadresult->scores as $enrollmentId => $scoreData) {
                 $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+                // calculate grade
+                // $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+                // $totalScore = $scoreData['exam'] + $scoreData['assessment'];
+        
+                // $grade = $this->calculateGrade($totalScore);
 
                 $totalScore = $scoreData['assessment'] + $scoreData['exam'];
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
+                $gradePoint = $this->calculateGradePoint($grade);
 
                 StudentScore::updateOrCreate(
                     [
@@ -198,8 +211,13 @@ public function students($courseId)
                         'total_score' => $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
+                        'grade_point'=>$gradePoint
                     ]
                 );
+
+                 // cgpa
+
+        $this->updateGpaRecord($enrollment->student_id, $enrollment->semester_id);
             }
 
             DB::commit();
@@ -208,6 +226,58 @@ public function students($courseId)
             DB::rollBack();
             Log::error('Error saving scores: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+        }
+    }
+
+    private function calculateGradePoint($grade)
+    {
+        switch ($grade) {
+            case 'A': return 5.0;
+            case 'B': return 4.0;
+            case 'C': return 3.0;
+            case 'D': return 2.0;
+            default: return 0.0;
+        }
+    }
+
+    private function updateGpaRecord($studentId, $semesterId)
+    {
+        $enrollments = CourseEnrollment::where('student_id', $studentId)
+            ->where('semester_id', $semesterId)
+            ->with(['studentScore', 'course'])
+            ->get();
+
+        $totalGradePoints = 0;
+        $totalCreditUnits = 0;
+
+        foreach ($enrollments as $enrollment) {
+            if ($enrollment->studentScore) {
+                $totalGradePoints += $enrollment->studentScore->grade * $enrollment->course->credit_hours;
+                $totalCreditUnits += $enrollment->course->credit_hours;
+            }
+        }
+
+        $gpa = $totalCreditUnits > 0 ? $totalGradePoints / $totalCreditUnits : 0;
+
+        $gpaRecord = GpaRecord::updateOrCreate(
+            ['student_id' => $studentId, 'semester_id' => $semesterId],
+            ['gpa' => $gpa]
+        );
+
+        $this->updateCGPA($studentId);
+
+        return $gpaRecord;
+    }
+
+    private function updateCGPA($studentId)
+    {
+        $gpaRecords = GpaRecord::where('student_id', $studentId)->get();
+
+        $totalGPA = $gpaRecords->sum('gpa');
+        $cgpa = $gpaRecords->count() > 0 ? $totalGPA / $gpaRecords->count() : 0;
+
+        foreach ($gpaRecords as $record) {
+            $record->update(['cgpa' => $cgpa]);
         }
     }
 }
