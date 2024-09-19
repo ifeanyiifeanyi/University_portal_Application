@@ -29,7 +29,11 @@ class StudentController extends Controller
             return redirect()->route('login.view');
         }
 
-        return view('student.dashboard');
+        $student = Student::where('user_id',$this->authService->user()->id)->first();
+
+        return view('student.dashboard',[
+            'student'=>$student
+        ]);
     }
 
     public function profile(){

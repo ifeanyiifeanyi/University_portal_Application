@@ -159,6 +159,7 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::prefix('/fees')->group(function () {
             Route::get('/', 'index')->name('student.view.fees.all');
             Route::get('/view', 'view')->name('student.view.fees');
+            Route::get('/pay', 'pay')->name('student.view.pay');
         });
     });
 

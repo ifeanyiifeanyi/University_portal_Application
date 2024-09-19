@@ -50,7 +50,8 @@
                                     <td>{{$studentresult->total_score}}</td>
                                     <td>{{$studentresult->grade}}</td>
                                     
-                                </tr>   
+                                </tr>
+                                   
                                 @empty
                                     <p>No result found</p>
                                 @endforelse
@@ -63,6 +64,12 @@
                                
                             </tbody>
                         </table>
+                        <div class="mt-4">
+                            @if ($gpa)
+                            <strong>Total gpa: {{$gpa->gpa}}</strong>
+                            @endif
+                            
+                            </div>
                     </div>
                 </div>
             </div>

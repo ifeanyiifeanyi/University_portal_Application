@@ -8,6 +8,7 @@ use App\Models\StudentScore;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
+use App\Models\GpaRecord;
 
 class StudentResultController extends Controller
 {
@@ -30,11 +31,12 @@ class StudentResultController extends Controller
             ->with(['academicSession', 'semester', 'course'])
             ->groupBy('academic_session_id', 'semester_id','teacher_id')
             ->get()
-            ->map(function ($result) {
-                // $cgpa = StudentScore::where('student_id', $result->student_id)
-                //     ->where('academic_session_id', $result->academic_session_id)
-                //     ->where('semester_id', $result->semester_id)
-                //     ->avg('total_score') / 20; // Assuming CGPA is on a 5-point scale
+            ->map(function ($result) use ($studentId) {
+                $gpa = GpaRecord::where('student_id', $studentId)
+                    ->where('academic_session_id', $result->academicSession->id)
+                    ->where('semester_id', $result->semester->id)
+                    ->first();
+                    // ->avg('total_score') / 20; // Assuming CGPA is on a 5-point scale
 
                 return [
                     'session' => $result->academicSession->name,
@@ -42,8 +44,8 @@ class StudentResultController extends Controller
                     'semester' => $result->semester->name,
                     'teacher'  => $result->teacher_id,
                     'sessionid'=>$result->academicSession->id,
-                    'semesterid'=>$result->semester->id
-                    // 'cgpa' => number_format($cgpa, 2),
+                    'semesterid'=>$result->semester->id,
+                    'gpa' => $gpa ? $gpa->gpa : null,
                 ];
             });
             // dd($availableResults);
@@ -86,9 +88,15 @@ class StudentResultController extends Controller
         ->where('teacher_id',$teacherid)
         ->where('status','approved')
         ->get();
+
+        $gpa = GpaRecord::where('student_id', $studentId)
+                    ->where('academic_session_id', $sessionid)
+                    ->where('semester_id', $semesterid)
+                    ->first();
         // dd($studentresults);
         return view('student.result.view',[
-            'studentresults'=>$studentresults
+            'studentresults'=>$studentresults,
+            'gpa'=>$gpa
         ]);
     }
 }

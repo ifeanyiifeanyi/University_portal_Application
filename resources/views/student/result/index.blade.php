@@ -44,7 +44,7 @@
                         <td>{{ $result['session'] }}</td>
                         <td>100</td>
                         <td>{{ $result['semester'] }}</td>
-                        <td>2355</td>
+                        <td>{{$result['gpa']}}</td>
                         <td>
                             <a href="{{ route('student.view.result',[
                                 'session' => $result['sessionid'],

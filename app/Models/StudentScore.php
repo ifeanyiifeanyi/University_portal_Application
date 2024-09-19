@@ -82,4 +82,6 @@ class StudentScore extends Model
 
         return $dirty;
     }
+
+    
 }

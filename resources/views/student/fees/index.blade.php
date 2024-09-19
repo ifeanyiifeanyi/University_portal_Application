@@ -17,6 +17,13 @@
     </div>
 
     <div class="row">
+        <div class="col-md-6"></div>
+    <div class="ms-auto mb-4 col-md-6">
+        <a href="{{route('student.view.pay')}}" class="btn w-100 text-white" style="background: #AE152D;">Pay new fees</a>
+    </div>
+    </div>
+
+    <div class="row">
         @include('messages')
         <div class="col-12">
             <div class="card">
