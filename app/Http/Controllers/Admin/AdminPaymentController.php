@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Receipt;
 use App\Models\Student;
 use App\Models\Semester;
 use App\Models\Department;
@@ -10,13 +12,21 @@ use App\Models\PaymentType;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Models\AcademicSession;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Services\PaymentGatewayService;
 
 class AdminPaymentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $paymentGatewayService;
+
+    public function __construct(PaymentGatewayService $paymentGatewayService)
+    {
+        $this->paymentGatewayService = $paymentGatewayService;
+    }
+
+
     public function index()
     {
         $paymentTypes = PaymentType::with('departments')->active()->get();
@@ -76,29 +86,57 @@ class AdminPaymentController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'payment_type_id' => 'required|exists:payment_types,id',
-            'department_id' => 'required|exists:departments,id',
-            'level' => 'required|integer|min:100|max:600',
-            'student_id' => 'required|exists:students,id',
-            'amount' => 'required|numeric|min:0',
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'academic_session_id' => 'required|exists:academic_sessions,id',
-            'semester_id' => 'required|exists:semesters,id',
-        ]);
 
-        $payment = Payment::create($request->all());
+    // public function submitPaymentForm(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'academic_session_id' => 'required|exists:academic_sessions,id',
+    //         'semester_id' => 'required|exists:semesters,id',
+    //         'payment_type_id' => 'required|exists:payment_types,id',
+    //         'department_id' => 'required|exists:departments,id',
+    //         'level' => 'required|numeric|min:100|max:600',
+    //         'student_id' => 'required|exists:students,id',
+    //         'payment_method_id' => 'required|exists:payment_methods,id',
+    //         'amount' => 'required|numeric|min:0',
+    //         // 'transaction_reference' => 'nullable|string|max:255',
+    //         // 'description' => 'nullable|string|max:255',
+    //         // 'comment' => 'nullable|string|max:255',
+    //         // 'proof_of_payment' => 'nullable|file|max:2048',
+    //     ]);
 
-        return response()->json([
-            'message' => 'Payment created successfully',
-            'payment' => $payment
-        ]);
-    }
+    //     // Retrieve all necessary data
+    //     $academicSession = AcademicSession::findOrFail($validated['academic_session_id']);
+    //     $semester = Semester::findOrFail($validated['semester_id']);
+    //     $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
+    //     $department = Department::findOrFail($validated['department_id']);
+    //     $student = Student::with('user', 'department')->findOrFail($validated['student_id']);
+
+    //     $paymentMethod = PaymentMethod::findOrFail($validated['payment_method_id']);
+    //     $amount = $validated['amount'];
+    //     $level = $validated['level'];
+
+    //     $invoice_number = null;
+
+    //     // Store data in session for use in confirmation page
+    //     session([
+    //         'payment_data' => [
+    //             'academic_session' => $academicSession,
+    //             'semester' => $semester,
+    //             'payment_type' => $paymentType,
+    //             'department' => $department,
+    //             'level' => $validated['level'],
+    //             'student' => $student,
+    //             'payment_method' => $paymentMethod,
+    //             'amount' => $validated['amount'],
+    //             'department_id' => $department->id,
+    //             // 'transaction_reference' => $validated['transaction_reference'],
+    //             // 'description' => $validated['description'],
+    //             // 'comment' => $validated['comment'],
+    //             // 'proof_of_payment' => $validated['proof_of_payment'],
+    //         ]
+    //     ]);
+    //     return redirect(route('admin.payments.showConfirmation'));
+    // }
 
     public function submitPaymentForm(Request $request)
     {
@@ -111,55 +149,54 @@ class AdminPaymentController extends Controller
             'student_id' => 'required|exists:students,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
-            // 'transaction_reference' => 'nullable|string|max:255',
-            // 'description' => 'nullable|string|max:255',
-            // 'comment' => 'nullable|string|max:255',
-            // 'proof_of_payment' => 'nullable|file|max:2048',
         ]);
 
-        // Retrieve all necessary data
-        $academicSession = AcademicSession::findOrFail($validated['academic_session_id']);
-        $semester = Semester::findOrFail($validated['semester_id']);
-        $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
-        $department = Department::findOrFail($validated['department_id']);
-        $student = Student::with('user', 'department')->findOrFail($validated['student_id']);
-
-        $paymentMethod = PaymentMethod::findOrFail($validated['payment_method_id']);
-        $amount = $validated['amount'];
-        $level = $validated['level'];
-
-        // Store data in session for use in confirmation page
-        session([
-            'payment_data' => [
-                'academic_session' => $academicSession,
-                'semester' => $semester,
-                'payment_type' => $paymentType,
-                'department' => $department,
-                'level' => $validated['level'],
-                'student' => $student,
-                'payment_method' => $paymentMethod,
-                'amount' => $validated['amount'],
-                // 'transaction_reference' => $validated['transaction_reference'],
-                // 'description' => $validated['description'],
-                // 'comment' => $validated['comment'],
-                // 'proof_of_payment' => $validated['proof_of_payment'],
-            ]
+        $invoice = Invoice::create([
+            'student_id' => $validated['student_id'],
+            'payment_type_id' => $validated['payment_type_id'],
+            'department_id' => $validated['department_id'],
+            'level' => $validated['level'],
+            'academic_session_id' => $validated['academic_session_id'],
+            'semester_id' => $validated['semester_id'],
+            'amount' => $validated['amount'],
+            'payment_method_id' => $validated['payment_method_id'],
+            'status' => 'pending',
+            'invoice_number' => 'INV-' . uniqid(),
         ]);
 
-        // Redirect to confirmation page
-        // return view('admin.payments.confirm', compact(
-        //     'paymentType',
-        //     'student',
-        //     'academicSession',
-        //     'semester',
-        //     'paymentMethod',
-        //     'department',
-        //     'amount',
-        //     'level'
-        // ));
-
-        return redirect(route('admin.payments.showConfirmation'));
+        return redirect()->route('admin.payments.showConfirmation', $invoice->id);
     }
+
+    public function showConfirmation($invoiceId = null)
+    {
+        // Check if the invoiceId is missing or empty
+        if (empty($invoiceId)) {
+            // Redirect back to the form if no parameter is present
+            return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+        }
+
+        // Attempt to retrieve the invoice with related data
+        $invoice = Invoice::with([
+            'student.user',
+            'student.department',
+            'paymentType',
+            'paymentMethod',
+            'academicSession',
+            'semester'
+        ])->find($invoiceId);
+
+        // Check if the invoice was not found
+        if (is_null($invoice)) {
+            // Redirect back to the form if no invoice was found
+            return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+        }
+
+        // Return the view with the found invoice
+        return view('admin.payments.confirm', compact('invoice'));
+    }
+
+
+
 
     public function generateTicket(Request $request)
     {
@@ -178,48 +215,107 @@ class AdminPaymentController extends Controller
         return view('admin.payments.printable-invoice', compact('paymentType', 'student', 'academicSession', 'semester'));
     }
 
-    public function showConfirmation()
+    public function processPayment(Request $request)
     {
-        // Retrieve data from session
-        $paymentData = session('payment_data');
+        $validated = $request->validate([
+            'payment_type_id' => 'required|exists:payment_types,id',
+            'department_id' => 'required|exists:departments,id',
+            'level' => 'required|numeric|min:100|max:600',
+            'student_id' => 'required|exists:students,id',
+            'amount' => 'required|numeric|min:0',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'academic_session_id' => 'required|exists:academic_sessions,id',
+            'semester_id' => 'required|exists:semesters,id',
+        ]);
 
-        if (!$paymentData) {
-            return redirect()->route('admin.payment.pay')->with('error', 'Payment data not found. Please start over.');
+        DB::beginTransaction();
+
+        try {
+            $payment = Payment::create([
+                'student_id' => $validated['student_id'],
+                'payment_type_id' => $validated['payment_type_id'],
+                'payment_method_id' => $validated['payment_method_id'],
+                'academic_session_id' => $validated['academic_session_id'],
+                'semester_id' => $validated['semester_id'],
+                'amount' => $request->amount,
+                'department_id' => $validated['department_id'],
+                'level' => $validated['level'],
+                'status' => 'pending',
+                'transaction_reference' => 'PAY-' . uniqid(),
+                'payment_date' => now()
+            ]);
+
+            $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
+            // dd($paymentUrl);
+
+            DB::commit();
+
+            return redirect()->away($paymentUrl);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Payment initialization failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to initialize payment. Please try again later.');
         }
-
-        return view('admin.payments.confirm', $paymentData);
     }
 
+    // public function showConfirmation()
+    // {
+    //     // Retrieve data from session
+    //     $paymentData = session('payment_data');
+    //     // dd($paymentData);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Payment $payment)
+    //     if (!$paymentData) {
+    //         return redirect()->route('admin.payment.pay')->with('error', 'Payment data not found. Please start over.');
+    //     }
+
+    //     return view('admin.payments.confirm', $paymentData);
+    // }
+
+
+    public function verifyPayment(Request $request, $gateway)
     {
-        //
+        $reference = $request->query('reference');
+
+        DB::beginTransaction();
+
+        try {
+            $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
+
+            if ($result['success']) {
+                $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
+                $payment->status = 'paid';
+                $payment->save();
+
+                $receipt = $this->generateReceipt($payment);
+
+                DB::commit();
+
+                return redirect()->route('admin.payments.showReceipt', $receipt->id)
+                    ->with('success', 'Payment verified successfully')
+                    ->with('receipt', $receipt);
+            } else {
+                throw new \Exception('Payment verification failed');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Payment verification failed: ' . $e->getMessage());
+            return redirect()->route('admin.payments.showConfirmation')
+                ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payment $payment)
+    protected function generateReceipt(Payment $payment)
     {
-        //
+        return Receipt::create([
+            'payment_id' => $payment->id,
+            'receipt_number' => 'REC-' . uniqid(),
+            'amount' => $payment->amount,
+            'date' => now(),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Payment $payment)
+    public function showReceipt(Receipt $receipt)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Payment $payment)
-    {
-        //
+        return view('admin.payments.show-receipt', compact('receipt'));
     }
 }

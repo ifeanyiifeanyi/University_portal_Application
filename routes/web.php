@@ -347,19 +347,25 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminPaymentController::class)->group(function(){
         Route::get('make-payments', 'index')->name('admin.payment.pay');
+        Route::get('payments', 'payments')->name('admin.payments.show');
 
         Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
-
-        // Route::get('/payment-types/get-amount',  'getAmount')->name('payment-types.getAmount');
         Route::get('/payment-types/get-amount', [AdminPaymentController::class, 'getAmount'])->name('payment-types.getAmount');
-
         Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
 
         Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
         Route::post('/payments/process', 'processPayment')->name('admin.payments.processPayment');
 
+        Route::get('payments/verify/{gateway}', 'verifyPayment')->name('payment.verify');
+        Route::get('payments/{payment}/receipt', 'generateReceipt')->name('payments.receipt');
+        // Route::get('receipts/{receipt}', 'showReceipt')->name('receipts.show');
 
-        Route::get('/payments/invoice-details', 'showConfirmation')->name('admin.payments.showConfirmation');
+        Route::get('receipts/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
+
+
+
+
+        Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('admin.payments.showConfirmation');
         Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
 
 

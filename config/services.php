@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'remita' => [
+        'base_url' => env('REMITA_BASE_URL', 'https://demo.remita.net/remita/exapp/api/v1/send/api/'),
+        'merchant_id' => env('REMITA_MERCHANT_ID', '2547916'),
+        'api_key' => env('REMITA_API_KEY', '1946'),
+        'service_type_id' => env('REMITA_SERVICE_TYPE_ID', '4430731'),
+        'public_key' => env('REMITA_PUBLIC_KEY', 'QzAwMDAyNzEyNTl8MTEwNjE4NjF8OWZjOWYwNmMyZDk3MDRhYWM3YThiOThlNTNjZTE3ZjYxOTY5NDdmZWE1YzU3NDc0ZjE2ZDZjNTg1YWYxNWY3NWM4ZjMzNzZhNjNhZWZlOWQwNmJhNTFkMjIxYTRiMjYzZDkzNGQ3NTUxNDIxYWNlOGY4ZWEyODY3ZjlhNGUwYTY='),
+        'secret_key' => env('REMITA_SECRET_KEY', '23093b2bda801eece94fc6e8363c05fad90a4ba3e12045005141b0bab41704b3a148904529239afd1c9a3880d51b4018d13fd626b2cef77a6f858fe854834e54'),
+        'mode' => env('REMITA_MODE', 'test'), // 'test' or 'live'
+    ],
+
 ];

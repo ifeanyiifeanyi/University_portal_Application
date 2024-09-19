@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     use HasFactory;
-    protected $fillable = ['student_id', 'department_id','level', 'academic_session_id', 'semester_id', 'payment_type_id', 'payment_method_id', 'transaction_reference'];
+    protected $fillable = ['student_id', 'department_id','level', 'academic_session_id', 'semester_id', 'payment_type_id', 'payment_method_id', 'transaction_reference', 'amount', 'payment_date'];
 
     protected $casts = [
         'amount' => 'decimal:2',
