@@ -25,4 +25,14 @@ class PaymentMethod extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+    public function isCreditCard()
+    {
+        return strtolower($this->config['payment_type'] ?? '') === 'credit_card';
+    }
+
 }

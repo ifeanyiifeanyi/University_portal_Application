@@ -50,4 +50,14 @@ class Invoice extends Model
     {
         return $this->belongsTo(PaymentMethod::class);
     }
+
+    public static function findPendingInvoice($studentId, $paymentTypeId, $academicSessionId, $semesterId)
+    {
+        return self::where('student_id', $studentId)
+            ->where('payment_type_id', $paymentTypeId)
+            ->where('academic_session_id', $academicSessionId)
+            ->where('semester_id', $semesterId)
+            ->where('status', 'pending')
+            ->first();
+    }
 }

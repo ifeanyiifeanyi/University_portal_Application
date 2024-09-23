@@ -1,9 +1,26 @@
 @extends('admin.layouts.invoice_layout')
 
 @section('title', 'Invoice Manager')
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
 
+    .payment-method-name {
+        display: none;
+    }
+
+    @media print {
+        .payment-method-name {
+            display: block;
+        }
+    }
+</style>
 @section('invoice')
     <div class="tm_container">
+        @include('admin.alert')
         <div class="tm_invoice_wrap">
             <div class="tm_invoice tm_style1" id="tm_download_section">
                 <div class="tm_invoice_in">
@@ -63,6 +80,8 @@
                                     <p class="tm_m0">Session:</p>
                                     <b class="tm_primary_color">{{ $invoice->academicSession->name }}</b>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -104,6 +123,19 @@
                                 <p>
                                     <button class="btn btn-sm btn-warning">{{ $invoice->status }}</button>
                                 </p>
+                                <div class="payment-method-container no-print">
+                                    <p class="tm_m0">Change Payment Method:</p>
+                                    <p class="tm_m0 payment-method-name"><b
+                                            class="tm_primary_color">{{ $invoice->paymentMethod->name }}</b></p>
+                                    <select id="payment-method-select" class="form-control no-print" style="width:200px">
+                                        @foreach ($paymentMethods as $method)
+                                            <option value="{{ $method->id }}"
+                                                {{ $invoice->payment_method_id == $method->id ? 'selected' : '' }}>
+                                                {{ $method->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                             <div class="tm_right_footer">
                                 <table>
@@ -133,24 +165,37 @@
                                                 <form action="{{ route('admin.payments.processPayment') }}" method="POST"
                                                     class="d-inline">
                                                     @csrf
-                                                    <input type="hidden" name="payment_type_id"
+
+                                                    <input type="text" name="invoice_number"
+                                                        value="{{ $invoice->invoice_number }}">
+
+
+                                                    <input type="text" name="payment_type_id"
                                                         value="{{ $invoice->payment_type_id }}">
-                                                    <input type="hidden" name="department_id"
+
+
+                                                    <input type="text" name="department_id"
                                                         value="{{ $invoice->department_id }}">
-                                                    <input type="hidden" name="level"
-                                                        value="{{ $invoice->level }}">
-                                                    <input type="hidden" name="student_id" value="{{ $invoice->student_id }}">
-                                                    <input type="hidden" name="academic_session_id"
+
+                                                    <input type="text" name="level" value="{{ $invoice->level }}">
+
+                                                    <input type="text" name="student_id"
+                                                        value="{{ $invoice->student_id }}">
+
+                                                    <input type="text" name="academic_session_id"
                                                         value="{{ $invoice->academic_session_id }}">
-                                                    <input type="hidden" name="semester_id" value="{{ $invoice->semester_id }}">
-                                                    <input type="hidden" name="amount"
-                                                        value="{{ $invoice->amount }}">
-                                                    <input type="hidden" name="payment_method_id"
+
+                                                    <input type="text" name="semester_id"
+                                                        value="{{ $invoice->semester_id }}">
+
+                                                    <input type="text" name="amount" value="{{ $invoice->amount }}">
+
+                                                    <input type="text" name="payment_method_id"
                                                         value="{{ $invoice->payment_method_id }}">
                                                     &nbsp;
                                                     <button
                                                         onclick="return confirm('Are you sure you want to proceed with the payment?')"
-                                                        type="submit" class="btn btn-sm ml-3"
+                                                        type="submit" class="btn btn-sm ml-3 no-print"
                                                         style="background:blueviolet;color:white">
                                                         <i class="fas fa-credit-card mr-2"></i>Pay now
                                                     </button>
@@ -159,7 +204,7 @@
 
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table>+
                             </div>
                         </div>
                     </div>
@@ -210,5 +255,42 @@
             </div>
         </div>
     </div>
+    <script src="{{ asset('') }}assets/js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#payment-method-select').change(function() {
+                var newPaymentMethodId = $(this).val();
+                var invoiceId = '{{ $invoice->id }}';
 
+                $.ajax({
+                    url: '{{ route('admin.payments.changePaymentMethod') }}',
+                    method: 'POST',
+                    data: {
+                        invoice_id: invoiceId,
+                        payment_method_id: newPaymentMethodId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Payment method updated successfully');
+                            // Check if the new payment method is not a credit card
+                            if (!response.isCreditCard) {
+                                // Redirect to the invoice manager section
+                                window.location.href =
+                                    '{{ route('admin.payment.pay', ['invoice' => $invoice->id]) }}';
+                            } else {
+                                // Optionally reload the page for credit card payments
+                                location.reload();
+                            }
+                        } else {
+                            alert('Failed to update payment method');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while updating the payment method');
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

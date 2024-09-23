@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Models\Receipt;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -36,7 +37,9 @@ use App\Http\Controllers\Admin\AdminTimeTableController;
 
 
 
-
+Route::get('receipt-details/{receipt}', function(Receipt $receipt){
+    return view('admin.show-receipt', compact('receipt'));
+})->name('receipts.show');
 
 Route::controller(AuthController::class)->group(function () {
 
@@ -324,7 +327,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/admin/timetable/{timetable}/archive',  'archive')->name('admin.timetable.archive');
     });
 
-    Route::controller(AdminPaymentTypeController::class)->group(function(){
+    Route::controller(AdminPaymentTypeController::class)->group(function () {
         Route::get('payment-types', 'index')->name('admin.payment_type.index');
         Route::get('payment-types/create', 'create')->name('admin.payment_type.create');
         Route::post('payment-types/', 'store')->name('admin.payment_type.store');
@@ -335,7 +338,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('payment-types/{paymentType}', 'destroy')->name('admin.payment_type.destroy');
     });
 
-    Route::controller(AdminPaymentMethodController::class)->group(function(){
+    Route::controller(AdminPaymentMethodController::class)->group(function () {
         Route::get('payment-method', 'index')->name('admin.payment_method.index');
         Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
         Route::post('payment-method', 'store')->name('admin.payment_method.store');
@@ -345,7 +348,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('payment-method/{paymentMethod}/del', 'destroy')->name('admin.payment_method.destroy');
     });
 
-    Route::controller(AdminPaymentController::class)->group(function(){
+    Route::controller(AdminPaymentController::class)->group(function () {
         Route::get('make-payments', 'index')->name('admin.payment.pay');
         Route::get('payments', 'payments')->name('admin.payments.show');
 
@@ -360,15 +363,18 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('payments/{payment}/receipt', 'generateReceipt')->name('payments.receipt');
         // Route::get('receipts/{receipt}', 'showReceipt')->name('receipts.show');
 
-        Route::get('receipts/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
+        Route::get('receipts/{receipt}', 'showReceipt')
+            ->name('admin.payments.showReceipt');
+            // ->middleware('verify.receipt');
 
 
-
+        Route::post('/payments/change-method',  'changePaymentMethod')->name('admin.payments.changePaymentMethod');
 
         Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('admin.payments.showConfirmation');
+            // ->middleware(['check.pending.invoice']);
+
+
         Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
-
-
     });
 });
 
