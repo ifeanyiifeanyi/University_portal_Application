@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Models\Course;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Semester;
 use App\Models\Department;
@@ -10,13 +11,13 @@ use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Models\AcademicSession;
 use App\Models\CourseAssignment;
+use App\Models\CourseEnrollment;
 use App\Models\Courseregistration;
 use App\Http\Controllers\Controller;
 use App\Models\SemesterRegistration;
+use App\Models\SemesterCourseRegistration;
 use App\Http\Requests\ProceedSessionRequest;
 use App\Http\Requests\CourseRegistrationRequest;
-use App\Models\CourseEnrollment;
-use App\Models\SemesterCourseRegistration;
 
 class StudentCourseRegistrationController extends Controller
 {
@@ -35,6 +36,7 @@ class StudentCourseRegistrationController extends Controller
     $student = Student::where('user_id',$this->authService->user()->id)->first();
     // query the session_registration table to get the history
     $reghistorys = SemesterCourseRegistration::with(['semester','AcademicSession'])->where('student_id',$student->id)->get();
+    
         return view('student.course.registration',[
             'reghistorys'=>$reghistorys
         ]);
@@ -63,11 +65,16 @@ class StudentCourseRegistrationController extends Controller
     }
 
     public function proceedsession(ProceedSessionRequest $proceedsession){
+        $student = Student::where('user_id',$this->authService->user()->id)->first();
          // check for existing session
-        $checksession = SemesterCourseRegistration::where('semester_id',$proceedsession->semester)->where('academic_session_id',$proceedsession->session)->exists();
+        $checksession = SemesterCourseRegistration::where('student_id',$student->id)->where('semester_id',$proceedsession->semester)->where('academic_session_id',$proceedsession->session)->exists();
         if($checksession){
             return redirect(route('student.view.sessioncourse'))->with('error','You have already registered courses for this session');
         }
+        $checkpayment = Payment::where('student_id',$student->id)->where('academic_session_id',$proceedsession->session)->where('semester_id',$proceedsession->semester)->where('level',$proceedsession->level)->where('status','paid')->first();
+        if (!$checkpayment) {
+           return redirect()->route('student.view.sessioncourse')->with('error', 'You have not paid for the school fees for this session and semester');
+       }
         $student = Student::findOrFail($proceedsession->student_id);
         $maxCreditHours = $student->department->semesters()
             ->where('semester_id', $proceedsession->semester)

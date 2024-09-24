@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 
 // Route::get('/', function () {
@@ -108,11 +109,7 @@ Route::prefix('attendance')->group(function () {
 
 
 
-// Route::prefix('teacher')->middleware('teacher')->group(function () {
-//     Route::controller(TeacherController::class)->group(function () {
-//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
-//     });
-// });
+
 
 
 
@@ -120,6 +117,7 @@ Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
         Route::get('profile', 'profile')->name('student.view.profile');
+        Route::get('virtualid', 'virtualid')->name('student.view.virtualid');
 
         
         // post requests
@@ -128,12 +126,12 @@ Route::prefix('student')->middleware('student')->group(function () {
 
         
     });
-    Route::controller(StudentCourseRegistrationController::class)->group(function () {
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees')->group(function () {
         Route::prefix('course_registration')->group(function () {
             Route::get('/', 'courseregistration')->name('student.view.courseregistration');
             Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
             Route::get('/session', 'sessioncourse')->name('student.view.sessioncourse');
-            Route::get('/register/{semester_regid}/{session_id}/{semester_id}', 'registercourse')->name('student.view.registercourse');
+            Route::get('/register/{semester_regid}/{session_id}/{semester_id}/{level}', 'registercourse')->name('student.view.registercourse');
             Route::get('departments/{department}/levels', 'levels');
 
             Route::post('/check-credit-load','checkCreditLoad')->name('check.credit.load');
@@ -159,7 +157,30 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::prefix('/fees')->group(function () {
             Route::get('/', 'index')->name('student.view.fees.all');
             Route::get('/view', 'view')->name('student.view.fees');
-            Route::get('/pay', 'pay')->name('student.view.pay');
+            Route::get('/pay', 'pay')->name('student.view.fees.pay');
+            Route::post('/process', 'process')->name('student.view.fees.process');
+            Route::get('/invoice/{id}', 'invoice')->name('student.view.fees.invoice');
+            Route::get('departments/{department}/levels', 'levels');
+
+            Route::post('/payments/process', 'processPayment')->name('student.view.fees.processPayment');
+
+            Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
+
+            Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
+
+            // Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('student.fees.payments.showConfirmation');
+
+        });
+    });
+
+
+    Route::controller(FeesPaymentsController::class)->group(function () {
+        Route::prefix('/payments')->group(function () {
+            Route::get('/', 'index')->name('student.view.payments');
+          
+
+            
+
         });
     });
 

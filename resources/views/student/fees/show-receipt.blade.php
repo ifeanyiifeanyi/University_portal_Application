@@ -1,0 +1,1 @@
+{{ $receipt ?? 'not saved' }}

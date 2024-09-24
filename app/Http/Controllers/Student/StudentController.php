@@ -52,5 +52,14 @@ class StudentController extends Controller
         return $studentservice->updateprofile($updatestudentprofile);
     }
 
+    public function virtualid(){
+        $getuser = User::where('id',$this->authService->user()->id)->first();
+        $profile = Student::with('department')->where('user_id',$this->authService->user()->id)->first();
+        return view('student.profile.virtualid',[
+            'student'=>$profile,
+            'getuser'=>$getuser
+        ]);
+    }
+
     
 }

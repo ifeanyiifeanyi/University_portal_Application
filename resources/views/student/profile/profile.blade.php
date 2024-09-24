@@ -71,7 +71,7 @@
         
           <div class="col-xl-6">
             <div class="card student-profile-card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white" style="background: #AE152D; color : #ffffff">
                     <h3 class="mb-0">Student Profile</h3>
                 </div>
                 <div class="card-body">
@@ -108,9 +108,11 @@
                         <p><strong>Address:</strong> {{ $student->next_of_kin_address }}</p>
 
                         <h5>Academic Information</h5>
+                        <p><strong>Department:</strong> {{ $student->department->name }}</p>
                         <p><strong>Year of Admission:</strong> {{ $student->year_of_admission }}</p>
                         <p><strong>Mode of Entry:</strong> {{ $student->mode_of_entry }}</p>
                         <p><strong>Current Level:</strong> {{ $student->current_level }}</p>
+                        
                     </div>
                 </div>
             </div>
@@ -145,4 +147,31 @@
       </div>
       @endif
 </div> 
+
+{{-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const departmentSelect = document.getElementById('department_id');
+        const levelSelect = document.getElementById('level');
+        const  department = document.getElementById('department').value;
+  
+        function updateLevels() {
+            const departmentId = departmentSelect.value;
+            fetch(`/student/fees/departments/${department}/levels`)
+                .then(response => response.json())
+                .then(levels => {
+                  console.log(levels);
+                    levelSelect.innerHTML = '';
+                    levels.forEach(level => {
+                        const option = document.createElement('option');
+                        option.value = level;
+                        option.textContent = level;
+                        levelSelect.appendChild(option);
+                    });
+                });
+        }
+  
+        departmentSelect.addEventListener('change', updateLevels);
+        updateLevels(); // Initial population
+    });
+  </script> --}}
 @endsection

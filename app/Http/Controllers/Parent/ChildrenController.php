@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Parent;
 
 use App\Models\User;
+use App\Models\Parents;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentScore;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Models\StudentsParent;
-use App\Http\Controllers\Controller;
 use App\Models\CourseEnrollment;
-use App\Models\Parents;
+use App\Http\Controllers\Controller;
 
 class ChildrenController extends Controller
 {
@@ -68,12 +69,16 @@ class ChildrenController extends Controller
             ->where('student_id',$studentId)
             // ->where('status','approved')
             ->get();
+
+            // get school fees
+            $payments = Payment::with(['student.user','academicSession','semester','paymentType','paymentMethod','receipt'])->where('student_id',$id)->get();
           
         return view('parent.childrens.view',[
             'student'=>$student,
             'getuser'=>$getuser,
             'availableResults'=>$availableResults,
-            'teachersassigned'=>$teachersassigned
+            'teachersassigned'=>$teachersassigned,
+            'payments'=>$payments
         ]);
     }
     public function result($sessionid,$semesterid,$teacherid,$studentId){

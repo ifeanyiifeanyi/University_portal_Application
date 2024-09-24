@@ -13,11 +13,33 @@
               </div>
               <div class="card-body pt-3">
                 @include('messages')
-                <form action="#" method="POST">
+                <form action="{{route('student.view.fees.process')}}" method="POST">
                   @csrf
                   <input type="hidden" name="department_id" id="department_id" value="{{$student->department_id}}">
                   <input type="hidden" name="student_id" value="{{$student->id}}">
                   <input type="hidden" name="user_id" value="{{$student->user_id}}">
+
+                   <!-- Automatically pass the school fees payment type -->
+    {{-- <input type="hidden" name="payment_type_id" value="{{ $paymentType->id }}"> --}}
+    <div class="row mb-3">
+      <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select Fees types</label>
+      <div class="col-md-8 col-lg-9">
+          <select name="payment_type_id" id="" class="form-control">
+              <option value="" disabled selected>Select Fee type</option>
+              @foreach ($paymentTypes as $paymentType)
+              <option value="{{ $paymentType->id }}">
+                  {{ $paymentType->name }}
+              </option>
+          @endforeach
+             
+          </select>
+          @if ($errors->has('payment_type_id'))
+<span class="text-danger">{{$errors->first('payment_type_id')}}</span>
+@endif
+      </div>
+    </div>
+
+    <input type="hidden" name="amount" value="{{ $paymentType->amount }}">
                 <div class="row mb-3">
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Academic session</label>
                     <div class="col-md-8 col-lg-9">
@@ -65,6 +87,20 @@
     @endif
                     </div>
                   </div>
+
+                  <div class="row mb-3">
+                    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select Payment method</label>
+                    <div class="col-md-8 col-lg-9">
+                      <select name="payment_method" id="payment_method" class="form-control">
+                        @foreach($paymentMethods as $method)
+                            <option value="{{ $method->id }}">{{ $method->name }}</option>
+                        @endforeach
+                    </select>
+                        @if ($errors->has('payment_method'))
+    <span class="text-danger">{{$errors->first('payment_method')}}</span>
+    @endif
+                    </div>
+                  </div>
     
                   <div>
                     <button class="btn w-50 text-white" style="background: #AE152D;">Submit</button>
@@ -83,7 +119,7 @@
   
         function updateLevels() {
             const departmentId = departmentSelect.value;
-            fetch(`/student/course_registration/departments/${departmentId}/levels`)
+            fetch(`/student/fees/departments/${departmentId}/levels`)
                 .then(response => response.json())
                 .then(levels => {
                   console.log(levels);

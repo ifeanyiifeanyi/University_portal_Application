@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Profilerequest;
 use App\Models\Teacher;
+use App\Models\TeacherAssignment;
 
 class TeacherController extends Controller
 {
@@ -28,8 +29,9 @@ class TeacherController extends Controller
         if (!Auth::check()) {
             return redirect()->route('login.view');
         }
-
-        return view('teacher.dashboard');
+        $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
+        $coursesassignedcount = TeacherAssignment::where('teacher_id',$teacher->id)->count();
+        return view('teacher.dashboard',['coursesassignedcount'=>$coursesassignedcount]);
     }
 
     public function profile(){

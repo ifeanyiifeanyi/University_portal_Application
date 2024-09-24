@@ -29,7 +29,7 @@
                         <input type="hidden" name="semester" value="{{ $semester }}">
                         <input type="hidden" name="level" value="{{ $level }}">
                         <input type="hidden" name="semesterregid" value="{{$semesterregid}}">
-                        <input type="text" name="TotalCreditLoadCount" id="TotalCreditLoadCount">
+                        <input type="hidden" name="TotalCreditLoadCount" id="TotalCreditLoadCount">
                     <table class="table mb-0">
                         <thead>
                             <tr>

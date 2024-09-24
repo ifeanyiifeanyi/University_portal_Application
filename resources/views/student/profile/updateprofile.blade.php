@@ -219,6 +219,7 @@
     </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Mode of entry</label>
+     
     <input type="text" class="form-control" name="mode_of_entry" value="{{$student->mode_of_entry}}">
     @if ($errors->has('mode_of_entry'))
 <span class="text-danger">{{$errors->first('mode_of_entry')}}</span>
@@ -229,7 +230,12 @@
 <div class="row mb-3">
   <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Current level</label>
   <div class="col-md-8 col-lg-9">
-    <input type="text" class="form-control" name="current_level" value="{{$student->current_level}}">
+    <select id="level" name="current_level" class="form-control">
+      <option value="" disabled selected>Select level</option>
+     
+     
+  </select>
+    {{-- <input type="text" class="form-control" name="current_level" value="{{$student->current_level}}"> --}}
   </div>
 </div>
 
@@ -237,3 +243,29 @@
   <button type="submit" class="btn btn-warning w-100">Update changes</button>
 </div>
 </form>
+<input type="hidden" name="" id="department_id" value="{{ $student->department_id }}">
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const departmentSelect = document.getElementById('department_id');
+      const levelSelect = document.getElementById('level');
+
+      function updateLevels() {
+          const departmentId = departmentSelect.value;
+          fetch(`/student/fees/departments/${departmentId}/levels`)
+              .then(response => response.json())
+              .then(levels => {
+                console.log(levels);
+                  levelSelect.innerHTML = '';
+                  levels.forEach(level => {
+                      const option = document.createElement('option');
+                      option.value = level;
+                      option.textContent = level;
+                      levelSelect.appendChild(option);
+                  });
+              });
+      }
+
+      departmentSelect.addEventListener('change', updateLevels);
+      updateLevels(); // Initial population
+  });
+</script>

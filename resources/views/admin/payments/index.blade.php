@@ -77,7 +77,7 @@
                                 <label for="amount">Amount</label>
                                 <input type="number" name="amount" id="amount" class="form-control" required readonly>
                             </div>
-                            <button type="submit" class="btn btn-primary">Make Payment</button>
+                            <button onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn btn-primary">Make Payment</button>
 
                         </form>
                     </div>

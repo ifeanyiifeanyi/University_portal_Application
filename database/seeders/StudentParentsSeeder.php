@@ -16,7 +16,7 @@ class StudentParentsSeeder extends Seeder
     {
         StudentsParent::create([
             'parent_id' => 1,
-            'student_id' => 1,
+            'student_id' => 4,
             'status' => 'approved',
             'parent_type' => 'Father',
         ]);

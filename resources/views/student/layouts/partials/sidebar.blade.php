@@ -9,18 +9,18 @@
                         <div class="logo-box">
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="assets/images/logo-sm.png" alt="" height="22">
+                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="assets/images/logo-light.png" alt="" height="24">
+                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
                                 </span>
                             </a>
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="assets/images/logo-sm.png" alt="" height="22">
+                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="assets/images/logo-dark.png" alt="" height="24">
+                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
                                 </span>
                             </a>
                         </div>
@@ -37,16 +37,16 @@
                                     <span>Dashboard</span>
                                 </a>
                             </li>
-                            <li>
+                            {{-- <li>
                                 <a href="{{route('student.view.acceptance.all')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span> Acceptance </span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li>
                                 <a href="{{route('student.view.fees.all')}}" class="text-white">
                                     <i data-feather="aperture"></i>
-                                    <span>School fees</span>
+                                    <span>Fees</span>
                                 </a>
                             </li>
                             <li>
@@ -62,9 +62,9 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{route('student.view.onlineclasses')}}" class="text-white">
+                                <a href="{{route('student.view.payments')}}" class="text-white">
                                     <i data-feather="aperture"></i>
-                                    <span>Online classes</span>
+                                    <span>Payments</span>
                                 </a>
                             </li>
 

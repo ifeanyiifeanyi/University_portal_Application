@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckFeesMiddleware;
 use App\Http\Middleware\ParentMiddleware;
 use App\Http\Middleware\StudentMiddleware;
 use App\Http\Middleware\TeacherMiddleware;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'teacher' => TeacherMiddleware::class,
             'student' => StudentMiddleware::class,
             'parent' => ParentMiddleware::class,
+            'checkforfees' => CheckFeesMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

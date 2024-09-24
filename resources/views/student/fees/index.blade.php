@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-6"></div>
     <div class="ms-auto mb-4 col-md-6">
-        <a href="{{route('student.view.pay')}}" class="btn w-100 text-white" style="background: #AE152D;">Pay new fees</a>
+        <a href="{{route('student.view.fees.pay')}}" class="btn w-100 text-white" style="background: #AE152D;">Pay new fees</a>
     </div>
     </div>
 
@@ -28,7 +28,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">School fees history</h5>
+                    <h5 class="card-title mb-0">Fees invoice history</h5>
                 </div><!-- end card header -->
 
                 <div class="card-body">
@@ -42,19 +42,26 @@
                                     <th scope="col">Level</th>
                                     <th scope="col">Payment Type</th>
                                     <th scope="col">Session</th>
+                                    <th scope="col">Session</th>
                                     <th scope="col"></th>
                                     
                                 </tr>
                             </thead>
                             <tbody>
-                                
+                                @forelse ($invoices as $invoice)
                                 <tr>
-                                    <td>ewwefwe</td>
-                                    <td>wefwefw</td>
-                                    <td>Full Payment</td>
-                                    <td>2018-2019</td>
-                                    <td><a href="{{route('student.view.fees')}}" class="btn w-50 text-white" style="background: #AE152D;">View</a></td>
+                                    <td>{{$invoice->invoice_number}}</td>
+                                    <td>{{$invoice->amount}}</td>
+                                    <td>{{$invoice->level}}</td>
+                                    <td>{{$invoice->paymentType->name}}</td>
+                                    <td>{{$invoice->academicSession->name}}</td>
+                                    <td>{{$invoice->semester->name}}</td>
+                                    <td><a href="{{route('student.view.fees.invoice',['id'=>$invoice->id])}}" class="btn w-100 text-white" style="background: #AE152D;">View</a></td>
                                 </tr>
+                                @empty
+                                    
+                                @endforelse
+                               
                          
                                
                                
