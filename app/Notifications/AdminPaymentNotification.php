@@ -35,6 +35,7 @@ class AdminPaymentNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
+
     public function toMail($notifiable)
     {
         return (new MailMessage)
@@ -45,8 +46,11 @@ class AdminPaymentNotification extends Notification
             ->line('Amount: ' . $this->payment->amount)
             ->line('Payment Type: ' . $this->payment->paymentType->name)
             ->line('Transaction Reference: ' . $this->payment->transaction_reference)
+            ->line('Payment Status: ' . $this->payment->status)
+            ->line('Invoice Status: ' . ($this->payment->invoice ? $this->payment->invoice->status : 'N/A'))
             ->action('View Payment Details', route('admin.payments.show', $this->payment->id));
     }
+
     public function toDatabase($notifiable)
     {
         return [
@@ -55,6 +59,8 @@ class AdminPaymentNotification extends Notification
             'amount' => $this->payment->amount,
             'payment_type' => $this->payment->paymentType->name,
             'transaction_reference' => $this->payment->transaction_reference,
+            'payment_status' => $this->payment->status,
+            'invoice_status' => $this->payment->invoice ? $this->payment->invoice->status : 'N/A',
         ];
     }
 

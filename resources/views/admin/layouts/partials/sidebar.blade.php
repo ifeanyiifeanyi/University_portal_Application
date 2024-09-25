@@ -47,8 +47,8 @@
                         Payment Methods</a>
                 </li>
                 <li> <a href="{{ route('admin.payment.pay') }}">
-                    <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
-            </li>
+                        <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
+                </li>
             </ul>
         </li>
         <li>
@@ -74,7 +74,8 @@
                     <a href="{{ route('admin.department.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Department</a>
                 </li>
-                <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage Courses</a>
+                <li> <a href="{{ route('admin.courses.view') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Courses</a>
                 </li>
                 <li>
                     <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign
@@ -141,6 +142,18 @@
                 </li>
                 <li> <a href="{{ route('admin.score.audit.view') }}"><i class="bx bx-right-arrow-alt"></i>Student Score
                         Auditor</a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-bell'></i>
+                </div>
+                <div class="menu-title">Notifications</div>
+            </a>
+            <ul>
+                <li> <a href="{{ route('admin.notification.view') }}"><i class="bx bx-right-arrow-alt"></i>Unread Notifications</a>
                 </li>
             </ul>
         </li>

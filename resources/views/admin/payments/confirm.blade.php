@@ -166,31 +166,31 @@
                                                     class="d-inline">
                                                     @csrf
 
-                                                    <input type="text" name="invoice_number"
+                                                    <input type="hidden" name="invoice_number"
                                                         value="{{ $invoice->invoice_number }}">
 
 
-                                                    <input type="text" name="payment_type_id"
+                                                    <input type="hidden" name="payment_type_id"
                                                         value="{{ $invoice->payment_type_id }}">
 
 
-                                                    <input type="text" name="department_id"
+                                                    <input type="hidden" name="department_id"
                                                         value="{{ $invoice->department_id }}">
 
-                                                    <input type="text" name="level" value="{{ $invoice->level }}">
+                                                    <input type="hidden" name="level" value="{{ $invoice->level }}">
 
-                                                    <input type="text" name="student_id"
+                                                    <input type="hidden" name="student_id"
                                                         value="{{ $invoice->student_id }}">
 
-                                                    <input type="text" name="academic_session_id"
+                                                    <input type="hidden" name="academic_session_id"
                                                         value="{{ $invoice->academic_session_id }}">
 
-                                                    <input type="text" name="semester_id"
+                                                    <input type="hidden" name="semester_id"
                                                         value="{{ $invoice->semester_id }}">
 
-                                                    <input type="text" name="amount" value="{{ $invoice->amount }}">
+                                                    <input type="hidden" name="amount" value="{{ $invoice->amount }}">
 
-                                                    <input type="text" name="payment_method_id"
+                                                    <input type="hidden" name="payment_method_id"
                                                         value="{{ $invoice->payment_method_id }}">
                                                     &nbsp;
                                                     <button
@@ -204,7 +204,7 @@
 
                                         </tr>
                                     </tbody>
-                                </table>+
+                                </table>
                             </div>
                         </div>
                     </div>

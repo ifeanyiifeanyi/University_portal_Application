@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
@@ -37,7 +38,7 @@ use App\Models\Receipt;
 
 
 
-Route::get('receipt-details/{receipt}', function(Receipt $receipt){
+Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
     return view('admin.show-receipt', compact('receipt'));
 })->name('receipts.show');
 
@@ -49,7 +50,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('logout');
 });
 
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware('admin')->group(function () {
     Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
     Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
     Route::get('/timetables/{id}/version-history', [AdminTimeTableController::class, 'versionHistory'])->name('admin.timetables.version-history');
@@ -364,17 +365,29 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // Route::get('receipts/{receipt}', 'showReceipt')->name('receipts.show');
 
         Route::get('receipts/{receipt}', 'showReceipt')
-            ->name('admin.payments.showReceipt');
-            // ->middleware('verify.receipt');
+            ->name('admin.payments.showReceipt')
+            ->middleware('verify.receipt');
 
 
         Route::post('/payments/change-method',  'changePaymentMethod')->name('admin.payments.changePaymentMethod');
 
         Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('admin.payments.showConfirmation');
-            // ->middleware(['check.pending.invoice']);
+        // ->middleware(['check.pending.invoice']);
 
 
         Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+    });
+
+
+    Route::controller(AdminNotificationController::class)->group(function () {
+        Route::get('notifications', 'index')->name('admin.notification.view');
+
+        // Route::get('/notifications', 'index')->name('admin.notifications.index');
+        Route::post('/notifications/{id}/mark-as-read', 'markAsRead')->name('admin.notifications.markAsRead');
+        Route::post('/notifications/mark-all-as-read', 'markAllAsRead')->name('admin.notifications.markAllAsRead');
+        Route::delete('/notifications/{id}', 'destroy')->name('admin.notifications.destroy');
+        Route::get('/notifications/latest', 'getLatestNotifications')->name('admin.notifications.latest');
+        Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
     });
 });
 

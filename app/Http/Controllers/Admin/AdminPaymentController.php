@@ -289,36 +289,25 @@ class AdminPaymentController extends Controller
         }
     }
 
-    // protected function sendPaymentNotification(Payment $payment)
-    // {
-    //     $student = $payment->student;
-    //     $user = $student->user;
-
-    //     // Send email notification to student
-    //     Notification::send($user, new PaymentProcessed($payment));
-
-    //     // Create database notification for student
-    //     $user->notify(new PaymentProcessed($payment));
-
-    //     // Send notification to admins and staff
-    //     $adminsAndStaff = Admin::whereIn('role', [Admin::TYPE_SUPER_ADMIN, Admin::TYPE_STAFF])->get();
-    //     Notification::send($adminsAndStaff, new AdminPaymentNotification($payment));
-    // }
 
     protected function sendPaymentNotification(Payment $payment)
     {
         $student = $payment->student;
         $user = $student->user;
 
+        // Refresh the payment to ensure we have the latest data
+        $payment->refresh();
+
         // Send email notification to student
         $user->notify(new PaymentProcessed($payment));
 
         // Send notification to admins and staff
-        $adminsAndStaff = Admin::whereIn('role', [Admin::TYPE_SUPER_ADMIN, Admin::TYPE_STAFF])->get();
-        // dd($adminsAndStaff);
+        $adminsAndStaff = User::whereHas('admin', function ($query) {
+            $query->whereIn('role', [Admin::TYPE_SUPER_ADMIN, Admin::TYPE_STAFF]);
+        })->get();
 
-        foreach ($adminsAndStaff as $admin) {
-            $admin->user->notify(new AdminPaymentNotification($payment));
+        foreach ($adminsAndStaff as $adminUser) {
+            $adminUser->notify(new AdminPaymentNotification($payment));
         }
 
         return true;
@@ -352,7 +341,7 @@ class AdminPaymentController extends Controller
                 $receipt = $this->generateReceipt($payment);
 
                 // Send notifications (student, admin)
-                // $this->sendPaymentNotification($payment);
+                $this->sendPaymentNotification($payment);
 
                 DB::commit();
 
@@ -382,6 +371,9 @@ class AdminPaymentController extends Controller
 
     public function showReceipt(Receipt $receipt)
     {
+        if (!$receipt) {
+            return redirect()->route('admin.payment.pay');
+        }
         return view('admin.payments.show-receipt', compact('receipt'));
     }
 }

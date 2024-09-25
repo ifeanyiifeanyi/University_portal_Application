@@ -46,7 +46,6 @@ class PaymentProcessed extends Notification
             ->action('View Receipt', route('admin.payments.showReceipt', $this->payment->receipt->id))
             ->line('Thank you for your payment!');
     }
-
     public function toDatabase($notifiable)
     {
         return [
@@ -54,6 +53,8 @@ class PaymentProcessed extends Notification
             'amount' => $this->payment->amount,
             'payment_type' => $this->payment->paymentType->name,
             'transaction_reference' => $this->payment->transaction_reference,
+            'payment_status' => $this->payment->status,
+            'invoice_status' => $this->payment->invoice ? $this->payment->invoice->status : 'N/A',
         ];
     }
 
