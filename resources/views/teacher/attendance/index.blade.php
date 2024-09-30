@@ -11,7 +11,7 @@
 <div class="row mt-5">
         <div class="col-md-6"></div>
     <div class="ms-auto col-md-6 mb-3">
-        <a href="{{route('teacher.view.create.attendance')}}" class="btn w-100 btn-success">Create new attendance</a>
+        <a href="{{route('teacher.view.create.attendance')}}" class="btn w-100" style="background: #AE152D; color: #ffffff">Create new attendance</a>
     </div>
     </div>
 <section class="section">
@@ -44,9 +44,9 @@
                 <td>{{$attendance['semester']}}</td>
                 <td>{{$attendance['department']}}</td>
                 <td>{{$attendance['course']}}</td>
-                <td>{{ \Carbon\Carbon::parse($attendance['lecture_date'])->format('d F, Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($attendance['date'])->format('d F, Y') }}</td>
                 <td>1</td>
-                <th><a href="{{route('teacher.view.attendees',['sessionid'=>$attendance['sessionid'],'semesterid'=>$attendance['semesterid'],'departmentid'=>$attendance['departmentid'],'courseid'=>$attendance['courseid']])}}" class="btn w-100 btn-success">View attendees</a></th>
+                <th><a href="{{route('teacher.view.attendees',['attendanceid'=>$attendance['attendanceid'],'departmentid'=>$attendance['departmentid'],'courseid'=>$attendance['courseid']])}}" class="btn w-100" style="background: #AE152D; color: #ffffff">View attendees</a></th>
               </tr>
               @endforeach
                

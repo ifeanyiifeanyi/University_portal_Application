@@ -16,12 +16,9 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained()->cascadeOnDelete();
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('academic_session_id')->constrained()->onDelete('cascade');
-            $table->foreignId('semester_id')->constrained()->onDelete('cascade');
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
-            $table->date('lecture_date');
+            $table->foreignId('attendance_id')->constrained()->onDelete('cascade');
             $table->enum('status', ['present', 'absent', 'late'])->default('present');
-            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

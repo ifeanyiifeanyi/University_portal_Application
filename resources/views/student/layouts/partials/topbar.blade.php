@@ -170,11 +170,7 @@
                             <span>My Account</span>
                         </a>
                         
-                        <div class="dropdown-divider"></div>
-                        <a href="{{route('student.view.virtualid')}}" class="dropdown-item notify-item">
-                            <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
-                            <span>Virtual Id Card</span>
-                        </a>
+                      
                         <div class="dropdown-divider"></div>
 
                         <!-- item-->

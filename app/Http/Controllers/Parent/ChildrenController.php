@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Parent;
 use App\Models\User;
 use App\Models\Parents;
 use App\Models\Payment;
+use App\Models\Receipt;
 use App\Models\Student;
 use App\Models\StudentScore;
 use Illuminate\Http\Request;
@@ -94,5 +95,10 @@ class ChildrenController extends Controller
         return view('parent.childrens.result',[
             'studentresults'=>$studentresults
         ]);
+    }
+
+    public function showReceipt(Receipt $receipt)
+    {
+         return view('parent.show-receipt', compact('receipt'));
     }
 }

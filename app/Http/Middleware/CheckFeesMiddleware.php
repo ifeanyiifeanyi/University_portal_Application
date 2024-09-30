@@ -41,7 +41,7 @@ class CheckFeesMiddleware
 
         $checkpayment = Payment::where('department_id',$student->department_id)->where('student_id',$student->id)->where('academic_session_id',$session->id)->where('semester_id',$semester->id)->where('level',$student->current_level)->where('status','paid')->first();
         if (!$checkpayment) {
-        abort('403','You have not paid for the school fees for this session and semester yet (Please go ahead and make the payments)');
+            return response()->view('student.error.fees');
        }
         return $next($request);
     }

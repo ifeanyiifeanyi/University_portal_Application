@@ -39,11 +39,9 @@
                 <td>{{$attendance->department->name}}</td>
                 <td>{{$attendance->course->title}}</td>
                 <td>
-                  
+                  <input type="hidden" name="attendance[{{ $key }}][attendance_id]" value="{{$attendance->attendance_id}}">
                   <input type="hidden" name="attendance[{{ $key }}][student_id]" value="{{$attendance->student_id}}">
-                  <input type="hidden" name="attendance[{{ $key }}][semester_id]" value="{{$attendance->semester_id}}">
                   <input type="hidden" name="attendance[{{ $key }}][course_id]" value="{{$attendance->course_id}}">
-                  <input type="hidden" name="attendance[{{ $key }}][session_id]" value="{{$attendance->academic_session_id}}">
                   <input type="hidden" name="attendance[{{ $key }}][department_id]" value="{{$attendance->department_id}}">
                   
                   <!-- Checkbox for attendance status -->
@@ -64,7 +62,7 @@
             </table>
           
             <!-- End Table with stripped rows -->
-            <button type="submit" class="btn w-100 btn-success">Submit</button>
+            <button type="submit" class="btn w-100" style="background: #AE152D; color: #ffffff">Submit</button>
             </form>
           </div>
         </div>

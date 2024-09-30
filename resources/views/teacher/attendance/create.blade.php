@@ -49,7 +49,7 @@
                   <td>{{$coursesassigned->department->name}}</td>
                   <td>{{$coursesassigned->semester->name}}</td>
                   <td>{{$coursesassigned->academicSession->name}}</td>
-                  <th><a href="{{route('teacher.create.attendance',['sessionid'=>$coursesassigned->academicSession->id,'semesterid'=>$coursesassigned->semester->id,'departmentid'=>$coursesassigned->department->id,'courseid'=>$coursesassigned->course->id])}}" class="btn w-100 btn-success">Take attendance</a></th>
+                  <th><a href="{{route('teacher.create.attendance',['sessionid'=>$coursesassigned->academicSession->id,'semesterid'=>$coursesassigned->semester->id,'departmentid'=>$coursesassigned->department->id,'courseid'=>$coursesassigned->course->id])}}" class="btn w-100" style="background: #AE152D; color: #ffffff">Take attendance</a></th>
                 </tr>
                 @empty
                   

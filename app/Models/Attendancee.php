@@ -10,13 +10,11 @@ class Attendancee extends Model
     use HasFactory;
     protected $fillable = [
         'student_id',
-        'semester_id',
         'course_id',
-        'academic_session_id',
         'department_id',
         'status',
         'teacher_id',
-        'lecture_date',
+        'attendance_id'
     ];
     public function student()
     {

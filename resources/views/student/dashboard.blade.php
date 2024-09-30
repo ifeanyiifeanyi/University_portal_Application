@@ -2,6 +2,26 @@
 
 @section('title', 'Student Dashboard')
 @section('student')
+
+@php
+            // Create a collection from the teacher's attributes and check if any is empty
+            $incompleteProfile = collect($student->getAttributes())->except(['deleted_at','cgpa'])->contains(function ($value) {
+                return empty($value);
+            });
+        @endphp
+        @if($incompleteProfile)
+        <div class="alert alert-warning mt-3">
+            Please complete your profile to continue.
+            <div class="mt-3">
+              <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-50">View profile</a>
+            </div>
+        </div>
+       
+    @else
+        {{-- <div class="alert alert-success">
+            Your profile is complete!
+        </div> --}}
+    @endif
                     <!-- Start Content-->
                     <div class="container-xxl">
 
@@ -12,13 +32,13 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 col-xl-3">
+                            <div class="col-md-6 col-xl-6">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-8">
-                                                <p class="text-muted mb-3 fw-semibold">Total School fees paid</p>
-                                                <h4 class="m-0 mb-3 fs-18">N 1,000,000</h4>
+                                                <p class="text-muted mb-3 fw-semibold">Total fees paid</p>
+                                                <h4 class="m-0 mb-3 fs-18">N {{$totalfees}}</h4>
                                              
                                             </div>
 
@@ -27,7 +47,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 col-xl-3">
+                            <div class="col-md-6 col-xl-6">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="row">
@@ -45,6 +65,49 @@
 
                             
 
+                            
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Profile</p>
+                                                <div class="mt-3">
+                                                    <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-100">View profile</a>
+                                                  </div>
+                                              
+                                            </div>
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Virtual Id Card</p>
+                                                @if($incompleteProfile)
+                                                Complete your profile to view your Id card
+                                                @else
+                                                <div class="mt-3">
+                                                    <a href="{{route('student.view.virtualid')}}" style="background: #AE152D;" class="btn text-white w-100">View student id</a>
+                                                  </div>
+                                                @endif
+                                               
+                                              
+                                            </div>
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         

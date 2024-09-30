@@ -25,10 +25,10 @@
       <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select Fees types</label>
       <div class="col-md-8 col-lg-9">
           <select name="payment_type_id" id="" class="form-control">
-              <option value="" disabled selected>Select Fee type</option>
+              <option value="" disabled selected>Select Fee for your department</option>
               @foreach ($paymentTypes as $paymentType)
-              <option value="{{ $paymentType->id }}">
-                  {{ $paymentType->name }}
+              <option value="{{ $paymentType->paymentType->id }}">
+                  {{ $paymentType->paymentType->name }}
               </option>
           @endforeach
              
@@ -47,7 +47,7 @@
                             <option value="" disabled selected>Select session</option>
                             @foreach ($academicsessions as $academicsession)
                             <option value="{{ $academicsession->id }}" {{ $academicsession->is_current ? 'selected' : '' }}>
-                                {{ $academicsession->name }} {{ $academicsession->is_current ? '(Current Semester)' : '' }}
+                                {{ $academicsession->name }} {{ $academicsession->is_current ? '(Current Session)' : '' }}
                             </option>
                         @endforeach
                            

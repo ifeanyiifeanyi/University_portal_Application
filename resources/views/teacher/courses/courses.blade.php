@@ -49,7 +49,7 @@
                   <td>{{$coursesassigned->department->name}}</td>
                   <td>{{$coursesassigned->semester->name}}</td>
                   <td>{{$coursesassigned->academicSession->name}}</td>
-                  <th><a href="{{route('teacher.view.courses.students',['id'=>$coursesassigned->course->id])}}" class="btn w-100 btn-success">View students</a></th>
+                  <th><a href="{{route('teacher.view.courses.students',['id'=>$coursesassigned->course->id])}}" class="btn w-100" style="background: #AE152D; color: #ffffff">View students</a></th>
                 </tr>
                 @empty
                   

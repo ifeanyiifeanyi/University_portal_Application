@@ -9,7 +9,13 @@
 
 @section('teacher')
 @if($students->isEmpty())
-        <p>No students have registered for this course yet.</p>
+        {{-- <p>No students have registered for this course yet.</p> --}}
+        <div class="alert alert-warning">
+          No students have registered for this course yet
+          <div class="mt-3">
+            <a href="javascript:window.history.back()" style="background: #AE152D;" class="btn text-white w-50">Back</a>
+          </div>
+      </div>
     @else
 
 <div class="container-xxl mt-3">
@@ -35,7 +41,13 @@
 <section class="section mt-4">
     <div class="row">
       <div class="col-lg-12">
-        @include('messages')
+        {{-- @include('messages') --}}
+        @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show alert-fail-bg" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
 
         <div class="card">
           <div class="card-body">

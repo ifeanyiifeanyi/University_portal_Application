@@ -25,7 +25,7 @@
                         <option value="" disabled selected>Select session</option>
                         @foreach ($academicsessions as $academicsession)
                         <option value="{{ $academicsession->id }}" {{ $academicsession->is_current ? 'selected' : '' }}>
-                            {{ $academicsession->name }} {{ $academicsession->is_current ? '(Current Semester)' : '' }}
+                            {{ $academicsession->name }} {{ $academicsession->is_current ? '(Current Session)' : '' }}
                         </option>
                     @endforeach
                        

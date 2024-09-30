@@ -1,4 +1,4 @@
-@extends('admin.layouts.receipt_layout')
+@extends('student.layouts.receipt_layout')
 
 @section('title', 'Payment Receipt')
 
@@ -88,6 +88,13 @@
                 </span>
                 <span class="tm_btn_text">Download</span>
             </button>
+
+            <a href="{{route('parent.view.dashboard')}}" class="tm_invoice_btn tm_color1">
+                <span class="tm_btn_icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span class="tm_btn_text">Home</span>
+            </a>
         </div>
     </div>
 @endsection

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Receipt;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Student\StudentFeesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Student\OnlineClassesController;
 use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
@@ -19,7 +21,6 @@ use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
-use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 
 // Route::get('/', function () {
@@ -28,7 +29,9 @@ use App\Http\Controllers\Student\StudentCourseRegistrationController;
 
 
 
-
+Route::get('receipt-details/{receipt}', function(Receipt $receipt){
+    return view('admin.show-receipt', compact('receipt'));
+})->name('receipts.show');
 
 Route::controller(AuthController::class)->group(function () {
 
@@ -88,7 +91,7 @@ Route::prefix('attendance')->group(function () {
         Route::get('/', 'attendance')->name('teacher.view.attendance');
         Route::get('/create', 'create')->name('teacher.view.create.attendance');
         Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
-        Route::get('/view/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
+        Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
         Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
         Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
     });
@@ -167,6 +170,7 @@ Route::prefix('student')->middleware('student')->group(function () {
             Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
 
             Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
+            
 
             // Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('student.fees.payments.showConfirmation');
 
@@ -201,6 +205,7 @@ Route::prefix('parent')->middleware('parent')->group(function () {
             Route::get('/', 'index')->name('parent.view.childrens');
             Route::get('/view/{id}', 'view')->name('parent.view.child');
             Route::get('/result/{session}/{semester}/{teacherid}/{studentid}', 'result')->name('parent.view.child.result');
+            Route::get('receipts/{receipt}', 'showReceipt')->name('parent.fees.payments.showReceipt');
         });
     });
 });

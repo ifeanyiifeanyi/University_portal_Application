@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentprofileRequest;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Support\Facades\Auth;
@@ -30,9 +31,11 @@ class StudentController extends Controller
         }
 
         $student = Student::where('user_id',$this->authService->user()->id)->first();
-
+        $totalfees = Payment::where('student_id',$student->id)->sum('amount');
+    
         return view('student.dashboard',[
-            'student'=>$student
+            'student'=>$student,
+            'totalfees'=>$totalfees
         ]);
     }
 

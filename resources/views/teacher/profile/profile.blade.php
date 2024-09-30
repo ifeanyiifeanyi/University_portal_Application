@@ -1,6 +1,6 @@
 @extends('teacher.layouts.teacher')
 
-@section('title', 'Teacher Dashboard')
+@section('title', 'Lecturers profile')
 @section('css')
 <style>
   .profile-card {

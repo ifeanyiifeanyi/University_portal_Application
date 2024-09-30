@@ -26,6 +26,7 @@ class StudentScore extends Model
 
     protected $casts = [
         'is_failed' => 'boolean',
+        'grade_point' => 'decimal:2',
     ];
 
     public function student()

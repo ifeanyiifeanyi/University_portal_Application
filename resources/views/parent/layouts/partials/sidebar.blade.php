@@ -1,6 +1,6 @@
 
             <!-- Left Sidebar Start -->
-            <div class="app-sidebar-menu" style="background: #297f30; color : #ffffff">
+            <div class="app-sidebar-menu" style="background: #AE152D; color : #ffffff">
                 <div class="h-100" data-simplebar>
 
                     <!--- Sidemenu -->
@@ -41,6 +41,12 @@
                                 <a href="{{route('parent.view.childrens')}}" class="text-white">
                                     <i data-feather="aperture"></i>
                                     <span>Childrens</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{route('parent.view.profile')}}" class="text-white">
+                                    <i data-feather="aperture"></i>
+                                    <span>Profile</span>
                                 </a>
                             </li>
                            

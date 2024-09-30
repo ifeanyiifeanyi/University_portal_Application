@@ -87,7 +87,7 @@ public function students($courseId)
         })
         ->get();
         $csv = \League\Csv\Writer::createFromFileObject(new \SplTempFileObject());
-        $csv->insertOne(['Student Id', 'Student Name', 'Course Name', 'Course Code','Assessment Score', 'Exam Score']);
+        $csv->insertOne(['Matric Number', 'Student Name', 'Course Name', 'Course Code','Assessment Score', 'Exam Score']);
         foreach ($exportaccess as $exportaccess) {
             
             $name = $exportaccess->student->user->first_name . ' ' . $exportaccess->student->user->last_name . ' ' . $exportaccess->student->user->other_name;
@@ -96,13 +96,13 @@ public function students($courseId)
                 $name,
                 $exportaccess->course->title,
                 $exportaccess->course->code,
-                $exportaccess->studentScore->assessment_score,
-                $exportaccess->studentScore->exam_score
+                $exportaccess->studentScore->assessment_score ?? '',
+                $exportaccess->studentScore->exam_score ?? ''
             ]);
         }
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="course_registrations.csv"',
+            'Content-Disposition' => 'attachment; filename="assessments.csv"',
         ];
         return response($csv->getContent(), 200, $headers);
     }
@@ -126,12 +126,18 @@ public function students($courseId)
         DB::beginTransaction();
         try {
             foreach ($records as $record) {
-                $student = Student::where('matric_number', $record['Student Id'])->firstOrFail();
-
+                if (empty($record['Assessment Score']) || empty($record['Exam Score'])) {
+                    // Skip this record or throw an error if you want to stop the import
+                    return redirect()->back()->with('error', 'Assessment Score or Exam Score cannot be empty for Matric Number: ' . $record['Matric Number']);
+                }
+                
+                $student = Student::where('matric_number', $record['Matric Number'])->firstOrFail();
+                
                 $totalScore = $record['Assessment Score'] + $record['Exam Score'];
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
                 $gradePoint = $this->calculateGradePoint($grade);
+                // dd($gradePoint);
 
                 StudentScore::updateOrCreate(
                     [
@@ -148,7 +154,7 @@ public function students($courseId)
                         'total_score' => $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
-                        'grade_point'=>$gradePoint
+                        'grade_point'=>(float) $gradePoint
                     ]
                 );
                  // cgpa
@@ -163,6 +169,8 @@ public function students($courseId)
             return redirect()->back()->with('error', 'An error occurred while importing scores: ' . $e->getMessage());
         }
     }
+
+   
 
     public function uploadresult(Request $uploadresult,$courseid){
         $validator = Validator::make($uploadresult->all(), [
@@ -189,18 +197,18 @@ public function students($courseId)
             DB::beginTransaction();
 
             foreach ($uploadresult->scores as $enrollmentId => $scoreData) {
+                
                 $enrollment = CourseEnrollment::findOrFail($enrollmentId);
-                // calculate grade
-                // $enrollment = CourseEnrollment::findOrFail($enrollmentId);
-                // $totalScore = $scoreData['exam'] + $scoreData['assessment'];
-        
-                // $grade = $this->calculateGrade($totalScore);
 
                 $totalScore = $scoreData['assessment'] + $scoreData['exam'];
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
                 $gradePoint = $this->calculateGradePoint($grade);
 
+                if (!is_numeric($gradePoint)) {
+                    throw new \Exception("Invalid grade point calculated: $gradePoint");
+                }
+                
                 StudentScore::updateOrCreate(
                     [
                         'student_id' => $enrollment->student_id,

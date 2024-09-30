@@ -17,6 +17,7 @@ use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\DepartmentPaymentType;
 use App\Services\StudentPaymentGatewayService;
 
 class StudentFeesController extends Controller
@@ -67,9 +68,10 @@ class StudentFeesController extends Controller
     // if (!$paymentType) {
     //     return redirect()->back()->with('error', 'Payment type not found for your department/level (Contact ICT Center)');
     // }
-         $paymentTypes = PaymentType::get();
+        //  $paymentTypes = PaymentType::get();
+        $paymentTypes = DepartmentPaymentType::with('paymentType')->where('department_id',$student->department_id)->get();
          $paymentMethods = PaymentMethod::where('is_active', 1)->get();
-        
+    
        return view('student.fees.pay',[
            'semesters'=>$semesters,
            'academicsessions'=>$academicsessions,

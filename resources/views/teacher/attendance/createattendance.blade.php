@@ -62,9 +62,24 @@
                 
               </tbody>
             </table>
-          
+            <div class="form-group mb-3">
+              <label for="">Date</label>
+              <input type="date" name="date" id="" class="form-control">
+            </div>
+          <div class="form-group mb-3">
+            <label for="">Start time</label>
+            <input type="time" name="start_time" id="" class="form-control">
+          </div>
+          <div class="form-group mb-3">
+            <label for="">End time</label>
+            <input type="time" name="end_time" id="" class="form-control">
+          </div>
+          <div class="form-group mb-3">
+            <label for="">Notes on attendance</label>
+            <textarea name="notes" id="" cols="30" rows="10" class="form-control"></textarea>
+          </div>
             <!-- End Table with stripped rows -->
-            <button type="submit" class="btn w-100 btn-success">Create</button>
+            <button type="submit" class="btn w-100" style="background: #AE152D; color: #ffffff">Create</button>
             </form>
           </div>
         </div>
