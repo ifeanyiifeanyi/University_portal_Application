@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Admin\AdminInvoiceManagerController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
@@ -388,6 +389,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('/notifications/{id}', 'destroy')->name('admin.notifications.destroy');
         Route::get('/notifications/latest', 'getLatestNotifications')->name('admin.notifications.latest');
         Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
+    });
+
+
+    Route::controller(AdminInvoiceManagerController::class)->group(function(){
+        Route::get('invoice-manager', 'index')->name('admin.invoice.view');
+        Route::get('invoice-manager/{id}/details', 'show')->name('admin.invoice.show');
     });
 });
 

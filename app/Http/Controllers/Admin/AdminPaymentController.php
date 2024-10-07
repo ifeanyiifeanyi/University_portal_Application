@@ -63,15 +63,46 @@ class AdminPaymentController extends Controller
         ]);
     }
 
+    // public function getStudents(Request $request)
+    // {
+    //     $request->validate([
+    //         'department_id' => 'required|exists:departments,id',
+    //         'level' => 'required|integer|min:100|max:600',
+    //     ]);
+
+    //     $students = Student::where('department_id', $request->department_id)
+    //         ->where('current_level', $request->level)
+    //         ->with('user')
+    //         ->get()
+    //         ->map(function ($student) {
+    //             return [
+    //                 'id' => $student->id,
+    //                 'full_name' => $student->user->first_name . ' ' . $student->user->last_name . ' ' . $student->user->other_name,
+    //                 'matric_number' => $student->matric_number
+    //             ];
+    //         });
+
+    //     return response()->json($students);
+    // }
+
     public function getStudents(Request $request)
     {
         $request->validate([
             'department_id' => 'required|exists:departments,id',
             'level' => 'required|integer|min:100|max:600',
+            'payment_type_id' => 'required|exists:payment_types,id',
+            'academic_session_id' => 'required|exists:academic_sessions,id',
+            'semester_id' => 'required|exists:semesters,id',
         ]);
+
+        $paidStudentIds = Payment::where('payment_type_id', $request->payment_type_id)
+            ->where('academic_session_id', $request->academic_session_id)
+            ->where('semester_id', $request->semester_id)
+            ->pluck('student_id');
 
         $students = Student::where('department_id', $request->department_id)
             ->where('current_level', $request->level)
+            ->whereNotIn('id', $paidStudentIds)
             ->with('user')
             ->get()
             ->map(function ($student) {
@@ -92,34 +123,6 @@ class AdminPaymentController extends Controller
     }
 
 
-    // public function submitPaymentForm(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'academic_session_id' => 'required|exists:academic_sessions,id',
-    //         'semester_id' => 'required|exists:semesters,id',
-    //         'payment_type_id' => 'required|exists:payment_types,id',
-    //         'department_id' => 'required|exists:departments,id',
-    //         'level' => 'required|numeric|min:100|max:600',
-    //         'student_id' => 'required|exists:students,id',
-    //         'payment_method_id' => 'required|exists:payment_methods,id',
-    //         'amount' => 'required|numeric|min:0',
-    //     ]);
-
-    //     $invoice = Invoice::create([
-    //         'student_id' => $validated['student_id'],
-    //         'payment_type_id' => $validated['payment_type_id'],
-    //         'department_id' => $validated['department_id'],
-    //         'level' => $validated['level'],
-    //         'academic_session_id' => $validated['academic_session_id'],
-    //         'semester_id' => $validated['semester_id'],
-    //         'amount' => $validated['amount'],
-    //         'payment_method_id' => $validated['payment_method_id'],
-    //         'status' => 'pending',
-    //         'invoice_number' => 'INV-' . uniqid(),
-    //     ]);
-
-    //     return redirect()->route('admin.payments.showConfirmation', $invoice->id);
-    // }
 
     public function submitPaymentForm(Request $request)
     {
@@ -260,6 +263,20 @@ class AdminPaymentController extends Controller
         DB::beginTransaction();
 
         try {
+
+            // Check if payment already exists
+            $existingPayment = Payment::where([
+                'student_id' => $request->student_id,
+                'payment_type_id' => $request->payment_type_id,
+                'academic_session_id' => $request->academic_session_id,
+                'semester_id' => $request->semester_id,
+            ])->first();
+
+            if ($existingPayment) {
+                DB::rollBack();
+                return redirect()->back()->withError('Payment already exists for this student.');
+            }
+
             $payment = Payment::create([
                 'student_id' => $validated['student_id'],
                 'payment_type_id' => $validated['payment_type_id'],

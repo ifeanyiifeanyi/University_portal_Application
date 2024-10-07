@@ -164,15 +164,26 @@ class AdminSemesterController extends Controller
      */
     public function update(Request $request, Semester $semester_manager)
     {
-        $validatedData = $this->validateSemester($request, $semester_manager->id);
+        // dd($semester_manager);
 
+        $validatedData = $request->validate([
+            'name' => ['required', 'unique:semesters,name,' . $semester_manager->id],
+            'season' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'academic_session_id' => 'required|exists:academic_sessions,id',
+            'is_current' => 'boolean',
+        ]);
         $semester_manager->update($validatedData);
 
         if ($request->is_current) {
             Semester::where('id', '!=', $semester_manager->id)->update(['is_current' => false]);
         }
 
-        return redirect()->route('semester-manager.index')->with('success', 'Semester updated successfully.');
+        return redirect()->route('semester-manager.index')->with([
+            'message' => 'Semester updated successfully',
+            'alert-type' => 'success'
+        ]);
     }
 
 

@@ -54,11 +54,13 @@ class AdminNotificationController extends Controller
 
     public function getLatestNotifications()
     {
+
         $user = auth()->user();
         if ($user->user_type == 1) {
             $latestNotifications = DatabaseNotification::latest()->take(5)->get();
             $unreadCount = DatabaseNotification::whereNull('read_at')->count();
         } else {
+            // For non-admin users, fetch only their notifications
             $latestNotifications = $user->notifications()->latest()->take(5)->get();
             $unreadCount = $user->unreadNotifications()->count();
         }

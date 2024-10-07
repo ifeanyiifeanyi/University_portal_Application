@@ -43,12 +43,17 @@ class Invoice extends Model
 
     public function semester()
     {
+        
         return $this->belongsTo(Semester::class);
     }
 
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+
+    public function payment(){
+        return $this->belongsTo(Payment::class);
     }
 
     public static function findPendingInvoice($studentId, $paymentTypeId, $academicSessionId, $semesterId)

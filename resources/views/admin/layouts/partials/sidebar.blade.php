@@ -46,6 +46,8 @@
                 <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Payment Methods</a>
                 </li>
+                <li> <a href="{{ route('admin.invoice.view') }}"><i class="bx bx-right-arrow-alt"></i>Invoice Manager</a>
+            </li>
                 <li> <a href="{{ route('admin.payment.pay') }}">
                         <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
                 </li>

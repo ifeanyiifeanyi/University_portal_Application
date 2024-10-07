@@ -32,6 +32,15 @@
             display: flex;
             gap: 10px;
         }
+
+        .notification-type {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-details {
+            margin-bottom: 10px;
+        }
     </style>
 @endsection
 
@@ -55,15 +64,25 @@
                             <h6 class="mb-0">{{ $notification->data['student_name'] ?? 'System Notification' }}</h6>
                             <small>{{ $notification->created_at->diffForHumans() }}</small>
                         </div>
-                        <p>
-                            @if (isset($notification->data['payment_type']))
-                                Payment processed: {{ $notification->data['payment_type'] }}
-                            @elseif(isset($notification->data['message']))
-                                {{ $notification->data['message'] }}
+                        <div class="notification-type">
+                            @if ($notification->type === 'App\Notifications\AdminPaymentNotification')
+                                Admin Payment Notification
+                            @elseif ($notification->type === 'App\Notifications\PaymentProcessed')
+                                Student Payment Processed
                             @else
-                                {{ $notification->type }}
+                                {{ class_basename($notification->type) }}
                             @endif
-                        </p>
+                        </div>
+                        <div class="notification-details">
+                            @if (isset($notification->data['payment_type']))
+                                <p><strong>Payment Type:</strong> {{ $notification->data['payment_type'] }}</p>
+                                <p><strong>Amount:</strong> ₦{{ number_format($notification->data['amount'], 2) }}</p>
+                                <p><strong>Reference:</strong> {{ $notification->data['transaction_reference'] }}</p>
+                                <p><strong>Status:</strong> {{ ucfirst($notification->data['payment_status']) }}</p>
+                            @elseif(isset($notification->data['message']))
+                                <p>{{ $notification->data['message'] }}</p>
+                            @endif
+                        </div>
                         <div class="notification-actions">
                             @if (!$notification->read_at)
                                 <button class="mark-as-read btn btn-sm btn-outline-primary"
@@ -85,7 +104,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @section('javascript')
