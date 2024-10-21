@@ -107,6 +107,7 @@ class AdminCourseAssignmentController extends Controller
 
         $notification = [
             'message' => 'Course assignment deleted successfully!!',
+            'success' => 'Course assignment deleted successfully!!',
             'alert-type' => 'success'
         ];
 

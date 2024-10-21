@@ -20,6 +20,9 @@ class AdminSemesterController extends Controller
         return view('admin.semester.index', compact('semesters', 'academicSessions'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function show(Request $request)
     {
         $query = Semester::with('academicSession');
@@ -100,7 +103,6 @@ class AdminSemesterController extends Controller
     }
 
 
-
     /**
      * perform bulk delete/action
      */
@@ -141,6 +143,7 @@ class AdminSemesterController extends Controller
         $semester_manager->save();
 
         if ($semester_manager->is_current) {
+
             Semester::where('id', '!=', $semester_manager->id)->update(['is_current' => false]);
         }
 
@@ -164,8 +167,8 @@ class AdminSemesterController extends Controller
      */
     public function update(Request $request, Semester $semester_manager)
     {
-        // dd($semester_manager);
 
+        // dd($semester_manager);
         $validatedData = $request->validate([
             'name' => ['required', 'unique:semesters,name,' . $semester_manager->id],
             'season' => 'required',
@@ -184,6 +187,7 @@ class AdminSemesterController extends Controller
             'message' => 'Semester updated successfully',
             'alert-type' => 'success'
         ]);
+
     }
 
 
@@ -223,4 +227,6 @@ class AdminSemesterController extends Controller
 
         return redirect()->route('semester-manager.index')->with($notification);
     }
+
+
 }
