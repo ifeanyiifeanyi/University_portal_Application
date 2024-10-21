@@ -6,12 +6,9 @@
 @endsection
 
 @section('admin')
-@include('admin.return_btn')
     <div class="container">
-@include('admin.return_btn')
+        @include('admin.return_btn')
 
-        <h5>@yield('title')</h5>
-        <hr>
         <div class="row">
             <!-- Left side: Assignment Details -->
             <div class="col-md-7">
@@ -37,7 +34,8 @@
                         {{ \Carbon\Carbon::parse($assignment->updated_at)->format('jS F Y g:i A') }}</p>
                     <p>
                         <a href="{{ route('admin.teacher.assignment.view') }}" class="btn btn-secondary">Back to List</a>
-                        <a href="{{ route('admin.teacher.assignment.edit', $assignment->id) }}" class="btn btn-primary">Edit Assignment</a>
+                        <a href="{{ route('admin.teacher.assignment.edit', $assignment->id) }}" class="btn btn-primary">Edit
+                            Assignment</a>
 
                     </p>
                     <p>

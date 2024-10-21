@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="color-sidebar sidebarcolor6">
+<html lang="en" class="minimal-theme">
 
 <head>
     <!-- Required meta tags -->
