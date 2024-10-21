@@ -5,9 +5,9 @@
 @section('admin')
 @include('admin.return_btn')
     <div class="container">
-        <h3 class="text-center">@yield('title')</h3>
+        <h5 class="text-center">@yield('title')</h5>
         <div class="row">
-            <div class="col-md-6 mx-auto shadow-sm">
+            <div class="col-md-6 mx-auto shadow-lg mb-5">
                 <div class="card-body">
                     <form action="{{ route('course-assignments.store') }}" method="POST">
                         @csrf
@@ -61,7 +61,7 @@
 
 
                         <button type="submit"
-                            class="btn btn-primary">{{ isset($assignment) ? 'Update' : 'Create' }}</button>
+                            class="btn btn-secondary btn-sm"><i class="fas fa-save"></i>{{ isset($assignment) ? 'Update' : 'Create' }}</button>
                     </form>
                 </div>
             </div>

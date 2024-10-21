@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--favicon-->
     <link rel="icon" href="{{ asset('logo.png') }}" type="image/png" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
+
     <!--plugins-->
     <link href="{{ asset('') }}assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
     <link href="{{ asset('') }}assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
@@ -127,6 +130,7 @@
     <!-- Bootstrap JS -->
     <script src="{{ asset('') }}assets/js/bootstrap.bundle.min.js"></script>
     <!--plugins-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js"></script>
     <script src="{{ asset('') }}assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="{{ asset('') }}assets/plugins/metismenu/js/metisMenu.min.js"></script>
     <script src="{{ asset('') }}assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
