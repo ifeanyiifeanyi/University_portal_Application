@@ -19,7 +19,7 @@
                         <thead>
                             <tr>
                                 <th>sn</th>
-                                <th>Payment Type</th>
+                                {{-- <th>Payment Type</th> --}}
                                 <th>Amount</th>
                                 <th>Department</th>
                                 <th>Semester</th>
@@ -31,7 +31,7 @@
                             @foreach($paymentTypes as $key => $paymentType)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $paymentType->name }}</td>
+                                    {{-- <td>{{ $paymentType->name }}</td> --}}
                                     <td>₦{{ number_format($paymentType->amount, 2) }}</td>
                                     <td>{{ $paymentType->departments->first()->name }}</td>
                                     <td>{{ $paymentType->semester->name }}</td>
