@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Models\Receipt;
 
 // Route::get('/', function () {
@@ -392,10 +393,46 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
 
-    Route::controller(AdminInvoiceManagerController::class)->group(function(){
+    Route::controller(AdminInvoiceManagerController::class)->group(function () {
         Route::get('invoice-manager', 'index')->name('admin.invoice.view');
         Route::get('invoice-manager/{id}/details', 'show')->name('admin.invoice.show');
     });
+
+
+
+
+
+
+
+
+
+
+    Route::controller(RoleController::class)->group(function(){
+        Route::get('roles', 'index')->name('admin.roles.index');
+        Route::get('/roles/create',  'create')->name('admin.roles.create');
+        Route::post('/roles',  'store')->name('admin.roles.store');
+        Route::get('/roles/{role}/edit',  'edit')->name('admin.roles.edit');
+        Route::put('/roles/{role}',  'update')->name('admin.roles.update');
+        Route::delete('/roles/{role}',  'destroy')->name('admin.roles.destroy');
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 
 
