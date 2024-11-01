@@ -5,6 +5,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CheckInvoiceStatus;
 use App\Http\Middleware\CheckPendingInvoiceMiddleware;
 use App\Http\Middleware\ParentMiddleware;
+use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\StudentMiddleware;
 use App\Http\Middleware\TeacherMiddleware;
 use App\Http\Middleware\VerifyReceiptAccess;
@@ -25,7 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'parent' => ParentMiddleware::class,
             'check.pending.invoice' => CheckPendingInvoiceMiddleware::class,
             'check.invoice.status' => CheckInvoiceStatus::class,
-            'verify.receipt' => VerifyReceiptAccess::class
+            'verify.receipt' => VerifyReceiptAccess::class,
+            'permission' => PermissionMiddleware::class
+
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

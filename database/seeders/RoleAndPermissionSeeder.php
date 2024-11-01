@@ -38,6 +38,13 @@ class RoleAndPermissionSeeder extends Seeder
             'view invoice manager',
             'pay fees',
 
+            //attendance manager
+            'view attendance',
+            'create attendance',
+            'edit attendance',
+            'delete attendance',
+
+
             // Payment Types
             'view payment types',
             'create payment types',
@@ -78,6 +85,13 @@ class RoleAndPermissionSeeder extends Seeder
             'manage student course registrations',
             'manage student scores',
 
+            'manage course levels',
+            'view roles',
+            'edit roles',
+            'assign roles',
+
+
+
             // Notifications
             'manage notifications',
             'view notifications',
@@ -88,6 +102,9 @@ class RoleAndPermissionSeeder extends Seeder
             'edit administrator',
             'update administrator',
             'delete administrator',
+
+            'manage attendance',
+            'view grades',
         ];
 
         // Create permissions

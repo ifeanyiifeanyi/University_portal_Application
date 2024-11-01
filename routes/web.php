@@ -31,6 +31,8 @@ use App\Http\Controllers\Admin\AdminScoreApprovalController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Http\Controllers\Admin\AdminUserRoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Models\Receipt;
 
@@ -62,11 +64,17 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
+
+
+
 Route::prefix('admin')->middleware('admin')->group(function () {
 
-    Route::controller(AdminController::class)->group(function () {
-        Route::get('dashboard', 'index')->name('admin.view.dashboard');
-        Route::post('logout', 'logout')->name('admin.logout');
+    // Dashboard Routes
+    Route::middleware('permission:view dashboard')->group(function () {
+        Route::controller(AdminController::class)->group(function () {
+            Route::get('dashboard', 'index')->name('admin.view.dashboard');
+            Route::post('logout', 'logout')->name('admin.logout');
+        });
     });
 
     Route::controller(ProfileController::class)->group(function () {
@@ -75,91 +83,117 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::patch('update-password/{user::slug}', 'updatePassword')->name('admin.update.password');
     });
 
-    Route::controller(AcademicSessionController::class)->group(function () {
-        Route::get('academic-session-manager', 'index')->name('admin.academic.session');
-        Route::post('academic-session-manager', 'store')->name('admin.academic.store');
+    // Academic Session Management
+    Route::middleware('permission:manage academic sessions')->group(function () {
 
-        Route::get('academic-session-manager/edit/{id}', 'edit')->name('admin.academic.edit');
-        Route::put('academic-session-manager/update/{id}', 'update')->name('admin.academic.update');
-        Route::get('academic-session-manager/delete/{id}', 'destroy')->name('admin.academic.delete');
+        Route::controller(AcademicSessionController::class)->group(function () {
+            Route::get('academic-session-manager', 'index')->name('admin.academic.session');
+            Route::post('academic-session-manager', 'store')->name('admin.academic.store');
+
+            Route::get('academic-session-manager/edit/{id}', 'edit')->name('admin.academic.edit');
+            Route::put('academic-session-manager/update/{id}', 'update')->name('admin.academic.update');
+            Route::get('academic-session-manager/delete/{id}', 'destroy')->name('admin.academic.delete');
+        });
     });
 
-    Route::get('/semester-manager/search', [AdminSemesterController::class, 'show'])->name('semester.manager.search');
-    Route::patch('semester-managers/bulk-action', [AdminSemesterController::class, 'bulkAction'])->name('semester.manager.bulk-action');
-    Route::patch('semester-managers/{semester_manager}/toggle-current', [AdminSemesterController::class, 'toggleCurrent'])->name('semester-manager.toggle-current');
 
-    Route::resource('semester-manager', AdminSemesterController::class);
+    // Semester Management
+    Route::middleware('permission:manage semester')->group(function () {
+        Route::get('/semester-manager/search', [AdminSemesterController::class, 'show'])->name('semester.manager.search');
+        Route::patch('semester-managers/bulk-action', [AdminSemesterController::class, 'bulkAction'])->name('semester.manager.bulk-action');
+        Route::patch('semester-managers/{semester_manager}/toggle-current', [AdminSemesterController::class, 'toggleCurrent'])->name('semester-manager.toggle-current');
 
-
-    Route::resource('course-assignments', AdminCourseAssignmentController::class);
-
-    Route::resource('faculty-manager', FacultyController::class);
-
-
-    Route::controller(CourseController::class)->group(function () {
-        Route::get('course-managers', 'index')->name('admin.courses.view');
-        Route::post('courses/store', 'store')->name('admin.courses.store');
-        Route::post('courses/update/{id}', 'update')->name('admin.courses.update');
-        Route::get('courses/delete/{id}', 'destroy')->name('admin.courses.delete');
+        Route::resource('semester-manager', AdminSemesterController::class);
     });
 
-    Route::controller(DepartmentController::class)->group(function () {
-        Route::get('manage-department', 'index')->name('admin.department.view');
-        Route::post('manage-department', 'store')->name('admin.department.store');
-        Route::get('manage-department/edit/{id}', 'edit')->name('admin.department.edit');
-        Route::get('manage-department/show/{id}', 'show')->name('admin.department.show');
-        Route::put('manage-department/update/{id}', 'update')->name('admin.department.update');
-        Route::delete('manage-department/del/{id}', 'destroy')->name('admin.department.delete');
-
-        // unique route that helps separate the levels of study for a department
-        Route::get('departments/{department}/levels', 'levels');
+    // Course Assignment Management
+    Route::middleware('permission:assign department courses|manage courses')->group(function () {
+        Route::resource('course-assignments', AdminCourseAssignmentController::class);
     });
 
-    Route::controller(TeacherController::class)->group(function () {
-        Route::get('manage-lecturers', 'index')->name('admin.teacher.view');
-        Route::post('manage-lecturers/store', 'store')->name('admin.teacher.store');
-        Route::get('manage-lecturers/create', 'create')->name('admin.teacher.create');
-        Route::get('manage-lecturers/{teacher}/show', 'show')->name('admin.teacher.show');
-        Route::get('manage-lecturers/{teacher}/edit', 'edit')->name('admin.teacher.edit');
-        Route::put('manage-lecturers/{teacher}/update', 'update')->name('admin.teachers.update');
-        Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
-
-        // view department and courses the teacher as assigned to
-        Route::get('lecturer-courses/{courseId}', 'courseDetails')->name('admin.teacher.course.show');
-        Route::get('department/{department}/teacher/{teacher}', 'departmentDetails')->name('admin.teacher.department.show');
-
-        // the teacher views students registered to the course assigned to them
-        Route::get('/teacher/{teacherId}/course/{courseId}/semester/{semesterId}/academic-session/{academicSessionId}/students', 'viewRegisteredStudents')->name('teacher.course.students');
-
-        Route::post('submit-student-assessment{assignmentId}', 'storeScores')->name('admin.store.scores');
-
-
-        // exporting the table for submitting students scores as csv
-        Route::get('export-scores/{assignmentId}', 'exportScores')->name('admin.export.scores');
-        Route::post('import-scores/{assignmentId}', 'importScores')->name('admin.import.scores');
-
-        // view assessments audits
-        Route::get('/teacher/{teacher}/audits',  'viewAudits')->name('admin.teacher.audits');
+    // Faculty Management
+    Route::middleware('permission:manage faculties')->group(function () {
+        Route::resource('faculty-manager', FacultyController::class);
     });
 
-    // for controlling the grade types
-    Route::controller(AdminGradeController::class)->group(function () {
-        Route::get('/get-grade/{score}', 'getGrade');
+    // Course Management
+    Route::middleware('permission:manage courses')->groupz(function () {
+        Route::controller(CourseController::class)->group(function () {
+            Route::get('course-managers', 'index')->name('admin.courses.view');
+            Route::post('courses/store', 'store')->name('admin.courses.store');
+            Route::post('courses/update/{id}', 'update')->name('admin.courses.update');
+            Route::get('courses/delete/{id}', 'destroy')->name('admin.courses.delete');
+        });
     });
 
-    Route::controller(AdminApprovedScoreController::class)->group(function () {
-        // view approved scores
-        Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
+    // Department Management
+    Route::middleware('permission:manage departments')->group(function () {
+        Route::controller(DepartmentController::class)->group(function () {
+            Route::get('manage-department', 'index')->name('admin.department.view');
+            Route::post('manage-department', 'store')->name('admin.department.store');
+            Route::get('manage-department/edit/{id}', 'edit')->name('admin.department.edit');
+            Route::get('manage-department/show/{id}', 'show')->name('admin.department.show');
+            Route::put('manage-department/update/{id}', 'update')->name('admin.department.update');
+            Route::delete('manage-department/del/{id}', 'destroy')->name('admin.department.delete');
 
-        // revert score to pending -- single
-        Route::get('/approved/{score}/revert', 'revertApproval')->name('admin.score.approval.approved.revert');
+            // unique route that helps separate the levels of study for a department
+            Route::get('departments/{department}/levels', 'levels');
+        });
+    });
 
-        // revert back approved scores in bulk
-        Route::post('/approved/bulk-revert', 'bulkRevertApproval')->name('admin.score.approval.approved.bulk-revert');
+    // Lecturers Management
+    Route::middleware('permission:manage lecturers')->group(function () {
+        Route::controller(TeacherController::class)->group(function () {
+            Route::get('manage-lecturers', 'index')->name('admin.teacher.view');
+            Route::post('manage-lecturers/store', 'store')->name('admin.teacher.store');
+            Route::get('manage-lecturers/create', 'create')->name('admin.teacher.create');
+            Route::get('manage-lecturers/{teacher}/show', 'show')->name('admin.teacher.show');
+            Route::get('manage-lecturers/{teacher}/edit', 'edit')->name('admin.teacher.edit');
+            Route::put('manage-lecturers/{teacher}/update', 'update')->name('admin.teachers.update');
+            Route::delete('manage-lecturers/{teacher}/delete', 'destroy')->name('admin.teachers.delete');
 
-        //export n import
-        Route::get('/approved/export', 'exportApprovedScores')->name('admin.score.approval.approved.export');
-        Route::post('/approved/import', 'importApprovedScores')->name('admin.score.approval.approved.import');
+            // view department and courses the teacher as assigned to
+            Route::get('lecturer-courses/{courseId}', 'courseDetails')->name('admin.teacher.course.show');
+            Route::get('department/{department}/teacher/{teacher}', 'departmentDetails')->name('admin.teacher.department.show');
+
+            // the teacher views students registered to the course assigned to them
+            Route::get('/teacher/{teacherId}/course/{courseId}/semester/{semesterId}/academic-session/{academicSessionId}/students', 'viewRegisteredStudents')->name('teacher.course.students');
+
+            Route::post('submit-student-assessment{assignmentId}', 'storeScores')->name('admin.store.scores');
+
+
+            // exporting the table for submitting students scores as csv
+            Route::get('export-scores/{assignmentId}', 'exportScores')->name('admin.export.scores');
+            Route::post('import-scores/{assignmentId}', 'importScores')->name('admin.import.scores');
+
+            // view assessments audits
+            Route::get('/teacher/{teacher}/audits',  'viewAudits')->name('admin.teacher.audits');
+        });
+    });
+
+    // Grade Management
+    Route::middleware('permission:view grades')->group(function () {
+        // for controlling the grade types
+        Route::controller(AdminGradeController::class)->group(function () {
+            Route::get('/get-grade/{score}', 'getGrade');
+        });
+    });
+
+    Route::middleware('permission: approve student scores')->group(function () {
+        Route::controller(AdminApprovedScoreController::class)->group(function () {
+            // view approved scores
+            Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
+
+            // revert score to pending -- single
+            Route::get('/approved/{score}/revert', 'revertApproval')->name('admin.score.approval.approved.revert');
+
+            // revert back approved scores in bulk
+            Route::post('/approved/bulk-revert', 'bulkRevertApproval')->name('admin.score.approval.approved.bulk-revert');
+
+            //export n import
+            Route::get('/approved/export', 'exportApprovedScores')->name('admin.score.approval.approved.export');
+            Route::post('/approved/import', 'importApprovedScores')->name('admin.score.approval.approved.import');
+        });
     });
 
     Route::controller(AdminRejectedScoreController::class)->group(function () {
@@ -201,201 +235,236 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
     });
 
-    Route::controller(AdminStudentController::class)->group(function () {
-        Route::get('student-manager', 'index')->name('admin.student.view');
-        Route::get('student-manager/create', 'create')->name('admin.student.create');
-        Route::get('student-manager/edit/{student}', 'edit')->name('admin.student.edit');
-        Route::put('student-manager/update/{student}', 'update')->name('admin.student.update');
-        Route::post('student-manager/store', 'store')->name('admin.student.store');
-        Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
-        Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
+    // Student Management
+    Route::middleware('permission:manage students')->group(function () {
+        Route::controller(AdminStudentController::class)->group(function () {
+            Route::get('student-manager', 'index')->name('admin.student.view');
+            Route::get('student-manager/create', 'create')->name('admin.student.create');
+            Route::get('student-manager/edit/{student}', 'edit')->name('admin.student.edit');
+            Route::put('student-manager/update/{student}', 'update')->name('admin.student.update');
+            Route::post('student-manager/store', 'store')->name('admin.student.store');
+            Route::get('student-manager/details/{student}', 'show')->name('admin.student.details');
+            Route::delete('student-manager/del/{student}', 'destroy')->name('admin.student.delete');
 
-        // fetching the levels for departments based on the department selected
-        Route::get('/departments/{department}/levels', 'levels');
+            // fetching the levels for departments based on the department selected
+            Route::get('/departments/{department}/levels', 'levels');
 
 
-        Route::get('students/{student}/audit', 'viewAudits')->name('admin.student.audit');
-        // view registered courses
-        Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
-        // view score history
-        Route::get('/student/{student}/approved-score-history',  'viewApprovedScoreHistory')->name('admin.student.approved-score-history');
+            Route::get('students/{student}/audit', 'viewAudits')->name('admin.student.audit');
+            // view registered courses
+            Route::get('students/{studentId}/registration-history', 'studentRegistrationHistory')->name('admin.students.registration-history');
+            // view score history
+            Route::get('/student/{student}/approved-score-history',  'viewApprovedScoreHistory')->name('admin.student.approved-score-history');
 
-        //assessment score audit history
-        Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
+            //assessment score audit history
+            Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
+        });
     });
 
-    Route::controller(AdminTeacherAssignmentController::class)->group(function () {
-        Route::get('teacher-assignment', 'index')->name('admin.teacher.assignment.view');
-        Route::get('teacher-assignment/create/{teacher?}', 'create')->name('admin.teacher.assignment.create');
-        Route::get('get-department-courses', 'getDepartmentCourses')->name('admin.get-department-courses');
-        Route::get('get-assigned-lecturer-details/{teacherAssignment}', 'show')->name('admin.teacher.assignment.show');
+    Route::middleware('permission: assign department courses to lecturers')->group(function () {
+        Route::controller(AdminTeacherAssignmentController::class)->group(function () {
+            Route::get('teacher-assignment', 'index')->name('admin.teacher.assignment.view');
+            Route::get('teacher-assignment/create/{teacher?}', 'create')->name('admin.teacher.assignment.create');
+            Route::get('get-department-courses', 'getDepartmentCourses')->name('admin.get-department-courses');
+            Route::get('get-assigned-lecturer-details/{teacherAssignment}', 'show')->name('admin.teacher.assignment.show');
 
 
 
-        Route::post('teacher-assignment', 'store')->name('admin.teacher.assignment.store');
-        Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
-        Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
-        Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
+            Route::post('teacher-assignment', 'store')->name('admin.teacher.assignment.store');
+            Route::get('teacher-assignment/edit/{id}', 'edit')->name('admin.teacher.assignment.edit');
+            Route::put('teacher-assignment/update/{id}', 'update')->name('admin.teacher.assignment.update');
+            Route::delete('teacher-assignment/{id}', 'destroy')->name('admin.teacher.assignment.delete');
+        });
     });
 
-    // this route was used or creating courses for student via students view table
-    Route::controller(AdminAssignStudentCourseController::class)->group(function () {
-        Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
-        Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
-        Route::get('students/{student}/course-registrations', 'showStudentCourseRegistrations')->name('admin.students.course-registrations');
+    Route::middleware('permission:manage course levels')->group(function () {
+        // this route was used or creating courses for student via students view table
+        Route::controller(AdminAssignStudentCourseController::class)->group(function () {
+            Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
+            Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
+            Route::get('students/{student}/course-registrations', 'showStudentCourseRegistrations')->name('admin.students.course-registrations');
 
 
 
-        Route::delete('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
-        Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
-        Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
+            Route::delete('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
+            Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
+            Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
+        });
     });
 
-    Route::controller(AdminStudentRegisteredCoursesController::class)->group(function () {
-        Route::get('student-registered-courses', 'index')->name('admin.students.all-course-registrations');
+    Route::middleware('permission:manage student course registrations')->group(function () {
+        Route::controller(AdminStudentRegisteredCoursesController::class)->group(function () {
+            Route::get('student-registered-courses', 'index')->name('admin.students.all-course-registrations');
 
-        Route::get('/student-course-registrations/export',  'export')->name('admin.course-registrations.export');
-        Route::get('/student-course-registrations/{registration}',  'show')->name('admin.course-registrations.show');
-        Route::patch('/student-course-registrations/{registration}/approve',  'approve')->name('admin.course-registrations.approve');
-        Route::patch('/student-course-registrations/{registration}/reject',  'reject')->name('admin.course-registrations.reject');
+            Route::get('/student-course-registrations/export',  'export')->name('admin.course-registrations.export');
+            Route::get('/student-course-registrations/{registration}',  'show')->name('admin.course-registrations.show');
+            Route::patch('/student-course-registrations/{registration}/approve',  'approve')->name('admin.course-registrations.approve');
+            Route::patch('/student-course-registrations/{registration}/reject',  'reject')->name('admin.course-registrations.reject');
+        });
     });
 
-    Route::controller(AdminAccountsManagersController::class)->group(function () {
-        Route::get('accounts-managers', 'index')->name('admin.accounts.managers.view');
-        Route::get('accounts-managers/create', 'create')->name('admin.accounts.managers.create');
-        Route::get('accounts-managers/edit/{admin}', 'edit')->name('admin.accounts.managers.edit');
-        Route::put('accounts-managers/update/{admin}', 'update')->name('admin.accounts.managers.update');
-        Route::post('accounts-managers', 'store')->name('admin.accounts.managers.store');
-        Route::get('accounts-managers/details/{admin}', 'show')->name('admin.accounts.managers.details');
-        Route::delete('accounts-managers/del/{admin}', 'destroy')->name('admin.accounts.managers.delete');
+    Route::middleware('permission: view administrators | create administrators | update administrators')->group(function () {
+        Route::controller(AdminAccountsManagersController::class)->group(function () {
+            Route::get('accounts-managers', 'index')->name('admin.accounts.managers.view');
+            Route::get('accounts-managers/create', 'create')->name('admin.accounts.managers.create');
+            Route::get('accounts-managers/edit/{admin}', 'edit')->name('admin.accounts.managers.edit');
+            Route::put('accounts-managers/update/{admin}', 'update')->name('admin.accounts.managers.update');
+            Route::post('accounts-managers', 'store')->name('admin.accounts.managers.store');
+            Route::get('accounts-managers/details/{admin}', 'show')->name('admin.accounts.managers.details');
+            Route::delete('accounts-managers/del/{admin}', 'destroy')->name('admin.accounts.managers.delete');
+        });
     });
 
-    Route::controller(AdminDepartmentCreditController::class)->group(function () {
-        Route::get('department-credit', 'index')->name('admin.department.credit.view');
-        Route::get('department-credit/create', 'create')->name('admin.department.credit.create');
-        Route::post('department-credit', 'store')->name('admin.department.credit.store');
-        Route::get('department-credit/edit/{departmentCredit}', 'edit')->name('admin.department.credit.edit');
-        Route::put('department-credit/update/{departmentCredit}', 'update')->name('admin.department.credit.update');
-        Route::delete('department-credit/{departmentCredit}', 'destroy')->name('admin.department.credit.delete');
+    Route::middleware('permission:assign semester courses to department')->group(function () {
+        Route::controller(AdminDepartmentCreditController::class)->group(function () {
+            Route::get('department-credit', 'index')->name('admin.department.credit.view');
+            Route::get('department-credit/create', 'create')->name('admin.department.credit.create');
+            Route::post('department-credit', 'store')->name('admin.department.credit.store');
+            Route::get('department-credit/edit/{departmentCredit}', 'edit')->name('admin.department.credit.edit');
+            Route::put('department-credit/update/{departmentCredit}', 'update')->name('admin.department.credit.update');
+            Route::delete('department-credit/{departmentCredit}', 'destroy')->name('admin.department.credit.delete');
 
-        Route::get('/departments/{department}/levels', 'levels');
-    });
-
-    Route::controller(AdminAttendanceController::class)->group(function () {
-        Route::get('create-attendance', 'createAttendance')->name('admin.attendance.create');
-        Route::post('create-attendance/create', 'storeAttendance')->name('admin.attendance.store');
-
-        // API route for fetching students based on course
-        Route::get('courses/{course}/students', 'getStudentsByCourse');
-    });
-
-    Route::controller(AdminTimeTableController::class)->group(function () {
-        Route::get('timetable', 'index')->name('admin.timetable.view');
-        Route::get('timetable/create', 'create')->name('admin.timetable.create');
-        Route::get('timetable/details/{timeTable}', 'show')->name('admin.timetable.show');
-        Route::post('timetable', 'store')->name('admin.timetable.store');
-        Route::get('timetable/edit/{timetable}', 'edit')->name('admin.timetable.edit');
-        Route::put('timetable/update/{timetable}', 'update')->name('admin.timetable.update');
-        Route::delete('timetable/{timetable}', 'destroy')->name('admin.timetable.delete');
-
-        Route::get('/courses/{course}/timetables', 'getTimetablesByCourse');
-
-
-
-        Route::get('/department/{department}/levels', 'getDepartmentLevels');
-        Route::get('/courses', 'getCourses');
-        Route::get('/course-assignment', 'getCourseAssignment');
-
-
-        Route::post('timetable/{timetable}/submit-for-approval', 'submitForApproval')->name('admin.timetable.submit-for-approval');
-        Route::post('timetable/{timetable}/approve', 'approve')->name('admin.timetable.approve');
-        Route::post('timetable/{timetable}/archive', 'archive')->name('admin.timetable.archive');
-        Route::get('timetable/export/{format}', 'export')->name('admin.timetable.export');
-        Route::get('timetable/print', 'printView')->name('admin.timetable.print');
-
-
-        Route::get('timetables/bulk-create',  'bulkCreate')->name('admin.timetables.bulk_create');
-        Route::post('timetables/bulk-store',  'bulkStore')->name('admin.timetables.bulk_store');
-        Route::get('timetables/check-conflicts', 'checkConflicts')->name('admin.timetables.check');
-
-        Route::get('timetables-by-department', 'viewByDepartment')->name('admin.timetables.by_department');
-        Route::get('timetables-by-teacher', 'viewByTeacher')->name('admin.timetables.by_teacher');
-
-
-        Route::get('/admin/timetable/calendar-data',  'getCalendarData')->name('admin.timetable.calendar-data');
-
-
-        Route::get('timetable/drafts', 'draftIndex')->name('admin.timetable.draftIndex');
-        Route::post('/admin/timetable/{timetable}/submit-for-approval',  'submitForApproval')->name('admin.timetable.submitForApproval');
-        Route::post('/admin/timetable/{timetable}/archive',  'archive')->name('admin.timetable.archive');
-    });
-
-    Route::controller(AdminPaymentTypeController::class)->group(function () {
-        Route::get('payment-types', 'index')->name('admin.payment_type.index');
-        Route::get('payment-types/create', 'create')->name('admin.payment_type.create');
-        Route::post('payment-types/', 'store')->name('admin.payment_type.store');
-        Route::put('payment-types/{paymentType}', 'update')->name('admin.payment_type.update');
-
-        Route::get('payment-types/{paymentType}/edit', 'edit')->name('admin.payment_type.edit');
-        Route::get('payment-types/{paymentType}/show', 'show')->name('admin.payment_type.show');
-        Route::get('payment-types/{paymentType}', 'destroy')->name('admin.payment_type.destroy');
-    });
-
-    Route::controller(AdminPaymentMethodController::class)->group(function () {
-        Route::get('payment-method', 'index')->name('admin.payment_method.index');
-        Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
-        Route::post('payment-method', 'store')->name('admin.payment_method.store');
-        Route::put('payment-method/{paymentMethod}/update', 'update')->name('admin.payment_method.update');
-        Route::get('payment-method/{paymentMethod}/edit', 'edit')->name('admin.payment_method.edit');
-        Route::get('payment-method/{paymentMethod}/details', 'show')->name('admin.payment_method.show');
-        Route::delete('payment-method/{paymentMethod}/del', 'destroy')->name('admin.payment_method.destroy');
-    });
-
-    Route::controller(AdminPaymentController::class)->group(function () {
-        Route::get('make-payments', 'index')->name('admin.payment.pay');
-        Route::get('payments', 'payments')->name('admin.payments.show');
-
-        Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
-        Route::get('/payment-types/get-amount', [AdminPaymentController::class, 'getAmount'])->name('payment-types.getAmount');
-        Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
-
-        Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
-        Route::post('/payments/process', 'processPayment')->name('admin.payments.processPayment');
-
-        Route::get('payments/verify/{gateway}', 'verifyPayment')->name('payment.verify');
-        Route::get('payments/{payment}/receipt', 'generateReceipt')->name('payments.receipt');
-        // Route::get('receipts/{receipt}', 'showReceipt')->name('receipts.show');
-
-        Route::get('receipts/{receipt}', 'showReceipt')
-            ->name('admin.payments.showReceipt')
-            ->middleware('verify.receipt');
-
-
-        Route::post('/payments/change-method',  'changePaymentMethod')->name('admin.payments.changePaymentMethod');
-
-        Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('admin.payments.showConfirmation');
-        // ->middleware(['check.pending.invoice']);
-
-
-        Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+            Route::get('/departments/{department}/levels', 'levels');
+        });
     });
 
 
-    Route::controller(AdminNotificationController::class)->group(function () {
-        Route::get('notifications', 'index')->name('admin.notification.view');
+    // Attendance Management
+    Route::middleware('permission:manage attendance')->group(function () {
+        Route::controller(AdminAttendanceController::class)->group(function () {
+            Route::get('create-attendance', 'createAttendance')->name('admin.attendance.create');
+            Route::post('create-attendance/create', 'storeAttendance')->name('admin.attendance.store');
 
-        // Route::get('/notifications', 'index')->name('admin.notifications.index');
-        Route::post('/notifications/{id}/mark-as-read', 'markAsRead')->name('admin.notifications.markAsRead');
-        Route::post('/notifications/mark-all-as-read', 'markAllAsRead')->name('admin.notifications.markAllAsRead');
-        Route::delete('/notifications/{id}', 'destroy')->name('admin.notifications.destroy');
-        Route::get('/notifications/latest', 'getLatestNotifications')->name('admin.notifications.latest');
-        Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
+            // API route for fetching students based on course
+            Route::get('courses/{course}/students', 'getStudentsByCourse');
+        });
     });
 
 
-    Route::controller(AdminInvoiceManagerController::class)->group(function () {
-        Route::get('invoice-manager', 'index')->name('admin.invoice.view');
-        Route::get('invoice-manager/{id}/details', 'show')->name('admin.invoice.show');
+    // Timetable Management
+    Route::middleware('permission:view timetable|create timetable|edit timetable|delete timetable')->group(function () {
+
+        Route::controller(AdminTimeTableController::class)->group(function () {
+            Route::get('timetable', 'index')->name('admin.timetable.view');
+            Route::get('timetable/create', 'create')->name('admin.timetable.create');
+            Route::get('timetable/details/{timeTable}', 'show')->name('admin.timetable.show');
+            Route::post('timetable', 'store')->name('admin.timetable.store');
+            Route::get('timetable/edit/{timetable}', 'edit')->name('admin.timetable.edit');
+            Route::put('timetable/update/{timetable}', 'update')->name('admin.timetable.update');
+            Route::delete('timetable/{timetable}', 'destroy')->name('admin.timetable.delete');
+
+            Route::get('/courses/{course}/timetables', 'getTimetablesByCourse');
+
+
+
+            Route::get('/department/{department}/levels', 'getDepartmentLevels');
+            Route::get('/courses', 'getCourses');
+            Route::get('/course-assignment', 'getCourseAssignment');
+
+
+            Route::post('timetable/{timetable}/submit-for-approval', 'submitForApproval')->name('admin.timetable.submit-for-approval');
+            Route::post('timetable/{timetable}/approve', 'approve')->name('admin.timetable.approve');
+            Route::post('timetable/{timetable}/archive', 'archive')->name('admin.timetable.archive');
+            Route::get('timetable/export/{format}', 'export')->name('admin.timetable.export');
+            Route::get('timetable/print', 'printView')->name('admin.timetable.print');
+
+
+            Route::get('timetables/bulk-create',  'bulkCreate')->name('admin.timetables.bulk_create');
+            Route::post('timetables/bulk-store',  'bulkStore')->name('admin.timetables.bulk_store');
+            Route::get('timetables/check-conflicts', 'checkConflicts')->name('admin.timetables.check');
+
+            Route::get('timetables-by-department', 'viewByDepartment')->name('admin.timetables.by_department');
+            Route::get('timetables-by-teacher', 'viewByTeacher')->name('admin.timetables.by_teacher');
+
+
+            Route::get('/admin/timetable/calendar-data',  'getCalendarData')->name('admin.timetable.calendar-data');
+
+
+            Route::get('timetable/drafts', 'draftIndex')->name('admin.timetable.draftIndex');
+            Route::post('/admin/timetable/{timetable}/submit-for-approval',  'submitForApproval')->name('admin.timetable.submitForApproval');
+            Route::post('/admin/timetable/{timetable}/archive',  'archive')->name('admin.timetable.archive');
+        });
+    });
+
+    // Payment Management
+    Route::middleware('permission:manage payment types|process payments|pay fees')->group(function () {
+        Route::controller(AdminPaymentTypeController::class)->group(function () {
+            Route::get('payment-types', 'index')->name('admin.payment_type.index');
+            Route::get('payment-types/create', 'create')->name('admin.payment_type.create');
+            Route::post('payment-types/', 'store')->name('admin.payment_type.store');
+            Route::put('payment-types/{paymentType}', 'update')->name('admin.payment_type.update');
+
+            Route::get('payment-types/{paymentType}/edit', 'edit')->name('admin.payment_type.edit');
+            Route::get('payment-types/{paymentType}/show', 'show')->name('admin.payment_type.show');
+            Route::get('payment-types/{paymentType}', 'destroy')->name('admin.payment_type.destroy');
+        });
+    });
+
+    Route::middleware('permission:manage payment methods|process payments|pay fees')->group(function () {
+        Route::controller(AdminPaymentMethodController::class)->group(function () {
+            Route::get('payment-method', 'index')->name('admin.payment_method.index');
+            Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
+            Route::post('payment-method', 'store')->name('admin.payment_method.store');
+            Route::put('payment-method/{paymentMethod}/update', 'update')->name('admin.payment_method.update');
+            Route::get('payment-method/{paymentMethod}/edit', 'edit')->name('admin.payment_method.edit');
+            Route::get('payment-method/{paymentMethod}/details', 'show')->name('admin.payment_method.show');
+            Route::delete('payment-method/{paymentMethod}/del', 'destroy')->name('admin.payment_method.destroy');
+        });
+    });
+
+
+    // Payment Management
+    Route::middleware('permission:manage payment types|process payments|pay fees')->group(function () {
+        Route::controller(AdminPaymentController::class)->group(function () {
+            Route::get('make-payments', 'index')->name('admin.payment.pay');
+            Route::get('payments', 'payments')->name('admin.payments.show');
+
+            Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
+            Route::get('/payment-types/get-amount', [AdminPaymentController::class, 'getAmount'])->name('payment-types.getAmount');
+            Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
+
+            Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
+            Route::post('/payments/process', 'processPayment')->name('admin.payments.processPayment');
+
+            Route::get('payments/verify/{gateway}', 'verifyPayment')->name('payment.verify');
+            Route::get('payments/{payment}/receipt', 'generateReceipt')->name('payments.receipt');
+            // Route::get('receipts/{receipt}', 'showReceipt')->name('receipts.show');
+
+            Route::get('receipts/{receipt}', 'showReceipt')
+                ->name('admin.payments.showReceipt')
+                ->middleware('verify.receipt');
+
+
+            Route::post('/payments/change-method',  'changePaymentMethod')->name('admin.payments.changePaymentMethod');
+
+            Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('admin.payments.showConfirmation');
+            // ->middleware(['check.pending.invoice']);
+
+
+            Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+        });
+    });
+
+    // Notifications Management
+    Route::middleware('permission:manage notifications')->group(function () {
+        Route::controller(AdminNotificationController::class)->group(function () {
+            Route::get('notifications', 'index')->name('admin.notification.view');
+
+            // Route::get('/notifications', 'index')->name('admin.notifications.index');
+            Route::post('/notifications/{id}/mark-as-read', 'markAsRead')->name('admin.notifications.markAsRead');
+            Route::post('/notifications/mark-all-as-read', 'markAllAsRead')->name('admin.notifications.markAllAsRead');
+            Route::delete('/notifications/{id}', 'destroy')->name('admin.notifications.destroy');
+            Route::get('/notifications/latest', 'getLatestNotifications')->name('admin.notifications.latest');
+            Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
+        });
+    });
+
+    // Invoice
+    Route::middleware('permission:view invoice manager')->group(function () {
+        Route::controller(AdminInvoiceManagerController::class)->group(function () {
+            Route::get('invoice-manager', 'index')->name('admin.invoice.view');
+            Route::get('invoice-manager/{id}/details', 'show')->name('admin.invoice.show');
+        });
     });
 
 
@@ -406,33 +475,32 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
+    // Role and Permission Management
+    Route::middleware('permission:view roles|edit roles|assign roles')->group(function () {
+        Route::controller(RoleController::class)->group(function () {
+            Route::get('roles', 'index')->name('admin.roles.index');
+            Route::get('/roles/create',  'create')->name('admin.roles.create');
+            Route::post('/roles',  'store')->name('admin.roles.store');
+            Route::get('/roles/{role}/edit',  'edit')->name('admin.roles.edit');
+            Route::put('/roles/{role}',  'update')->name('admin.roles.update');
+            Route::delete('/roles/{role}',  'destroy')->name('admin.roles.destroy');
+        });
 
-    Route::controller(RoleController::class)->group(function(){
-        Route::get('roles', 'index')->name('admin.roles.index');
-        Route::get('/roles/create',  'create')->name('admin.roles.create');
-        Route::post('/roles',  'store')->name('admin.roles.store');
-        Route::get('/roles/{role}/edit',  'edit')->name('admin.roles.edit');
-        Route::put('/roles/{role}',  'update')->name('admin.roles.update');
-        Route::delete('/roles/{role}',  'destroy')->name('admin.roles.destroy');
+        Route::controller(PermissionController::class)->group(function () {
+            Route::get('permissions', 'index')->name('admin.permissions.index');
+            Route::get('/permissions/create',  'create')->name('admin.permissions.create');
+            Route::post('/permissions',  'store')->name('admin.permissions.store');
+            Route::get('/permissions/{permission}/edit',  'edit')->name('admin.permissions.edit');
+            Route::put('/permissions/{permission}',  'update')->name('admin.permissions.update');
+            Route::delete('/permissions/{permission}',  'destroy')->name('admin.permissions.destroy');
+        });
 
+        Route::controller(AdminUserRoleController::class)->group(function () {
+            Route::get('admin-roles', 'index')->name('admin.admin-users.roles');
+            Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
+            Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
+        });
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
 
 

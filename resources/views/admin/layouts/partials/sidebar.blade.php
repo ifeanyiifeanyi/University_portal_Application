@@ -173,7 +173,7 @@
                             <i class="bx bx-right-arrow-alt"></i>Manage Roles
                         </a>
                     </li>
-                    {{-- <li>
+                    <li>
                         <a href="{{ route('admin.permissions.index') }}">
                             <i class="bx bx-right-arrow-alt"></i>Manage Permissions
                         </a>
@@ -182,7 +182,7 @@
                         <a href="{{ route('admin.admin-users.roles') }}">
                             <i class="bx bx-right-arrow-alt"></i>Assign Roles
                         </a>
-                    </li> --}}
+                    </li>
                 </ul>
             </li>
 
