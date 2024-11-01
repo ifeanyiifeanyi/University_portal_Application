@@ -117,7 +117,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
     // Course Management
-    Route::middleware('permission:manage courses')->groupz(function () {
+    Route::middleware('permission:manage courses')->group(function () {
         Route::controller(CourseController::class)->group(function () {
             Route::get('course-managers', 'index')->name('admin.courses.view');
             Route::post('courses/store', 'store')->name('admin.courses.store');
@@ -475,8 +475,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-    // Role and Permission Management
-    Route::middleware('permission:view roles|edit roles|assign roles')->group(function () {
+    // // Role and Permission Management
+    // Route::middleware('permission:view roles|edit roles|assign roles')->group(function () {
         Route::controller(RoleController::class)->group(function () {
             Route::get('roles', 'index')->name('admin.roles.index');
             Route::get('/roles/create',  'create')->name('admin.roles.create');
@@ -500,7 +500,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
             Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
         });
-    });
+    // });
 });
 
 
