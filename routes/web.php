@@ -307,7 +307,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::middleware('permission: view administrators | create administrators | update administrators')->group(function () {
+    Route::middleware('permission:view administrators')->group(function () {
         Route::controller(AdminAccountsManagersController::class)->group(function () {
             Route::get('accounts-managers', 'index')->name('admin.accounts.managers.view');
             Route::get('accounts-managers/create', 'create')->name('admin.accounts.managers.create');

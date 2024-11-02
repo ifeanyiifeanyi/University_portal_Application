@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--favicon-->
-    <link rel="icon" href="{{ asset('logo.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('camera.jpg') }}" type="image/png" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
 
@@ -97,10 +97,10 @@
                                 data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"> <a
-                                    class="dropdown-item" href="javascript:;">Departments</a>
-                                <a class="dropdown-item" href="javascript:;">Students</a>
-                                <a class="dropdown-item" href="javascript:;">Lecturers</a>
-                                <a class="dropdown-item" href="javascript:;">Course Registrations</a>
+                                    class="dropdown-item" href="{{ route('admin.department.view') }}">Departments</a>
+                                <a class="dropdown-item" href="{{ route('admin.student.view') }}">Students</a>
+                                <a class="dropdown-item" href="{{ route('admin.teacher.view') }}">Lecturers</a>
+                                <a class="dropdown-item" href="{{ route('admin.timetable.view') }}">Timetable</a>
                                 <div class="dropdown-divider"></div> <a class="dropdown-item"
                                     href="javascript:;">Logout</a>
                             </div>
