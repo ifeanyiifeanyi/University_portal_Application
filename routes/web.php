@@ -107,7 +107,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
     // Course Assignment Management
-    Route::middleware('permission:assign department courses|manage courses')->group(function () {
+    Route::middleware('permission:manage courses')->group(function () {
         Route::resource('course-assignments', AdminCourseAssignmentController::class);
     });
 
@@ -179,7 +179,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::middleware('permission: approve student scores')->group(function () {
+    Route::middleware('permission:manage student scores')->group(function () {
         Route::controller(AdminApprovedScoreController::class)->group(function () {
             // view approved scores
             Route::get('/approved-scores', 'approvedScores')->name('admin.approved_scores.view');
@@ -196,22 +196,25 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::controller(AdminRejectedScoreController::class)->group(function () {
-        Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
+    Route::middleware('permission:view rejected scores')->group(function () {
 
-        // --single revert
-        Route::get('/rejected/{score}/single-revert', 'revertRejection')->name('admin.score.approval.rejected.revert');
+        Route::controller(AdminRejectedScoreController::class)->group(function () {
+            Route::get('/rejected', 'rejectedScores')->name('admin.score.rejected.view');
 
-
-        // -- bulk revert
-        Route::post('/rejected/bulk-revert', 'bulkRevertRejection')->name('admin.score.approval.rejected.bulk-revert');
-
-        // -- accept/approve rejected scores
-        Route::post('/rejected/bulk-accept', 'bulkAcceptRejection')->name('admin.score.approval.rejected.bulk-accept');
+            // --single revert
+            Route::get('/rejected/{score}/single-revert', 'revertRejection')->name('admin.score.approval.rejected.revert');
 
 
-        Route::get('/rejected/export', 'exportRejectedScores')->name('admin.rejected.score.export');
-        Route::post('/rejected/import', 'importRejectedScores')->name('admin.rejected.score.import');
+            // -- bulk revert
+            Route::post('/rejected/bulk-revert', 'bulkRevertRejection')->name('admin.score.approval.rejected.bulk-revert');
+
+            // -- accept/approve rejected scores
+            Route::post('/rejected/bulk-accept', 'bulkAcceptRejection')->name('admin.score.approval.rejected.bulk-accept');
+
+
+            Route::get('/rejected/export', 'exportRejectedScores')->name('admin.rejected.score.export');
+            Route::post('/rejected/import', 'importRejectedScores')->name('admin.rejected.score.import');
+        });
     });
 
     Route::controller(AdminScoreApprovalController::class)->group(function () {
@@ -230,11 +233,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/scores/import', 'import')->name('admin.score.import');
     });
 
-    Route::controller(AdminScoreAuditController::class)->group(function () {
-        Route::get('score-audit', 'index')->name('admin.score.audit.view');
-        Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
+    Route::middleware('permission:audit student scores')->group(function () {
+        Route::controller(AdminScoreAuditController::class)->group(function () {
+            Route::get('score-audit', 'index')->name('admin.score.audit.view');
+            Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
+        });
     });
-
     // Student Management
     Route::middleware('permission:manage students')->group(function () {
         Route::controller(AdminStudentController::class)->group(function () {
@@ -261,7 +265,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::middleware('permission: assign department courses to lecturers')->group(function () {
+    Route::middleware('permission:assign department courses to lecturers')->group(function () {
         Route::controller(AdminTeacherAssignmentController::class)->group(function () {
             Route::get('teacher-assignment', 'index')->name('admin.teacher.assignment.view');
             Route::get('teacher-assignment/create/{teacher?}', 'create')->name('admin.teacher.assignment.create');
@@ -342,7 +346,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
     // Timetable Management
-    Route::middleware('permission:view timetable|create timetable|edit timetable|delete timetable')->group(function () {
+    Route::middleware('permission:view timetable')->group(function () {
 
         Route::controller(AdminTimeTableController::class)->group(function () {
             Route::get('timetable', 'index')->name('admin.timetable.view');
@@ -387,7 +391,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
     // Payment Management
-    Route::middleware('permission:manage payment types|process payments|pay fees')->group(function () {
+    Route::middleware('permission:manage payment types')->group(function () {
         Route::controller(AdminPaymentTypeController::class)->group(function () {
             Route::get('payment-types', 'index')->name('admin.payment_type.index');
             Route::get('payment-types/create', 'create')->name('admin.payment_type.create');
@@ -400,7 +404,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::middleware('permission:manage payment methods|process payments|pay fees')->group(function () {
+    Route::middleware('permission:manage payment methods')->group(function () {
         Route::controller(AdminPaymentMethodController::class)->group(function () {
             Route::get('payment-method', 'index')->name('admin.payment_method.index');
             Route::get('payment-method/create', 'create')->name('admin.payment_method.create');
@@ -414,7 +418,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
     // Payment Management
-    Route::middleware('permission:manage payment types|process payments|pay fees')->group(function () {
+    Route::middleware('permission:pay fees')->group(function () {
         Route::controller(AdminPaymentController::class)->group(function () {
             Route::get('make-payments', 'index')->name('admin.payment.pay');
             Route::get('payments', 'payments')->name('admin.payments.show');
@@ -476,7 +480,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
     // // Role and Permission Management
-    // Route::middleware('permission:view roles|edit roles|assign roles')->group(function () {
+    Route::middleware('permission:view roles')->group(function () {
         Route::controller(RoleController::class)->group(function () {
             Route::get('roles', 'index')->name('admin.roles.index');
             Route::get('/roles/create',  'create')->name('admin.roles.create');
@@ -500,7 +504,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
             Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
         });
-    // });
+    });
 });
 
 

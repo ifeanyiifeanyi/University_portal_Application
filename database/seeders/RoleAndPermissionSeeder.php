@@ -89,7 +89,7 @@ class RoleAndPermissionSeeder extends Seeder
             'view roles',
             'edit roles',
             'assign roles',
-
+            'manage approved courses',
 
 
             // Notifications
@@ -104,7 +104,20 @@ class RoleAndPermissionSeeder extends Seeder
             'delete administrator',
 
             'manage attendance',
-            'view grades',
+
+
+            'mark all notifications as read',
+            'mark notifications as read',
+            'export scores',
+            'import scores',
+            'manage department courses',
+            'approve scores in bulk',
+            'view rejected scores',
+            'clone timetable',
+            'export timetable to google calendar',
+            'view version history',
+            'view approver dashboard',
+            'bulk-approve timetable',
         ];
 
         // Create permissions

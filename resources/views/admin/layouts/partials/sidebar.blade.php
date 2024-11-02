@@ -25,12 +25,6 @@
                     <li> <a href="{{ route('admin.timetable.draftIndex') }}"><i class="bx bx-right-arrow-alt"></i>Draft
                             TimeTable</a>
                     </li>
-                    <li> <a href="dashboard-digital-marketing.html"><i class="bx bx-right-arrow-alt"></i>Digital
-                            Marketing</a>
-                    </li>
-                    <li> <a href="dashboard-human-resources.html"><i class="bx bx-right-arrow-alt"></i>Human
-                            Resources</a>
-                    </li>
                 </ul>
             </li>
             <li>
