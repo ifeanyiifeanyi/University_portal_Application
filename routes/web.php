@@ -54,6 +54,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->name('logout');
 });
 
+    
 Route::middleware('admin')->group(function () {
     Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
     Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
@@ -526,7 +527,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 // Route::prefix('teacher')->middleware('teacher')->group(function () {
-//     Route::controller(TeacherController::class)->group(function () {
+//     Route::controller(`TeacherController`::class)->group(function () {
 //         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
 //     });
 // });
