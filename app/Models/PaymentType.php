@@ -44,4 +44,9 @@ class PaymentType extends Model
         return $this->hasMany(Payment::class);
     }
     protected $casts = ['is_active' => 'boolean'];
+
+    public function departmentPaymentType()
+    {
+        return $this->hasMany(DepartmentPaymentType::class);
+    }
 }

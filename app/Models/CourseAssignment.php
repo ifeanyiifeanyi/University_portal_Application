@@ -14,7 +14,7 @@ class CourseAssignment extends Model
 
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class,);
     }
 
     public function department()

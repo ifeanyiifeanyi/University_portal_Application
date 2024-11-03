@@ -1,60 +1,117 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <title>Title</title>
-        <!-- Required meta tags -->
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
+@extends('student.layouts.student')
 
-        <!-- Bootstrap CSS v5.2.1 -->
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-            crossorigin="anonymous"
-        />
-    </head>
+@section('title', 'Student Dashboard')
+@section('student')
 
-    <body>
-        <header>
-            <!-- place navbar here -->
-        </header>
-        <main>
-            <div class="container">
-                <div class="row">
-                    <div
-                        class="col-4"
-                    >
-                        <h1>student</h1>
-                    </div>
-                    <div
-                        class="col-4"
-                    >
-                        dashboard
-                    </div>
-
-                </div>
+@php
+            // Create a collection from the teacher's attributes and check if any is empty
+            $incompleteProfile = collect($student->getAttributes())->except(['deleted_at','cgpa'])->contains(function ($value) {
+                return empty($value);
+            });
+        @endphp
+        @if($incompleteProfile)
+        <div class="alert alert-warning mt-3">
+            Please complete your profile to continue.
+            <div class="mt-3">
+              <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-50">View profile</a>
             </div>
+        </div>
+       
+    @else
+        {{-- <div class="alert alert-success">
+            Your profile is complete!
+        </div> --}}
+    @endif
+                    <!-- Start Content-->
+                    <div class="container-xxl">
 
-        </main>
-        <footer>
-            <!-- place footer here -->
-        </footer>
-        <!-- Bootstrap JavaScript Libraries -->
-        <script
-            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-            crossorigin="anonymous"
-        ></script>
+                        <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
+                            <div class="flex-grow-1">
+                                <h4 class="fs-18 fw-semibold m-0">Dashboard</h4>
+                            </div>
+                        </div>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-            integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-            crossorigin="anonymous"
-        ></script>
-    </body>
-</html>
+                        <div class="row">
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Total fees paid</p>
+                                                <h4 class="m-0 mb-3 fs-18">N {{$totalfees}}</h4>
+                                             
+                                            </div>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Total Cgpa</p>
+                                                <h4 class="m-0 mb-3 fs-18">{{$student->cgpa}}</h4>
+                                              
+                                            </div>
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                            
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Profile</p>
+                                                <div class="mt-3">
+                                                    <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-100">View profile</a>
+                                                  </div>
+                                              
+                                            </div>
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <p class="text-muted mb-3 fw-semibold">Virtual Id Card</p>
+                                                @if($incompleteProfile)
+                                                Complete your profile to view your Id card
+                                                @else
+                                                <div class="mt-3">
+                                                    <a href="{{route('student.view.virtualid')}}" style="background: #AE152D;" class="btn text-white w-100">View student id</a>
+                                                  </div>
+                                                @endif
+                                               
+                                              
+                                            </div>
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+
+                    </div> <!-- container-fluid -->
+@endsection

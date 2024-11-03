@@ -20,11 +20,13 @@ class StudentScore extends Model
         'total_score',
         'grade',
         'is_failed',
-        'status'
+        'status',
+        'grade_point'
     ];
 
     protected $casts = [
         'is_failed' => 'boolean',
+        'grade_point' => 'decimal:2',
     ];
 
     public function student()
@@ -81,4 +83,6 @@ class StudentScore extends Model
 
         return $dirty;
     }
+
+    
 }

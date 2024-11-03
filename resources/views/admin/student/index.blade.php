@@ -32,7 +32,6 @@
                                         <th scope="col">Department</th>
                                         <th scope="col">Year of Admission</th>
                                         <th scope="col">Current Level</th>
-
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>

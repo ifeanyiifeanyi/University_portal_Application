@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckFeesMiddleware;
 use App\Http\Middleware\CheckInvoiceStatus;
 use App\Http\Middleware\CheckPendingInvoiceMiddleware;
 use App\Http\Middleware\ParentMiddleware;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'teacher' => TeacherMiddleware::class,
             'student' => StudentMiddleware::class,
             'parent' => ParentMiddleware::class,
+            'checkforfees' => CheckFeesMiddleware::class,
             'check.pending.invoice' => CheckPendingInvoiceMiddleware::class,
             'check.invoice.status' => CheckInvoiceStatus::class,
             'verify.receipt' => VerifyReceiptAccess::class,

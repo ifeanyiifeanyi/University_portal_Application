@@ -20,6 +20,10 @@ class AcademicSession extends Model
     {
         return $this->hasMany(TeacherAssignment::class);
     }
+    public function attendance()
+    {
+        return $this->hasMany(Attendancee::class);
+    }
 
     public function getCurrentSession()
     {

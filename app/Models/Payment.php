@@ -62,6 +62,10 @@ class Payment extends Model
     {
         return $this->belongsTo(PaymentMethod::class);
     }
+    public function receipt()
+    {
+        return $this->hasOne(Receipt::class);
+    }
 
 
     public function invoice()

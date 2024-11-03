@@ -1,40 +1,51 @@
 <?php
 
+use App\Models\Receipt;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 use App\Http\Controllers\Parent\ParentController;
+use App\Http\Controllers\Parent\ChildrenController;
 use App\Http\Controllers\Student\StudentController;
+use App\Http\Controllers\Teacher\TeacherController;
+use App\Http\Controllers\Admin\AdminGradeController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminSemesterController;
+use App\Http\Controllers\Admin\AdminUserRoleController;
+use App\Http\Controllers\Student\StudentFeesController;
+use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Admin\AcademicSessionController;
-use App\Http\Controllers\Admin\AdminAccountsManagersController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
+use App\Http\Controllers\Admin\AdminScoreAuditController;
+use App\Http\Controllers\Student\OnlineClassesController;
+use App\Http\Controllers\Student\StudentResultController;
+use App\Http\Controllers\Admin\AdminPaymentTypeController;
+use App\Http\Controllers\Teacher\TeacherCoursesController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminApprovedScoreController;
+use App\Http\Controllers\Admin\AdminPaymentMethodController;
+use App\Http\Controllers\Admin\AdminRejectedScoreController;
+use App\Http\Controllers\Admin\AdminScoreApprovalController;
+use App\Http\Controllers\Admin\AdminInvoiceManagerController;
+use App\Http\Controllers\Student\StudentAcceptanceController;
+use App\Http\Controllers\Teacher\TeacherAttendanceController;
+use App\Http\Controllers\Teacher\TeacherDepartmentController;
+use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
-use App\Http\Controllers\Admin\AdminAttendanceController;
-use App\Http\Controllers\Admin\AdminGradeController;
-use App\Http\Controllers\Admin\AdminInvoiceManagerController;
-use App\Http\Controllers\Admin\AdminNotificationController;
-use App\Http\Controllers\Admin\AdminPaymentController;
-use App\Http\Controllers\Admin\AdminPaymentMethodController;
-use App\Http\Controllers\Admin\AdminPaymentTypeController;
-use App\Http\Controllers\Admin\AdminRejectedScoreController;
-use App\Http\Controllers\Admin\AdminScoreApprovalController;
-use App\Http\Controllers\Admin\AdminScoreAuditController;
+use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
-use App\Http\Controllers\Admin\AdminTimeTableController;
-use App\Http\Controllers\Admin\AdminUserRoleController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Models\Receipt;
+use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
@@ -51,10 +62,10 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/', 'login')->name('login.view');
     Route::post('/login', 'postLogin')->name('login.post');
 
-    Route::post('logout', 'logout')->name('logout');
+    Route::get('logout', 'logout')->name('logout');
 });
 
-    
+
 Route::middleware('admin')->group(function () {
     Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
     Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
@@ -78,11 +89,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('profile', 'index')->name('admin.view.profile');
-        Route::patch('update-profile/{user::slug}', 'update')->name('admin.update.profile');
-        Route::patch('update-password/{user::slug}', 'updatePassword')->name('admin.update.password');
-    });
 
     // Academic Session Management
     Route::middleware('permission:manage academic sessions')->group(function () {
@@ -217,6 +223,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::post('/rejected/import', 'importRejectedScores')->name('admin.rejected.score.import');
         });
     });
+
 
     Route::controller(AdminScoreApprovalController::class)->group(function () {
         Route::get('score-approval', 'index')->name('admin.score.approval.view');
@@ -526,17 +533,77 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-// Route::prefix('teacher')->middleware('teacher')->group(function () {
-//     Route::controller(`TeacherController`::class)->group(function () {
-//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
-//     });
-// });
-
 
 
 Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
+        Route::get('profile', 'profile')->name('student.view.profile');
+        Route::get('virtualid', 'virtualid')->name('student.view.virtualid');
+
+
+        // post requests
+        Route::post('createprofile', 'createprofile')->name('student.create.profile');
+        Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
+    });
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees')->group(function () {
+        Route::prefix('course_registration')->group(function () {
+            Route::get('/', 'courseregistration')->name('student.view.courseregistration');
+            Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
+            Route::get('/session', 'sessioncourse')->name('student.view.sessioncourse');
+            Route::get('/register/{semester_regid}/{session_id}/{semester_id}/{level}', 'registercourse')->name('student.view.registercourse');
+            Route::get('departments/{department}/levels', 'levels');
+
+            Route::post('/check-credit-load', 'checkCreditLoad')->name('check.credit.load');
+
+            Route::post('/proceedsession', 'proceedsession')->name('student.proceed.session');
+            Route::post('/courseregister', 'courseregister')->name('student.proceed.courseregister');
+        });
+    });
+
+    Route::controller(StudentResultController::class)->group(function () {
+        Route::prefix('/result')->group(function () {
+            Route::get('/select', 'index')->name('student.view.result.select');
+            Route::get('/view/{session}/{semester}/{teacherid}', 'view')->name('student.view.result');
+        });
+    });
+    Route::controller(StudentAcceptanceController::class)->group(function () {
+        Route::prefix('/acceptance')->group(function () {
+            Route::get('/', 'index')->name('student.view.acceptance.all');
+            Route::get('/view', 'view')->name('student.view.acceptance');
+        });
+    });
+    Route::controller(StudentFeesController::class)->group(function () {
+        Route::prefix('/fees')->group(function () {
+            Route::get('/', 'index')->name('student.view.fees.all');
+            Route::get('/view', 'view')->name('student.view.fees');
+            Route::get('/pay', 'pay')->name('student.view.fees.pay');
+            Route::post('/process', 'process')->name('student.view.fees.process');
+            Route::get('/invoice/{id}', 'invoice')->name('student.view.fees.invoice');
+            Route::get('departments/{department}/levels', 'levels');
+
+            Route::post('/payments/process', 'processPayment')->name('student.view.fees.processPayment');
+
+            Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
+
+            Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
+
+
+            // Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('student.fees.payments.showConfirmation');
+
+        });
+    });
+
+
+    Route::controller(FeesPaymentsController::class)->group(function () {
+        Route::prefix('/payments')->group(function () {
+            Route::get('/', 'index')->name('student.view.payments');
+        });
+    });
+
+
+    Route::controller(OnlineClassesController::class)->group(function () {
+        Route::get('onlineclasses', 'index')->name('student.view.onlineclasses');
     });
 });
 
@@ -544,5 +611,14 @@ Route::prefix('student')->middleware('student')->group(function () {
 Route::prefix('parent')->middleware('parent')->group(function () {
     Route::controller(ParentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('parent.view.dashboard');
+        Route::get('profile', 'profile')->name('parent.view.profile');
+    });
+    Route::controller(ChildrenController::class)->group(function () {
+        Route::prefix('/children')->group(function () {
+            Route::get('/', 'index')->name('parent.view.childrens');
+            Route::get('/view/{id}', 'view')->name('parent.view.child');
+            Route::get('/result/{session}/{semester}/{teacherid}/{studentid}', 'result')->name('parent.view.child.result');
+            Route::get('receipts/{receipt}', 'showReceipt')->name('parent.fees.payments.showReceipt');
+        });
     });
 });

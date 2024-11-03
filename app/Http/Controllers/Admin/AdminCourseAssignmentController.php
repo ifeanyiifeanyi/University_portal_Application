@@ -99,7 +99,6 @@ class AdminCourseAssignmentController extends Controller
         return view('admin.course_assignments.show', compact('semester', 'groupedAssignments', 'departments', 'levels', 'search', 'filterDepartment', 'filterLevel'));
     }
 
-
     public function destroy(CourseAssignment $courseAssignment)
     {
         // dd($courseAssignment);

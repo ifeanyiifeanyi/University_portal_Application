@@ -35,12 +35,23 @@ class CourseEnrollment extends Model
     const STATUS_WITHDRAWN = 'withdrawn';
     const STATUS_COMPLETED = 'completed';
 
+    public function teacherAssigned(){
+        return $this->belongsTo(TeacherAssignment::class, 'course_id', 'course_id');
+    }
     public function studentScore()
     {
-        return $this->hasOne(StudentScore::class, 'student_id', 'student_id')
-            ->where('course_id', $this->course_id)
-            ->where('academic_session_id', $this->academic_session_id)
-            ->where('semester_id', $this->semester_id);
+        // return $this->hasOne(StudentScore::class, 'student_id', 'student_id')
+        //     ->where('course_id', $this->course_id)
+        //     ->where('academic_session_id', $this->academic_session_id)
+        //     ->where('semester_id', $this->semester_id);
+
+
+
+
+            return $this->hasOne(StudentScore::class, 'student_id', 'student_id')
+        ->whereColumn('course_id', 'course_id')
+        ->whereColumn('academic_session_id', 'academic_session_id')
+        ->whereColumn('semester_id', 'semester_id');
     }
 
 

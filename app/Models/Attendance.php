@@ -10,17 +10,18 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
         'course_id',
         'teacher_id',
         'academic_session_id',
         'semester_id',
         'department_id',
         'date',
-        'is_present'
+        'start_time',
+        'end_time',
+        'notes'
+
     ];
     protected $casts = [
-        'is_present' => 'boolean',
         'date' => 'date'
     ];
 

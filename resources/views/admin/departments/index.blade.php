@@ -10,7 +10,7 @@
 @section('admin')
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8 mx-auto">
                 <div class="card shadow">
                     <div class="card-body p-5">
                         <a href="{{ route('admin.department.view') }}">
@@ -140,7 +140,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card shadow">
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center">
