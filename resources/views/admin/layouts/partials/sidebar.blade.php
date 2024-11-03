@@ -78,7 +78,7 @@
                         <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign Semester Course Credits</a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.course_registration.student_list') }}"><i class="bx bx-right-arrow-alt"></i>Assign</a>
+                        <a href="{{ route('admin.course_registration.student_list') }}"><i class="bx bx-right-arrow-alt"></i>Students Course Registration</a>
                     </li>
                 </ul>
             </li>

@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Admin\DepartmentController;
@@ -143,7 +143,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // Lecturers Management
     Route::middleware('permission:manage lecturers')->group(function () {
-        Route::controller(TeacherController::class)->group(function () {
+        Route::controller(AdminTeacherController::class)->group(function () {
             Route::get('manage-lecturers', 'index')->name('admin.teacher.view');
             Route::post('manage-lecturers/store', 'store')->name('admin.teacher.store');
             Route::get('manage-lecturers/create', 'create')->name('admin.teacher.create');

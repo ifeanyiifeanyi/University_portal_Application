@@ -12,53 +12,7 @@ use App\Models\SemesterCourseRegistration;
 
 class AdminStudentRegisteredCoursesController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $academicSessions = AcademicSession::all();
-    //     $semesters = Semester::all();
-    //     $departments = Department::all();
-
-    //     // search dynamically
-    //     $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
-    //     $currentSemester = Semester::where('is_current', true)->firstOrFail();
-
-    //     $query = CourseEnrollment::with(['student', 'course', 'department']);
-
-    //     // Filter by academic session if provided
-    //     if ($request->has('academic_session_id')) {
-    //         $query->where('academic_session_id', $request->input('academic_session_id'));
-    //     } else {
-    //         $query->where('academic_session_id', $currentAcademicSession->id);
-    //     }
-
-    //     // Filter by semester if provided
-    //     if ($request->has('semester_id')) {
-    //         $query->where('semester_id', $request->input('semester_id'));
-    //     } else {
-    //         $query->where('semester_id', $currentSemester->id);
-    //     }
-
-    //     // Filter by department
-    //     if ($request->has('department_id')) {
-    //         $query->where('department_id', $request->input('department_id'));
-    //     }
-
-    //     // Filter by department level
-    //     if ($request->has('level')) {
-    //         $query->where('level', $request->input('level'));
-    //     }
-
-    //     // Filter by date range
-    //     if ($request->has('date_from') && $request->has('date_to')) {
-    //         $query->whereBetween('registered_at', [$request->input('date_from'), $request->input('date_to')]);
-    //     }
-
-    //     $courseRegistrations = $query->get();
-
-
-
-    //     return view('admin.all_course_registrations.index', compact('academicSessions', 'semesters', 'departments'));
-    // }
+    
 
     public function index(Request $request)
     {
