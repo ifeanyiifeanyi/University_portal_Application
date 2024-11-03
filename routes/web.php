@@ -66,6 +66,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 
+
 Route::middleware('admin')->group(function () {
     Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
     Route::get('/timetables/approver-dashboard', [AdminTimeTableController::class, 'approverDashboard'])->name('admin.timetables.approver-dashboard');
@@ -87,6 +88,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('dashboard', 'index')->name('admin.view.dashboard');
             Route::post('logout', 'logout')->name('admin.logout');
         });
+    });
+
+    // admin profile manager
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('profile', 'index')->name('admin.view.profile');
+        Route::patch('update-profile/{user::slug}', 'update')->name('admin.update.profile');
+        Route::patch('update-password/{user::slug}', 'updatePassword')->name('admin.update.password');
     });
 
 
@@ -133,6 +141,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
+
+
     // Department Management
     Route::middleware('permission:manage departments')->group(function () {
         Route::controller(DepartmentController::class)->group(function () {
@@ -147,6 +157,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('departments/{department}/levels', 'levels');
         });
     });
+
+
 
     // Lecturers Management
     Route::middleware('permission:manage lecturers')->group(function () {
@@ -186,6 +198,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
+    // manage student scores
     Route::middleware('permission:manage student scores')->group(function () {
         Route::controller(AdminApprovedScoreController::class)->group(function () {
             // view approved scores
@@ -203,6 +216,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
+    // reject submitted score
     Route::middleware('permission:view rejected scores')->group(function () {
 
         Route::controller(AdminRejectedScoreController::class)->group(function () {
@@ -247,6 +261,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('score-audit/export', 'export')->name('admin.score.audit.export');
         });
     });
+
+
     // Student Management
     Route::middleware('permission:manage students')->group(function () {
         Route::controller(AdminStudentController::class)->group(function () {
@@ -273,6 +289,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         });
     });
 
+    //assign and manage the teacher content/courses
     Route::middleware('permission:assign department courses to lecturers')->group(function () {
         Route::controller(AdminTeacherAssignmentController::class)->group(function () {
             Route::get('teacher-assignment', 'index')->name('admin.teacher.assignment.view');
@@ -525,7 +542,29 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
+Route::prefix('teacher')->middleware('teacher')->group(function () {
 
+    Route::controller(TeacherController::class)->group(function () {
+        Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+        Route::get('profile', 'profile')->name('teacher.view.profile');
+        // post requests
+        Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
+        Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
+    });
+    Route::controller(TeacherDepartmentController::class)->group(function () {
+        Route::get('departments', 'departments')->name('teacher.view.departments');
+    });
+    Route::prefix('courses')->group(function () {
+        Route::controller(TeacherCoursesController::class)->group(function () {
+            Route::get('/', 'courses')->name('teacher.view.courses');
+            Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
+            Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
+            Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
+            Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
+            Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
+        });
+    });
+});
 
 
 

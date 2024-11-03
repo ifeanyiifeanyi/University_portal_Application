@@ -31,7 +31,7 @@ class TeacherCoursesController extends Controller
         $this->authService = $authService;
     }
     public function courses(){
-         // get the teachers details 
+         // get the teachers details
          $teacher = Teacher::with(['user'])->where('user_id',$this->authService->user()->id)->first();
          // get the department
          $coursesassigned = TeacherAssignment::with(['course','department','semester','academicSession'])->where('teacher_id',$teacher->id)->get();
@@ -89,7 +89,7 @@ public function students($courseId)
         $csv = \League\Csv\Writer::createFromFileObject(new \SplTempFileObject());
         $csv->insertOne(['Matric Number', 'Student Name', 'Course Name', 'Course Code','Assessment Score', 'Exam Score']);
         foreach ($exportaccess as $exportaccess) {
-            
+
             $name = $exportaccess->student->user->first_name . ' ' . $exportaccess->student->user->last_name . ' ' . $exportaccess->student->user->other_name;
             $csv->insertOne([
                 $exportaccess->student->matric_number,
@@ -130,9 +130,9 @@ public function students($courseId)
                     // Skip this record or throw an error if you want to stop the import
                     return redirect()->back()->with('error', 'Assessment Score or Exam Score cannot be empty for Matric Number: ' . $record['Matric Number']);
                 }
-                
+
                 $student = Student::where('matric_number', $record['Matric Number'])->firstOrFail();
-                
+
                 $totalScore = $record['Assessment Score'] + $record['Exam Score'];
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
@@ -170,7 +170,7 @@ public function students($courseId)
         }
     }
 
-   
+
 
     public function uploadresult(Request $uploadresult,$courseid){
         $validator = Validator::make($uploadresult->all(), [
@@ -183,7 +183,7 @@ public function students($courseId)
             'scores.*.exam.max' => 'Exam score cannot exceed 60.',
         ]);
 
-       
+
 
 
         if ($validator->fails()) {
@@ -197,7 +197,7 @@ public function students($courseId)
             DB::beginTransaction();
 
             foreach ($uploadresult->scores as $enrollmentId => $scoreData) {
-                
+
                 $enrollment = CourseEnrollment::findOrFail($enrollmentId);
 
                 $totalScore = $scoreData['assessment'] + $scoreData['exam'];
@@ -208,6 +208,7 @@ public function students($courseId)
                 if (!is_numeric($gradePoint)) {
                     throw new \Exception("Invalid grade point calculated: $gradePoint");
                 }
+
                 
                 StudentScore::updateOrCreate(
                     [
@@ -286,7 +287,7 @@ public function students($courseId)
 
     private function updateCGPA($studentId)
     {
-        
+
         $gpaRecords = GpaRecord::where('student_id', $studentId)->get();
         $totalGPA = $gpaRecords->sum('gpa');
         $cgpa = $gpaRecords->count() > 0 ? $totalGPA / $gpaRecords->count() : 0;
