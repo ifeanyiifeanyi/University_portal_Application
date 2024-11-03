@@ -284,8 +284,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:manage course levels')->group(function () {
         // this route was used or creating courses for student via students view table
         Route::controller(AdminAssignStudentCourseController::class)->group(function () {
-            Route::get('assign-student-courses/{id}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
+            Route::get('assign-student-courses/{student}', 'showSemesterCourses')->name('admin.assign.courseForStudent');
+
             Route::post('assign-student-courses/{id}', 'registerCourses')->name('admin.students.register-courses.store');
+
             Route::get('students/{student}/course-registrations', 'showStudentCourseRegistrations')->name('admin.students.course-registrations');
 
 
@@ -293,6 +295,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::delete('students/{student}/remove-course/{enrollment}',  'removeCourse')->name('admin.students.remove-course');
             Route::post('students/{student}/approve-registration',  'approveRegistration')->name('admin.students.approve-registration');
             Route::patch('students/{student}/courses/{enrollment}/status', 'updateCourseStatus')->name('admin.students.update-course-status');
+
+            Route::get('course-registration/student-list/{student_id?}', 'index')->name('admin.course_registration.student_list');
         });
     });
 
@@ -467,7 +471,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:view invoice manager')->group(function () {
         Route::controller(AdminInvoiceManagerController::class)->group(function () {
             Route::get('invoice-manager', 'index')->name('admin.invoice.view');
-            Route::get('invoice-manager/{id}/details', 'show')->name('admin.invoice.show');
+            Route::get('invoice-manager/{invoice}/details', 'show')->name('admin.invoice.show');
+            Route::get('invoice-manager/download/{invoice}', 'download')->name('admin.invoice.download');
         });
     });
 

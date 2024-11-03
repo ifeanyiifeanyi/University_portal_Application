@@ -23,6 +23,16 @@ class AdminInvoiceManagerController extends Controller
      */
     public function show(Invoice $invoice)
     {
+        $invoice->load([
+            'student.user',
+            'department',
+            'paymentType',
+            'paymentMethod',
+            'academicSession',
+            'semester',
+            'payment'
+        ]);
+
         return view('admin.invoices.show', compact('invoice'));
     }
 

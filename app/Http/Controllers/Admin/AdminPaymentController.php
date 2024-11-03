@@ -137,25 +137,7 @@ class AdminPaymentController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
-        // checking if its an existing invoice
-        // $pendingInvoice = Invoice::findPendingInvoice(
-        //     $validated['student_id'],
-        //     $validated['payment_type_id'],
-        //     $validated['academic_session_id'],
-        //     $validated['semester_id']
-        // );
-        // // dd($pendingInvoice);
-
-        // if ($pendingInvoice) {
-        //     // if true update, proceed to pay or just print
-        //     $invoice = $pendingInvoice;
-        //     $invoice->update([
-        //         'department_id' => $validated['department_id'],
-        //         'level' => $validated['level'],
-        //         'amount' => $validated['amount'],
-        //         'payment_method_id' => $validated['payment_method_id'],
-        //     ]);
-        // }
+        
         $invoice = Invoice::create([
             'student_id' => $validated['student_id'],
             'payment_type_id' => $validated['payment_type_id'],

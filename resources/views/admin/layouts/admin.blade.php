@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--favicon-->
-    <link rel="icon" href="{{ asset('camera.jpg') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('nursinglogo.webp') }}" type="image/png" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.min.css">
 
@@ -96,8 +96,9 @@
                                 class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"> <a
-                                    class="dropdown-item" href="{{ route('admin.department.view') }}">Departments</a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">
+                                <a class="dropdown-item" href="{{ route('admin.view.dashboard') }}">Dashboard</a>
+                                <a class="dropdown-item" href="{{ route('admin.department.view') }}">Departments</a>
                                 <a class="dropdown-item" href="{{ route('admin.student.view') }}">Students</a>
                                 <a class="dropdown-item" href="{{ route('admin.teacher.view') }}">Lecturers</a>
                                 <a class="dropdown-item" href="{{ route('admin.timetable.view') }}">Timetable</a>

@@ -31,7 +31,7 @@
                 <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
                     <div class="col mx-auto">
                         <div class="mb-4 text-center">
-                            <img src="{{ asset('logo.png') }}" width="60" alt="" />
+                            <img src="{{ asset('nursinglogo.webp') }}" width="60" alt="" />
                         </div>
                        @yield('auth')
                     </div>

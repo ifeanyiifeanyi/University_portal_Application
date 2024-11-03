@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student extends Model
 {
@@ -44,6 +45,13 @@ class Student extends Model
         return $this->hasManyThrough(ScoreAudit::class, StudentScore::class);
     }
 
+    /**
+     * Get all semester registrations for the student.
+     */
+    public function semesterRegistrations(): HasMany
+    {
+        return $this->hasMany(SemesterCourseRegistration::class);
+    }
 
 
     public function getAuditsBySessionAndSemester()

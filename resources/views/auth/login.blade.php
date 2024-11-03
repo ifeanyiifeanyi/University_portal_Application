@@ -13,9 +13,7 @@
             <div class="border p-4 rounded">
                 <div class="text-center">
                     <h3 class="">Sign in</h3>
-                    <p>Don't have an account yet? <a href="authentication-signup.html">Sign up
-                            here</a>
-                    </p>
+                    
                 </div>
                 @if (isset($error))
                 <div class="alert alert-danger">
@@ -59,7 +57,7 @@
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Remember Me</label>
                             </div>
                         </div>
-                        <div class="col-md-6 text-end"> <a href="authentication-forgot-password.html">Forgot Password ?</a>
+                        <div class="col-md-6 text-end"> <a href="/">Forgot Password ?</a>
                         </div>
                         <div class="col-12">
                             <div class="d-grid">

@@ -1,7 +1,7 @@
 <div class="sidebar-wrapper" data-simplebar="true">
         <div class="sidebar-header">
             <div>
-                <img src="{{ asset('') }}camera.jpg" class="logo-icon" alt="logo icon">
+                <img src="{{ asset('nursinglogo.webp') }}" class="logo-icon" alt="logo icon">
             </div>
             <div>
                 <h4 class="logo-text">ADM</h4>
@@ -75,8 +75,10 @@
                             Courses</a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign
-                            Department Course Credits</a>
+                        <a href="{{ route('admin.department.credit.view') }}"><i class="bx bx-right-arrow-alt"></i>Assign Semester Course Credits</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.course_registration.student_list') }}"><i class="bx bx-right-arrow-alt"></i>Assign</a>
                     </li>
                 </ul>
             </li>
