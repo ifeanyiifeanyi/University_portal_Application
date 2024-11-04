@@ -174,8 +174,8 @@ public function students($courseId)
 
     public function uploadresult(Request $uploadresult,$courseid){
         $validator = Validator::make($uploadresult->all(), [
-            'scores.*.assessment' => 'required|numeric|min:0|max:40',
-            'scores.*.exam' => 'required|numeric|min:0|max:60',
+            'scores.*.assessment' => 'required|numeric|min:0|max:40|integer',  // Changed to integer validation
+        'scores.*.exam' => 'required|numeric|min:0|max:60|integer',      
         ], [
             'scores.*.assessment.required' => 'Assessment score is required for all students.',
             'scores.*.exam.required' => 'Exam score is required for all students.',
@@ -208,6 +208,19 @@ public function students($courseId)
                 if (!is_numeric($gradePoint)) {
                     throw new \Exception("Invalid grade point calculated: $gradePoint");
                 }
+                // Log::info([
+                //     'assessment_score' => $scoreData['assessment'],
+                //     'exam_score' => $scoreData['exam'],
+                //     'total_score' => $totalScore,
+                //     'grade' => $grade,
+                //     'grade_point' => $gradePoint
+                // ]);
+
+                Log::info('Assessment Score:', ['assessment_score' => (int) $scoreData['assessment']]);
+                Log::info('Exam Score:', ['exam_score' => (int) $scoreData['exam']]);
+                Log::info('Total Score:', ['total_score' => $totalScore]);
+                Log::info('Grade Point:', ['grade_point' => $gradePoint]);
+
                 
                 StudentScore::updateOrCreate(
                     [
@@ -219,12 +232,12 @@ public function students($courseId)
                     [
                         'teacher_id' => $assignment->teacher_id,
                         'department_id' => $enrollment->student->department_id,
-                        'assessment_score' => $scoreData['assessment'],
-                        'exam_score' => $scoreData['exam'],
-                        'total_score' => $totalScore,
+                      'assessment_score' => (int) $scoreData['assessment'],  // Force integer
+        'exam_score' => (int) $scoreData['exam'],               // Force integer
+        'total_score' => (int) $totalScore,  
                         'grade' => $grade,
                         'is_failed' => $isFailed,
-                        'grade_point'=>$gradePoint
+                        'grade_point'=> (float) $gradePoint
                     ]
                 );
 

@@ -622,3 +622,41 @@ Route::prefix('parent')->middleware('parent')->group(function () {
         });
     });
 });
+
+Route::prefix('teacher')->middleware('teacher')->group(function () {
+    
+    Route::controller(TeacherController::class)->group(function () {
+        Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+        Route::get('profile', 'profile')->name('teacher.view.profile');
+        // post requests
+        Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
+        Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
+    });
+    Route::controller(TeacherDepartmentController::class)->group(function () {
+        Route::get('departments', 'departments')->name('teacher.view.departments');
+    });
+    Route::prefix('courses')->group(function () {
+    Route::controller(TeacherCoursesController::class)->group(function () {
+        Route::get('/', 'courses')->name('teacher.view.courses');
+        Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
+        Route::get('/get-grade/{total}','getGrade')->name('getGrade');
+        Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
+        Route::get('/export/{id}','exportassessment')->name('exportassessment');
+        Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
+        
+
+    });
+});
+
+Route::prefix('attendance')->group(function () {
+    Route::controller(TeacherAttendanceController::class)->group(function () {
+        Route::get('/', 'attendance')->name('teacher.view.attendance');
+        Route::get('/create', 'create')->name('teacher.view.create.attendance');
+        Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
+        Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
+        Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
+        Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
+    });
+});
+
+});

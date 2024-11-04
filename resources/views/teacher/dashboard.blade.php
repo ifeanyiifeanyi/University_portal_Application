@@ -20,7 +20,7 @@
 
   <section class="section dashboard">
 
-    @if(empty($teacher->date_of_birth) || 
+    {{-- @if(empty($teacher->date_of_birth) || 
             empty($teacher->gender) || 
             empty($teacher->teaching_experience) || 
             empty($teacher->teacher_type) || 
@@ -39,7 +39,7 @@
             </div>
         @else
          
-        @endif
+        @endif --}}
     <div class="row">
 
       <!-- Left side columns -->

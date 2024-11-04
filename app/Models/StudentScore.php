@@ -25,6 +25,9 @@ class StudentScore extends Model
     ];
 
     protected $casts = [
+        'assessment_score' => 'integer',
+        'exam_score' => 'integer',
+        'total_score' => 'integer',
         'is_failed' => 'boolean',
         'grade_point' => 'decimal:2',
     ];
@@ -69,20 +72,20 @@ class StudentScore extends Model
     }
 
     // this is used for audit modal to keep track of score/assessments
-    public function getDirty()
-    {
-        $dirty = parent::getDirty();
-        $original = $this->getOriginal();
+    // public function getDirty()
+    // {
+    //     $dirty = parent::getDirty();
+    //     $original = $this->getOriginal();
 
-        foreach ($dirty as $key => $value) {
-            $dirty[$key] = [
-                'from' => $original[$key] ?? null,
-                'to' => $value
-            ];
-        }
+    //     foreach ($dirty as $key => $value) {
+    //         $dirty[$key] = [
+    //             'from' => $original[$key] ?? null,
+    //             'to' => $value
+    //         ];
+    //     }
 
-        return $dirty;
-    }
+    //     return $dirty;
+    // }
 
     
 }

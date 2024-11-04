@@ -7,7 +7,7 @@
         <div class="tm_pos_invoice_wrap" id="tm_download_section">
             <div class="tm_pos_invoice_top">
                 <div class="tm_pos_company_logo">
-                    <img src="{{ asset('logo.png') }}" alt="logo" style="width:45px; height:45px" class="logo">
+                    <img src="{{ asset('nursinglogo.webp') }}" alt="logo" style="width:45px; height:45px" class="logo">
                 </div>
                 <div class="tm_pos_qrcode">
                     {!! QrCode::size(100)->generate(route('receipts.show', $receipt->id)) !!}

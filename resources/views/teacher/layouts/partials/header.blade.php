@@ -3,7 +3,7 @@
 
     <div class="d-flex align-items-center justify-content-between">
       <a href="{{route('teacher.view.dashboard')}}" class="logo d-flex align-items-center">
-        <img src="{{ asset('logo.png') }}" alt="">
+        <img src="{{ asset('nursinglogo.webp') }}" alt="">
         <span class="d-none d-lg-block"></span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>

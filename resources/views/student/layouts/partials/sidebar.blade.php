@@ -9,18 +9,18 @@
                         <div class="logo-box">
                             <a href="{{route('student.view.dashboard')}}" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="24">
                                 </span>
                             </a>
                             <a href="{{route('student.view.dashboard')}}" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="24">
                                 </span>
                             </a>
                         </div>
