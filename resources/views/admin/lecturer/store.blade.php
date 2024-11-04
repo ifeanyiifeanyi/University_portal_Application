@@ -86,7 +86,7 @@
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                        <li>{{ $error }}</li>f
                     @endforeach
                 </ul>
             </div>
@@ -140,8 +140,7 @@
                     <div class="form-group">
                         <label for="date_of_birth">Date of Birth</label>
                         <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
-                            id="date_of_birth" name="date_of_birth"
-                            value="{{ old('date_of_birth') }}">
+                            id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}">
                         @error('date_of_birth')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -151,8 +150,8 @@
                         <label for="gender">Gender</label>
                         <select class="form-select @error('gender') is-invalid @enderror" id="gender" name="gender">
                             <option value="">Select Gender</option>
-                            <option value="Male" {{ old('gender') == 'Male' ? 'selected' : ''  }}>Male</option>
-                            <option value="Female" {{ old('gender') == 'Male' ? 'Female' : ''  }}>  Female</option>
+                            <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                            <option value="Female" {{ old('gender') == 'Male' ? 'Female' : '' }}> Female</option>
 
                         </select>
                         @error('gender')
@@ -163,8 +162,7 @@
                     <div class="form-group">
                         <label for="teaching_experience">Teaching Experience (years i number)</label>
                         <input type="text" class="form-control @error('teaching_experience') is-invalid @enderror"
-                            id="teaching_experience" name="teaching_experience"
-                            value="{{ old('teaching_experience') }}">
+                            id="teaching_experience" name="teaching_experience" value="{{ old('teaching_experience') }}">
                         @error('teaching_experience')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -175,9 +173,12 @@
                         <select class="form-select @error('teacher_type') is-invalid @enderror" id="teacher_type"
                             name="teacher_type">
                             <option value="">Select Teacher Type</option>
-                            <option value="Full-time" {{ old('teacher_type') == "Full-time" ? 'selected' : '' }}> Full-time</option>
-                            <option value="Part-time" {{ old('teacher_type') == 'Part-time' ? 'selected' : '' }}> Part-time</option>
-                            <option value="Auxiliary" {{ old('teacher_type') == 'Auxiliary' ? 'selected' : '' }}> Auxiliary</option>
+                            <option value="Full-time" {{ old('teacher_type') == 'Full-time' ? 'selected' : '' }}> Full-time
+                            </option>
+                            <option value="Part-time" {{ old('teacher_type') == 'Part-time' ? 'selected' : '' }}> Part-time
+                            </option>
+                            <option value="Auxiliary" {{ old('teacher_type') == 'Auxiliary' ? 'selected' : '' }}> Auxiliary
+                            </option>
                         </select>
                         @error('teacher_type')
                             <div class="error-message">{{ $message }}</div>
@@ -197,8 +198,7 @@
                     <div class="form-group">
                         <label for="teacher_title">Teacher Title</label>
                         <input type="text" class="form-control @error('teacher_title') is-invalid @enderror"
-                            id="teacher_title" name="teacher_title"
-                            value="{{ old('teacher_title') }}">
+                            id="teacher_title" name="teacher_title" value="{{ old('teacher_title') }}">
                         @error('teacher_title')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -207,8 +207,7 @@
                     <div class="form-group">
                         <label for="office_hours">Office Hours</label>
                         <input type="text" class="form-control @error('office_hours') is-invalid @enderror"
-                            id="office_hours" name="office_hours"
-                            value="{{ old('office_hours') }}">
+                            id="office_hours" name="office_hours" value="{{ old('office_hours') }}">
                         @error('office_hours')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -221,9 +220,8 @@
                                     <label for="profile_photo" id="image-label">Click to add Photo</label>
                                     <input id="profile_photo" type="file" name="profile_photo"
                                         accept=".jpg, .png, image/jpeg, image/png" style="display:none;">
-                                    <img id="image-preview"
-                                        src="{{  asset('no_image.jpg') }}"
-                                        alt="Profile Photo" class="image-preview">
+                                    <img id="image-preview" src="{{ asset('no_image.jpg') }}" alt="Profile Photo"
+                                        class="image-preview">
                                 </div>
                             </div>
                         </div>
@@ -235,8 +233,7 @@
                     <div class="form-group">
                         <label for="office_address">Office Address</label>
                         <input type="text" class="form-control @error('office_address') is-invalid @enderror"
-                            id="office_address" name="office_address"
-                            value="{{ old('office_address') }}">
+                            id="office_address" name="office_address" value="{{ old('office_address') }}">
                         @error('office_address')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -255,10 +252,10 @@
                         <label for="certifications">Certifications</label>
                         <div id="certifications-container">
 
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" name="certifications[]" value="">
-                                    <button type="button" class="btn btn-danger remove-certification">Remove</button>
-                                </div>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="certifications[]" value="">
+                                <button type="button" class="btn btn-danger remove-certification">Remove</button>
+                            </div>
 
                         </div>
                         <button type="button" class="btn btn-primary mt-2" id="add-certification">Add
@@ -273,10 +270,10 @@
                         <label for="publications">Publications</label>
                         <div id="publications-container">
 
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" name="publications[]" value="">
-                                    <button type="button" class="btn btn-danger remove-publication">Remove</button>
-                                </div>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="publications[]" value="">
+                                <button type="button" class="btn btn-danger remove-publication">Remove</button>
+                            </div>
 
                         </div>
                         <button type="button" class="btn btn-primary mt-2" id="add-publication">Add Publication</button>
@@ -289,8 +286,7 @@
                     <div class="form-group">
                         <label for="number_of_awards">Number of Awards</label>
                         <input type="number" class="form-control @error('number_of_awards') is-invalid @enderror"
-                            id="number_of_awards" name="number_of_awards"
-                            value="{{ old('number_of_awards') }}">
+                            id="number_of_awards" name="number_of_awards" value="{{ old('number_of_awards') }}">
                         @error('number_of_awards')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -299,8 +295,7 @@
                     <div class="form-group">
                         <label for="date_of_employment">Date of Employment</label>
                         <input type="date" class="form-control @error('date_of_employment') is-invalid @enderror"
-                            id="date_of_employment" name="date_of_employment"
-                            value="{{ old('date_of_employment') }}">
+                            id="date_of_employment" name="date_of_employment" value="{{ old('date_of_employment') }}">
                         @error('date_of_employment')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -317,8 +312,12 @@
 
                     <div class="form-group">
                         <label for="nationality">Nationality</label>
-                        <input type="text" class="form-control @error('nationality') is-invalid @enderror"
-                            id="nationality" name="nationality" value="{{ old('nationality') }}">
+                        <select name="nationality" class="form-control">
+                            <option value="" selected disabled>Select Nationality</option>
+                            @foreach ($countries as $country)
+                                <option value="{{ $country->name }}" > {{ $country->name }}</option>
+                            @endforeach
+                        </select>
                         @error('nationality')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -328,9 +327,12 @@
                         <label for="level">Level</label>
                         <select class="form-select @error('level') is-invalid @enderror" id="level" name="level">
                             <option value="">Select Level</option>
-                            <option value="Senior Lecturer" {{ old('level') == 'Senior Lecturer' ? 'selected' : ''  }}>Senior Lecturer </option>
-                            <option value="Junior Lecturer" {{ old('level') == 'Junior Lecturer' ? 'selected' : '' }}>Junior Lecturer</option>
-                            <option value="Technician" {{ old('level') == 'Technician' ? 'selected' : '' }}>Technician</option>
+                            <option value="Senior Lecturer" {{ old('level') == 'Senior Lecturer' ? 'selected' : '' }}>
+                                Senior Lecturer </option>
+                            <option value="Junior Lecturer" {{ old('level') == 'Junior Lecturer' ? 'selected' : '' }}>
+                                Junior Lecturer</option>
+                            <option value="Technician" {{ old('level') == 'Technician' ? 'selected' : '' }}>Technician
+                            </option>
                         </select>
                         @error('level')
                             <div class="error-message">{{ $message }}</div>

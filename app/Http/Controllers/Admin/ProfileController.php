@@ -9,6 +9,7 @@ use App\Http\Requests\AdminProfile;
 use App\Http\Requests\UpdateAdminPassword;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use WisdomDiala\Countrypkg\Models\Country;
 
 class ProfileController extends Controller
 {
@@ -18,7 +19,8 @@ class ProfileController extends Controller
     public function index()
     {
         $admin = Auth::user();
-        return view('admin.profile.profile', compact('admin'));
+        $countries = Country::all();
+        return view('admin.profile.profile', compact('admin', 'countries'));
     }
 
 

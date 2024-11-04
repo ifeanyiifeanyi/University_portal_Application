@@ -13,7 +13,7 @@
             <div class="border p-4 rounded">
                 <div class="text-center">
                     <h3 class="">Sign in</h3>
-                    
+
                 </div>
                 @if (isset($error))
                 <div class="alert alert-danger">

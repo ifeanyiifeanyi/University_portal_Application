@@ -33,6 +33,7 @@ class AdminPaymentController extends Controller
     }
 
 
+    // process payment for student
     public function index()
     {
         $paymentTypes = PaymentType::with('departments')->active()->get();
@@ -43,6 +44,7 @@ class AdminPaymentController extends Controller
         return view('admin.payments.index', compact('paymentTypes', 'paymentMethods', 'academicSessions', 'semesters'));
     }
 
+    //get department level for api(payment resquest)
     public function getDepartmentsAndLevels(Request $request)
     {
         $paymentType = PaymentType::findOrFail($request->payment_type_id);
@@ -62,28 +64,6 @@ class AdminPaymentController extends Controller
             'amount' => $paymentType->amount
         ]);
     }
-
-    // public function getStudents(Request $request)
-    // {
-    //     $request->validate([
-    //         'department_id' => 'required|exists:departments,id',
-    //         'level' => 'required|integer|min:100|max:600',
-    //     ]);
-
-    //     $students = Student::where('department_id', $request->department_id)
-    //         ->where('current_level', $request->level)
-    //         ->with('user')
-    //         ->get()
-    //         ->map(function ($student) {
-    //             return [
-    //                 'id' => $student->id,
-    //                 'full_name' => $student->user->first_name . ' ' . $student->user->last_name . ' ' . $student->user->other_name,
-    //                 'matric_number' => $student->matric_number
-    //             ];
-    //         });
-
-    //     return response()->json($students);
-    // }
 
     public function getStudents(Request $request)
     {
@@ -137,7 +117,7 @@ class AdminPaymentController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
-        
+
         $invoice = Invoice::create([
             'student_id' => $validated['student_id'],
             'payment_type_id' => $validated['payment_type_id'],
@@ -374,5 +354,33 @@ class AdminPaymentController extends Controller
             return redirect()->route('admin.payment.pay');
         }
         return view('admin.payments.show-receipt', compact('receipt'));
+    }
+
+
+    public function payTransfer($invoice)
+    {
+        // Check if the invoiceId is missing or empty
+        if (empty($invoice)) {
+            // Redirect back to the form if no parameter is present
+            return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+        }
+
+        // Attempt to retrieve the invoice with related data
+        $unpaidInvoice = Invoice::with([
+            'student.user',
+            'student.department',
+            'paymentType',
+            'paymentMethod',
+            'academicSession',
+            'semester'
+        ])->find($invoice);
+
+        // Check if the invoice was not found
+        if (is_null($unpaidInvoice)) {
+            // Redirect back to the form if no invoice was found
+            return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+        }
+
+        return view('admin.payments.payInvoice', compact('unpaidInvoice'));
     }
 }

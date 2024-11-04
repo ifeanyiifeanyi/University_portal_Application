@@ -1,5 +1,5 @@
   <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar" style="background: #AE152D; color: #ffffff">
+  <aside id="sidebar" class="sidebar" style="">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
@@ -19,12 +19,12 @@
           <span>Profile</span>
         </a>
       </li><!-- End Profile Page Nav -->
-      {{-- <li class="nav-item">
+      <li class="nav-item">
         <a class="nav-link collapsed" href="{{route('teacher.view.departments')}}">
           <i class="bi bi-person"></i>
           <span>Departments</span>
         </a>
-      </li><!-- End departments Page Nav --> --}}
+      </li><!-- End departments Page Nav -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{route('teacher.view.courses')}}">
           <i class="bi bi-person"></i>
@@ -39,7 +39,7 @@
         </a>
       </li><!-- End courses Page Nav -->
 
-  
+
 
     </ul>
 

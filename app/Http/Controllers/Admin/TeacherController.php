@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\UpdateTeacherRequest;
+use WisdomDiala\Countrypkg\Models\Country;
 
 class TeacherController extends Controller
 {
@@ -48,7 +49,8 @@ class TeacherController extends Controller
 
     public function create()
     {
-        return view('admin.lecturer.store');
+        $countries = Country::all();
+        return view('admin.lecturer.store', compact('countries'));
     }
     public function store(Request $request)
     {

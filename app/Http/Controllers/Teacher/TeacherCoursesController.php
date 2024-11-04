@@ -22,6 +22,7 @@ class TeacherCoursesController extends Controller
 {
     protected $authService;
 
+    
     /**
      * CLASS
      * instance of our auth service class
@@ -209,7 +210,7 @@ public function students($courseId)
                     throw new \Exception("Invalid grade point calculated: $gradePoint");
                 }
 
-                
+
                 StudentScore::updateOrCreate(
                     [
                         'student_id' => $enrollment->student_id,

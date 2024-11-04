@@ -7,11 +7,11 @@
       border: none;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   .profile-card .card-header {
       border-radius: 15px 15px 0 0;
   }
-  
+
   .profile-picture {
       width: 150px;
       height: 150px;
@@ -19,23 +19,23 @@
       border: 5px solid #fff;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  
+
   .profile-info p {
       margin-bottom: 0.5rem;
   }
-  
+
   .profile-info strong {
       min-width: 150px;
       display: inline-block;
   }
-  
+
   h5 {
       color: #007bff;
       border-bottom: 2px solid #007bff;
       padding-bottom: 5px;
       margin-bottom: 15px;
   }
-  
+
   ul li {
       margin-bottom: 5px;
   }
@@ -46,7 +46,7 @@
 
 @section('teacher')
 @if ($getuser)
-    
+
 <div class="pagetitle">
     <h1>Profile</h1>
     <nav>
@@ -83,7 +83,7 @@
                     <h4 class="mt-3">{{ $profile->teacher_title }} {{ $getuser->first_name }} {{ $getuser->last_name }}</h4>
                     <p class="text-muted">{{ $profile->teacher_type }}</p>
                 </div>
-                
+
                 <div class="profile-info">
                     <p><strong>Email:</strong> {{ $getuser->email }}</p>
                     <p><strong>Date of Birth:</strong> {{ $profile->date_of_birth }}</p>

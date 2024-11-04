@@ -450,6 +450,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:pay fees')->group(function () {
         Route::controller(AdminPaymentController::class)->group(function () {
             Route::get('make-payments', 'index')->name('admin.payment.pay');
+            Route::get('make-payments/transfer/{invoice}', 'payTransfer')->name('admin.payment.pay_manual');
+
             Route::get('payments', 'payments')->name('admin.payments.show');
 
             Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
@@ -540,33 +542,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-
-
-// Route::prefix('teacher')->middleware('teacher')->group(function () {
-
-//     Route::controller(TeacherController::class)->group(function () {
-//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
-//         Route::get('profile', 'profile')->name('teacher.view.profile');
-//         // post requests
-//         Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
-//         Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
-//     });
-//     Route::controller(TeacherDepartmentController::class)->group(function () {
-//         Route::get('departments', 'departments')->name('teacher.view.departments');
-//     });
-//     Route::prefix('courses')->group(function () {
-//         Route::controller(TeacherCoursesController::class)->group(function () {
-//             Route::get('/', 'courses')->name('teacher.view.courses');
-//             Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
-//             Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
-//             Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
-//             Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
-//             Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
-//         });
-//     });
-// });
-
-
 Route::prefix('teacher')->middleware('teacher')->group(function () {
 
     Route::controller(TeacherController::class)->group(function () {
@@ -575,6 +550,8 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
         // post requests
         Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
         Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
+
+        Route::post('logout', 'logout')->name('teacher.logout');
     });
     Route::controller(TeacherDepartmentController::class)->group(function () {
         Route::get('departments', 'departments')->name('teacher.view.departments');
