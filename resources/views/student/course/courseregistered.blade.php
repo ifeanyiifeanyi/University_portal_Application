@@ -16,7 +16,7 @@
         @include('messages')
         <div class="col-12">
             <div class="card">
-                <div class="card-header" style="background: #AE152D; color: #ffffff;">
+                <div class="card-header" style=" color: #ffffff;">
                     <h5 class="card-title mb-0 text-white">Registered Courses</h5>
                 </div><!-- end card header -->
 

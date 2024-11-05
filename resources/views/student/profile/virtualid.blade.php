@@ -18,7 +18,7 @@
       position: relative;
     }
     .id-card .header {
-      background-color: #AE152D;
+      background-color: #157020;
       color: white;
       padding: 10px 0;
       border-radius: 10px 10px 0 0;
@@ -54,7 +54,7 @@
 @if ($getuser)
 <div class="id-card">
     <div class="header">
-      <h3>Shanahan University</h3>
+      <h3>{{ config('app.name') }}</h3>
       <h6>Student ID Card</h6>
     </div>
     

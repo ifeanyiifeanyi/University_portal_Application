@@ -61,7 +61,7 @@
                         </div>
                         <div class="col-12">
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary"><i class="bx bxs-lock-open"></i>Sign
+                                <button type="submit" class="btn btn-success"><i class="bx bxs-lock-open"></i>Sign
                                     in</button>
                             </div>
                         </div>

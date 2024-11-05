@@ -27,9 +27,11 @@
           <select name="payment_type_id" id="" class="form-control">
               <option value="" disabled selected>Select Fee for your department</option>
               @foreach ($paymentTypes as $paymentType)
+              @if ($paymentType->paymentType) {{-- Check if paymentType exists --}}
               <option value="{{ $paymentType->paymentType->id }}">
                   {{ $paymentType->paymentType->name }}
               </option>
+          @endif
           @endforeach
              
           </select>
@@ -39,7 +41,7 @@
       </div>
     </div>
 
-    <input type="hidden" name="amount" value="{{ $paymentType->amount }}">
+    {{-- <input type="hidden" name="amount" value="{{ $paymentType->amount }}"> --}}
                 <div class="row mb-3">
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Academic session</label>
                     <div class="col-md-8 col-lg-9">
@@ -103,7 +105,7 @@
                   </div>
     
                   <div>
-                    <button class="btn w-50 text-white" style="background: #AE152D;">Submit</button>
+                    <button class="btn w-50 text-white btn-success" style="">Submit</button>
                   </div>
                 </form>
               </div>

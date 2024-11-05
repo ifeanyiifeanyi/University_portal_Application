@@ -11,7 +11,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- App favicon -->
-        <link rel="shortcut icon" href="{{ asset('logo.png') }}">
+        <link rel="shortcut icon" href="{{ asset('nursinglogo.webp') }}">
 
         <!-- App css -->
         <link href="{{asset('student/assets/css/app.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />

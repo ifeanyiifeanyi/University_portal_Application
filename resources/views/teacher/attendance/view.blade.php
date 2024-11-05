@@ -62,7 +62,7 @@
             </table>
           
             <!-- End Table with stripped rows -->
-            <button type="submit" class="btn w-100" style="background: #AE152D; color: #ffffff">Submit</button>
+            <button type="submit" class="btn w-100 btn-success" style="color: #ffffff">Submit</button>
             </form>
           </div>
         </div>

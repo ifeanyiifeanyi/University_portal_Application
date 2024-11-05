@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="{{ config('app.name') }}">
     <title>{{ config('app.name') }} | @yield('title')</title>
-    <link rel="shortcut icon" href="{{ asset('logo.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('nursinglogo.webp') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="{{ asset('') }}assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('') }}assets/css/app.css" rel="stylesheet">

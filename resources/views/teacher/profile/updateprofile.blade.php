@@ -6,25 +6,25 @@
     <div class="row mb-3">
         <label for="fullName" class="col-md-4 col-lg-3 col-form-label">First name</label>
         <div class="col-md-8 col-lg-9">
-            <input name="" type="text" class="form-control" value="{{ $getuser->first_name }}" readonly>
+            <input name="" type="text" class="form-control" value="{{ $profile->user->first_name }}" readonly>
         </div>
     </div>
     <div class="row mb-3">
         <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Last name</label>
         <div class="col-md-8 col-lg-9">
-            <input name="" type="text" class="form-control" value="{{ $getuser->last_name }}" readonly>
+            <input name="" type="text" class="form-control" value="{{ $profile->user->last_name }}" readonly>
         </div>
     </div>
     <div class="row mb-3">
         <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Other name</label>
         <div class="col-md-8 col-lg-9">
-            <input name="" type="text" class="form-control" value="{{ $getuser->other_name }}" readonly>
+            <input name="" type="text" class="form-control" value="{{ $profile->user->other_name }}" readonly>
         </div>
     </div>
     <div class="row mb-3">
         <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email</label>
         <div class="col-md-8 col-lg-9">
-            <input name="full_name" type="text" class="form-control" id="fullName" value="{{ $getuser->email }}"
+            <input name="full_name" type="text" class="form-control" id="fullName" value="{{ $profile->user->email }}"
                 readonly>
         </div>
     </div>

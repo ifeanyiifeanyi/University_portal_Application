@@ -40,11 +40,11 @@ class StudentController extends Controller
     }
 
     public function profile(){
-        $getuser = User::where('id',$this->authService->user()->id)->first();
-        $profile = Student::where('user_id',$this->authService->user()->id)->first();
+        // $getuser = User::where('id',$this->authService->user()->id)->first();
+        $profile = Student::with('user')->where('user_id',$this->authService->user()->id)->first();
         return view('student.profile.profile',[
             'student'=>$profile,
-            'getuser'=>$getuser
+            // 'getuser'=>$getuser
         ]);
     }
 

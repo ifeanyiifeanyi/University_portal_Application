@@ -67,7 +67,7 @@
               </div>
 
               <div>
-                <button class="btn w-50 text-white" style="background: #AE152D;">Submit</button>
+                <button class="btn w-50 text-white btn-success" style="">Submit</button>
               </div>
             </form>
           </div>

@@ -1,6 +1,6 @@
 
             <!-- Left Sidebar Start -->
-            <div class="app-sidebar-menu" style="background: #AE152D; color : #ffffff">
+            <div class="app-sidebar-menu bg-success" style="color : #ffffff">
                 <div class="h-100" data-simplebar>
 
                     <!--- Sidemenu -->
@@ -9,18 +9,18 @@
                         <div class="logo-box">
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="24">
                                 </span>
                             </a>
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="22">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="{{ asset('logo.png') }}" alt="" height="24">
+                                    <img src="{{ asset('nursinglogo.webp') }}" alt="" height="24">
                                 </span>
                             </a>
                         </div>

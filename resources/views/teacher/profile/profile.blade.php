@@ -45,7 +45,7 @@
 
 
 @section('teacher')
-@if ($getuser)
+@if ($profile)
 
 <div class="pagetitle">
     <h1>Profile</h1>
@@ -74,7 +74,61 @@
 
       <div class="col-xl-5">
         <div class="card profile-card">
-            <div class="card-header bg-primary text-white">
+          <div class="card-header text-white" style="background: #157020;">
+              <h3 class="mb-0">{{ $profile->user->first_name }} {{ $profile->user->last_name }} {{ $profile->user->other_name }}</h3>
+          </div>
+          <div class="card-body">
+              <div class="text-center mb-4">
+                  <img src="{{ $profile->user->profileimage() }}" alt="Profile Picture" class="rounded-circle profile-picture">
+                  <h4 class="mt-3">{{ $profile->teacher_title }} {{ $profile->user->first_name }} {{ $profile->user->last_name }}</h4>
+                  <p class="text-muted">{{ $profile->teacher_type }}</p>
+              </div>
+      
+              <div class="profile-info">
+                  <p><strong>Email:</strong> {{ $profile->user->email }}</p>
+                  <p><strong>Date of Birth:</strong> {{ $profile->date_of_birth }}</p>
+                  <p><strong>Gender:</strong> {{ ucfirst($profile->gender) }}</p>
+                  <p><strong>Teaching Experience:</strong> {{ $profile->teaching_experience }} years</p>
+                  <p><strong>Qualification:</strong> {{ $profile->teacher_qualification }}</p>
+                  <p><strong>Date of Employment:</strong> {{ $profile->date_of_employment }}</p>
+                  <p><strong>Address:</strong> {{ $profile->address }}</p>
+                  <p><strong>Nationality:</strong> {{ $profile->nationality }}</p>
+                  <p><strong>Level:</strong> {{ str_replace('_', ' ', $profile->level) }}</p>
+                  <p><strong>Office Hours:</strong> {{ $profile->office_hours }}</p>
+                  <p><strong>Office Address:</strong> {{ $profile->office_address }}</p>
+              </div>
+      
+              <div class="mt-4">
+                  <h5>Biography</h5>
+                  <p>{{ $profile->biography }}</p>
+              </div>
+      
+              <div class="mt-4">
+                  <h5>Certifications</h5>
+                  <ul class="list-unstyled">
+                      @foreach(json_decode($profile->certifications) as $certification)
+                          <li>{{ $certification }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+      
+              <div class="mt-4">
+                  <h5>Publications</h5>
+                  <ul class="list-unstyled">
+                      @foreach(json_decode($profile->publications) as $publication)
+                          <li>{{ $publication }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+      
+              <div class="mt-4">
+                  <h5>Awards</h5>
+                  <p>Number of Awards: {{ $profile->number_of_awards }}</p>
+              </div>
+          </div>
+      </div>
+        {{-- <div class="card profile-card">
+            <div class="card-header text-white" style="background: #157020;">
                 <h3 class="mb-0">{{ $getuser->first_name }} {{ $getuser->last_name }} {{ $getuser->other_name }}</h3>
             </div>
             <div class="card-body">
@@ -126,7 +180,7 @@
                     <p>Number of Awards: {{ $profile->number_of_awards }}</p>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
       <div class="col-xl-7">
@@ -134,7 +188,7 @@
         <div class="card">
           <div class="card-body pt-3">
             @if (!$profile)
-                @include('teacher.profile.createprofile')
+                {{-- @include('teacher.profile.createprofile') --}}
             @else
                 @include('teacher.profile.updateprofile')
             @endif

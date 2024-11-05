@@ -50,7 +50,7 @@
                                 'session' => $result['sessionid'],
                                 'semester' => $result['semesterid'],
                                 'teacherid'=> $result['teacher']
-                            ]) }}" class="btn w-50 text-white" style="background: #AE152D;">View</a>
+                            ]) }}" class="btn w-50 text-white btn-success">View</a>
                         </td>
                     </tr>
                     @endforeach

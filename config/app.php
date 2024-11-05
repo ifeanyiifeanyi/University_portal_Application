@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'St charles borromeo specialist hospital,onitsha'),
     'phone' => env('APP_PHONE', ''),
     'email' => env('APP_EMAIL', ''),
     'address' => env('APP_ADDRESS', ''),

@@ -26,32 +26,72 @@ class TeacherAttendanceController extends Controller
 
         $this->authService = $authService;
     }
-    public function attendance(){
-        $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
-        $getattendances = Attendance::where('teacher_id',$teacher->id)
-        ->select('id','academic_session_id','teacher_id','course_id','department_id','semester_id','date')
-        ->with(['academicSession', 'course','department','semester'])
-        ->groupBy('id','academic_session_id','teacher_id','course_id','department_id','semester_id','date')
+
+    public function attendance()
+{
+    $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
+    
+    $getattendances = Attendance::where('teacher_id', $teacher->id)
+        ->with([
+            'academicSession',
+            'course',
+            'department',
+            'semester',
+            'studentAttendances' => function($query) {
+                $query->with('student.user');
+            }
+        ])
+        ->orderBy('date', 'desc')
         ->get()
-        ->map(function ($result) {
+        ->map(function ($attendance) {
             return [
-                'attendanceid'=>$result->id,
-                'session' => $result->academicSession->name,
-                'teacher'  => $result->teacher_id,
-                'sessionid'=>$result->academicSession->id,
-                'course'=>$result->course->title,
-                'department'=>$result->department->name,
-                'semester'=>$result->semester->name,
-                'semesterid'=>$result->semester->id,
-                'departmentid'=>$result->department->id,
-                'courseid'=>$result->course->id,
-                'date'=>$result->lecture_date
+                'attendanceid' => $attendance->id,
+                'session' => $attendance->academicSession->name,
+                'sessionid' => $attendance->academicSession->id,
+                'course' => $attendance->course->title,
+                'department' => $attendance->department->name,
+                'semester' => $attendance->semester->name,
+                'semesterid' => $attendance->semester->id,
+                'departmentid' => $attendance->department->id,
+                'courseid' => $attendance->course->id,
+                'date' => $attendance->date,
+                'start_time' => $attendance->start_time,
+                'end_time' => $attendance->end_time,
+                'total_students' => $attendance->studentAttendances->count(),
+                'present_students' => $attendance->studentAttendances->where('status', 'present')->count()
             ];
         });
-        return view('teacher.attendance.index',[
-            'attendances'=>$getattendances
-        ]);
-    }
+
+    return view('teacher.attendance.index', [
+        'attendances' => $getattendances
+    ]);
+}
+    // public function attendance(){
+    //     $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
+    //     $getattendances = Attendance::where('teacher_id',$teacher->id)
+    //     ->select('id','academic_session_id','teacher_id','course_id','department_id','semester_id','date')
+    //     ->with(['academicSession', 'course','department','semester'])
+    //     ->groupBy('id','academic_session_id','teacher_id','course_id','department_id','semester_id','date')
+    //     ->get()
+    //     ->map(function ($result) {
+    //         return [
+    //             'attendanceid'=>$result->id,
+    //             'session' => $result->academicSession->name,
+    //             'teacher'  => $result->teacher_id,
+    //             'sessionid'=>$result->academicSession->id,
+    //             'course'=>$result->course->title,
+    //             'department'=>$result->department->name,
+    //             'semester'=>$result->semester->name,
+    //             'semesterid'=>$result->semester->id,
+    //             'departmentid'=>$result->department->id,
+    //             'courseid'=>$result->course->id,
+    //             'date'=>$result->lecture_date
+    //         ];
+    //     });
+    //     return view('teacher.attendance.index',[
+    //         'attendances'=>$getattendances
+    //     ]);
+    // }
     public function view($attendanceid,$departmentid,$courseid){
         // view attendances
         $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
@@ -91,46 +131,85 @@ class TeacherAttendanceController extends Controller
         ]);
     }
 
-    public function createstudentAttendance(Request $request)
+    public function createstudentAttendance(Request $request) 
 {
     $validated = $request->validate([
-       'date'=>'required',
-       'start_time'=>'required',
-       'end_time'=>'required'
+        'date' => 'required',
+        'start_time' => 'required',
+        'end_time' => 'required'
     ]);
-    $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
-    foreach ($request->attendance as $attendData) {
-        // Use updateOrCreate to check if the attendance record exists, and either update or create it
-        $createattendance = Attendance::updateOrCreate(
-            [
-                'semester_id' => $attendData['semester_id'],
-                'course_id' => $attendData['course_id'],
-                'academic_session_id' => $attendData['session_id'],
-                'department_id' => $attendData['department_id'],
-                'teacher_id' => $teacher->id,
-            ],
-            [
-                'date'=>$request->date,
-                'start_time'=>$request->start_time,
-                'end_time'=>$request->end_time,
-                'notes'=>$request->notes
-            ]
-    );
-        Attendancee::updateOrCreate(
-            [
-                'student_id' => $attendData['student_id'],
-                'course_id' => $attendData['course_id'],
-                'department_id' => $attendData['department_id'],
-                'teacher_id' => $teacher->id,
-                'attendance_id'=>$createattendance->id
-            ],
-            [
-                'status' => isset($attendData['status']) ? 'present' : 'absent'
-            ]
-        );
+
+    $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
+    
+    // Get attendance data array properly
+    $attendanceData = $request->input('attendance');
+    $firstAttendData = array_values($attendanceData)[0];
+    
+    // Create single attendance record
+    $createattendance = Attendance::create([
+        'semester_id' => $firstAttendData['semester_id'],
+        'course_id' => $firstAttendData['course_id'],
+        'academic_session_id' => $firstAttendData['session_id'],
+        'department_id' => $firstAttendData['department_id'],
+        'teacher_id' => $teacher->id,
+        'date' => $request->date,
+        'start_time' => $request->start_time,
+        'end_time' => $request->end_time,
+        'notes' => $request->notes
+    ]);
+
+    // Create individual student attendance records
+    foreach ($attendanceData as $attendData) {
+        Attendancee::create([
+            'student_id' => $attendData['student_id'],
+            'course_id' => $attendData['course_id'],
+            'department_id' => $attendData['department_id'],
+            'teacher_id' => $teacher->id,
+            'attendance_id' => $createattendance->id,
+            'status' => isset($attendData['status']) ? 'present' : 'absent'
+        ]);
     }
-    return redirect(route('teacher.view.attendance'))->with('success', 'Attendance records created successfully');
+
+    return redirect(route('teacher.view.attendance'))
+        ->with('success', 'Attendance records created successfully');
 }
+
+//     public function createstudentAttendance(Request $request)
+// {
+//     $validated = $request->validate([
+//        'date'=>'required',
+//        'start_time'=>'required',
+//        'end_time'=>'required'
+//     ]);
+//     $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
+//     foreach ($request->attendance as $attendData) {
+    
+//         $createattendance = Attendance::Create(
+//             [
+//                 'semester_id' => $attendData['semester_id'],
+//                 'course_id' => $attendData['course_id'],
+//                 'academic_session_id' => $attendData['session_id'],
+//                 'department_id' => $attendData['department_id'],
+//                 'teacher_id' => $teacher->id,
+//                 'date'=>$request->date,
+//                 'start_time'=>$request->start_time,
+//                 'end_time'=>$request->end_time,
+//                 'notes'=>$request->notes
+//             ]
+//     );
+//         Attendancee::Create(
+//             [
+//                 'student_id' => $attendData['student_id'],
+//                 'course_id' => $attendData['course_id'],
+//                 'department_id' => $attendData['department_id'],
+//                 'teacher_id' => $teacher->id,
+//                 'attendance_id'=>$createattendance->id,
+//                 'status' => isset($attendData['status']) ? 'present' : 'absent'
+//             ]
+//         );
+//     }
+//     return redirect(route('teacher.view.attendance'))->with('success', 'Attendance records created successfully');
+// }
 
     public function updateAttendance(Request $request)
 {

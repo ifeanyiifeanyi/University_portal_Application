@@ -71,11 +71,11 @@ class TeacherController extends Controller
     public function profile()
     {
         $countries = Country::all();
-        $getuser = User::where('id', $this->authService->user()->id)->first();
-        $profile = Teacher::where('user_id', $this->authService->user()->id)->first();
+        // $getuser = User::where('id', $this->authService->user()->id)->first();
+        $profile = Teacher::with('user')->where('user_id', $this->authService->user()->id)->first();
         return view('teacher.profile.profile', [
             'profile' => $profile,
-            'getuser' => $getuser,
+            // 'getuser' => $getuser,
             'countries' => $countries,
         ]);
     }
