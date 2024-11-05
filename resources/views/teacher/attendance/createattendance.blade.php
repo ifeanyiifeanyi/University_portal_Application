@@ -46,8 +46,10 @@
                     <input type="hidden" name="attendance[{{ $key }}][session_id]" value="{{$student->academic_session_id}}">
                     <input type="hidden" name="attendance[{{ $key }}][department_id]" value="{{$student->department_id}}">
 
-                    <input type="checkbox" name="status" value="present" 
-                        >
+                    {{-- <input type="checkbox" name="status" value="present" 
+                        > --}}
+
+                        <input type="checkbox" name="attendance[{{ $key }}][status]" value="present">
                 </td>
                
                </tr>
@@ -79,7 +81,7 @@
             <textarea name="notes" id="" cols="30" rows="10" class="form-control"></textarea>
           </div>
             <!-- End Table with stripped rows -->
-            <button type="submit" class="btn w-100" style="background: #AE152D; color: #ffffff">Create</button>
+            <button type="submit" class="btn w-100 btn-success" style="color: #ffffff">Create</button>
             </form>
           </div>
         </div>

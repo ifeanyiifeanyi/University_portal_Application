@@ -10,17 +10,17 @@ class Teacher extends Model
 {
     use HasFactory;
     protected $fillable = [
-       'date_of_birth',
-       'gender',
-       'teaching_experience',
-       'teacher_type',
-       'teacher_qualification',
-       'teacher_title',
-       'employment_id',
-       'date_of_employment',
-       'address',
-       'nationality',
-       'level'
+        'date_of_birth',
+        'gender',
+        'teaching_experience',
+        'teacher_type',
+        'teacher_qualification',
+        'teacher_title',
+        'employment_id',
+        'date_of_employment',
+        'address',
+        'nationality',
+        'level'
     ];
 
     public function timetables()
@@ -39,6 +39,13 @@ class Teacher extends Model
         $user = $this->user;
         $fullName = $user->first_name . ' ' . ($user->other_name ?? '') . ' ' . $user->last_name;
 
+        return $this->teacher_title . ' ' . trim($fullName);
+    }
+
+    public function title_full_name()
+    {
+        $user = $this->user;
+        $fullName = $user->first_name . ' ' . ($user->other_name ?? '') . ' ' . $user->last_name;
         return $this->teacher_title . ' ' . trim($fullName);
     }
 

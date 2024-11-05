@@ -1,6 +1,6 @@
 
             <!-- Left Sidebar Start -->
-            <div class="app-sidebar-menu" style="background: #AE152D; color : #ffffff">
+            <div class="app-sidebar-menu" style="background: #157020; color : #ffffff">
                 <div class="h-100" data-simplebar>
 
                     <!--- Sidemenu -->

@@ -59,7 +59,7 @@
                                 <td>{{$payment->status}}</td>
                                 <td>{{$payment->transaction_reference}}</td>
                                 <td>{{$payment->paymentMethod->name}}</td>
-                                <td><a href="{{route('student.fees.payments.showReceipt',['receipt'=>$payment->receipt->id])}}" class="btn w-100 text-white" style="background: #AE152D;">View receipt</a></td>
+                                <td><a href="{{route('student.fees.payments.showReceipt',['receipt'=>$payment->receipt->id])}}" class="btn w-100 text-white btn-success">View receipt</a></td>
                                </tr>
                             
                                @empty

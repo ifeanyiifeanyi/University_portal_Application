@@ -19,8 +19,8 @@ class Attendance extends Model
         'start_time',
         'end_time',
         'notes'
-
     ];
+
     protected $casts = [
         'date' => 'date'
     ];
@@ -44,14 +44,13 @@ class Attendance extends Model
     public function semester(){
         return $this->belongsTo(Semester::class);
     }
+
     public function department(){
         return $this->belongsTo(Department::class);
     }
 
-    // public function attendanceDetails(){
-    //     return $this->hasMany(AttendanceDetail::class);
-    // }
-    
-
-
+    // Add this new relationship
+    public function studentAttendances() {
+        return $this->hasMany(Attendancee::class, 'attendance_id');
+    }
 }

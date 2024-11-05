@@ -26,7 +26,7 @@
                 <div class="tm_invoice_in">
                     <div class="tm_invoice_head tm_mb20">
                         <div class="tm_invoice_left">
-                            <div class="tm_logo"><img src="{{ asset('logo.png') }}" alt="Logo"></div>
+                            <div class="tm_logo"><img src="{{ asset('nursinglogo.webp') }}" alt="Logo"></div>
                         </div>
                         <div class="tm_invoice_right tm_text_right tm_mobile_hide">
                             <div class="tm_primary_color tm_f50 tm_text_uppercase">Invoice</div>
@@ -277,7 +277,7 @@
                             if (!response.isCreditCard) {
                                 // Redirect to the invoice manager section
                                 window.location.href =
-                                    '{{ route('admin.payment.pay', ['invoice' => $invoice->id]) }}';
+                                    '{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}';
                             } else {
                                 // Optionally reload the page for credit card payments
                                 location.reload();

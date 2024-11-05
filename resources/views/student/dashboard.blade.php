@@ -13,7 +13,7 @@
         <div class="alert alert-warning mt-3">
             Please complete your profile to continue.
             <div class="mt-3">
-              <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-50">View profile</a>
+              <a href="{{route('student.view.profile')}}" style="" class="btn text-white w-50 btn-success">View profile</a>
             </div>
         </div>
        
@@ -76,7 +76,7 @@
                                             <div class="col-8">
                                                 <p class="text-muted mb-3 fw-semibold">Profile</p>
                                                 <div class="mt-3">
-                                                    <a href="{{route('student.view.profile')}}" style="background: #AE152D;" class="btn text-white w-100">View profile</a>
+                                                    <a href="{{route('student.view.profile')}}" style="" class="btn text-white w-100 btn-success">View profile</a>
                                                   </div>
                                               
                                             </div>
@@ -96,7 +96,7 @@
                                                 Complete your profile to view your Id card
                                                 @else
                                                 <div class="mt-3">
-                                                    <a href="{{route('student.view.virtualid')}}" style="background: #AE152D;" class="btn text-white w-100">View student id</a>
+                                                    <a href="{{route('student.view.virtualid')}}" style="" class="btn text-white w-100 btn-success">View student id</a>
                                                   </div>
                                                 @endif
                                                

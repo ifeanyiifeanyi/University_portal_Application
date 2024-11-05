@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-6"></div>
     <div class="ms-auto mb-4 col-md-6">
-        <a href="{{route('student.view.fees.pay')}}" class="btn w-100 text-white" style="background: #AE152D;">Pay new fees</a>
+        <a href="{{route('student.view.fees.pay')}}" class="btn w-100 text-white btn-success">Pay new fees</a>
     </div>
     </div>
 
@@ -61,7 +61,7 @@
                                     
                                     <td>{{$invoice->academicSession->name}}</td>
                                     <td>{{$invoice->semester->name}}</td>
-                                    <td><a href="{{route('student.view.fees.invoice',['id'=>$invoice->id])}}" class="btn w-100 text-white" style="background: #AE152D;">View</a></td>
+                                    <td><a href="{{route('student.view.fees.invoice',['id'=>$invoice->id])}}" class="btn w-100 text-white btn-success">View</a></td>
                                 </tr>
                                 @empty
                                     

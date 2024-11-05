@@ -62,7 +62,7 @@
                         
                     </table>
                     <div class="mt-5">
-                        <button class="btn w-100 text-white" style="background: #AE152D;">Submit</button>
+                        <button class="btn w-100 text-white btn-success" style="">Submit</button>
                       </div>
                     
                 </div>

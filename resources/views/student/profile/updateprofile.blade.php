@@ -19,14 +19,14 @@
   
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">First name</label>
-    <input type="text" class="form-control" name="firstname" id="" value="{{$getuser->first_name}}" readonly>
+    <input type="text" class="form-control" name="firstname" id="" value="{{$student->user->first_name}}" readonly>
     @if ($errors->has('firstname'))
     <span class="text-danger">{{$errors->first('firstname')}}</span>
     @endif
   </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Last Name</label>
-    <input type="text" class="form-control" name="lastname" value="{{$getuser->last_name}}" readonly>
+    <input type="text" class="form-control" name="lastname" value="{{$student->user->last_name}}" readonly>
     @if ($errors->has('lastname'))
     <span class="text-danger">{{$errors->first('lastname')}}</span>
     @endif
@@ -35,7 +35,7 @@
 <div class="row mb-3">
   <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Other names</label>
   <div class="col-md-8 col-lg-9">
-    <input type="text" class="form-control" name="othernames" value="{{$getuser->other_name}}">
+    <input type="text" class="form-control" name="othernames" value="{{$student->user->other_name}}">
     @if ($errors->has('othernames'))
 <span class="text-danger">{{$errors->first('othernames')}}</span>
 @endif
@@ -70,14 +70,14 @@
   
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Phone number</label>
-      <input type="text" class="form-control" name="phonenumber" value="{{$getuser->phone}}">
+      <input type="text" class="form-control" name="phonenumber" value="{{$student->user->phone}}">
       @if ($errors->has('phonenumber'))
       <span class="text-danger">{{$errors->first('phonenumber')}}</span>
       @endif
     </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Email</label>
-    <input type="email" class="form-control" value="{{$getuser->email}}" readonly>
+    <input type="email" class="form-control" value="{{$student->user->email}}" readonly>
     @if ($errors->has('email'))
     <span class="text-danger">{{$errors->first('email')}}</span>
     @endif

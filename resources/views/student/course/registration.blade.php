@@ -18,7 +18,7 @@
 <div class="row">
     <div class="col-md-6"></div>
 <div class="ms-auto mb-4 col-md-6">
-    <a href="{{route('student.view.sessioncourse')}}" class="btn w-100 text-white" style="background: #AE152D;">Register courses</a>
+    <a href="{{route('student.view.sessioncourse')}}" class="btn w-100 text-white btn-success" style="">Register courses</a>
 </div>
 </div>
     <div class="row">

@@ -71,21 +71,4 @@ class StudentScore extends Model
         return $this->hasMany(ScoreAudit::class);
     }
 
-    // this is used for audit modal to keep track of score/assessments
-    // public function getDirty()
-    // {
-    //     $dirty = parent::getDirty();
-    //     $original = $this->getOriginal();
-
-    //     foreach ($dirty as $key => $value) {
-    //         $dirty[$key] = [
-    //             'from' => $original[$key] ?? null,
-    //             'to' => $value
-    //         ];
-    //     }
-
-    //     return $dirty;
-    // }
-
-    
 }
