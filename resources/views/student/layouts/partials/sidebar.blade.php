@@ -1,6 +1,6 @@
 
             <!-- Left Sidebar Start -->
-            <div class="app-sidebar-menu" style="background: #157020; color : #ffffff">
+            <div class="app-sidebar-menu" style="background: #fff; color : #444">
                 <div class="h-100" data-simplebar>
 
                     <!--- Sidemenu -->
@@ -29,43 +29,43 @@
 
                             <li class="menu-title">Menu</li>
 
-                           
+
 
                             <li>
-                                <a href="{{route('student.view.dashboard')}}" class="text-white">
-                                    <i data-feather="aperture"></i>
+                                <a href="{{route('student.view.dashboard')}}" class="text-dark">
+                                    <i data-feather="settings"></i>
                                     <span>Dashboard</span>
                                 </a>
                             </li>
-                           
+
                             <li>
-                                <a href="{{route('student.view.fees.all')}}" class="text-white">
-                                    <i data-feather="aperture"></i>
+                                <a href="{{route('student.view.fees.all')}}" class="text-dark">
+                                    <i data-feather="dollar-sign"></i>
                                     <span>Fees</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{route('student.view.courseregistration')}}" class="text-white">
-                                    <i data-feather="aperture"></i>
+                                <a href="{{route('student.view.courseregistration')}}" class="text-dark">
+                                    <i data-feather="book"></i>
                                     <span>Course registration</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{route('student.view.result.select')}}" class="text-white">
-                                    <i data-feather="aperture"></i>
+                                <a href="{{route('student.view.result.select')}}" class="text-dark">
+                                    <i data-feather="clipboard"></i>
                                     <span>Results</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{route('student.view.payments')}}" class="text-white">
-                                    <i data-feather="aperture"></i>
+                                <a href="{{route('student.view.payments')}}" class="text-dark">
+                                    <i data-feather="table"></i>
                                     <span>Payments</span>
                                 </a>
                             </li>
 
 
 
-                          
+
                         </ul>
 
                     </div>

@@ -46,4 +46,11 @@ class ProofOfPaymentController extends Controller
         return view('admin.payments.proof_of_payment', compact('payment'));
 
     }
+
+    public function destroy($invoice){
+
+       $invoice =  Invoice::findOrFail($invoice)->first();
+    //    dd($invoice);
+        return redirect()->back()->with('success', 'Invoice delete successfully!');
+    }
 }

@@ -21,6 +21,11 @@ class Invoice extends Model
         'invoice_number',
     ];
 
+
+	protected $casts = [
+
+	];
+
     public function student()
     {
         return $this->belongsTo(Student::class);

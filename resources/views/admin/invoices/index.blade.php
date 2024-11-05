@@ -54,7 +54,7 @@
 
                                             @if ($invoice->status == 'paid')
                                                 <a href="" class="btn btn-sm"
-                                                    style="background: rgb(128, 0, 62);color:white"><i
+                                                    style="background: rgb(6, 199, 189);color:white"><i
                                                         class="fas fa-edit"></i></a>
                                             @endif
 
@@ -66,9 +66,10 @@
                                                 </a>
                                             @endif
 
+
                                             @if ($invoice->status == 'pending')
-                                            <a href="{{ route('admin.invoice.cancel', $invoice->id) }}">
-                                                <button class="btn btn-sm" style="background: red; color:white">
+                                            <a onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.invoice.cancel', $invoice->id) }}">
+                                                <button class="btn btn-sm" style="background: rgba(255, 0, 0, 0.822); color:white">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </a>

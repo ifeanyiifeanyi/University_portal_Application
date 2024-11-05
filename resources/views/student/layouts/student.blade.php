@@ -35,12 +35,12 @@
                 color: #fff;
                 font-size: 1.5em;
             }
-        
+
               /* Initially show the preloader */
               body.loading #preloader {
                     display: block;
                 }
-        
+
                 /* Hide the preloader once the page is fully loaded */
                 body:not(.loading) #preloader {
                     display: none;
@@ -57,14 +57,14 @@
         <div id="app-layout">
 
 
-           
+
 @include('student.layouts.partials.topbar')
 @include('student.layouts.partials.sidebar')
 
             <!-- ============================================================== -->
             <!-- Start Page Content here -->
             <!-- ============================================================== -->
-         
+
             <div class="content-page">
                 <div class="content">
                     @yield('student')
@@ -80,7 +80,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col fs-13 text-muted text-center">
-                                &copy; <script>document.write(new Date().getFullYear())</script> - Made with <span class="mdi mdi-heart text-danger"></span> by <a href="#!" class="text-reset fw-semibold">Zoyothemes</a> 
+                                &copy; <script>document.write(new Date().getFullYear())</script>  <a href="{{ config('app.url') }}" class="text-reset fw-semibold">{{ config('app.name') }}</a>
                             </div>
                         </div>
                     </div>
@@ -121,22 +121,22 @@
             document.addEventListener("DOMContentLoaded", function() {
                 const preloader = document.getElementById('preloader');
                 const form = document.getElementById('requestForm');
-        
-                
+
+
                  window.addEventListener('load', function() {
                         document.body.classList.remove('loading');
                     });
-        
+
                 form.addEventListener('submit', function(event) {
-                   
+
                     preloader.style.display = 'block';
-        
-                  
+
+
                     const submitButton = form.querySelector('button[type="submit"]');
                     submitButton.disabled = true;
                 });
             });
         </script>
-        
+
     </body>
 </html>

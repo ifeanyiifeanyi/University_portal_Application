@@ -483,7 +483,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     });
 
     Route::controller(ProofOfPaymentController::class)->group(function () {
-        Route::get('cancel-invoice', 'destroy')->name('admin.invoice.cancel');
+        Route::get('cancel-invoice/{invoice}', 'destroy')->name('admin.invoice.cancel');
+        
         Route::post('process-invoice-manual', 'processManualPayment')->name('admin.payments.process-manual');
 
         Route::get('/payments/prove/{paymentId?}', 'showConfirmationProve')->name('admin.payments.showConfirmation_prove');
@@ -685,7 +686,7 @@ Route::prefix('parent')->middleware('parent')->group(function () {
 });
 
 Route::prefix('teacher')->middleware('teacher')->group(function () {
-    
+
     Route::controller(TeacherController::class)->group(function () {
         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
         Route::get('profile', 'profile')->name('teacher.view.profile');
@@ -704,7 +705,7 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
         Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
         Route::get('/export/{id}','exportassessment')->name('exportassessment');
         Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
-        
+
 
     });
 });

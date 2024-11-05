@@ -10,13 +10,13 @@
             });
         @endphp
         @if($incompleteProfile)
-        <div class="alert alert-warning mt-3">
+        <div class="alert alert-info mt-3">
             Please complete your profile to continue.
             <div class="mt-3">
-              <a href="{{route('student.view.profile')}}" style="" class="btn text-white w-50 btn-success">View profile</a>
+              <a href="{{route('student.view.profile')}}" style="background: #0d382e" class="btn text-white w-50">View profile</a>
             </div>
         </div>
-       
+
     @else
         {{-- <div class="alert alert-success">
             Your profile is complete!
@@ -39,7 +39,7 @@
                                             <div class="col-8">
                                                 <p class="text-muted mb-3 fw-semibold">Total fees paid</p>
                                                 <h4 class="m-0 mb-3 fs-18">N {{$totalfees}}</h4>
-                                             
+
                                             </div>
 
                                         </div>
@@ -54,18 +54,18 @@
                                             <div class="col-8">
                                                 <p class="text-muted mb-3 fw-semibold">Total Cgpa</p>
                                                 <h4 class="m-0 mb-3 fs-18">{{$student->cgpa}}</h4>
-                                              
+
                                             </div>
 
-                                            
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            
 
-                            
+
+
 
                         </div>
                         <div class="row">
@@ -76,12 +76,12 @@
                                             <div class="col-8">
                                                 <p class="text-muted mb-3 fw-semibold">Profile</p>
                                                 <div class="mt-3">
-                                                    <a href="{{route('student.view.profile')}}" style="" class="btn text-white w-100 btn-success">View profile</a>
+                                                    <a href="{{route('student.view.profile')}}" class="btn text-white w-100" style="background-color: #0d382e; color:#fff">View profile</a>
                                                   </div>
-                                              
+
                                             </div>
 
-                                            
+
                                         </div>
                                     </div>
                                 </div>
@@ -96,21 +96,21 @@
                                                 Complete your profile to view your Id card
                                                 @else
                                                 <div class="mt-3">
-                                                    <a href="{{route('student.view.virtualid')}}" style="" class="btn text-white w-100 btn-success">View student id</a>
+                                                    <a href="{{route('student.view.virtualid')}}" style="background:#0d382e !important;color:#fff" class="btn text-white w-100">View student id</a>
                                                   </div>
                                                 @endif
-                                               
-                                              
+
+
                                             </div>
 
-                                            
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
+
 
 
                     </div> <!-- container-fluid -->

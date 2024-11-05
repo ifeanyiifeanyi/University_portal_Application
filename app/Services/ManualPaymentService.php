@@ -145,21 +145,6 @@ class ManualPaymentService
         return $file->store('payment_proofs', 'public');
     }
 
-    /**
-     * Create payment proof record
-     */
-    // private function createPaymentProof($payment, $data, $proofPath)
-    // {
-    //     return ProveOfPayment::create([
-    //         'payment_id' => $payment->id,
-    //         'transaction_reference' => $data['transaction_reference'],
-    //         'bank_name' => $data['bank_name'],
-    //         'invoice_id' => $data['invoice_id'],
-    //         'proof_file' => $proofPath,
-    //         'additional_notes' => $data['additional_notes'] ?? null,
-    //         'metadata' => $data['metadata'] ?? null,
-    //     ]);
-    // }
     private function createPaymentProof($payment, $data, $proofPath)
     {
         return ProveOfPayment::create([

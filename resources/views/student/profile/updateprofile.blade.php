@@ -16,7 +16,7 @@
 <span class="text-danger">{{$errors->first('jamb_registration_number')}}</span>
 @endif
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">First name</label>
     <input type="text" class="form-control" name="firstname" id="" value="{{$student->user->first_name}}" readonly>
@@ -53,7 +53,7 @@
 <div class="row mb-3">
   <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Gender</label>
   <div class="col-md-8 col-lg-9">
-      
+
       <select name="gender" id="" class="form-control">
           <option value="" disabled selected>Select gender</option>
           <option value="Male" @if($student->gender == 'Male') selected @endif>Male</option>
@@ -67,7 +67,7 @@
 </div>
 
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Phone number</label>
       <input type="text" class="form-control" name="phonenumber" value="{{$student->user->phone}}">
@@ -85,7 +85,7 @@
 </div>
 
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Nationality</label>
       <input type="text" class="form-control" name="nationality" value="{{$student->nationality}}">
@@ -103,14 +103,14 @@
 </div>
 
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Local government/province</label>
       <input type="text" class="form-control" name="local_govt_of_origin" value="{{$student->lga_of_origin}}">
       @if ($errors->has('local_govt_of_origin'))
 <span class="text-danger">{{$errors->first('local_govt_of_origin')}}</span>
 @endif
-     
+
     </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Home town</label>
@@ -123,7 +123,7 @@
 
 
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Residential address</label>
       <input type="text" class="form-control" name="residential_address" value="{{$student->residential_address}}">
@@ -141,7 +141,7 @@
 </div>
 
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Marital status</label>
       <input type="text" class="form-control" name="marital_status" value="{{$student->marital_status}}">
@@ -158,7 +158,7 @@
   </div>
 </div>
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Blood group</label>
       <input type="text" class="form-control" name="bloodgroup" value="{{$student->blood_group}}">
@@ -175,7 +175,7 @@
   </div>
 </div>
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Next kins name</label>
       <input type="text" class="form-control" name="next_of_kin_name" value="{{$student->next_of_kin_name}}">
@@ -192,7 +192,7 @@
   </div>
 </div>
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Kins phone</label>
       <input type="text" class="form-control" name="next_of_kin_phone" value="{{$student->next_of_kin_phone}}">
@@ -209,7 +209,7 @@
   </div>
 </div>
 <div class="row mb-3">
-  
+
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Year of admission</label>
       <input type="text" class="form-control" name="year_of_admission" value="{{$student->year_of_admission}}">
@@ -219,7 +219,7 @@
     </div>
   <div class="col-md-6">
       <label for="fullName" class="col-form-label">Mode of entry</label>
-     
+
     <input type="text" class="form-control" name="mode_of_entry" value="{{$student->mode_of_entry}}">
     @if ($errors->has('mode_of_entry'))
 <span class="text-danger">{{$errors->first('mode_of_entry')}}</span>
@@ -232,15 +232,15 @@
   <div class="col-md-8 col-lg-9">
     <select id="level" name="current_level" class="form-control">
       <option value="" disabled selected>Select level</option>
-     
-     
+
+
   </select>
     {{-- <input type="text" class="form-control" name="current_level" value="{{$student->current_level}}"> --}}
   </div>
 </div>
 
 <div class="text-center">
-  <button type="submit" class="btn btn-warning w-100">Update changes</button>
+  <button type="submit" class="btn w-100" style="background: #0d382e;color:white">Update changes</button>
 </div>
 </form>
 <input type="hidden" name="" id="department_id" value="{{ $student->department_id }}">
