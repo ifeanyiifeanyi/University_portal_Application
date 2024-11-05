@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
+use App\Http\Controllers\Admin\ProofOfPaymentController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 // Route::get('/', function () {
@@ -477,7 +478,18 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
             Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+            Route::get('/payments/active', 'ProcessedPayments')->name('admin.payments.ProcessedPayments');
         });
+    });
+
+    Route::controller(ProofOfPaymentController::class)->group(function () {
+        Route::get('cancel-invoice', 'destroy')->name('admin.invoice.cancel');
+        Route::post('process-invoice-manual', 'processManualPayment')->name('admin.payments.process-manual');
+
+        Route::get('/payments/prove/{paymentId?}', 'showConfirmationProve')->name('admin.payments.showConfirmation_prove');
+
+        Route::put('/payments/{payment}/verify', 'verifyPayment')->name('admin.payments.verify');
+        Route::put('/payments/{payment}/reject', 'rejectPayment')->name('admin.payments.reject');
     });
 
     // Notifications Management

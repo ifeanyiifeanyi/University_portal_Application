@@ -21,6 +21,10 @@ class PaymentType extends Model
         return $query->where('is_active', true);
     }
 
+    public function proveOfPayment(){
+        return $this->hasMany(ProveOfPayment::class);
+    }
+
     public function semester(){
         return $this->belongsTo(Semester::class);
     }

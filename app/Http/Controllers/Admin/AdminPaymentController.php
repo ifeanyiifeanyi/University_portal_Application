@@ -366,7 +366,7 @@ class AdminPaymentController extends Controller
         }
 
         // Attempt to retrieve the invoice with related data
-        $unpaidInvoice = Invoice::with([
+        $invoice = Invoice::with([
             'student.user',
             'student.department',
             'paymentType',
@@ -376,11 +376,11 @@ class AdminPaymentController extends Controller
         ])->find($invoice);
 
         // Check if the invoice was not found
-        if (is_null($unpaidInvoice)) {
+        if (is_null($invoice)) {
             // Redirect back to the form if no invoice was found
             return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
         }
 
-        return view('admin.payments.payInvoice', compact('unpaidInvoice'));
+        return view('admin.payments.payInvoice', compact('invoice'));
     }
 }

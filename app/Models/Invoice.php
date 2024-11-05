@@ -31,6 +31,11 @@ class Invoice extends Model
         return $this->belongsTo(PaymentType::class);
     }
 
+    public function proveOfPayment(){
+
+        return $this->hasMany(ProveOfPayment::class);
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -43,7 +48,7 @@ class Invoice extends Model
 
     public function semester()
     {
-        
+
         return $this->belongsTo(Semester::class);
     }
 

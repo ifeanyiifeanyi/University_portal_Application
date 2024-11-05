@@ -34,12 +34,15 @@ class ProfileController extends Controller
     {
 
         $admin = User::where('slug', $slug)->first();
+
         if ($request->hasFile('profile_photo')) {
             $old_image = $admin->profile_photo;
 
             if (!empty($old_image) && file_exists(public_path($old_image))) {
                 unlink(public_path($old_image));
             }
+
+            
 
             $thumb = $request->file('profile_photo');
             $extension = $thumb->getClientOriginalExtension();

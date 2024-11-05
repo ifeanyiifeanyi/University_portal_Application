@@ -39,6 +39,10 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'processed_by');
     }
 
+    public function proveOfPayment(){
+        return $this->hasMany(ProveOfPayment::class);
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class);

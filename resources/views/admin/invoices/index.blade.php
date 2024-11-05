@@ -61,12 +61,18 @@
 
 
                                             @if ($invoice->status == 'pending')
-                                                <a href="" class="btn btn-sm" style="background: rgb(95, 236, 163)">
+                                                <a href="{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}" class="btn btn-sm" style="background: rgb(95, 236, 163)">
                                                     <i class="fas fa-credit-card"></i>
                                                 </a>
                                             @endif
 
-
+                                            @if ($invoice->status == 'pending')
+                                            <a href="{{ route('admin.invoice.cancel', $invoice->id) }}">
+                                                <button class="btn btn-sm" style="background: red; color:white">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
