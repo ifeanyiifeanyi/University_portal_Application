@@ -9,8 +9,8 @@
         }
 
         .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-10px);
+            /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
         }
 
         .teacher-link {
@@ -28,50 +28,54 @@
     <div class="container mt-4">
         <h3 class="mb-4 text-center">{{ Str::title($department->name) }} Department</h3>
         <h5 class="mb-4 text-center">{{ $department->code }}</h5>
-        <p>{!! e($department->description)!!}</p>
-<hr>
-        <form action="{{ route('admin.department.show', $department->id) }}" method="GET">
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" name="search" placeholder="Search courses or teachers"
-                        value="{{ request('search') }}">
-                </div>
-                <div class="col-md-2">
-                    <select name="session" class="form-control">
-                        <option value="">All Sessions</option>
-                        @foreach ($assignments->pluck('semester.academicSession.name')->unique() as $session)
-                            <option value="{{ $session }}" {{ request('session') == $session ? 'selected' : '' }}>
-                                {{ $session }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select name="semester" class="form-control">
-                        <option value="">All Semesters</option>
-                        @foreach ($assignments->pluck('semester.name')->unique() as $semester)
-                            <option value="{{ $semester }}" {{ request('semester') == $semester ? 'selected' : '' }}>
-                                {{ $semester }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select name="level" class="form-control">
-                        <option value="">All Levels</option>
-                        @foreach ($assignments->pluck('level')->unique() as $level)
-                            <option value="{{ $level }}" {{ request('level') == $level ? 'selected' : '' }}>
-                                {{ $level }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </div>
-        </form>
 
+        <div class="card shadow px-3 py-3">
+            <p>Faculty: {{ $department->faculty->name }}</p>
+            <p>{!! e($department->description) !!}</p>
+            <hr>
+            <form action="{{ route('admin.department.show', $department->id) }}" method="GET">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="search" placeholder="Search courses or teachers"
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="session" class="form-control">
+                            <option value="">All Sessions</option>
+                            @foreach ($assignments->pluck('semester.academicSession.name')->unique() as $session)
+                                <option value="{{ $session }}" {{ request('session') == $session ? 'selected' : '' }}>
+                                    {{ $session }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="semester" class="form-control">
+                            <option value="">All Semesters</option>
+                            @foreach ($assignments->pluck('semester.name')->unique() as $semester)
+                                <option value="{{ $semester }}"
+                                    {{ request('semester') == $semester ? 'selected' : '' }}>
+                                    {{ $semester }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="level" class="form-control">
+                            <option value="">All Levels</option>
+                            @foreach ($assignments->pluck('level')->unique() as $level)
+                                <option value="{{ $level }}" {{ request('level') == $level ? 'selected' : '' }}>
+                                    {{ $level }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary"><i class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="btn-group mb-4" role="group">
-            <button type="button" class="btn btn-secondary" id="grid-view">Grid</button>
-            <button type="button" class="btn btn-secondary" id="list-view">List</button>
+            <button type="button" class="btn btn-secondary" id="grid-view"><i class="fas fa-th-large"></i> Grid</button>
+            <button type="button" class="btn btn-secondary" id="list-view"><i class="fas fa-box"></i> List</button>
         </div>
 
         <div class="row" id="assignments-container">

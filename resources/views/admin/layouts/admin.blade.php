@@ -90,10 +90,12 @@
                         </nav>
                     </div>
                     <div class="ms-auto">
+                        @include('admin.return_btn')
+
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary">Quick Links</button>
+                            <button type="button" class="btn btn-secondary">Quick Links</button>
                             <button type="button"
-                                class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split"
+                                class="btn btn-secondary split-bg-secondary dropdown-toggle dropdown-toggle-split"
                                 data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">
@@ -102,8 +104,8 @@
                                 <a class="dropdown-item" href="{{ route('admin.student.view') }}">Students</a>
                                 <a class="dropdown-item" href="{{ route('admin.teacher.view') }}">Lecturers</a>
                                 <a class="dropdown-item" href="{{ route('admin.timetable.view') }}">Timetable</a>
-                                <div class="dropdown-divider"></div> <a class="dropdown-item"
-                                    href="javascript:;">Logout</a>
+                                <div class="dropdown-divider"></div> <a class="dropdown-item text-danger"
+                                    href="{{ route('logout') }}">Logout</a>
                             </div>
                         </div>
                     </div>

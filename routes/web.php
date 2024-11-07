@@ -2,6 +2,7 @@
 
 use App\Models\Receipt;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminUserRoleController;
 use App\Http\Controllers\Student\StudentFeesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
+use App\Http\Controllers\Admin\ProofOfPaymentController;
 use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
@@ -45,17 +47,44 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
-use App\Http\Controllers\Admin\ProofOfPaymentController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 // Route::get('/', function () {
 //     return view('auth.login');
 // });
 
+Route::get('/migrate-and-seed', function () {
+    try {
+        // Run database migrations
+        Artisan::call('migrate');
+        $migrationOutput = Artisan::output();
+
+        // Run storage link seeder
+        Artisan::call('storage:link');
+        $storageLinkOutput = Artisan::output();
+
+        // Run database seeders
+        Artisan::call('db:seed', [
+            '--class' => 'DatabaseSeeder'
+        ]);
+        $seedingOutput = Artisan::output();
+
+        return response()->json([
+            'migration_output' => $migrationOutput,
+            'storage_link_output' => $storageLinkOutput,
+            'seeding_output' => $seedingOutput
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 
 
 Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
-    return view('admin.show-receipt', compact('receipt'));
+    return view('admin.show_receipt', compact('receipt'));
 })->name('receipts.show');
 
 Route::controller(AuthController::class)->group(function () {
@@ -93,7 +122,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // admin profile manager
     Route::controller(ProfileController::class)->group(function () {
-        Route::get('profile', 'index')->name('admin.view.profile');
+        Route::get('profile/view', 'index')->name('admin.view.profile');
         Route::patch('update-profile/{user::slug}', 'update')->name('admin.update.profile');
         Route::patch('update-password/{user::slug}', 'updatePassword')->name('admin.update.password');
     });
@@ -151,6 +180,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::post('manage-department', 'store')->name('admin.department.store');
             Route::get('manage-department/edit/{id}', 'edit')->name('admin.department.edit');
             Route::get('manage-department/show/{id}', 'show')->name('admin.department.show');
+
+            Route::get('manager-department/courses/{id}', 'teacherCourses')->name('admin.department.teacherCourses');
+            Route::get('manager-department/students/{id}', 'departmentStudent')->name('admin.department.departmentStudent');
+            Route::get('admin/departments/{id}/export-csv', 'exportCsv')->name('admin.department.export-csv');
+
+            Route::get('admin/students/{id}/export-students-csv', 'exportStudentsForDepartment')->name('admin.department.exportCsv');
+
+
+
             Route::put('manage-department/update/{id}', 'update')->name('admin.department.update');
             Route::delete('manage-department/del/{id}', 'destroy')->name('admin.department.delete');
 
@@ -484,7 +522,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(ProofOfPaymentController::class)->group(function () {
         Route::get('cancel-invoice/{invoice}', 'destroy')->name('admin.invoice.cancel');
-        
+
         Route::post('process-invoice-manual', 'processManualPayment')->name('admin.payments.process-manual');
 
         Route::get('/payments/prove/{paymentId?}', 'showConfirmationProve')->name('admin.payments.showConfirmation_prove');
@@ -525,7 +563,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
     // // Role and Permission Management
-    Route::middleware('permission:view roles')->group(function () {
+    // Route::middleware('permission:view roles')->group(function () {
+
         Route::controller(RoleController::class)->group(function () {
             Route::get('roles', 'index')->name('admin.roles.index');
             Route::get('/roles/create',  'create')->name('admin.roles.create');
@@ -549,7 +588,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
             Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
         });
-    });
+    // });
 });
 
 

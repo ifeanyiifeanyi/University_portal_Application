@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogHelper;
 use App\Models\Semester;
 use Illuminate\Http\Request;
 use App\Models\AcademicSession;
@@ -82,8 +83,9 @@ class AdminSemesterController extends Controller
     {
         $currentSession = AcademicSession::where('is_current', true)->first();
         $academicSessions = AcademicSession::all();
+        $currentSemester = Semester::where('is_current', true)->first();
 
-        return view('admin.semester.create', compact('academicSessions', 'currentSession'));
+        return view('admin.semester.create', compact('academicSessions', 'currentSession', 'currentSemester'));
     }
 
     /**
@@ -98,6 +100,7 @@ class AdminSemesterController extends Controller
             Semester::where('id', '!=', $semester->id)->update(['is_current' => false]);
         }
 
+        ActivityLogHelper::logSemesterActivity('Created', $semester);
 
         return redirect()->route('semester-manager.index')->with('success', 'Semester created successfully.');
     }
@@ -121,6 +124,7 @@ class AdminSemesterController extends Controller
             $deletedCount = 0;
             foreach ($semesters as $semester) {
                 if (!$semester->is_current && !$semester->courseAssignments()->exists() && !$semester->teacherAssignments()->exists()) {
+                    ActivityLogHelper::logSemesterActivity('Deleted', $semester);
                     $semester->delete();
                     $deletedCount++;
                 }
@@ -147,6 +151,12 @@ class AdminSemesterController extends Controller
             Semester::where('id', '!=', $semester_manager->id)->update(['is_current' => false]);
         }
 
+        if ($semester_manager->is_current) {
+            ActivityLogHelper::logSemesterActivity('Set as current', $semester_manager);
+        } else {
+            ActivityLogHelper::logSemesterActivity('Removed from current', $semester_manager);
+        }
+
         return redirect()->route('semester-manager.index')->with('success', 'Semester status updated successfully.');
     }
 
@@ -157,8 +167,14 @@ class AdminSemesterController extends Controller
     {
         $currentSession = AcademicSession::where('is_current', true)->first();
         $academicSessions = AcademicSession::all();
+        $currentSemester = Semester::where('is_current', true)->first();
 
-        return view('admin.semester.edit', compact('semester_manager', 'academicSessions', 'currentSession'));
+        return view('admin.semester.edit', [
+            'semester_manager' => $semester_manager,
+            'academicSessions' => $academicSessions,
+            'currentSession' => $currentSession,
+            'currentSemester' => $currentSemester
+        ]);
     }
 
 
@@ -178,6 +194,7 @@ class AdminSemesterController extends Controller
             'is_current' => 'boolean',
         ]);
         $semester_manager->update($validatedData);
+        ActivityLogHelper::logSemesterActivity('Update', $semester_manager);
 
         if ($request->is_current) {
             Semester::where('id', '!=', $semester_manager->id)->update(['is_current' => false]);
@@ -187,7 +204,6 @@ class AdminSemesterController extends Controller
             'message' => 'Semester updated successfully',
             'alert-type' => 'success'
         ]);
-
     }
 
 
@@ -216,6 +232,7 @@ class AdminSemesterController extends Controller
             return redirect()->back()->with($notification);
         }
 
+        ActivityLogHelper::logSemesterActivity('Deleted', $semester_manager);
 
         $semester_manager->delete();
 
@@ -227,6 +244,4 @@ class AdminSemesterController extends Controller
 
         return redirect()->route('semester-manager.index')->with($notification);
     }
-
-
 }

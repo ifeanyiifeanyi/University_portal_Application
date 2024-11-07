@@ -9,9 +9,15 @@
                 <div class="tm_pos_company_logo">
                     <img src="{{ asset('nursinglogo.webp') }}" alt="logo" style="width:45px; height:45px" class="logo">
                 </div>
-                <div class="tm_pos_qrcode">
-                    {!! QrCode::size(100)->generate(route('receipts.show', $receipt->id)) !!}
+                <div style="display: flex;align-items:center;justify-content:center;gap:12px">
+                    <div class="tm_pos_qrcode">
+                        {!! QrCode::size(100)->generate(route('receipts.show', $receipt->id)) !!}
+                    </div>
+                    <div class="tm_pos_qrcode">
+                        <img src="{{ asset($receipt->payment->student->user->profile_photo) }}" alt="profile pic" width="100" height="100">
+                    </div>
                 </div>
+
                 <div class="tm_pos_company_name">{{ config('app.name') }}</div>
                 <div class="tm_pos_company_address">{{ config('app.address') }}</div>
                 <div class="tm_pos_company_mobile">Email: {{ config('app.email') }}</div>
@@ -40,7 +46,9 @@
                     <thead>
                         <tr>
                             <th>Description</th>
-                            <th>Amount</th>
+                            <th>Amoun
+
+                                t</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,7 +96,7 @@
                 </span>
                 <span class="tm_btn_text">Download</span>
             </button>
-            <a href="{{ route('admin.payment.pay') }}" class="tm_invoice_btn tm_color1">
+            <a href="{{ route('logout') }}" class="tm_invoice_btn tm_color1">
                 <span class="tm_btn_icon">
                     <!-- SVG for Return to Previous Page (Left Arrow) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
@@ -98,6 +106,7 @@
                 </span>
                 <span class="tm_btn_text">Exit</span>
             </a>
+
         </div>
     </div>
 @endsection

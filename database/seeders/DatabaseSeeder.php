@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(UserTeacherStudentSeeder::class);
         $this->call([
-            AcademicSessionSeeder::class,
-            CourseSeeder::class,
-            FacultySeeder::class,
-            DepartmentSeeder::class,
-            SemesterSeeder::class,
+            // AcademicSessionSeeder::class,
+            // CourseSeeder::class,
+            // FacultySeeder::class,
+            // DepartmentSeeder::class,
+            // SemesterSeeder::class,
             UserTeacherStudentSeeder::class
         ]);
 

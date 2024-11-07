@@ -10,7 +10,7 @@
 @section('admin')
     <div class="container">
         <div>
-            <button class="btn btn-primary" id="addFacultyBtn"><i class="fadeIn animated bx bx-add-to-queue"></i> Add
+            <button class="btn btn-secondary" id="addFacultyBtn"><i class="fadeIn animated bx bx-add-to-queue"></i> Add
                 Faculty</button>
         </div>
         <hr />

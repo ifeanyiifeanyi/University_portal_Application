@@ -3,17 +3,18 @@
 @section('title', 'Semester Manager')
 
 @section('admin')
-    <div class="container">
-        <h1>Semester Manager</h1>
-        <div class="row mb-3">
+    <div class="container card py-3 px-3">
+
+        <h4>Semester Manager</h4>
+        <div class="row mb-5">
             <div class="col-md-6">
-                <a href="{{ route('semester-manager.create') }}" class="btn btn-primary">Create New Semester</a>
+                <a href="{{ route('semester-manager.create') }}" class="btn btn-secondary"><i class="fas fa-plus"></i> Create New Semester</a>
             </div>
             <div class="col-md-6">
                 <form action="{{ route('semester.manager.search') }}" method="GET">
                     <div class="input-group">
                         <input type="search" class="form-control" name="search" placeholder="Search semesters...">
-                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i> Search</button>
                     </div>
                 </form>
             </div>
@@ -31,7 +32,7 @@
                         <option value="{{ $session->id }}">{{ $session->name }}</option>
                     @endforeach
                 </select>
-                <button type="submit" class="btn btn-primary">Apply</button>
+                <button type="submit" class="btn btn-secondary"><i class="fas fa-filter"></i> Apply</button>
             </div>
 
             <table class="table">
@@ -82,14 +83,14 @@
                                     </button>
                                 </form>
                                 <a href="{{ route('semester-manager.edit', $semester) }}"
-                                    class="btn btn-sm btn-primary">Edit</a>
+                                    class="btn btn-sm text-primary"><i class="fas fa-edit"></i></a>
                                 @if ($semester->canBeDeleted())
                                     <form action="{{ route('semester-manager.destroy', $semester) }}" method="POST"
                                         class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Are you sure? This action cannot be undone.')">Delete</button>
+                                        <button type="submit" class="btn btn-sm text-danger"
+                                            onclick="return confirm('Are you sure? This action cannot be undone.')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 @else
                                 <x-disable-icon />

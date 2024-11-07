@@ -20,45 +20,6 @@ class ManualPaymentService
     /**
      * Process a manual payment submission
      */
-    // public function processManualPayment(array $data, $proofFile)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         // Check for existing payment
-    //         $this->validateNoExistingPayment($data['invoice']);
-
-    //         // Create or update payment record
-    //         $payment = $this->createPaymentRecord($data['invoice']);
-
-    //         // Handle proof file upload
-    //         $proofPath = $this->handleFileUpload($proofFile);
-
-    //         // Create payment proof record
-    //         $paymentProof = $this->createPaymentProof($payment, $data, $proofPath);
-
-    //         // Log the activity
-    //         activity()
-    //             ->performedOn($payment)
-    //             ->causedBy(auth()->user())
-    //             ->withProperties([
-    //                 'invoice_number' => $data['invoice']->invoice_number,
-    //                 'amount' => $data['invoice']->amount,
-    //                 'payment_proof_id' => $paymentProof->id
-    //             ])
-    //             ->log('Manual payment proof submitted');
-
-    //         // Send notifications
-    //         $this->sendSubmissionNotifications($payment);
-
-    //         DB::commit();
-    //         return $payment;
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
-
     public function processManualPayment(array $data, $proofFile)
     {
         DB::beginTransaction();
@@ -180,40 +141,6 @@ class ManualPaymentService
     /**
      * Verify a manual payment
      */
-    // public function verifyPayment($payment, array $data)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         $paymentProof = $payment->paymentProof;
-    //         $paymentProof->status = $data['status'];
-    //         $paymentProof->verified_by = auth()->id();
-    //         $paymentProof->verified_at = now();
-    //         $paymentProof->save();
-
-    //         if ($data['status'] === 'verified') {
-    //             $this->handleVerifiedPayment($payment, $data['admin_comment']);
-    //         }
-
-    //         // Log the verification
-    //         activity()
-    //             ->performedOn($payment)
-    //             ->causedBy(auth()->user())
-    //             ->withProperties([
-    //                 'status' => $data['status'],
-    //                 'admin_comment' => $data['admin_comment']
-    //             ])
-    //             ->log('Manual payment ' . $data['status']);
-
-    //         // Send notification
-    //         $this->sendVerificationNotifications($payment, $data['status']);
-
-    //         DB::commit();
-    //         return true;
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
 
     public function verifyPayment($payment, array $data)
     {

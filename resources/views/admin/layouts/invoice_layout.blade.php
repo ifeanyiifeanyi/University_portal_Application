@@ -10,7 +10,7 @@
     <!-- Site Title -->
     <title>{{ config('app.name') }} | @yield('title')</title>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('logo.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('nursinglogo.webp') }}" type="image/x-icon">
     <link rel="stylesheet" href="/invoice/assets/css/style.css">
     <!-- Bootstrap CSS -->
     <link href="{{ asset('') }}assets/css/bootstrap.min.css" rel="stylesheet">
