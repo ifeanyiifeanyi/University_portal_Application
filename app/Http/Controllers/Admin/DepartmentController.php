@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use League\Csv\Writer;
 use App\Models\Faculty;
 use App\Models\Semester;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\AcademicSession;
 use App\Models\CourseAssignment;
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DepartmentRequest;
-use Symfony\Component\ErrorHandler\Debug;
 use Illuminate\Support\Facades\Response;
-use League\Csv\Writer;
+use Symfony\Component\ErrorHandler\Debug;
 
 class DepartmentController extends Controller
 {
@@ -34,7 +35,10 @@ class DepartmentController extends Controller
         // generate a pin based on 2 * 7 digits + a random character
         $validatedData['code'] = mt_rand(1000, 999) . $characters;
 
-        Department::create($validatedData);
+        $department = Department::create($validatedData);
+        // Log the department creation
+        ActivityLogHelper::logDepartmentActivity('Created', $department);
+
         $notification = [
             'message' => 'New Department Created Successfully!!',
             'alert-type' => 'success'
@@ -56,6 +60,8 @@ class DepartmentController extends Controller
 
         $department = Department::findOrFail($id);
         $department->update($request->validated());
+        // Log the department update
+        ActivityLogHelper::logDepartmentActivity('Updated', $department);
         $notification = [
             'message' => 'Department Updated Successfully!!',
             'alert-type' => 'success'
@@ -109,7 +115,8 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         $department = Department::findOrFail($id);
-
+        // Log the department deletion
+        ActivityLogHelper::logDepartmentActivity('Deleted', $department);
         $department->delete();
         $notification = [
             'message' => 'Department Deleted Successfully!!',
@@ -217,6 +224,8 @@ class DepartmentController extends Controller
         $filename = 'department_' . $department->name . '_courses.csv';
         $csvContent = $csv->output();
 
+        // Log the department deletion
+        ActivityLogHelper::logDepartmentActivity('Export Teacher, in department', $department);
         return response()->streamDownload(
             function () use ($csvContent) {
                 echo $csvContent;
@@ -251,6 +260,9 @@ class DepartmentController extends Controller
                 $student->current_level,
             ]);
         }
+
+        // Log the department deletion
+        ActivityLogHelper::logDepartmentActivity('EXport Students, in department', $department);
 
         $filename = 'department_' . $department->name . '_students.csv';
         $csvContent = $csv->output();

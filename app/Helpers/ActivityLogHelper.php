@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Department;
 use App\Models\AcademicSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -36,5 +37,19 @@ class ActivityLogHelper
                 'is_current' => $academicSession->is_current,
             ])
             ->log($action . ' academic session');
+    }
+
+
+    public static function logDepartmentActivity(string $action, Department $department)
+    {
+        activity()
+            ->performedOn($department)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'name' => $department->name,
+                'code' => $department->code,
+                'faculty_id' => $department->faculty_id,
+            ])
+            ->log($action . ' department');
     }
 }
