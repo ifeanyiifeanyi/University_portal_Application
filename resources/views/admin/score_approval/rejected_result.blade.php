@@ -4,10 +4,7 @@
 
 @section('admin')
     <div class="container">
-        <p>
-            <button onclick="history.back()" class="btn"
-                style="background-color: rgb(81, 0, 128); color:white">Back</button>
-        </p>
+
         @include('admin.alert')
         <div class="card py-3 px-3">
             <div class="row">
@@ -47,7 +44,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i></button>
                             </div>
                         </div>
                     </form>
@@ -61,7 +58,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <a href="{{ route('admin.rejected.score.export', ['academic_session_id' => $selectedSession, 'semester_id' => $selectedSemester]) }}"
-                                class="btn" style="background-color: purple;color:white">Export to CSV</a>
+                                class="btn" style="background-color: rgba(128, 0, 128, 0.527);color:white"><i class="fas fa-file-export"></i> to CSV</a>
                         </div>
                         <div class="col-md-8">
                             <form style="float: left" action="{{ route('admin.rejected.score.import') }}" method="POST"
@@ -74,7 +71,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-info">Import CSV</button>
+                                        <button type="submit" class="btn btn-info text-white"><i class="fas fa-upload"></i> CSV</button>
 
                                     </div>
                                 </div>
@@ -125,8 +122,8 @@
                                 <td>{{ $score->grade }}</td>
                                 <td>{{ ucfirst($score->status) }}</td>
                                 <td>
-                                    <a style="background: rgb(119, 44, 113)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.rejected.revert', $score->id) }}" class="btn text-light">
-                                        Revert to pending
+                                    <a style="background: rgba(119, 44, 113, 0.596)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.rejected.revert', $score->id) }}" class="btn text-light">
+                                        <i class="fas fa-history"></i> Revert to pending
                                     </a>
                                 </td>
                             </tr>
@@ -140,11 +137,11 @@
             </div>
 
             <div class="mt-3">
-                <button style="background-color: rgb(37, 88, 37)" onclick="return confirm('Are you sure of this action ?')" type="submit"
-                    class="btn text-light">Bulk Approve Selected</button>
+                <button style="background-color: rgba(37, 88, 37, 0.685)" onclick="return confirm('Are you sure of this action ?')" type="submit"
+                    class="btn text-light"><i class="fas fa-layer-group"></i> Bulk Approve Selected</button>
 
-                <button style="background: rgb(221, 4, 185)" onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn text-light"
-                    formaction="{{ route('admin.score.approval.rejected.bulk-revert') }}">Bulk Revert To Pending</button>
+                <button style="background: rgba(221, 4, 185, 0.623)" onclick="return confirm('Are you sure of this action ?')" type="submit" class="btn text-light"
+                    formaction="{{ route('admin.score.approval.rejected.bulk-revert') }}"><i class="fas fa-cubes"></i> Bulk Revert To Pending</button>
             </div>
 
         </form>

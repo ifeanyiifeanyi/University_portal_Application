@@ -1,7 +1,6 @@
 @extends('admin.layouts.admin')
 @section('title', 'Score Audits')
 @section('admin')
-@include('admin.return_btn')
     <div class="container">
         <div class="card py-3 px-3">
             <form id="auditFilterForm" action="{{ route('admin.score.audit.view') }}" method="GET">
@@ -73,13 +72,13 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Filters</button>
                     </div>
                     <div class="col-md-3">
-                        <a href="{{ route('admin.score.audit.view') }}" class="btn btn-secondary">Clear Filters</a>
+                        <a href="{{ route('admin.score.audit.view') }}" class="btn btn-secondary"><i class="fas fa-minus-circle"></i> Filters</a>
                     </div>
                     <div class="col-md-3">
-                        <a href="{{ route('admin.score.audit.export') }}" class="btn btn-success">Export to Excel</a>
+                        <a href="{{ route('admin.score.audit.export') }}" class="btn btn-success"><i class="fas fa-file-download"></i> Excel</a>
                     </div>
                 </div>
             </form>

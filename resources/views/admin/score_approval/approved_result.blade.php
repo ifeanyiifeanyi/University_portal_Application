@@ -10,12 +10,7 @@
 @section('admin')
     <div class="container-fluid">
         <h2>Approved Scores</h2>
-        <p>
-            <a href="{{ route('admin.score.approval.view') }}" class="btn"
-                style="background-color: rgb(81, 0, 128); color:white">
-                Back
-            </a>
-        </p>
+
         @include('admin.alert')
         <div class="card py-3 px-3">
             <div class="row">
@@ -42,7 +37,7 @@
                                             {{ $session->name }}
                                         </option>
                                     @endforeach
-                                </select>
+                                </select>   
                             </div>
                             <div class="col-md-3">
                                 <select name="semester_id" class="form-control">
@@ -55,7 +50,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i></button>
                             </div>
                         </div>
                     </form>
@@ -67,7 +62,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <a href="{{ route('admin.score.approval.approved.export', ['academic_session_id' => $selectedSession, 'semester_id' => $selectedSemester]) }}"
-                                class="btn" style="background-color: purple;color:white">Export to CSV</a>
+                                class="btn btn-sm" style="background-color: rgba(128, 0, 128, 0.575);color:white"><i class="fas fa-file-export"></i> CSV</a>
                         </div>
 
                         <div class="col-md-8">
@@ -82,7 +77,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-info">Import Excel</button>
+                                        <button type="submit" class="btn btn-info btn-sm bg-opacity-50 text-light"><i class="fas fa-file-import"></i> CSV</button>
                                     </div>
                                 </div>
                             </form>
@@ -130,7 +125,7 @@
                                     {{-- <td>{{ ucfirst($score->status) }}</td> --}}
                                     <td>
                                         <a onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.approved.revert', $score) }}" class="btn btn-sm btn-danger">Revert</a>
-                                    
+
                                     </td>
                                 </tr>
                             @endforeach
@@ -144,7 +139,7 @@
 
                 <div class="mt-3">
                     <button onclick="return confirm('Are you sure of this action ?')" type="submit"
-                        class="btn btn-danger">Revert Selected</button>
+                        class="btn btn-danger btn-sm bg-opacity-75"><i class="fas fa-history"></i> Revert Selected</button>
                 </div>
             </form>
 

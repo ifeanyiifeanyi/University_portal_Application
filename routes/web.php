@@ -90,7 +90,7 @@ Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
 Route::controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
-    Route::post('/login', 'postLogin')->name('login.post');
+    Route::post('/', 'postLogin')->name('login.post');
 
     Route::get('logout', 'logout')->name('logout');
 });

@@ -9,7 +9,6 @@
 @section('admin')
     <div class="container">
         <h4>Course Registration Management</h4>
-        <button class="btn btn-dark mb-3" onclick="history.back()">Back</button>
 
         <div class="row mb-4">
             <div class="col-md-3">
@@ -107,13 +106,13 @@
                             placeholder="Search by student name, ID, session, or semester">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </form>
 
             <div class="mt-4">
-                <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-success">Export to CSV</a>
+                <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-secondary"><i class="fas fa-file-csv"></i> Export</a>
             </div>
         </div>
         <div class="card py-3 px-3">
@@ -144,7 +143,7 @@
                                 <td>{{ ucfirst($registration->status) }}</td>
                                 <td>
                                     <a href="{{ route('admin.course-registrations.show', $registration) }}"
-                                        class="btn btn-sm btn-info">View</a>
+                                        class="btn btn-sm text-info"><i class="fas fa-eye"></i></a>
 
                                     @if ($registration->status == 'approved')
                                         <form onsubmit="return confirm('Are sure of this action')"
@@ -152,7 +151,7 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                            <button type="submit" class="btn btn-sm text-danger"><i class="fas fa-times"></i></button>
                                         </form>
                                     @endif
 
@@ -162,7 +161,7 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                            <button type="submit" class="btn btn-sm text-success"><i class="fas fa-thumbs-up"></i></button>
                                         </form>
                                     @endif
                                     @if ($registration->status == 'pending')
@@ -171,14 +170,16 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                            <button type="submit" class="btn btn-sm text-success"><i class="fas fa-thumbs-up"></i></button>
                                         </form>
                                         <form onsubmit="return confirm('Are sure of this action')"
                                             action="{{ route('admin.course-registrations.reject', $registration) }}"
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                            <button type="submit" class="btn btn-sm text-danger">
+                                                <i class="fas fa-times"></i>
+                                            </button>
                                         </form>
                                     @endif
                                 </td>

@@ -104,8 +104,9 @@
                                 <a class="dropdown-item" href="{{ route('admin.student.view') }}">Students</a>
                                 <a class="dropdown-item" href="{{ route('admin.teacher.view') }}">Lecturers</a>
                                 <a class="dropdown-item" href="{{ route('admin.timetable.view') }}">Timetable</a>
-                                <div class="dropdown-divider"></div> <a class="dropdown-item text-danger"
-                                    href="{{ route('logout') }}">Logout</a>
+                                <div class="dropdown-divider"></div>
+                                {{-- <a class="dropdown-item text-danger"
+                                    href="{{ route('logout') }}">Logout</a> --}}
                             </div>
                         </div>
                     </div>

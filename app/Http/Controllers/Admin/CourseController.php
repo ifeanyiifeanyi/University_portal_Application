@@ -48,14 +48,14 @@ class CourseController extends Controller
     {
 
         $user = Auth::user();
-        // ! remember come here for creating traits or middleware or gate 
-        if (!$user->isAdmin()) {
-            $notification = [
-                'message' => 'You are not authorized to delete this course!',
-                'alert-type' => 'error'
-            ];
-            return redirect()->back()->with($notification);
-        }
+        //!! :TODO  check if course has active departments, teachers n students
+        // if (!$user->isAdmin()) {
+        //     $notification = [
+        //         'message' => 'You are not authorized to delete this course!',
+        //         'alert-type' => 'error'
+        //     ];
+        //     return redirect()->back()->with($notification);
+        // }
         $course = Course::findOrFail($id);
 
         $course->delete();

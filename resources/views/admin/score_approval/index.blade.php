@@ -16,11 +16,7 @@
 
 @section('admin')
     <div class="container">
-        {{-- <h3>@yield('title')</h3> --}}
-        <p>
-            <button onclick="history.back()" class="btn"
-                style="background-color: rgb(81, 0, 128); color:white">Back</button>
-        </p>
+
         @include('admin.alert')
         <div class="card py-3 px-3">
             <div class="row">
@@ -60,7 +56,7 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i></button>
                             </div>
                         </div>
                     </form>
@@ -74,7 +70,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <a href="{{ route('admin.score.export', ['academic_session_id' => $selectedSession, 'semester_id' => $selectedSemester]) }}"
-                                class="btn" style="background-color: purple;color:white">Export to CSV</a>
+                                class="btn" title="export csv file" style="background-color: rgba(128, 0, 128, 0.603);color:white"><i class="fas fa-file-download"></i> CSV</a>
                         </div>
                         <div class="col-md-8">
                             <form style="float: left" action="{{ route('admin.score.import') }}" method="POST"
@@ -87,7 +83,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-info">Import CSV</button>
+                                        <button type="submit" title="Import csv files" class="btn btn-info text-white"><i class="fas fa-file-import"></i> CSV</button>
 
                                     </div>
                                 </div>
@@ -136,12 +132,12 @@
                                 <td>{{ $score->total_score }}</td>
                                 <td>{{ $score->grade }}</td>
                                 <td>
-                                    <a style="background: rgb(119, 44, 113)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.approve', $score->id) }}" class="btn text-light">
-                                        Approve Score
+                                    <a style="background: rgba(119, 44, 113, 0.568)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.approve', $score->id) }}" class="btn text-light">
+                                        <i class="fas fa-check-square"></i> Approve Score
                                     </a>
 
-                                    <a style="background: rgb(219, 30, 93)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.reject', $score->id) }}" class="btn text-light">
-                                        Reject Score
+                                    <a style="background: rgba(219, 30, 93, 0.555)" onclick="return confirm('Are you sure of this action ?')" href="{{ route('admin.score.approval.single.reject', $score->id) }}" class="btn text-light">
+                                        <i class="fas fa-window-close"></i> Reject Score
                                     </a>
                                 </td>
                             </tr>
@@ -155,10 +151,10 @@
             </div>
 
             <div class="mt-3">
-                <button onclick="return confirmApprove()" type="submit" class="btn btn-success">Approve Selected</button>
+                <button onclick="return confirmApprove()" type="submit" class="btn btn-success"><i class="fas fa-check-square"></i> Approve Selected</button>
 
                 <button onclick="return confirmReject()" type="submit" class="btn btn-danger"
-                    formaction="{{ route('admin.score.approval.reject') }}">Reject Selected</button>
+                    formaction="{{ route('admin.score.approval.reject') }}"><i class="fas fa-window-close"></i>Reject Selected</button>
             </div>
 
         </form>

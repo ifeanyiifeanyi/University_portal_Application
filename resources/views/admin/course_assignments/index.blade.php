@@ -14,7 +14,6 @@
 @endsection
 @section('admin')
     <div class="container">
-    @include('admin.return_btn')
 
         <a href="{{ route('course-assignments.create') }}" class="btn btn-secondary mb-3 mt-3">
             <i class="fas fa-plus-circle"></i>
