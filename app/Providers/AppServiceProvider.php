@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,18 +14,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        /* AuthService is being instantiated on how the Auth facade is being used in its class */
         $this->app->bind(AuthService::class, function ($app) {
-            return new AuthService(Auth::guard());
+            return new AuthService(
+                Auth::guard(),
+                $app->make(RateLimiter::class)
+            );
         });
-
     }
 
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        
-    }
+    public function boot(): void {}
 }

@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\AdminScoreAuditController;
 use App\Http\Controllers\Student\OnlineClassesController;
 use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
+use App\Http\Controllers\Admin\PasswordRecoveryController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminApprovedScoreController;
@@ -49,9 +50,6 @@ use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
-// Route::get('/', function () {
-//     return view('auth.login');
-// });
 
 Route::get('/migrate-and-seed', function () {
     try {
@@ -81,12 +79,6 @@ Route::get('/migrate-and-seed', function () {
     }
 });
 
-
-
-Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
-    return view('admin.show_receipt', compact('receipt'));
-})->name('receipts.show');
-
 Route::controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
@@ -94,6 +86,12 @@ Route::controller(AuthController::class)->group(function () {
 
     Route::get('logout', 'logout')->name('logout');
 });
+
+
+Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
+    return view('admin.show_receipt', compact('receipt'));
+})->name('receipts.show');
+
 
 
 
@@ -109,6 +107,15 @@ Route::middleware('admin')->group(function () {
 Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
 
 
+
+
+
+Route::controller(PasswordRecoveryController::class)->middleware('guest')->group(function () {
+    Route::get('password/recovery',  'showRecoveryForm')->name('password.recovery.form');
+    Route::post('password/recovery/send',  'sendRecoveryCode')->name('password.recovery.send');
+    Route::get('password/reset',  'showResetForm')->name('password.reset.form');
+    Route::post('password/reset',  'reset')->name('password.reset');
+});
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -565,77 +572,83 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     // // Role and Permission Management
     // Route::middleware('permission:view roles')->group(function () {
 
-        Route::controller(RoleController::class)->group(function () {
-            Route::get('roles', 'index')->name('admin.roles.index');
-            Route::get('/roles/create',  'create')->name('admin.roles.create');
-            Route::post('/roles',  'store')->name('admin.roles.store');
-            Route::get('/roles/{role}/edit',  'edit')->name('admin.roles.edit');
-            Route::put('/roles/{role}',  'update')->name('admin.roles.update');
-            Route::delete('/roles/{role}',  'destroy')->name('admin.roles.destroy');
-        });
+    Route::controller(RoleController::class)->group(function () {
+        Route::get('roles', 'index')->name('admin.roles.index');
+        Route::get('/roles/create',  'create')->name('admin.roles.create');
+        Route::post('/roles',  'store')->name('admin.roles.store');
+        Route::get('/roles/{role}/edit',  'edit')->name('admin.roles.edit');
+        Route::put('/roles/{role}',  'update')->name('admin.roles.update');
+        Route::delete('/roles/{role}',  'destroy')->name('admin.roles.destroy');
+    });
 
-        Route::controller(PermissionController::class)->group(function () {
-            Route::get('permissions', 'index')->name('admin.permissions.index');
-            Route::get('/permissions/create',  'create')->name('admin.permissions.create');
-            Route::post('/permissions',  'store')->name('admin.permissions.store');
-            Route::get('/permissions/{permission}/edit',  'edit')->name('admin.permissions.edit');
-            Route::put('/permissions/{permission}',  'update')->name('admin.permissions.update');
-            Route::delete('/permissions/{permission}',  'destroy')->name('admin.permissions.destroy');
-        });
+    Route::controller(PermissionController::class)->group(function () {
+        Route::get('permissions', 'index')->name('admin.permissions.index');
+        Route::get('/permissions/create',  'create')->name('admin.permissions.create');
+        Route::post('/permissions',  'store')->name('admin.permissions.store');
+        Route::get('/permissions/{permission}/edit',  'edit')->name('admin.permissions.edit');
+        Route::put('/permissions/{permission}',  'update')->name('admin.permissions.update');
+        Route::delete('/permissions/{permission}',  'destroy')->name('admin.permissions.destroy');
+    });
 
-        Route::controller(AdminUserRoleController::class)->group(function () {
-            Route::get('admin-roles', 'index')->name('admin.admin-users.roles');
-            Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
-            Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
-        });
+    Route::controller(AdminUserRoleController::class)->group(function () {
+        Route::get('admin-roles', 'index')->name('admin.admin-users.roles');
+        Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
+        Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
+    });
     // });
+
+
+
+
+
+
 });
 
 
 
 
-Route::prefix('teacher')->middleware('teacher')->group(function () {
+// Route::prefix('teacher')->middleware('teacher')->group(function () {
 
-    Route::controller(TeacherController::class)->group(function () {
-        Route::get('dashboard', 'index')->name('teacher.view.dashboard');
-        Route::get('profile', 'profile')->name('teacher.view.profile');
-        // post requests
-        Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
-        Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
+//     Route::controller(TeacherController::class)->group(function () {
+//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
+//         Route::get('profile', 'profile')->name('teacher.view.profile');
+//         // post requests
+//         Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
+//         Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
 
-        Route::post('logout', 'logout')->name('teacher.logout');
-    });
-    Route::controller(TeacherDepartmentController::class)->group(function () {
-        Route::get('departments', 'departments')->name('teacher.view.departments');
-    });
-    Route::prefix('courses')->group(function () {
-        Route::controller(TeacherCoursesController::class)->group(function () {
-            Route::get('/', 'courses')->name('teacher.view.courses');
-            Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
-            Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
-            Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
-            Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
-            Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
-        });
-    });
+//         Route::post('logout', 'logout')->name('teacher.logout');
+//     });
+//     Route::controller(TeacherDepartmentController::class)->group(function () {
+//         Route::get('departments', 'departments')->name('teacher.view.departments');
+//     });
+//     Route::prefix('courses')->group(function () {
+//         Route::controller(TeacherCoursesController::class)->group(function () {
+//             Route::get('/', 'courses')->name('teacher.view.courses');
+//             Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
+//             Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
+//             Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
+//             Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
+//             Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
+//         });
+//     });
 
-    Route::prefix('attendance')->group(function () {
-        Route::controller(TeacherAttendanceController::class)->group(function () {
-            Route::get('/', 'attendance')->name('teacher.view.attendance');
-            Route::get('/create', 'create')->name('teacher.view.create.attendance');
-            Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
-            Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
-            Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
-            Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
-        });
-    });
-});
-
-
+//     Route::prefix('attendance')->group(function () {
+//         Route::controller(TeacherAttendanceController::class)->group(function () {
+//             Route::get('/', 'attendance')->name('teacher.view.attendance');
+//             Route::get('/create', 'create')->name('teacher.view.create.attendance');
+//             Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
+//             Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
+//             Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
+//             Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
+//         });
+//     });
+// });
 
 
 
 
+
+//! student routes
 Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
@@ -708,7 +721,7 @@ Route::prefix('student')->middleware('student')->group(function () {
     });
 });
 
-
+//! Student parent routes
 Route::prefix('parent')->middleware('parent')->group(function () {
     Route::controller(ParentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('parent.view.dashboard');
@@ -724,6 +737,7 @@ Route::prefix('parent')->middleware('parent')->group(function () {
     });
 });
 
+//! the Lecturer routes
 Route::prefix('teacher')->middleware('teacher')->group(function () {
 
     Route::controller(TeacherController::class)->group(function () {
@@ -737,27 +751,24 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
         Route::get('departments', 'departments')->name('teacher.view.departments');
     });
     Route::prefix('courses')->group(function () {
-    Route::controller(TeacherCoursesController::class)->group(function () {
-        Route::get('/', 'courses')->name('teacher.view.courses');
-        Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
-        Route::get('/get-grade/{total}','getGrade')->name('getGrade');
-        Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
-        Route::get('/export/{id}','exportassessment')->name('exportassessment');
-        Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
-
-
+        Route::controller(TeacherCoursesController::class)->group(function () {
+            Route::get('/', 'courses')->name('teacher.view.courses');
+            Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
+            Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
+            Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
+            Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
+            Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
+        });
     });
-});
 
-Route::prefix('attendance')->group(function () {
-    Route::controller(TeacherAttendanceController::class)->group(function () {
-        Route::get('/', 'attendance')->name('teacher.view.attendance');
-        Route::get('/create', 'create')->name('teacher.view.create.attendance');
-        Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
-        Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
-        Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
-        Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
+    Route::prefix('attendance')->group(function () {
+        Route::controller(TeacherAttendanceController::class)->group(function () {
+            Route::get('/', 'attendance')->name('teacher.view.attendance');
+            Route::get('/create', 'create')->name('teacher.view.create.attendance');
+            Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
+            Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
+            Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
+            Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
+        });
     });
-});
-
 });

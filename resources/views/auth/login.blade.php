@@ -15,16 +15,7 @@
                     <h3 class="">Sign in</h3>
 
                 </div>
-                @if (isset($error))
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                @endif
+                <x-guest-alert />
 
                 <div class="form-body">
                     <form class="row g-3" method="POST" action="{{ route('login.post') }}">
@@ -57,11 +48,13 @@
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Remember Me</label>
                             </div>
                         </div>
-                        <div class="col-md-6 text-end"> <a href="/">Forgot Password ?</a>
+                        <div class="col-md-6 text-end"> <a href="{{ route('password.recovery.form') }}">Forgot Password
+                                ?</a>
                         </div>
                         <div class="col-12">
                             <div class="d-grid">
-                                <button type="submit" class="btn" style="background: #204939;color:#fff"><i class="bx bxs-lock-open"></i>Sign
+                                <button type="submit" class="btn" style="background: #204939;color:#fff"><i
+                                        class="bx bxs-lock-open"></i>Sign
                                     in</button>
                             </div>
                         </div>
@@ -71,7 +64,7 @@
         </div>
 
 
-@endsection
-@section('js')
+    @endsection
+    @section('js')
 
-@endsection
+    @endsection
