@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.0",
+        "jenssegers/agent": "^2.6",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
         "league/csv": "^9.16",
@@ -14,6 +15,7 @@
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-activitylog": "^4.9",
         "spatie/laravel-permission": "^6.9",
+        "stevebauman/location": "^7.4",
         "torann/geoip": "^3.0",
         "twilio/sdk": "^8.3",
         "unicodeveloper/laravel-paystack": "^1.2",

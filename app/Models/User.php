@@ -108,6 +108,12 @@ public function getUserAccessTypeAttribute(){
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
+    }
+
+    public function loginActivities()
+    {
+        return $this->hasMany(LoginActivity::class);
     }
 }

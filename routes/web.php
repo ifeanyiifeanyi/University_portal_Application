@@ -79,7 +79,7 @@ Route::get('/migrate-and-seed', function () {
     }
 });
 
-Route::controller(AuthController::class)->group(function () {
+Route::middleware(['guest', 'security.headers'])->controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');
@@ -110,7 +110,7 @@ Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])
 
 
 
-Route::controller(PasswordRecoveryController::class)->middleware('guest')->group(function () {
+Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'security.headers'])->group(function () {
     Route::get('password/recovery',  'showRecoveryForm')->name('password.recovery.form');
     Route::post('password/recovery/send',  'sendRecoveryCode')->name('password.recovery.send');
     Route::get('password/reset',  'showResetForm')->name('password.reset.form');

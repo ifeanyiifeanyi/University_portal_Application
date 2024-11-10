@@ -7,6 +7,7 @@ use App\Http\Middleware\CheckInvoiceStatus;
 use App\Http\Middleware\CheckPendingInvoiceMiddleware;
 use App\Http\Middleware\ParentMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\StudentMiddleware;
 use App\Http\Middleware\TeacherMiddleware;
 use App\Http\Middleware\VerifyReceiptAccess;
@@ -29,7 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.pending.invoice' => CheckPendingInvoiceMiddleware::class,
             'check.invoice.status' => CheckInvoiceStatus::class,
             'verify.receipt' => VerifyReceiptAccess::class,
-            'permission' => PermissionMiddleware::class
+            'permission' => PermissionMiddleware::class,
+            'security.headers' => SecurityHeaders::class, //not used yet
 
         ]);
     })

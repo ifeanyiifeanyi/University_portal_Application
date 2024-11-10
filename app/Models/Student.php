@@ -77,15 +77,6 @@ class Student extends Model
             ->get()
             ->groupBy(['session_name', 'semester_name']);
 
-        // return $this->scoreAudits()
-        //     ->join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
-        //     ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
-        //     ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
-        //     ->select('score_audits.*', 'academic_sessions.name as session_name', 'semesters.name as semester_name')
-        //     ->orderBy('academic_sessions.name', 'desc')
-        //     ->orderBy('semesters.name', 'asc')
-        //     ->get()
-        //     ->groupBy(['session_name', 'semester_name']);
     }
 
 
