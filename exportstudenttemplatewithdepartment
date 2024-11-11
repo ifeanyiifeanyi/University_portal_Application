@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Department;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Maatwebsite\Excel\Concerns\FromArray;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -16,6 +17,8 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
 {
     public function array(): array
     {
+        $departments = Department::pluck('name', 'id')->toArray();
+
         // Example row with comments
         return [
             [
@@ -31,7 +34,8 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
                 '2023', // year_of_admission
                 'UTME', // mode_of_entry
                 '100', // current_level
-                'NIG/2023/123456' // jamb_reg_no
+                'NIG/2023/123456', // jamb_reg_no
+                $departments[array_keys($departments)[0]] // department name
             ]
         ];
     }
@@ -51,7 +55,8 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             'Year of Admission* (YYYY)',
             'Mode of Entry* (UTME/Direct Entry/Transfer)',
             'Current Level*',
-            'JAMB Registration Number'
+            'JAMB Registration Number',
+            'Department*'
         ];
     }
 
@@ -71,6 +76,7 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             'K' => 30,
             'L' => 15,
             'M' => 25,
+            'N' => 20,
         ];
     }
 
@@ -90,15 +96,16 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             'Required, 4 digits',
             'Required, Choose from list',
             'Required, Numbers Only',
-            'Optional'
+            'Optional',
+            'Required, Choose from list'
         ];
-        
+
         $sheet->insertNewRowBefore(2);
         $sheet->fromArray([$validationRules], null, 'A2');
 
         // Add data validation for specific columns
         $lastRow = $sheet->getHighestRow();
-        
+
         // Gender validation
         for ($row = 3; $row <= $lastRow; $row++) {
             $validation = $sheet->getCell("G{$row}")->getDataValidation();
@@ -125,6 +132,25 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
             $validation->setFormula1('"UTME,Direct Entry,Transfer"');
         }
 
+        // Department validation
+        $departments = Department::pluck('name', 'id')->toArray();
+        $departmentOptions = [];
+        foreach ($departments as $id => $name) {
+            $departmentOptions[] = "{$id} - {$name}";
+        }
+        // $departmentNames = array_keys($departments);
+        for ($row = 3; $row <= $lastRow; $row++) {
+            $validation = $sheet->getCell("N{$row}")->getDataValidation();
+            $validation->setType(DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(DataValidation::STYLE_STOP);
+            $validation->setAllowBlank(false);
+            $validation->setShowErrorMessage(true);
+            $validation->setShowDropDown(true);
+            $validation->setErrorTitle('Invalid Department');
+            $validation->setError('Please select from the list of available departments');
+            $validation->setFormula1('"' . implode(',', $departmentOptions) . '"');
+        }
+
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -134,7 +160,7 @@ class StudentTemplateExport implements FromArray, WithHeadings, WithStyles, With
                 'font' => ['italic' => true, 'size' => 10, 'color' => ['rgb' => '6B7280']],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'F3F4F6']]
             ],
-            'A3:M3' => [
+            'A3:N3' => [
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'E5E7EB']]
             ],
         ];

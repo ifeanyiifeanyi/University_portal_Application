@@ -10,7 +10,9 @@ use App\Models\Department;
 use App\Models\ScoreAudit;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Imports\StudentsImport;
 use App\Models\AcademicSession;
+use App\Jobs\ProcessStudentImport;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -35,7 +37,9 @@ class AdminStudentController extends Controller
         // If you want to see what's going on, you can dd here:
         // dd($studentsWithUsers);
 
-        return view('admin.student.index', compact('students'));
+        $departments = Department::all();
+
+        return view('admin.student.index', compact('students', 'departments'));
     }
 
     /**
@@ -441,5 +445,36 @@ class AdminStudentController extends Controller
         }
 
         return Excel::download(new StudentTemplateExport, 'student_import_template.xlsx');
+    }
+
+
+    public function importVerify(Request $request)
+    {
+        $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $filePath = $request->file('file')->store('imports');
+
+        $students = Excel::toCollection(new StudentsImport($request->department_id), storage_path('app/' . $filePath))->first();
+
+        return view('admin.student.import-student', [
+            'department_id' => $request->department_id,
+            'filePath' => $filePath,
+            'students' => $students,
+        ]);
+    }
+
+    public function importProcess(Request $request)
+    {
+        $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'filePath' => 'required|string',
+        ]);
+
+        ProcessStudentImport::dispatch($request->filePath, $request->department_id);
+
+        return redirect()->route('admin.students.index')->with('success', 'Student import process started.');
     }
 }

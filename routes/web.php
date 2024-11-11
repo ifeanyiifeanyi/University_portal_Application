@@ -334,11 +334,21 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
 
             //! student registration through excel format
-            Route::get('students/import',  'showImportForm')->name('admin.students.import');
-            Route::post('students/import',  'importStudents')->name('admin.students.import.process');
-            // Route::get('students/template/download',  'downloadTemplate')->name('admin.students.template.download');
+            // Route::get('students/import',  'showImportForm')->name('admin.students.import');
+            // Route::post('students/import',  'importStudents')->name('admin.students.import.process');
 
             Route::get('students/template/download/{format?}','downloadTemplate')->name('admin.students.template.download');
+            Route::post('students/import/verify', 'verifyImportData')->name('admin.students.import.verify');
+
+            // verify import
+            Route::post('students-import/verify', 'importVerify')->name('admin.students.import_verify');
+
+            // now attempt import
+            Route::post('students/import/process', 'importProcess')->name('admin.students.import.process');
+
+
+
+
         });
     });
 

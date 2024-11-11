@@ -4,14 +4,16 @@ namespace App\Imports;
 
 use App\Models\User;
 use App\Models\Student;
-use App\Jobs\SendWelcomeEmail;
+use App\Models\Department;
 use Illuminate\Support\Str;
+use App\Jobs\SendWelcomeEmail;
+use App\Jobs\ProcessStudentImport;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithBatchInserts, WithValidation
 {
@@ -27,6 +29,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
      */
     public function model(array $row)
     {
+        $matNumber = $this->generateMatricNumber($this->department_id);
         // Create user account
         $user = User::create([
             'user_type' => User::TYPE_STUDENT,
@@ -43,7 +46,7 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
         $student = Student::create([
             'user_id' => $user->id,
             'department_id' => $this->department_id,
-            'matric_number' => $this->generateMatricNumber($this->department_id),
+            'matric_number' => $matNumber,
             'date_of_birth' => $row['date_of_birth'],
             'gender' => $row['gender'],
             'state_of_origin' => $row['state_of_origin'],
@@ -87,6 +90,26 @@ class StudentsImport implements ToModel, WithHeadingRow, WithChunkReading, WithB
 
     private function generateMatricNumber($departmentId)
     {
-        // Your existing matric number generation logic
+        $schoolCode = 'SHN'; // School code
+        $year = date('y'); // Last two digits of the current year
+        $department = Department::findOrFail($departmentId);
+        $departmentCode = $department->code;
+
+        // Get the latest student number for this year
+        $latestStudent = Student::where('year_of_admission', date('Y'))
+            ->latest('matric_number')
+            ->first();
+
+        if ($latestStudent) {
+            // Extract the last 4 digits and increment
+            $lastNumber = intval(substr($latestStudent->matric_number, -4));
+            $newNumber = $lastNumber + 1;
+        } else {
+            // If no students yet this year, start from 1
+            $newNumber = 1;
+        }
+
+        // Generate the matric number
+        return sprintf("%s/%s/%s/%04d", $schoolCode, $departmentCode, $year, $newNumber);
     }
 }

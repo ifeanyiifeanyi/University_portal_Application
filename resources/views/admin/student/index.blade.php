@@ -43,10 +43,54 @@
                                     </ul>
                                 </div>
 
-                                <a href="{{ route('admin.students.import') }}"
+                                {{-- <a href="{{ route('admin.students.import') }}"
                                     style="background-color: rgba(172, 255, 47, 0.616)" class="btn btn-sm float-left ms-2">
                                     <i class="fas fa-users-cog"></i> Import Students
-                                </a>
+                                </a> --}}
+                                <!-- Import Button -->
+                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                    data-bs-target="#importModal">
+                                    <i class="fas fa-file-import"></i> Import Students
+                                </button>
+
+                                <!-- Import Modal -->
+                                <div class="modal fade" id="importModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Import Students</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{{ route('admin.students.import_verify') }}" method="POST"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Department</label>
+                                                        <select name="department_id" class="form-select" required>
+                                                            @foreach ($departments as $department)
+                                                                <option value="{{ $department->id }}">
+                                                                    {{ $department->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Excel File</label>
+                                                        <input type="file" name="file" class="form-control"
+                                                            accept=".xlsx,.xls" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Verify Data</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
                         </div>
 
