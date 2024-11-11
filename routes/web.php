@@ -332,6 +332,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             //assessment score audit history
             Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
+
+            //! student registration through excel format
+            Route::get('students/import',  'showImportForm')->name('admin.students.import');
+            Route::post('students/import',  'importStudents')->name('admin.students.import.process');
+            // Route::get('students/template/download',  'downloadTemplate')->name('admin.students.template.download');
+
+            Route::get('students/template/download/{format?}','downloadTemplate')->name('admin.students.template.download');
         });
     });
 

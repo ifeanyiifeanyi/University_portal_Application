@@ -13,14 +13,43 @@
             <div class="col-md-12">
                 <div class="card shadow">
                     <div class="card-body">
+
+
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
-                                <p> <a href="{{ route('admin.student.create') }}" class="btn btn-primary float-left"
-                                        style="text-align: right">Create New
-                                        Account</a>
-                                </p>
+                                <a href="{{ route('admin.student.create') }}"
+                                    class="btn btn-sm bg-secondary text-white float-right" style="text-align: right"><i
+                                        class="fas fa-user-plus"></i> Create New
+                                    Account</a>
+                                <!-- Download Template Buttons -->
+                                <div class="dropdown d-inline">
+                                    <button class="btn btn-sm btn-info dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        <i class="fas fa-download"></i> Download Template
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.students.template.download', ['format' => 'excel']) }}">
+                                                <i class="fas fa-file-excel"></i> Excel Format
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.students.template.download', ['format' => 'pdf']) }}">
+                                                <i class="fas fa-file-pdf"></i> PDF Format
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <a href="{{ route('admin.students.import') }}"
+                                    style="background-color: rgba(172, 255, 47, 0.616)" class="btn btn-sm float-left ms-2">
+                                    <i class="fas fa-users-cog"></i> Import Students
+                                </a>
                             </div>
                         </div>
+
                         <hr>
                         <div class="table-responsive">
                             <table id="example" class="table table-striped">
@@ -79,7 +108,8 @@
                                                             <li>
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('admin.students.registration-history', $student) }}">
-                                                                    <i class="bx bx-book-add me-0"></i> Registered Courses History
+                                                                    <i class="bx bx-book-add me-0"></i> Registered Courses
+                                                                    History
                                                                 </a>
                                                             </li>
 
@@ -93,7 +123,7 @@
                                                                 </a>
                                                             </li>
                                                             <li class="dropdown-divider mb-0"> </li>
-                                                            
+
                                                             <li><a class="dropdown-item"
                                                                     href="{{ route('admin.student.details', $student) }}">
                                                                     <i class="bx bx-coin-stack me-0"></i> View Details

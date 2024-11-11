@@ -14,6 +14,8 @@ use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentTemplateExport;
 use App\Models\SemesterCourseRegistration;
 
 class AdminStudentController extends Controller
@@ -353,46 +355,9 @@ class AdminStudentController extends Controller
         return view('admin.student.score_approval_score_history', compact('scores', 'student'));
     }
 
-    // public function viewAudits(Student $student)
-    // {
-    //     $groupedAudits = $student->scoreAudits()
-    //         ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
-    //         ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
-    //         ->join('courses', 'student_scores.course_id', '=', 'courses.id')
-    //         ->select('score_audits.*', 'academic_sessions.name as session_name', 'semesters.name as semester_name', 'courses.title as course_title')
-    //         ->orderBy('academic_sessions.name', 'desc')
-    //         ->orderBy('semesters.name', 'asc')
-    //         ->get()
-    //         ->groupBy(['session_name', 'semester_name', 'course_title']);
-
-    //     return view('admin.student.audit', compact('student', 'groupedAudits'));
-    // }
 
 
-    // public function viewAudits(Student $student)
-    // {
-    //     $groupedAudits = ScoreAudit::join('student_scores', 'score_audits.student_score_id', '=', 'student_scores.id')
-    //         ->join('academic_sessions', 'student_scores.academic_session_id', '=', 'academic_sessions.id')
-    //         ->join('semesters', 'student_scores.semester_id', '=', 'semesters.id')
-    //         ->join('courses', 'student_scores.course_id', '=', 'courses.id')
-    //         ->join('teachers', 'student_scores.teacher_id', '=', 'teachers.id')
-    //         ->join('users', 'teachers.user_id', '=', 'users.id')
-    //         ->where('student_scores.student_id', $student->id)
-    //         ->select(
-    //             'score_audits.*',
-    //             'academic_sessions.name as session_name',
-    //             'semesters.name as semester_name',
-    //             'courses.title as course_title',
-    //             DB::raw("CONCAT(users.first_name, ' ', users.last_name, ' ', COALESCE(users.other_name, '')) as teacher_name")
-    //         )
-    //         ->orderBy('academic_sessions.name', 'desc')
-    //         ->orderBy('semesters.name', 'asc')
-    //         ->orderBy('courses.title', 'asc')
-    //         ->get()
-    //         ->groupBy(['session_name', 'semester_name', 'course_title']);
 
-    //     return view('admin.student.audit', compact('student', 'groupedAudits'));
-    // }
 
     public function viewAudits(Student $student, Request $request)
     {
@@ -452,5 +417,29 @@ class AdminStudentController extends Controller
             $query->where(DB::raw("CONCAT(teachers_users.first_name, ' ', teachers_users.last_name, ' ', COALESCE(teachers_users.other_name, ''))"), 'LIKE', '%' . $request->teacher_name . '%');
         }
         return $query;
+    }
+
+     /**
+     * Download the student import template in Excel and PDF format
+     * 
+     * @return BinaryFileResponse
+     */
+
+    public function downloadTemplate($format = 'excel')
+    {
+        if ($format === 'pdf') {
+            $path = public_path('templates/CONSCO.pdf');
+            
+            if (!file_exists($path)) {
+                return back()->with('error', 'PDF template file not found.');
+            }
+
+            return response()->download($path, 'CONSCO.pdf', [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="CONSCO.pdf"'
+            ]);
+        }
+
+        return Excel::download(new StudentTemplateExport, 'student_import_template.xlsx');
     }
 }
