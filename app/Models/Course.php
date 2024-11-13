@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     use HasFactory;
-    protected $fillable = ['code', 'title', 'description', 'credit_hours'];
+    protected $fillable = ['code', 'title', 'description', 'credit_hours', 'created_by'];
 
     public function timetables()
     {

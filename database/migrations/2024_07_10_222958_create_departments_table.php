@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->foreignId('faculty_id')->constrained()->onDelete('cascade');
             $table->text('description')->nullable();
+            $table->unsignedInteger('duration')->default(4); // Default to 4 years
             $table->timestamps();
             $table->softDeletes();
         });

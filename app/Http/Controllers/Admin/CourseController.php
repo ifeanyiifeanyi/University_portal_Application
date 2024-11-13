@@ -18,7 +18,9 @@ class CourseController extends Controller
 
     public function store(CourseRequest $request)
     {
-        $course = Course::create($request->validated());
+        $validated = $request->validated();
+        $validated['created_by'] = request()->user()->id;
+        $course = Course::create($validated);
         $notification = [
             'message' => 'Course Created Successfully!!',
             'alert-type' => 'success'

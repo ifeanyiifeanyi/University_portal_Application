@@ -55,10 +55,10 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" class="form-control @error('first_name') is-invalid @enderror" id="first_name"
+                        <input type="text" class="form-control @error('first_name') border-danger @enderror" id="first_name"
                             name="first_name" value="{{ old('first_name') }}" required>
                         @error('first_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">

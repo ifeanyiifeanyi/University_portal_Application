@@ -33,7 +33,7 @@ class DepartmentController extends Controller
         $characters = 'CONC';
 
         // generate a pin based on 2 * 7 digits + a random character
-        $validatedData['code'] = mt_rand(1000, 999) . $characters;
+        $validatedData['code'] = mt_rand(100, 999) . $characters;
 
         $department = Department::create($validatedData);
         // Log the department creation

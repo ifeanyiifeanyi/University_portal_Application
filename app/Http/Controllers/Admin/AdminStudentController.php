@@ -10,18 +10,32 @@ use App\Models\Department;
 use App\Models\ScoreAudit;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use PharIo\Manifest\Exception;
 use App\Imports\StudentsImport;
 use App\Models\AcademicSession;
 use App\Jobs\ProcessStudentImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\StudentBatchService;
+use Illuminate\Support\Facades\Cache;
 use App\Exports\StudentTemplateExport;
 use App\Models\SemesterCourseRegistration;
+use App\Http\Requests\CreateNewStudentRequest;
+use App\Services\StudentService;
+use Illuminate\Validation\ValidationException;
 
 class AdminStudentController extends Controller
 {
+    protected $studentBatchService;
+    protected $studentService;
+    
+    public function __construct(StudentBatchService $studentBatchService, StudentService $studentService) {
+        $this->studentBatchService = $studentBatchService;
+        $this->studentService = $studentService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -60,94 +74,117 @@ class AdminStudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'other_name' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'department_id' => 'required|exists:departments,id',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:Male,Female,Other',
-            'state_of_origin' => 'required|string|max:255',
-            'lga_of_origin' => 'required|string|max:255',
-            'hometown' => 'required|string|max:255',
-            'residential_address' => 'required|string|max:255',
-            'permanent_address' => 'required|string|max:255',
-            'nationality' => 'required|string|max:255',
-            'marital_status' => 'required|string|max:255',
-            'religion' => 'required|string|max:255',
-            'blood_group' => 'required|string|max:255',
-            'genotype' => 'required|string|max:255',
-            'next_of_kin_name' => 'required|string|max:255',
-            'next_of_kin_relationship' => 'required|string|max:255',
-            'next_of_kin_phone' => 'required|string|max:20',
-            'next_of_kin_address' => 'required|string|max:255',
-            'jamb_registration_number' => 'nullable|string|max:255',
-            'year_of_admission' => 'required|digits:4',
-            'mode_of_entry' => 'required|in:UTME,Direct Entry,Transfer',
-            'current_level' => 'required|string|max:255',
-            'profile_photo' => 'nullable|image|max:2048', // 2MB Max
-        ]);
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'first_name' => 'required|string|max:255',
+    //         'last_name' => 'required|string|max:255',
+    //         'other_name' => 'nullable|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users',
+    //         'phone' => 'nullable|string|max:20',
+    //         'password' => 'required|string|min:8|confirmed',
+    //         'department_id' => 'required|exists:departments,id',
+    //         'date_of_birth' => 'required|date',
+    //         'gender' => 'required|in:Male,Female,Other',
+    //         'state_of_origin' => 'required|string|max:255',
+    //         'lga_of_origin' => 'required|string|max:255',
+    //         'hometown' => 'required|string|max:255',
+    //         'residential_address' => 'required|string|max:255',
+    //         'permanent_address' => 'required|string|max:255',
+    //         'nationality' => 'required|string|max:255',
+    //         'marital_status' => 'required|string|max:255',
+    //         'religion' => 'required|string|max:255',
+    //         'blood_group' => 'required|string|max:255',
+    //         'genotype' => 'required|string|max:255',
+    //         'next_of_kin_name' => 'required|string|max:255',
+    //         'next_of_kin_relationship' => 'required|string|max:255',
+    //         'next_of_kin_phone' => 'required|string|max:20',
+    //         'next_of_kin_address' => 'required|string|max:255',
+    //         'jamb_registration_number' => 'nullable|string|max:255',
+    //         'year_of_admission' => 'required|digits:4',
+    //         'mode_of_entry' => 'required|in:UTME,Direct Entry,Transfer',
+    //         'current_level' => 'required|string|max:255',
+    //         'profile_photo' => 'nullable|image|max:2048', // 2MB Max
+    //     ]);
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $matNumber = $this->studentBatchService->generateMatricNumber();
+    //         // Create user
+    //         $user = User::create([
+    //             'user_type' => User::TYPE_STUDENT,
+    //             'first_name' => $request->first_name,
+    //             'last_name' => $request->last_name,
+    //             'username' => $request->first_name . '.' . $request->last_name,
+    //             'slug' => Str::slug($request->first_name . '.' . $request->last_name),
+    //             'other_name' => $request->other_name,
+    //             'phone' => $request->phone,
+    //             'email' => $request->email,
+    //             'password' => Hash::make($request->password),
+    //         ]);
+
+    //         // Handle profile photo upload
+    //         if ($request->hasFile('profile_photo')) {
+    //             $profilePhoto = $request->file('profile_photo');
+    //             $extension = $profilePhoto->getClientOriginalExtension();
+    //             $profilePhotoName = time() . "." . $extension;
+    //             $profilePhoto->move('admin/students/profile/', $profilePhotoName);
+    //             $user->profile_photo = 'admin/students/profile/' . $profilePhotoName;
+    //             $user->save();
+    //         }
+
+    //         // Create student
+    //         $student = Student::create([
+    //             'user_id' => $user->id,
+    //             'department_id' => $request->department_id,
+    //             'matric_number' => $matNumber,
+    //             'date_of_birth' => $request->date_of_birth,
+    //             'gender' => $request->gender,
+    //             'state_of_origin' => $request->state_of_origin,
+    //             'lga_of_origin' => $request->lga_of_origin,
+    //             'hometown' => $request->hometown,
+    //             'residential_address' => $request->residential_address,
+    //             'permanent_address' => $request->permanent_address,
+    //             'nationality' => $request->nationality,
+    //             'marital_status' => $request->marital_status,
+    //             'religion' => $request->religion,
+    //             'blood_group' => $request->blood_group,
+    //             'genotype' => $request->genotype,
+    //             'next_of_kin_name' => $request->next_of_kin_name,
+    //             'next_of_kin_relationship' => $request->next_of_kin_relationship,
+    //             'next_of_kin_phone' => $request->next_of_kin_phone,
+    //             'next_of_kin_address' => $request->next_of_kin_address,
+    //             'jamb_registration_number' => $request->jamb_registration_number,
+    //             'year_of_admission' => $request->year_of_admission,
+    //             'mode_of_entry' => $request->mode_of_entry,
+    //             'current_level' => $request->current_level,
+    //         ]);
+
+    //         DB::commit();
+    //         $notification = [
+    //             'message' => 'Student account created successfully.',
+    //             'alert-type' => 'success'
+    //         ];
+
+    //         return redirect()->route('admin.student.view')->with($notification);
+    //     } catch (\Exception $e) {
+    //         $notification = [
+    //             'message' => 'An error occurred while creating the student account. Please try again.' . $e->getMessage(),
+    //             'alert-type' => 'error'
+    //         ];
+    //         DB::rollback();
+    //         return back()->with($notification);
+    //     }
+    // }
+
+
+    public function store(CreateNewStudentRequest $request)
+    {
 
         try {
-            $matNumber = $this->generateMatricNumber($request->department_id);
-            // Create user
-            $user = User::create([
-                'user_type' => User::TYPE_STUDENT,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'username' => $request->first_name . '.' . $request->last_name,
-                'slug' => Str::slug($request->first_name . '.' . $request->last_name),
-                'other_name' => $request->other_name,
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+            $student = $this->studentService->createStudent($request->validated());
 
-            // Handle profile photo upload
-            if ($request->hasFile('profile_photo')) {
-                $profilePhoto = $request->file('profile_photo');
-                $extension = $profilePhoto->getClientOriginalExtension();
-                $profilePhotoName = time() . "." . $extension;
-                $profilePhoto->move('admin/students/profile/', $profilePhotoName);
-                $user->profile_photo = 'admin/students/profile/' . $profilePhotoName;
-                $user->save();
-            }
-
-            // Create student
-            $student = Student::create([
-                'user_id' => $user->id,
-                'department_id' => $request->department_id,
-                'matric_number' => $matNumber,
-                'date_of_birth' => $request->date_of_birth,
-                'gender' => $request->gender,
-                'state_of_origin' => $request->state_of_origin,
-                'lga_of_origin' => $request->lga_of_origin,
-                'hometown' => $request->hometown,
-                'residential_address' => $request->residential_address,
-                'permanent_address' => $request->permanent_address,
-                'nationality' => $request->nationality,
-                'marital_status' => $request->marital_status,
-                'religion' => $request->religion,
-                'blood_group' => $request->blood_group,
-                'genotype' => $request->genotype,
-                'next_of_kin_name' => $request->next_of_kin_name,
-                'next_of_kin_relationship' => $request->next_of_kin_relationship,
-                'next_of_kin_phone' => $request->next_of_kin_phone,
-                'next_of_kin_address' => $request->next_of_kin_address,
-                'jamb_registration_number' => $request->jamb_registration_number,
-                'year_of_admission' => $request->year_of_admission,
-                'mode_of_entry' => $request->mode_of_entry,
-                'current_level' => $request->current_level,
-            ]);
-
-            DB::commit();
             $notification = [
                 'message' => 'Student account created successfully.',
                 'alert-type' => 'success'
@@ -159,11 +196,11 @@ class AdminStudentController extends Controller
                 'message' => 'An error occurred while creating the student account. Please try again.' . $e->getMessage(),
                 'alert-type' => 'error'
             ];
-            DB::rollback();
             return back()->with($notification);
         }
-    }
 
+
+    }
     /**
      * Display the specified resource.
      */
@@ -304,30 +341,30 @@ class AdminStudentController extends Controller
         return redirect()->route('admin.student.view')->with($notification);
     }
 
-    private function generateMatricNumber($departmentId)
-    {
-        $schoolCode = 'SHN'; // School code
-        $year = date('y'); // Last two digits of the current year
-        $department = Department::findOrFail($departmentId);
-        $departmentCode = $department->code;
+    // private function generateMatricNumber($departmentId)
+    // {
+    //     $schoolCode = 'CONSCO'; // School code
+    //     $year = date('y'); // Last two digits of the current year
+    //     $department = Department::findOrFail($departmentId);
+    //     $departmentCode = $department->code;
 
-        // Get the latest student number for this year
-        $latestStudent = Student::where('year_of_admission', date('Y'))
-            ->latest('matric_number')
-            ->first();
+    //     // Get the latest student number for this year
+    //     $latestStudent = Student::where('year_of_admission', date('Y'))
+    //         ->latest('matric_number')
+    //         ->first();
 
-        if ($latestStudent) {
-            // Extract the last 4 digits and increment
-            $lastNumber = intval(substr($latestStudent->matric_number, -4));
-            $newNumber = $lastNumber + 1;
-        } else {
-            // If no students yet this year, start from 1
-            $newNumber = 1;
-        }
+    //     if ($latestStudent) {
+    //         // Extract the last 4 digits and increment
+    //         $lastNumber = intval(substr($latestStudent->matric_number, -4));
+    //         $newNumber = $lastNumber + 1;
+    //     } else {
+    //         // If no students yet this year, start from 1
+    //         $newNumber = 1;
+    //     }
 
-        // Generate the matric number
-        return sprintf("%s/%s/%s/%04d", $schoolCode, $departmentCode, $year, $newNumber);
-    }
+    //     // Generate the matric number
+    //     return sprintf("%s/%s/%04d", $schoolCode,  $year, $newNumber);
+    // }
 
 
     public function studentRegistrationHistory($studentId)
@@ -423,9 +460,9 @@ class AdminStudentController extends Controller
         return $query;
     }
 
-     /**
+    /**
      * Download the student import template in Excel and PDF format
-     * 
+     *
      * @return BinaryFileResponse
      */
 
@@ -433,7 +470,7 @@ class AdminStudentController extends Controller
     {
         if ($format === 'pdf') {
             $path = public_path('templates/CONSCO.pdf');
-            
+
             if (!file_exists($path)) {
                 return back()->with('error', 'PDF template file not found.');
             }
@@ -455,6 +492,9 @@ class AdminStudentController extends Controller
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
+
+
+
         $filePath = $request->file('file')->store('imports');
 
         $students = Excel::toCollection(new StudentsImport($request->department_id), storage_path('app/' . $filePath))->first();
@@ -466,15 +506,92 @@ class AdminStudentController extends Controller
         ]);
     }
 
+
+
+    // public function importProcess(Request $request)
+    // {
+    //     dd($request->all());
+
+    //     try {
+    //         $request->validate([
+    //             'department_id' => 'required|exists:departments,id',
+    //             'students' => 'required|array'
+    //         ]);
+
+    //         // Generate a unique batch ID
+    //         $batchId = uniqid('batch_', true);
+
+    //         // Dispatch the job to process students in the background
+    //         ProcessStudentImport::dispatch($request->students, $request->department_id, $batchId);
+
+    //         // Store the batch ID in session for status checking
+    //         session(['latest_import_batch' => $batchId]);
+
+    //         return redirect()
+    //             ->route('admin.student.import-status')
+    //             ->with('message', 'Student import has been queued for processing. You can check the status on this page.');
+    //     } catch (Exception $e) {
+    //         return redirect()
+    //             ->back()
+    //             ->withErrors(['error' => 'Failed to queue student import: ' . $e->getMessage()])
+    //             ->withInput();
+    //     }
+    // }
+
     public function importProcess(Request $request)
-    {
+{
+    try {
         $request->validate([
             'department_id' => 'required|exists:departments,id',
-            'filePath' => 'required|string',
+            'students' => 'required|array'
         ]);
 
-        ProcessStudentImport::dispatch($request->filePath, $request->department_id);
+        // Log the initial request
+        Log::info('Starting student import process', [
+            'total_records' => count($request->students),
+            'department_id' => $request->department_id
+        ]);
 
-        return redirect()->route('admin.students.index')->with('success', 'Student import process started.');
+        // Generate a unique batch ID
+        $batchId = uniqid('batch_', true);
+
+        // Dispatch the job with a smaller chunk size
+        $chunks = array_chunk($request->students, 25); // Process 25 students at a time
+
+        foreach ($chunks as $index => $chunk) {
+            ProcessStudentImport::dispatch($chunk, $request->department_id, $batchId)
+                ->delay(now()->addSeconds($index * 30)); // Add delay between chunks
+        }
+
+        return redirect()
+            ->route('admin.student.import-status')
+            ->with('message', 'Student import has been queued for processing. You can check the status on this page.');
+    } catch (Exception $e) {
+        Log::error('Failed to queue student import', [
+            'error' => $e->getMessage(),
+            'stack_trace' => $e->getTraceAsString()
+        ]);
+
+        return redirect()
+            ->back()
+            ->withErrors(['error' => 'Failed to queue student import: ' . $e->getMessage()])
+            ->withInput();
+    }
+}
+
+    // New method to check import status
+    public function importStatus()
+    {
+        $batchId = session('latest_import_batch');
+        $results = Cache::get("student_import_{$batchId}");
+        if (!$results) {
+            return redirect()->route('admin.student.view')
+                ->with('warning', 'No active import process found.');
+        }
+
+        return view('admin.student.import-status', [
+            'batchId' => $batchId,
+            'results' => $results
+        ]);
     }
 }

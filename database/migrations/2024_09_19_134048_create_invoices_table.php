@@ -12,8 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
-			$table->id();
-			$table->timestamps();
+            $table->id();
+            $table->foreignId('student_id')->constrained();
+            $table->foreignId('payment_type_id')->constrained();
+            $table->foreignId('department_id')->constrained();
+            $table->string('level');
+            $table->foreignId('academic_session_id')->constrained();
+            $table->foreignId('semester_id')->constrained();
+            $table->decimal('amount', 10, 2);
+            $table->foreignId('payment_method_id')->constrained();
+            $table->string('status')->default('pending');
+            $table->string('invoice_number')->unique();
+            $table->timestamps();
         });
     }
 

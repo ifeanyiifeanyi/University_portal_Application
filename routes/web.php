@@ -48,6 +48,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
+use App\Http\Controllers\Admin\LogActivityController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 
@@ -118,6 +119,12 @@ Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'secu
 });
 
 Route::prefix('admin')->middleware('admin')->group(function () {
+
+    Route::controller(LogActivityController::class)->group(function () {
+        Route::get('/activities',  'index')->name('activities.index');
+        Route::delete('/activities/{id}',  'destroy')->name('activities.destroy');
+    });
+
 
     // Dashboard Routes
     Route::middleware('permission:view dashboard')->group(function () {
@@ -337,7 +344,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             // Route::get('students/import',  'showImportForm')->name('admin.students.import');
             // Route::post('students/import',  'importStudents')->name('admin.students.import.process');
 
-            Route::get('students/template/download/{format?}','downloadTemplate')->name('admin.students.template.download');
+            Route::get('students/template/download/{format?}', 'downloadTemplate')->name('admin.students.template.download');
             Route::post('students/import/verify', 'verifyImportData')->name('admin.students.import.verify');
 
             // verify import
@@ -348,7 +355,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-
+            Route::get('upload/status-process', 'importStatus')->name('admin.student.import-status');
         });
     });
 
