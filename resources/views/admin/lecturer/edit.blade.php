@@ -206,13 +206,59 @@
 
                     <div class="form-group">
                         <label for="teacher_title">Teacher Title</label>
-                        <input type="text" class="form-control @error('teacher_title') is-invalid @enderror"
-                            id="teacher_title" name="teacher_title"
-                            value="{{ old('teacher_title', $teacher->teacher_title) }}">
+                        <select class="form-control @error('teacher_title') is-invalid @enderror" id="teacher_title"
+                            name="teacher_title">
+                            <option value="" disabled>Select Title</option>
+                            <option value="Prof."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Prof.' ? 'selected' : '' }}>Prof.
+                            </option>
+                            <option value="Dr."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                            <option value="Mr."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Mr.' ? 'selected' : '' }}>Mr.</option>
+                            <option value="Mrs."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Mrs.' ? 'selected' : '' }}>Mrs.
+                            </option>
+                            <option value="Ms."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                            <option value="Miss"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Miss' ? 'selected' : '' }}>Miss
+                            </option>
+                            <option value="Sr."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                            <option value="Fr."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Fr.' ? 'selected' : '' }}>Fr.</option>
+                            <option value="Br."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Br.' ? 'selected' : '' }}>Br.</option>
+                            <option value="RN"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'RN' ? 'selected' : '' }}>RN</option>
+                            <option value="NP"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'NP' ? 'selected' : '' }}>NP</option>
+                            <option value="CNM"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'CNM' ? 'selected' : '' }}>CNM</option>
+                            <option value="DNP"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'DNP' ? 'selected' : '' }}>DNP</option>
+                            <option value="PhD"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'PhD' ? 'selected' : '' }}>PhD</option>
+                            <option value="EdD"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'EdD' ? 'selected' : '' }}>EdD</option>
+                            <option value="MSc"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'MSc' ? 'selected' : '' }}>MSc</option>
+                            <option value="MA"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'MA' ? 'selected' : '' }}>MA</option>
+                            <option value="MPH"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'MPH' ? 'selected' : '' }}>MPH</option>
+                            <option value="MBA"
+                                {{ old('teacher_title', $teacher->teacher_title) == 'MBA' ? 'selected' : '' }}>MBA</option>
+                            <option value="Engr."
+                                {{ old('teacher_title', $teacher->teacher_title) == 'Engr.' ? 'selected' : '' }}>Engr.
+                            </option>
+                        </select>
                         @error('teacher_title')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
+
 
                     <div class="form-group">
                         <label for="office_hours">Office Hours</label>
@@ -268,19 +314,20 @@
                     <div class="form-group">
                         <label for="certifications">Certifications</label>
                         <div id="certifications-container">
-                            @forelse (json_decode($teacher->certifications) as $certification)
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" name="certifications[]"
-                                        value="{{ $certification }}">
-                                    <button type="button" class="btn btn-danger remove-certification">Remove</button>
-                                </div>
-                            @empty
+                            @if (isset($teacher->certifications) && is_array(json_decode($teacher->certifications)))
+                                @foreach (json_decode($teacher->certifications) as $certification)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" name="certifications[]"
+                                            value="{{ $certification }}">
+                                        <button type="button" class="btn btn-danger remove-certification">Remove</button>
+                                    </div>
+                                @endforeach
+                            @else
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" name="certifications[]" value="">
                                     <button type="button" class="btn btn-danger remove-certification">Remove</button>
                                 </div>
-                            @endforelse
-
+                            @endif
                         </div>
                         <button type="button" class="btn btn-primary mt-2" id="add-certification">Add
                             Certification</button>
@@ -293,27 +340,20 @@
                     <div class="form-group">
                         <label for="publications">Publications</label>
                         <div id="publications-container">
-                            @if (count(json_decode($teacher->publications)) > 0)
-                                @forelse(json_decode($teacher->publications) as $publication)
+                            @if (isset($teacher->publications) && is_array(json_decode($teacher->publications)))
+                                @foreach (json_decode($teacher->publications) as $publication)
                                     <div class="input-group mb-2">
                                         <input type="text" class="form-control" name="publications[]"
                                             value="{{ $publication }}">
                                         <button type="button" class="btn btn-danger remove-publication">Remove</button>
                                     </div>
-                                @empty
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control" name="publications[]" value="">
-                                        <button type="button" class="btn btn-danger remove-publication">Remove</button>
-                                    </div>
-                                @endforelse
+                                @endforeach
                             @else
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" name="publications[]" value="">
                                     <button type="button" class="btn btn-danger remove-publication">Remove</button>
                                 </div>
                             @endif
-
-
                         </div>
                         <button type="button" class="btn btn-primary mt-2" id="add-publication">Add Publication</button>
                         @error('publications')
@@ -352,13 +392,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nationality">Nationality</label>
-                        <input type="text" class="form-control @error('nationality') is-invalid @enderror"
-                            id="nationality" name="nationality" value="{{ old('nationality', $teacher->nationality) }}">
+                        <label for="nationality">Country</label>
+                        <select name="nationality" class="form-control">
+                            <option value="" selected disabled>Select Country</option>
+                            @foreach ($countries as $country)
+                                <option value="{{ old('nationality', $teacher->nationality) == $country->name ? 'selected' : '' }}"> {{ $country->name }}</option>
+                            @endforeach
+                        </select>
                         @error('nationality')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
+
 
                     <div class="form-group">
                         <label for="level">Level</label>

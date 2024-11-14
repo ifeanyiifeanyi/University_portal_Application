@@ -3,7 +3,6 @@
 @section('title', 'Registered Courses')
 
 @section('admin')
-    @include('admin.return_btn')
     <div class="container">
         @include('admin.alert')
         <div class="card py-3 px-3">

@@ -2,12 +2,9 @@
 @section('title', 'Student Score History')
 @section('admin')
     <div class="container">
-        <p>
-            <button onclick="history.back()" class="btn" style="background-color: rgb(81, 0, 128); color:white">
-                Back
-            </button>
-        </p>
+
         <h4>Result History <code>{{ $student->user->fullName() }}</code></h4>
+        <hr>
 
         <div class="card py-3 px-3">
             @foreach ($scores as $sessionSemester => $sessionScores)

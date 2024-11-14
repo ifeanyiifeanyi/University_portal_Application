@@ -57,8 +57,9 @@
                             <label for="profile_photo" id="image-label">Click to add Photo</label>
                             <input id="profile_photo" type="file" name="profile_photo"
                                 accept=".jpg, .png, image/jpeg, image/png" style="display:none;">
-                            <img id="image-preview" src="{{ !empty($student->user->profile_photo) ? asset($student->user->profile_photo) : asset('no_image.jpg') }}" alt="Profile Photo"
-                                class="image-preview">
+                            <img id="image-preview"
+                                src="{{ !empty($student->user->profile_photo) ? asset($student->user->profile_photo) : asset('no_image.jpg') }}"
+                                alt="Profile Photo" class="image-preview">
                         </div>
                     </div>
                 </div>
@@ -128,12 +129,14 @@
                     <select class="form-select @error('department_id') is-invalid @enderror" id="department_id"
                         name="department_id" required>
                         <option value="">Select Department</option>
-                        @foreach ($departments as $department)
-                            <option value="{{ $department->id }}"
-                                {{ old('department_id', $student->department_id) == $department->id ? 'selected' : '' }}>
-                                {{ $department->code }}: {{ Str::title($department->name) }}
-                            </option>
-                        @endforeach
+                        <!-- Add department options here -->
+                        @forelse ($departments as $department)
+                            <option {{ old('department_id', $student->department_id) == $department->id  ? 'selected' : '' }}
+                                value="{{ $department->id }}"> {{ $department->code }} :
+                                {{ Str::title($department->name) }} </option>
+                        @empty
+                            <option value=""> ------ -------</option>
+                        @endforelse
                     </select>
                     @error('department_id')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -185,9 +188,11 @@
                         <option value="">Select Mode of Entry</option>
                         <option value="UTME"
                             {{ old('mode_of_entry', $student->mode_of_entry) == 'UTME' ? 'selected' : '' }}>UTME</option>
+
                         <option value="Direct Entry"
                             {{ old('mode_of_entry', $student->mode_of_entry) == 'Direct Entry' ? 'selected' : '' }}>Direct
                             Entry</option>
+
                         <option value="Transfer"
                             {{ old('mode_of_entry', $student->mode_of_entry) == 'Transfer' ? 'selected' : '' }}>Transfer
                         </option>
@@ -197,13 +202,16 @@
                     @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="current_level" class="form-label">Current Academic Level</label>
-                    <input type="text" class="form-control @error('current_level') is-invalid @enderror"
-                        id="current_level" name="current_level"
-                        value="{{ old('current_level', $student->current_level) }}" required>
-                    @error('current_level')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="form-group mb-3">
+                        <label for="level">Academic Level</label>
+                        <select class="form-control @error('current_level') is-invalid @enderror" id="level"
+                            name="current_level" required>
+
+                        </select>
+                        @error('current_level')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -239,9 +247,15 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="nationality" class="form-label">Nationality</label>
-                    <input type="text" class="form-control @error('nationality') is-invalid @enderror"
-                        id="nationality" name="nationality" value="{{ old('nationality', $student->nationality) }}"
-                        required>
+                    <select name="nationality" id="nationality" class="form-control">
+                        <option value="" disabled selected>Select Nationality</option>
+                        @foreach ($countries as $country)
+                            <option value="{{ $country->name }}"
+                                {{ old('nationality', $student->nationality) == $country->name ? 'selected' : '' }}>
+                                {{ $country->name }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('nationality')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -432,6 +446,34 @@
                     reader.readAsDataURL(file);
                 }
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const departmentSelect = document.getElementById('department_id');
+            const levelSelect = document.getElementById('level');
+
+            function updateLevels() {
+                const departmentId = departmentSelect.value;
+                fetch(`/admin/departments/${departmentId}/levels`)
+                    .then(response => response.json())
+                    .then(levels => {
+                        levelSelect.innerHTML = '';
+                        levels.forEach(level => {
+                            const option = document.createElement('option');
+                            option.value = level;
+                            option.textContent = level;
+                            if (level === '{{ old('current_level', $student->current_level) }}') {
+                                option.selected = true;
+                            }
+                            levelSelect.appendChild(option);
+                        });
+                    });
+            }
+
+            departmentSelect.addEventListener('change', updateLevels);
+            updateLevels(); // Initial population
         });
     </script>
 @endsection

@@ -108,7 +108,7 @@ class TeacherController extends Controller
             'address' => $request->address,
             'nationality' => $request->nationality,
             'level' => $request->level,
-            'employment_id' => str_shuffle(mt_rand(1000000, 9999999))
+            'employment_id' => "EM-ID-".str_shuffle(mt_rand(1000000, 9999999))."CONSO"
         ]);
 
         if ($request->hasFile('profile_photo')) {
@@ -161,7 +161,8 @@ class TeacherController extends Controller
 
     public function edit(Teacher $teacher)
     {
-        return view('admin.lecturer.edit', compact('teacher'));
+        $countries = Country::all();
+        return view('admin.lecturer.edit', compact('teacher', 'countries'));
     }
     public function update(UpdateTeacherRequest $request, Teacher $teacher)
     {
@@ -218,7 +219,10 @@ class TeacherController extends Controller
             'alert-type' => 'success'
         ];
 
-        return redirect()->back()->with($notification);
+        return redirect()->route('admin.teacher.view')->with([
+            'message' => 'Lecturer account Updated successfully.',
+            'alert-type' => 'success'
+        ]);
     }
 
     public function destroy(Teacher $teacher)

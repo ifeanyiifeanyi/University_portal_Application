@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Profilerequest;
 use App\Services\StudentBatchService;
 use App\Http\Requests\StudentprofileRequest;
+use App\Http\Requests\UpdateStudentDataRequest;
+use Exception;
 use Illuminate\Contracts\Auth\StatefulGuard;
 
 class StudentService
@@ -34,44 +36,118 @@ class StudentService
         $this->studentBatchService = $studentBatchService;
     }
 
-    public function createprofile(StudentprofileRequest $updatestudentprofileprofile) {}
-    // public function updateprofile(StudentprofileRequest $updatestudentprofile){
-    //     $updatestudent = Student::where('user_id',$this->authService->user()->id)->update([
-    //         'date_of_birth' => $updatestudentprofile['date_of_birth'],
-    //         'gender' => $updatestudentprofile['gender'],
-    //         'state_of_origin' => $updatestudentprofile['state_of_origin'],
-    //         'lga_of_origin' => $updatestudentprofile['local_govt_of_origin'],
-    //         'hometown' => $updatestudentprofile['hometown'],
-    //         'residential_address' => $updatestudentprofile['residential_address'],
-    //         'permanent_address' => $updatestudentprofile['permanent_address'],
-    //         'nationality' => $updatestudentprofile['nationality'],
-    //         'marital_status' => $updatestudentprofile['marital_status'],
-    //         'religion' => $updatestudentprofile['religion'],
-    //         'blood_group' => $updatestudentprofile['bloodgroup'],
-    //         'genotype' => $updatestudentprofile['genotype'],
-    //         'next_of_kin_name' => $updatestudentprofile['next_of_kin_name'],
-    //         'next_of_kin_relationship' => $updatestudentprofile['next_of_kin_relationship'],
-    //         'next_of_kin_phone' => $updatestudentprofile['next_of_kin_phone'],
-    //         'next_of_kin_address' => $updatestudentprofile['next_of_kin_address'],
-    //         'jamb_registration_number' => $updatestudentprofile['jamb_registration_number'],
-    //         'year_of_admission' => $updatestudentprofile['year_of_admission'],
-    //         'mode_of_entry' => $updatestudentprofile['mode_of_entry'],
-    //         'current_level' => $updatestudentprofile['current_level']
-    //     ]);
-    //     // update for user tables
+    public function updateprofile(StudentprofileRequest $updatestudentprofile)
+    {
+        $updatestudent = Student::where('user_id', $this->authService->user()->id)->update([
+            'date_of_birth' => $updatestudentprofile['date_of_birth'],
+            'gender' => $updatestudentprofile['gender'],
+            'state_of_origin' => $updatestudentprofile['state_of_origin'],
+            'lga_of_origin' => $updatestudentprofile['local_govt_of_origin'],
+            'hometown' => $updatestudentprofile['hometown'],
+            'residential_address' => $updatestudentprofile['residential_address'],
+            'permanent_address' => $updatestudentprofile['permanent_address'],
+            'nationality' => $updatestudentprofile['nationality'],
+            'marital_status' => $updatestudentprofile['marital_status'],
+            'religion' => $updatestudentprofile['religion'],
+            'blood_group' => $updatestudentprofile['bloodgroup'],
+            'genotype' => $updatestudentprofile['genotype'],
+            'next_of_kin_name' => $updatestudentprofile['next_of_kin_name'],
+            'next_of_kin_relationship' => $updatestudentprofile['next_of_kin_relationship'],
+            'next_of_kin_phone' => $updatestudentprofile['next_of_kin_phone'],
+            'next_of_kin_address' => $updatestudentprofile['next_of_kin_address'],
+            'jamb_registration_number' => $updatestudentprofile['jamb_registration_number'],
+            'year_of_admission' => $updatestudentprofile['year_of_admission'],
+            'mode_of_entry' => $updatestudentprofile['mode_of_entry'],
+            'current_level' => $updatestudentprofile['current_level']
+        ]);
+        // update for user tables
 
-    //     $updateuser = User::where('id',$this->authService->user()->id)->update([
-    //         'first_name'=>$updatestudentprofile->firstname,
-    //         'last_name'=>$updatestudentprofile->lastname,
-    //         'other_name'=>$updatestudentprofile->othernames,
-    //         'phone'=>$updatestudentprofile->phonenumber,
-    //     ]);
+        $updateuser = User::where('id', $this->authService->user()->id)->update([
+            'first_name' => $updatestudentprofile->firstname,
+            'last_name' => $updatestudentprofile->lastname,
+            'other_name' => $updatestudentprofile->othernames,
+            'phone' => $updatestudentprofile->phonenumber,
+        ]);
 
-    //     if($updatestudent && $updateuser){
-    //         return redirect(route('student.view.profile'));
-    //      }
-    // }
+        if ($updatestudent && $updateuser) {
+            return redirect(route('student.view.profile'));
+        }
+    }
 
+
+    public function updateFromAdmin(UpdateStudentDataRequest $request, Student $student)
+    {
+        $validatedData = $request->validated();
+
+        DB::beginTransaction();
+
+        try {
+            if ($request->hasFile('profile_photo')) {
+                // Get the old image path
+                $old_image = $student->user->profile_photo;
+
+                // Delete the old image if it exists
+                if (!empty($old_image) && file_exists(public_path($old_image))) {
+                    unlink(public_path($old_image));
+                }
+
+                // Handle the new image upload
+                $thumb = $request->file('profile_photo');
+                $extension = $thumb->getClientOriginalExtension();
+                $profilePhoto = time() . "." . $extension;
+                $thumb->move('admin/students/profile/', $profilePhoto);
+                $student->user->profile_photo = 'admin/students/profile/' . $profilePhoto;
+                $student->user->save();
+            }
+
+            // Update user data
+            $student->user->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'other_name' => $request->other_name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+            ]);
+
+            // Update student data
+            $student->update([
+                'department_id' => $validatedData['department_id'],
+                'date_of_birth' => $validatedData['date_of_birth'],
+                'gender' => $validatedData['gender'],
+                'state_of_origin' => $validatedData['state_of_origin'],
+                'lga_of_origin' => $validatedData['lga_of_origin'],
+                'hometown' => $validatedData['hometown'],
+                'residential_address' => $validatedData['residential_address'],
+                'permanent_address' => $validatedData['permanent_address'],
+                'nationality' => $validatedData['nationality'],
+                'marital_status' => $validatedData['marital_status'],
+                'religion' => $validatedData['religion'],
+                'blood_group' => $validatedData['blood_group'],
+                'genotype' => $validatedData['genotype'],
+                'next_of_kin_name' => $validatedData['next_of_kin_name'],
+                'next_of_kin_relationship' => $validatedData['next_of_kin_relationship'],
+                'next_of_kin_phone' => $validatedData['next_of_kin_phone'],
+                'next_of_kin_address' => $validatedData['next_of_kin_address'],
+                'jamb_registration_number' => $validatedData['jamb_registration_number'],
+                'year_of_admission' => $validatedData['year_of_admission'],
+                'mode_of_entry' => $validatedData['mode_of_entry'],
+                'current_level' => $validatedData['current_level'],
+            ]);
+
+            DB::commit();
+
+            return [
+                'message' => 'Student account Updated successfully.',
+                'alert-type' => 'success',
+            ];
+        } catch (\Exception $e) {
+            DB::rollback();
+            return [
+                'message' => 'An error occurred while updating the student account. Please try again.' . $e->getMessage(),
+                'alert-type' => 'error',
+            ];
+        }
+    }
 
     public function createStudent(array $data)
     {
@@ -88,7 +164,7 @@ class StudentService
                 'other_name' => $data['other_name'] ?? null,
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
-                'username' => mt_rand(1000, 9999),
+                'username' => mt_rand(10000000, 99999999),
                 'slug' => 'SLUG' . mt_rand(1000, 9999),
                 'email_verified_at' => now(),
                 'password' => Hash::make($data['password']) ?? Hash::make('password'),

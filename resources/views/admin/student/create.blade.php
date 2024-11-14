@@ -55,8 +55,8 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" class="form-control @error('first_name') border-danger @enderror" id="first_name"
-                            name="first_name" value="{{ old('first_name') }}" required>
+                        <input type="text" class="form-control @error('first_name') border-danger @enderror"
+                            id="first_name" name="first_name" value="{{ old('first_name') }}" required>
                         @error('first_name')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -230,7 +230,7 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="state_of_origin" class="form-label">State of Origin</label>
+                        <label for="state_of_origin" class="form-label">State of Origin(Province)</label>
                         <input type="text" class="form-control @error('state_of_origin') is-invalid @enderror"
                             id="state_of_origin" name="state_of_origin" value="{{ old('state_of_origin') }}" required>
                         @error('state_of_origin')
@@ -238,7 +238,7 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="lga_of_origin" class="form-label">LGA of Origin</label>
+                        <label for="lga_of_origin" class="form-label">LGA of Origin(District)</label>
                         <input type="text" class="form-control @error('lga_of_origin') is-invalid @enderror"
                             id="lga_of_origin" name="lga_of_origin" value="{{ old('lga_of_origin') }}" required>
                         @error('lga_of_origin')
@@ -257,9 +257,15 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="nationality" class="form-label">Nationality</label>
-                        <input type="text" class="form-control @error('nationality') is-invalid @enderror"
-                            id="nationality" name="nationality" value="{{ old('nationality', 'Nigerian') }}" required>
+                        <label for="nationality" class="form-label">Country</label>
+                        <select name="nationality" id="nationality" class="form-control">
+                            <option value="" disabled selected>Select Nationality</option>
+                            @foreach ($countries as $country)
+                                <option value="{{ $country->name }}"
+                                    {{ old('nationality', 'nigeria') == $country->name ? 'selected' : '' }}>
+                                    {{ $country->name }}</option>
+                            @endforeach
+                        </select>
                         @error('nationality')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

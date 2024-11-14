@@ -197,12 +197,34 @@
 
                     <div class="form-group">
                         <label for="teacher_title">Teacher Title</label>
-                        <input type="text" class="form-control @error('teacher_title') is-invalid @enderror"
-                            id="teacher_title" name="teacher_title" value="{{ old('teacher_title') }}">
+                        <select class="form-control @error('teacher_title') is-invalid @enderror" id="teacher_title" name="teacher_title">
+                            <option value="" disabled selected>Select Title</option>
+                            <option value="Prof." {{ old('teacher_title') == 'Prof.' ? 'selected' : '' }}>Prof.</option>
+                            <option value="Dr." {{ old('teacher_title') == 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                            <option value="Mr." {{ old('teacher_title') == 'Mr.' ? 'selected' : '' }}>Mr.</option>
+                            <option value="Mrs." {{ old('teacher_title') == 'Mrs.' ? 'selected' : '' }}>Mrs.</option>
+                            <option value="Ms." {{ old('teacher_title') == 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                            <option value="Miss" {{ old('teacher_title') == 'Miss' ? 'selected' : '' }}>Miss</option>
+                            <option value="Sr." {{ old('teacher_title') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                            <option value="Fr." {{ old('teacher_title') == 'Fr.' ? 'selected' : '' }}>Fr.</option>
+                            <option value="Br." {{ old('teacher_title') == 'Br.' ? 'selected' : '' }}>Br.</option>
+                            <option value="RN" {{ old('teacher_title') == 'RN' ? 'selected' : '' }}>RN</option>
+                            <option value="NP" {{ old('teacher_title') == 'NP' ? 'selected' : '' }}>NP</option>
+                            <option value="CNM" {{ old('teacher_title') == 'CNM' ? 'selected' : '' }}>CNM</option>
+                            <option value="DNP" {{ old('teacher_title') == 'DNP' ? 'selected' : '' }}>DNP</option>
+                            <option value="PhD" {{ old('teacher_title') == 'PhD' ? 'selected' : '' }}>PhD</option>
+                            <option value="EdD" {{ old('teacher_title') == 'EdD' ? 'selected' : '' }}>EdD</option>
+                            <option value="MSc" {{ old('teacher_title') == 'MSc' ? 'selected' : '' }}>MSc</option>
+                            <option value="MA" {{ old('teacher_title') == 'MA' ? 'selected' : '' }}>MA</option>
+                            <option value="MPH" {{ old('teacher_title') == 'MPH' ? 'selected' : '' }}>MPH</option>
+                            <option value="MBA" {{ old('teacher_title') == 'MBA' ? 'selected' : '' }}>MBA</option>
+                            <option value="Engr." {{ old('teacher_title') == 'Engr.' ? 'selected' : '' }}>Engr.</option>
+                        </select>
                         @error('teacher_title')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
+
 
                     <div class="form-group">
                         <label for="office_hours">Office Hours</label>
@@ -254,12 +276,13 @@
 
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" name="certifications[]" value="">
-                                <button type="button" class="btn btn-danger remove-certification">Remove</button>
+                                <button type="button" class="btn btn-danger remove-certification"><i
+                                        class="fas fa-times"></i></button>
                             </div>
 
                         </div>
-                        <button type="button" class="btn btn-primary mt-2" id="add-certification">Add
-                            Certification</button>
+                        <button type="button" class="btn btn-sm btn-primary mt-2" id="add-certification"><i
+                                class="fas fa-plus"></i></button>
                         @error('certifications')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -272,11 +295,13 @@
 
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" name="publications[]" value="">
-                                <button type="button" class="btn btn-danger remove-publication">Remove</button>
+                                <button type="button" class="btn btn-danger remove-publication"><i
+                                        class="fas fa-times"></i></button>
                             </div>
 
                         </div>
-                        <button type="button" class="btn btn-primary mt-2" id="add-publication">Add Publication</button>
+                        <button type="button" class="btn btn-primary btn-sm  mt-2" id="add-publication"><i
+                            class="fas fa-plus"></i></button>
                         @error('publications')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
@@ -311,11 +336,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nationality">Nationality</label>
+                        <label for="nationality">Country</label>
                         <select name="nationality" class="form-control">
-                            <option value="" selected disabled>Select Nationality</option>
+                            <option value="" selected disabled>Select Country</option>
                             @foreach ($countries as $country)
-                                <option value="{{ $country->name }}" > {{ $country->name }}</option>
+                                <option value="{{ $country->name }}" {{ old("nationality") == $country->name ? 'selected' : '' }}> {{ $country->name }}</option>
                             @endforeach
                         </select>
                         @error('nationality')
@@ -357,7 +382,6 @@
             const certificationsContainer = document.getElementById('certifications-container');
             const addCertificationButton = document.getElementById('add-certification');
 
-            // Function to add a new certification input field
             function addCertificationInput(value = '') {
                 const inputGroup = document.createElement('div');
                 inputGroup.classList.add('input-group', 'mb-2');
@@ -371,7 +395,7 @@
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.classList.add('btn', 'btn-danger', 'remove-certification');
-                button.textContent = 'Remove';
+                button.innerHTML = '<i class="fas fa-times"></i>'; // Use FontAwesome icon
 
                 inputGroup.appendChild(input);
                 inputGroup.appendChild(button);
@@ -382,7 +406,6 @@
                     inputGroup.remove();
                 });
             }
-
             // Add event listener to the add button
             addCertificationButton.addEventListener('click', function() {
                 addCertificationInput();
@@ -415,7 +438,7 @@
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.classList.add('btn', 'btn-danger', 'remove-publication');
-                button.textContent = 'Remove';
+                button.innerHTML = "<i class='fas fa-times'></i>";
 
                 inputGroup.appendChild(input);
                 inputGroup.appendChild(button);

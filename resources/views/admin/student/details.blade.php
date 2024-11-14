@@ -58,7 +58,6 @@
 @endsection
 
 @section('admin')
-    @include('admin.return_btn')
     <div class="container-fluid">
 
         <div class="row">

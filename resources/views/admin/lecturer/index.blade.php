@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Mange Lecturers')
+@section('title', 'Manage Lecturers')
 @section('css')
 
 @endsection
