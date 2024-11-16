@@ -48,6 +48,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
+use App\Http\Controllers\Admin\BackupSettingController;
 use App\Http\Controllers\Admin\LogActivityController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
@@ -123,6 +124,19 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::controller(LogActivityController::class)->group(function () {
         Route::get('/activities',  'index')->name('activities.index');
         Route::delete('/activities/{id}',  'destroy')->name('activities.destroy');
+    });
+
+    Route::controller(BackupSettingController::class)->group(function () {
+        Route::get('backups', 'index')->name('admin.backups.index');
+
+        Route::get('backups/create', 'create')->name('admin.backups.create');
+        Route::get('backups/download/{file_name}', 'download')->name('admin.backups.download');
+        Route::get('backups/restore/{file_name}', 'restore')->name('admin.backups.restore');
+        Route::delete('backups/delete/{file_name}', 'delete')->name('admin.backups.delete');
+
+        Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
+        Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
+
     });
 
 

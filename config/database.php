@@ -57,6 +57,11 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            'dump' => [
+                'dump_binary_path' => '/usr/bin/', // only the path, without `mysqldump` or `pg_dump`
+                'use_single_transaction' => true,
+                'timeout' => 300, // 5 minutes
+            ],
         ],
 
         'mariadb' => [
