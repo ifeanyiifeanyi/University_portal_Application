@@ -35,6 +35,7 @@
                         </div>
                     </div>
                     <div class="card-body">
+                    .table-responsive
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
@@ -47,7 +48,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @dd($backups)   
+                                {{-- @dd($backups)    --}}
                                 @foreach ($backups as $backup)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
