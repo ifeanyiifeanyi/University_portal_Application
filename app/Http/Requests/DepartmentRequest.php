@@ -21,10 +21,16 @@ class DepartmentRequest extends FormRequest
      */
     public function rules(): array
     {
+        $departmentId = $this->route('department') ? $this->route('department')->id : null;
+
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'faculty_id' => ['required', 'integer'],
-            'duration' => ['required', 'integer', 'max:8', 'min:1'],
+            'name' => ['required', 'string', 'max:255', 'unique:departments,name,' . $departmentId],
+            'faculty_id' => ['required', 'exists:faculties,id'],
+            'duration' => ['required', 'integer', 'min:1', 'max:8'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'program_id' => ['nullable', 'exists:programs,id'],
+            'department_head_id' => ['nullable', 'exists:users,id'],
             'description' => ['nullable', 'string'],
         ];
     }
@@ -32,11 +38,10 @@ class DepartmentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The department name field is required.',
-            'duration.required' => 'This must be a whole positive single digit.',
-            'faculty_id.required' => 'The faculty field is required.',
-            'description.string' => 'The description field should be a string.',
-            'description.max' => 'The description field should not exceed 255 characters.',
+            'name.unique' => 'Department name must be unique.',
+            'faculty_id.exists' => 'Selected faculty is invalid.',
+            'program_id.exists' => 'Selected program is invalid.',
+            'department_head_id.exists' => 'Selected department head is invalid.',
         ];
     }
 }

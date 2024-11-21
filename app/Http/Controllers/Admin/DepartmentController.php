@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use League\Csv\Writer;
 use App\Models\Faculty;
+use App\Models\Program;
 use App\Models\Semester;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -21,31 +23,38 @@ class DepartmentController extends Controller
     {
         $faculties = Faculty::query()->latest()->get();
         $departments = Department::query()->oldest()->get();
-        return view('admin.departments.index', compact('faculties', 'departments'));
+        $programs = Program::all();
+        $users = User::where('user_type', 2)->get();
+        return view('admin.departments.index', compact('faculties', 'departments', 'programs', 'users'));
     }
+
 
 
     public function store(DepartmentRequest $request)
     {
-        $validatedData = $request->validated();
+        try {
+            $validatedData = $request->validated();
+            // Available alpha characters
+            $characters = 'CONSO';
 
-        // Available alpha characters
-        $characters = 'CONC';
+            // generate a pin based on 2 * 7 digits + a random character
+            $validatedData['code'] = mt_rand(100, 999) . $characters;
+            Department::create($validatedData);
+            $notification = [
+                'status' => 'success',
+                'message' => 'Department created successfully'
+            ];
 
-        // generate a pin based on 2 * 7 digits + a random character
-        $validatedData['code'] = mt_rand(100, 999) . $characters;
-
-        $department = Department::create($validatedData);
-        // Log the department creation
-        ActivityLogHelper::logDepartmentActivity('Created', $department);
-
-        $notification = [
-            'message' => 'New Department Created Successfully!!',
-            'alert-type' => 'success'
-        ];
-
-        return redirect()->back()->with($notification);
+            return redirect()->back()->with($notification);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create department',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     public function edit($id)
     {
@@ -70,47 +79,57 @@ class DepartmentController extends Controller
         return redirect()->route('admin.department.view')->with($notification);
     }
 
-    public function show($id, Request $request)
+    // public function show($id, Request $request)
+    // {
+    //     $department = Department::findOrFail($id);
+    //     $query = CourseAssignment::with(['course', 'semester.academicSession', 'teacherAssignment.teacher.user'])->where('department_id', $id);
+
+
+
+    //     if ($request->has('search')) {
+    //         $search = $request->input('search');
+    //         $query->whereHas('course', function ($q) use ($search) {
+    //             $q->where('title', 'like', "%{$search}%")
+    //                 ->orWhere('code', 'like', "%{$search}%");
+    //         })->orWhereHas('teacherAssignments.teacher.user', function ($q) use ($search) {
+    //             $q->where('first_name', 'like', "%{$search}%")
+    //                 ->orWhere('last_name', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     if ($request->has('session')) {
+    //         $query->whereHas('semester.academicSession', function ($q) use ($request) {
+    //             $q->where('name', $request->input('session'));
+    //         });
+    //     }
+
+    //     if ($request->has('semester')) {
+    //         $query->whereHas('semester', function ($q) use ($request) {
+    //             $q->where('name', $request->input('semester'));
+    //         });
+    //     }
+
+    //     if ($request->has('level')) {
+    //         $query->where('level', $request->input('level'));
+    //     }
+
+    //     $assignments = $query->orderBy('semester_id', 'desc')->paginate(15);
+
+
+    //     return view('admin.departments.detail', compact('department', 'assignments'));
+    // }
+
+    public function show(Department $department)
     {
-        $department = Department::findOrFail($id);
-        $query = CourseAssignment::with(['course', 'semester.academicSession', 'teacherAssignment.teacher.user'])->where('department_id', $id);
+        // Load related models to avoid N+1 query problem
+        $department->load([
+            'faculty',
+            'program',
+            'departmentHead'
+        ]);
 
-
-
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->whereHas('course', function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
-            })->orWhereHas('teacherAssignments.teacher.user', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->has('session')) {
-            $query->whereHas('semester.academicSession', function ($q) use ($request) {
-                $q->where('name', $request->input('session'));
-            });
-        }
-
-        if ($request->has('semester')) {
-            $query->whereHas('semester', function ($q) use ($request) {
-                $q->where('name', $request->input('semester'));
-            });
-        }
-
-        if ($request->has('level')) {
-            $query->where('level', $request->input('level'));
-        }
-
-        $assignments = $query->orderBy('semester_id', 'desc')->paginate(15);
-
-
-        return view('admin.departments.detail', compact('department', 'assignments'));
+        return response()->json($department);
     }
-
-
 
     public function destroy($id)
     {

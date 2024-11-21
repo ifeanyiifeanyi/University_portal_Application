@@ -396,7 +396,10 @@
                         <select name="nationality" class="form-control">
                             <option value="" selected disabled>Select Country</option>
                             @foreach ($countries as $country)
-                                <option value="{{ old('nationality', $teacher->nationality) == $country->name ? 'selected' : '' }}"> {{ $country->name }}</option>
+                                <option value="{{ $country->name }}"
+                                        {{ old('nationality', $teacher->nationality) == $country->name ? 'selected' : '' }}>
+                                    {{ $country->name }}
+                                </option>
                             @endforeach
                         </select>
                         @error('nationality')

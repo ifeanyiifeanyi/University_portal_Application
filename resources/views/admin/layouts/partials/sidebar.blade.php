@@ -59,9 +59,15 @@
                                 class="bx bx-right-arrow-alt"></i>Manage Academic Sessions</a>
                     </li>
 
+
                     <li>
                         <a href="{{ route('semester-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                             Semester</a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('admin.programs.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                            Programs</a>
                     </li>
 
                     <li> <a href="{{ route('faculty-manager.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage

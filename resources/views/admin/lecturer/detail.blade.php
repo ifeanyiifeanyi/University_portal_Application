@@ -158,6 +158,13 @@
                         </div>
 
                     </div>
+                    <div class="card py-3 px-3">
+                        <p><b>Login Detail</b></p>
+                        <hr>
+                        <li><b>Username: </b> {{ $teacher->user->username }}</li>
+                        <li><b>Email: </b> {{ $teacher->user->email }}</li>
+                        <li><b>Password: </b> **********</li>
+                    </div>
                     <div class="card p-3">
                         <a href="{{ route('admin.teacher.audits', ['teacher' => $teacher->id]) }}" class="btn btn-primary">View Score Audits</a>
 

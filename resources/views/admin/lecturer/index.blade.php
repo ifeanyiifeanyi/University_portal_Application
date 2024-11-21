@@ -13,9 +13,8 @@
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
-                                <p> <a href="{{ route('admin.teacher.create') }}" class="btn btn-primary float-left"
-                                        style="text-align: right">Create New
-                                        Account</a>
+                                <p> <a href="{{ route('admin.teacher.create') }}" title="Create new lecturer account" class="btn btn-primary float-left"
+                                        style="text-align: right"><i class="fas fa-user-plus"></i></a>
                                 </p>
                             </div>
                         </div>

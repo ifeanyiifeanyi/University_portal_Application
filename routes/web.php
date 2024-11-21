@@ -46,6 +46,7 @@ use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminProgramsController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\BackupSettingController;
@@ -137,6 +138,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
         Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
 
+    });
+
+    Route::controller(AdminProgramsController::class)->group(function(){
+        Route::get('programs', 'index')->name('admin.programs.index');
+        Route::get('programs/create', 'create')->name('admin.programs.create');
+        Route::post('programs', 'store')->name('admin.programs.store');
+        Route::get('programs/{program}/edit', 'edit')->name('admin.programs.edit');
+        Route::put('programs/{program}', 'update')->name('admin.programs.update');
+        Route::delete('programs/{program}', 'destroy')->name('admin.programs.destroy');
     });
 
 

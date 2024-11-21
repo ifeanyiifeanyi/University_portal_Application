@@ -9,9 +9,8 @@
 
 @section('admin')
     <div class="container">
-        <button onclick="history.back()" class="btn mb-2" style="background: rgb(188, 1, 235);color:white">Back</button>
         <div class="card p-3">
-            <h5>Score Audits:  <code>{{ $teacher->teacher_title }} {{ $teacher->user->fullName() }}</code></h4>
+            <h5>Score Audits <br> <code>{{ $teacher->teacher_title }} {{ $teacher->user->fullName() }}</code></h4>
         </div>
         @foreach ($groupedAudits as $session => $semesters)
             <div class="card p-3"

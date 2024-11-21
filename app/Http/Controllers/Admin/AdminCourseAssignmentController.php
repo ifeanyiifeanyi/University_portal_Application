@@ -43,6 +43,7 @@ class AdminCourseAssignmentController extends Controller
             return back()->withErrors(['level' => "The maximum level for this department is $maxLevel."]);
         }
 
+        
         CourseAssignment::create($request->all());
 
 

@@ -8,8 +8,32 @@ use Illuminate\Database\Eloquent\Model;
 class Department extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'code',
+        'name',
+        'faculty_id',
+        'description',
+        'duration',
+        'phone',
+        'email',
+        'program_id',
+        'department_head_id'
+    ];
 
-    protected $fillable = ['code', 'name', 'faculty_id', 'description', 'duration'];
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function departmentHead()
+    {
+        return $this->belongsTo(User::class, 'department_head_id');
+    }
+
+
+
+
+
     public function timetables()
     {
         return $this->hasMany(TimeTable::class);
@@ -24,10 +48,12 @@ class Department extends Model
         return $this->belongsToMany(PaymentType::class)->withPivot('level');
     }
 
-    public function paymentMethod(){
+    public function paymentMethod()
+    {
         return $this->belongsTo(PaymentMethod::class);
     }
-    public function payment(){
+    public function payment()
+    {
         return $this->hasMany(Payment::class);
     }
 
