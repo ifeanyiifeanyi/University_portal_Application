@@ -73,7 +73,7 @@
                                         </div>
                                         <div class="ms-4">
                                             <p class="text-muted mb-0">HOD</p>
-                                            <h3 class="mb-0">{{ $users->count() }}</h3>
+                                            <h3 class="mb-0">{{ $departments->whereNotNull('department_head_id')->count() }}</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -86,9 +86,9 @@
 
         <!-- Departments Table -->
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
+            <div class="card-body p-2">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="departmentsTable">
+                    <table class="table table-hover align-middle" id="example">
                         <thead class="bg-light">
                             <tr>
                                 <th class="border-0 rounded-start ps-4">#</th>
@@ -117,7 +117,9 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark">{{ $department->faculty->name }}</span>
+                                        <span
+                                            class="badge bg-primary bg-opacity-10 text-l
+                                        ">{{ $department->faculty->name }}</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-success bg-opacity-10 text-light">
@@ -141,13 +143,13 @@
 
                                             <a href="{{ route('admin.department.show', $department->id) }}"
                                                 class="btn btn-sm">
-                                                 <i class="fas fa-eye text-dark"></i>
-                                             </a>
+                                                <i class="fas fa-eye text-dark"></i>
+                                            </a>
 
-                                            <button class="btn btn-sm edit-department" data-id="{{ $department->id }}"
-                                                data-bs-toggle="modal" data-bs-target="#departmentModal">
+                                            <a href="{{ route('admin.department.edit', $department->id) }}"
+                                                class="btn btn-sm">
                                                 <i class="fas fa-edit text-dark"></i>
-                                            </button>
+                                            </a>
 
                                             <div class="dropdown">
                                                 <button class="btn btn-sm border-0" type="button"
@@ -194,8 +196,7 @@
                                                     <li>
                                                         <form class="d-inline"
                                                             action="{{ route('admin.department.delete', $department) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to delete this department?');">
+                                                            method="POST">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
@@ -232,7 +233,7 @@
         </div>
     </div>
 
-    <!-- Department Modal -->
+    <!-- Create Department Modal -->
     <div class="modal fade" id="departmentModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -377,231 +378,106 @@
     </style>
 @endsection
 
-<script>
-    // Modal State Management
-    const DepartmentModalManager = {
-        modalElement: null,
-        formElement: null,
-        submitButton: null,
 
-        init() {
-            this.modalElement = document.getElementById('departmentModal');
-            this.formElement = document.getElementById('departmentForm');
-            this.submitButton = document.getElementById('submitDepartment');
 
-            // Reset form on modal close
-            this.modalElement.addEventListener('hidden.bs.modal', () => {
-                this.resetForm();
-            });
 
-            // Initialize edit buttons
-            document.querySelectorAll('.edit-department').forEach(button => {
-                button.addEventListener('click', (e) => this.handleEdit(e));
-            });
-        },
+@section('javascript')
+    <script>
+        // Modal State Management
+        const DepartmentModalManager = {
+            modalElement: null,
+            formElement: null,
+            submitButton: null,
 
-        resetForm() {
-            this.formElement.reset();
-            this.formElement.querySelector('#formMethod').value = 'POST';
-            this.formElement.querySelector('#departmentId').value = '';
-            document.getElementById('departmentModalLabel').textContent = 'Create Department';
-            this.submitButton.textContent = 'Create Department';
-        },
+            init() {
+                this.modalElement = document.getElementById('departmentModal');
+                this.formElement = document.getElementById('departmentForm');
+                this.submitButton = document.getElementById('submitDepartment');
 
-        async handleEdit(e) {
-            const id = e.currentTarget.dataset.id;
-            const loadingHtml =
-                '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-            const modalBody = this.modalElement.querySelector('.modal-body');
+                // Reset form on modal close
+                this.modalElement.addEventListener('hidden.bs.modal', () => {
+                    this.resetForm();
+                });
 
-            try {
-                modalBody.innerHTML = loadingHtml;
+                //
+            },
 
-                const response = await fetch(`/admin/manage-department/edit/${id}`);
-                const data = await response.json();
+            resetForm() {
+                this.formElement.reset();
+                this.formElement.querySelector('#formMethod').value = 'POST';
+                this.formElement.querySelector('#departmentId').value = '';
+                document.getElementById('departmentModalLabel').textContent = 'Create Department';
+                this.submitButton.textContent = 'Create Department';
+            },
 
-                if (data.department) {
-                    const dept = data.department;
+        };
 
-                    // Update form method and ID
-                    this.formElement.querySelector('#formMethod').value = 'PUT';
-                    this.formElement.querySelector('#departmentId').value = dept.id;
+        const DepartmentDeleteHandler = {
+            init() {
+                // Find all department delete forms
+                const deleteForms = document.querySelectorAll('form[action*="/admin/department/delete/"]');
 
-                    // Update form fields
-                    Object.keys(dept).forEach(key => {
-                        const input = this.formElement.querySelector(`#${key}`);
-                        if (input) {
-                            input.value = dept[key];
+                deleteForms.forEach(form => {
+                    form.onsubmit = async (e) => {
+                        e.preventDefault();
+
+                        // Show SweetAlert confirmation
+                        const result = await Swal.fire({
+                            title: 'Delete Department?',
+                            text: 'This action cannot be undone. Are you sure you want to delete this department?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#dc3545',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Yes, delete it!',
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true,
+                            focusCancel: true,
+                            customClass: {
+                                confirmButton: 'btn btn-danger',
+                                cancelButton: 'btn btn-secondary'
+                            },
+                        });
+
+                        // If confirmed, submit the form
+                        if (result.isConfirmed) {
+                            try {
+                                await form.submit();
+
+                                // Show success message (optional, if you want to handle the response)
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The department has been deleted successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    }
+                                });
+                            } catch (error) {
+                                // Show error message if something goes wrong
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Something went wrong while deleting the department.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#3085d6',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary'
+                                    }
+                                });
+                            }
                         }
-                    });
-
-                    // Update modal title and button
-                    document.getElementById('departmentModalLabel').textContent = 'Edit Department';
-                    this.submitButton.textContent = 'Update Department';
-
-                    // Update form action
-                    this.formElement.action = `/admin/manage-department/show/${id}`;
-                }
-            } catch (error) {
-                console.error('Error fetching department data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to load department data'
+                    };
                 });
             }
-        }
-    };
+        };
 
-    // View Modal Manager
-    const DepartmentViewManager = {
-        modalElement: null,
-        contentElement: null,
 
-        init() {
-            this.modalElement = document.getElementById('departmentViewModal');
-            this.contentElement = document.getElementById('departmentDetailsContent');
 
-            // Initialize view buttons
-            document.querySelectorAll('.view-department').forEach(button => {
-                button.addEventListener('click', (e) => this.handleView(e));
-            });
-        },
-
-        async handleView(e) {
-            const id = e.currentTarget.dataset.id;
-            const loadingHtml =
-                '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-
-            try {
-                this.contentElement.innerHTML = loadingHtml;
-
-                const response = await fetch(`/admin/departments/${id}`);
-                const data = await response.json();
-
-                if (data.success && data.department) {
-                    const dept = data.department;
-                    this.renderDepartmentDetails(dept);
-                } else {
-                    this.renderError('Failed to load department details');
-                }
-            } catch (error) {
-                console.error('Error fetching department details:', error);
-                this.renderError('An error occurred while loading the department details');
-            }
-        },
-
-        renderDepartmentDetails(dept) {
-            this.contentElement.innerHTML = `
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 p-3 me-3">
-                            <span class="text-primary fw-bold">${dept.name ? dept.name.charAt(0) : 'N/A'}</span>
-                        </div>
-                        <div>
-                            <h5 class="mb-1">${dept.name || 'N/A'}</h5>
-                            <span class="badge bg-primary bg-opacity-10 text-primary">${dept.code || 'No Code'}</span>
-                        </div>
-                    </div>
-                    <div class="vstack gap-2">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-envelope text-muted me-2"></i>
-                            <span>${dept.email || 'No email provided'}</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-phone text-muted me-2"></i>
-                            <span>${dept.phone || 'No phone provided'}</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-clock text-muted me-2"></i>
-                            <span>${dept.duration || 'N/A'} years</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-muted mb-3">Department Details</h6>
-                    <div class="vstack gap-3">
-                        <div>
-                            <small class="text-muted d-block mb-1">Faculty</small>
-                            <span class="badge bg-light text-dark">${dept.faculty ? dept.faculty.name : 'Not Assigned'}</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block mb-1">Program</small>
-                            <span class="badge bg-light text-dark">${dept.program ? dept.program.name : 'Not Assigned'}</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block mb-1">Department Head</small>
-                            <span>${dept.department_head && dept.department_head.teacher ?
-                                dept.department_head.teacher.title_and_full_name : 'Not Assigned'}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <h6 class="text-muted mb-3">Description</h6>
-                    <p class="mb-0">${dept.description || 'No description available.'}</p>
-                </div>
-
-                <!-- Statistics Section -->
-                <div class="col-12 mt-4">
-                    <hr>
-                    <h6 class="text-muted mb-3">Quick Statistics</h6>
-                    <div class="row g-3">
-                        <div class="col-sm-6 col-md-3">
-                            <div class="card border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-users mb-2 text-primary"></i>
-                                    <h5 class="mb-1">${dept.students_count || 0}</h5>
-                                    <small class="text-muted">Students</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="card border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-chalkboard-teacher mb-2 text-success"></i>
-                                    <h5 class="mb-1">${dept.teachers_count || 0}</h5>
-                                    <small class="text-muted">Teachers</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="card border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-book mb-2 text-info"></i>
-                                    <h5 class="mb-1">${dept.courses_count || 0}</h5>
-                                    <small class="text-muted">Courses</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-3">
-                            <div class="card border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-clock mb-2 text-warning"></i>
-                                    <h5 class="mb-1">${dept.duration || 0}</h5>
-                                    <small class="text-muted">Years Duration</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        },
-
-        renderError(message) {
-            this.contentElement.innerHTML = `
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                <p class="mb-0">${message}</p>
-            </div>
-        `;
-        }
-    };
-
-    // Initialize both managers when the document is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        DepartmentModalManager.init();
-        DepartmentViewManager.init();
-    });
-</script>
+        // Initialize both managers when the document is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            DepartmentModalManager.init();
+            DepartmentDeleteHandler.init();
+        });
+    </script>
+@endsection

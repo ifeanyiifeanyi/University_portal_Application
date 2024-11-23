@@ -219,16 +219,17 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('manage-department/edit/{id}', 'edit')->name('admin.department.edit');
             Route::get('manage-department/show/{department}', 'show')->name('admin.department.show');
 
-            Route::get('manager-department/courses/{id}', 'teacherCourses')->name('admin.department.teacherCourses');
-            Route::get('manager-department/students/{id}', 'departmentStudent')->name('admin.department.departmentStudent');
+            Route::get('manage-department/courses/{id}', 'teacherCourses')->name('admin.department.teacherCourses');
+            Route::get('manage-department/students/{id}', 'departmentStudent')->name('admin.department.departmentStudent');
             Route::get('admin/departments/{id}/export-csv', 'exportCsv')->name('admin.department.export-csv');
 
             Route::get('admin/students/{id}/export-students-csv', 'exportStudentsForDepartment')->name('admin.department.exportCsv');
 
 
 
-            Route::put('manage-department/update/{id}', 'update')->name('admin.department.update');
-            Route::delete('manage-department/del/{id}', 'destroy')->name('admin.department.delete');
+            Route::put('manage-department/update/{department}', 'update')->name('admin.department.update');
+
+            Route::delete('department/delete/{department}', 'destroy')->name('admin.department.delete');
 
             // unique route that helps separate the levels of study for a department
             Route::get('departments/{department}/levels', 'levels');

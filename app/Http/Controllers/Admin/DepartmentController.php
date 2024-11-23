@@ -61,13 +61,12 @@ class DepartmentController extends Controller
         $departmentSingle = Department::findOrFail($id);
         $faculties = Faculty::query()->latest()->get();
         $departments = Department::query()->latest()->get();
-        return view('admin.departments.index', compact('departmentSingle', 'faculties', 'departments'));
+        $programs = Program::all();
+        $users = User::where('user_type', 2)->get();
+        return view('admin.departments.create', compact('departmentSingle', 'faculties', 'departments', 'programs', 'users'));
     }
-    public function update(DepartmentRequest $request, $id)
+    public function update(DepartmentRequest $request, Department $department)
     {
-        // dump($id);
-
-        $department = Department::findOrFail($id);
         $department->update($request->validated());
         // Log the department update
         ActivityLogHelper::logDepartmentActivity('Updated', $department);
@@ -121,9 +120,9 @@ class DepartmentController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy(Department $department)
     {
-        $department = Department::findOrFail($id);
+
         // Log the department deletion
         ActivityLogHelper::logDepartmentActivity('Deleted', $department);
         $department->delete();
