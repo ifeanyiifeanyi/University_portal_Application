@@ -217,7 +217,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('manage-department', 'index')->name('admin.department.view');
             Route::post('manage-department', 'store')->name('admin.department.store');
             Route::get('manage-department/edit/{id}', 'edit')->name('admin.department.edit');
-            Route::get('manage-department/show/{id}', 'show')->name('admin.department.show');
+            Route::get('manage-department/show/{department}', 'show')->name('admin.department.show');
 
             Route::get('manager-department/courses/{id}', 'teacherCourses')->name('admin.department.teacherCourses');
             Route::get('manager-department/students/{id}', 'departmentStudent')->name('admin.department.departmentStudent');

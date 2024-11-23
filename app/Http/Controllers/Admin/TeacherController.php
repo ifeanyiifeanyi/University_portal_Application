@@ -58,58 +58,6 @@ class TeacherController extends Controller
         $countries = Country::all();
         return view('admin.lecturer.store', compact('countries'));
     }
-    // public function store(StoreLecturerRequest $request)
-    // {
-
-
-    //     $user = User::create([
-    //         'user_type' => User::TYPE_TEACHER,
-    //         'first_name' => $request->first_name,
-    //         'last_name' => $request->last_name,
-    //         'other_name' => $request->other_name,
-    //         'username' => $request->first . '.' . $request->last_name,
-    //         'slug' => Str::slug($request->first . '.' . $request->last_name),
-    //         'phone' => $request->phone,
-    //         'email' => $request->email,
-    //         'password' => Hash::make('12345678'), // Change this to a generated password if needed
-    //     ]);
-
-    //     $teacher = new Teacher([
-    //         'date_of_birth' => $request->date_of_birth,
-    //         'gender' => $request->gender,
-    //         'teaching_experience' => $request->teaching_experience,
-    //         'teacher_type' => $request->teacher_type,
-    //         'teacher_qualification' => $request->teacher_qualification,
-    //         'teacher_title' => $request->teacher_title,
-    //         'office_hours' => $request->office_hours,
-    //         'office_address' => $request->office_address,
-    //         'biography' => $request->biography,
-    //         'certifications' => $request->certifications ? json_encode($request->certifications) : null,
-    //         'publications' => $request->publications ? json_encode($request->publications) : null,
-    //         'number_of_awards' => $request->number_of_awards,
-    //         'date_of_employment' => $request->date_of_employment,
-    //         'address' => $request->address,
-    //         'nationality' => $request->nationality,
-    //         'level' => $request->level,
-    //         'employment_id' => "EM-ID-".str_shuffle(mt_rand(1000000, 9999999))."CONSO"
-    //     ]);
-
-    //     if ($request->hasFile('profile_photo')) {
-    //         $profilePhoto = $request->file('profile_photo');
-    //         $extension = $profilePhoto->getClientOriginalExtension();
-    //         $profilePhotoName = time() . "." . $extension;
-    //         $profilePhoto->move('admin/lecturers/profile/', $profilePhotoName);
-    //         $user->profile_photo = 'admin/lecturers/profile/' . $profilePhotoName;
-    //         $user->save();
-    //     }
-
-    //     $user->teacher()->save($teacher);
-
-    //     return redirect()->route('admin.teacher.view')->with([
-    //         'message' => 'Lecturer account created successfully.',
-    //         'alert-type' => 'success'
-    //     ]);
-    // }
 
     public function store(StoreLecturerRequest $request)
     {
