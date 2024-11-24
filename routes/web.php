@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Receipt;
+use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\AuthController;
@@ -16,10 +17,13 @@ use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Admin\AdminGradeController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\LogActivityController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminProgramsController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminUserRoleController;
+use App\Http\Controllers\Admin\BackupSettingController;
 use App\Http\Controllers\Student\StudentFeesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
 use App\Http\Controllers\Admin\ProofOfPaymentController;
@@ -46,11 +50,8 @@ use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
-use App\Http\Controllers\Admin\AdminProgramsController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
-use App\Http\Controllers\Admin\BackupSettingController;
-use App\Http\Controllers\Admin\LogActivityController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 
@@ -95,6 +96,9 @@ Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
     return view('admin.show_receipt', compact('receipt'));
 })->name('receipts.show');
 
+Route::get('student-info/{student}', function (Student $student) {
+    return view('admin.student.show_student_idcard', compact('student'));
+})->name('student.show');
 
 
 
@@ -365,7 +369,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             //assessment score audit history
             Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
 
-            //! student registration through excel format
+            // TODO: student registration through excel format
             // Route::get('students/import',  'showImportForm')->name('admin.students.import');
             // Route::post('students/import',  'importStudents')->name('admin.students.import.process');
 
@@ -381,6 +385,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
             Route::get('upload/status-process', 'importStatus')->name('admin.student.import-status');
+
+            // * view student idcard
+            Route::get('student/{student}/idcard', 'generateIdCard')->name('admin.student.idcard');
         });
     });
 

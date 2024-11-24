@@ -29,6 +29,7 @@ use WisdomDiala\Countrypkg\Models\Country;
 use App\Http\Requests\CreateNewStudentRequest;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\UpdateStudentDataRequest;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminStudentController extends Controller
 {
@@ -248,6 +249,7 @@ class AdminStudentController extends Controller
      * @return BinaryFileResponse
      */
 
+     // Params: $format = 'excel' || 'pdf'
     public function downloadTemplate($format = 'excel')
     {
         if ($format === 'pdf') {
@@ -267,6 +269,7 @@ class AdminStudentController extends Controller
     }
 
 
+    // verify the uploaded file contents in form format
     public function importVerify(Request $request)
     {
         $request->validate([
@@ -290,35 +293,6 @@ class AdminStudentController extends Controller
 
 
 
-    // public function importProcess(Request $request)
-    // {
-    //     dd($request->all());
-
-    //     try {
-    //         $request->validate([
-    //             'department_id' => 'required|exists:departments,id',
-    //             'students' => 'required|array'
-    //         ]);
-
-    //         // Generate a unique batch ID
-    //         $batchId = uniqid('batch_', true);
-
-    //         // Dispatch the job to process students in the background
-    //         ProcessStudentImport::dispatch($request->students, $request->department_id, $batchId);
-
-    //         // Store the batch ID in session for status checking
-    //         session(['latest_import_batch' => $batchId]);
-
-    //         return redirect()
-    //             ->route('admin.student.import-status')
-    //             ->with('message', 'Student import has been queued for processing. You can check the status on this page.');
-    //     } catch (Exception $e) {
-    //         return redirect()
-    //             ->back()
-    //             ->withErrors(['error' => 'Failed to queue student import: ' . $e->getMessage()])
-    //             ->withInput();
-    //     }
-    // }
 
     public function importProcess(Request $request)
 {
@@ -375,5 +349,10 @@ class AdminStudentController extends Controller
             'batchId' => $batchId,
             'results' => $results
         ]);
+    }
+
+    public function generateIdCard(Student $student)
+    {
+        return view('admin.student.id-card', compact('student'));
     }
 }

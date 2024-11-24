@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="minimal-theme">
+<html lang="en" class="light-theme">
 
 <head>
     <!-- Required meta tags -->

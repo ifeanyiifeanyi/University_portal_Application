@@ -19,25 +19,24 @@
                             <div>
                                 <a href="{{ route('admin.student.create') }}"
                                     class="btn btn-sm bg-secondary text-white float-right" style="text-align: right"><i
-                                        class="fas fa-user-plus"></i> Create New
-                                    Account</a>
+                                        class="fas fa-user-plus"></i> Create</a>
                                 <!-- Download Template Buttons -->
                                 <div class="dropdown d-inline">
                                     <button class="btn btn-sm btn-info dropdown-toggle" type="button"
                                         data-bs-toggle="dropdown">
-                                        <i class="fas fa-download"></i> Download Template
+                                        <i class="fas fa-download"></i>Template
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a class="dropdown-item"
                                                 href="{{ route('admin.students.template.download', ['format' => 'excel']) }}">
-                                                <i class="fas fa-file-excel"></i> Excel Format
+                                                <i class="fas fa-file-excel"></i> Excel
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item"
                                                 href="{{ route('admin.students.template.download', ['format' => 'pdf']) }}">
-                                                <i class="fas fa-file-pdf"></i> PDF Format
+                                                <i class="fas fa-file-pdf"></i> PDF
                                             </a>
                                         </li>
                                     </ul>
@@ -50,7 +49,7 @@
                                 <!-- Import Button -->
                                 <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                                     data-bs-target="#importModal">
-                                    <i class="fas fa-file-import"></i> Import Students
+                                    <i class="fas fa-file-import"></i> Import
                                 </button>
 
                                 <!-- Import Modal -->
@@ -112,16 +111,21 @@
                                     @forelse ($students as $student)
                                         <tr>
                                             <th>{{ $loop->iteration }}</th>
-                                            <th>
+                                            <td>
 
                                                 {{ $student->user->fullName() ?? '' }}
+                                                <br>
+                                              <b>  added at {{ $student->created_at->format('jS F Y, g:ia') }}</b>
 
-                                            </th>
-                                            <th>{{ $student->matric_number }}</th>
-                                            <th>{{ $student->department->name }}</th>
-                                            <th>{{ $student->year_of_admission }}</th>
-                                            <th>{{ $student->current_level }}</th>
-                                            <th scope="row">
+                                            </td>
+                                            <td class="text-center">
+                                                <code>{{ $student->matric_number }}</code> <br>
+                                                <a href="{{ route('admin.student.idcard', $student) }}" class="badge bg-secondary"><i class="fas fa-id-card"></i></a>
+                                            </td>
+                                            <td>{{ $student->department->name }}</td>
+                                            <td>{{ $student->year_of_admission }}</td>
+                                            <td>{{ $student->current_level }}</td>
+                                            <td scope="row">
                                                 <div class="col">
                                                     <div class="dropdown">
                                                         <span class=" dropdown-toggle text-primary" type="button"
@@ -192,7 +196,7 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                            </th>
+                                            </td>
                                         </tr>
                                     @empty
                                     @endforelse
