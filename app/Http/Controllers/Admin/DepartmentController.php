@@ -23,7 +23,7 @@ class DepartmentController extends Controller
     {
         $faculties = Faculty::query()->latest()->get();
         $departments = Department::query()->oldest()->get();
-        $programs = Program::all();
+        $programs = Program::active()->get();
         $users = User::where('user_type', 2)->get();
         return view('admin.departments.index', compact('faculties', 'departments', 'programs', 'users'));
     }

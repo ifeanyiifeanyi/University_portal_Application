@@ -16,23 +16,29 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="example" class="table table-striped table-bordered">
+                    <table id="example" class="table ">
                         <thead>
                             <tr>
                                 <th>sn</th>
                                 <th>Code</th>
                                 <th>Title</th>
+                                <th>Program</th>
                                 <th style="width: 20px !important">Credit Hours</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {{-- @dd($courses) --}}
                             @foreach ($courses as $course)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $course->code }}</td>
+                                    <td>
+                                        {{ $course->code }} <br>
+                                        <small class="text-muted">Created by: <b>{{  $course->admin->user->full_name ?? 'N/A' }}</b></small>
+                                    </td>
                                     <td>{{ $course->title }}</td>
+                                    <td>{{ $course->program->name }}</td>
                                     <td>{{ $course->credit_hours }}</td>
                                     <td>{{ formatDateWithOrdinal($course->created_at) }}</td>
                                     <!-- Using the helper function -->
@@ -40,17 +46,22 @@
                                         <button class="btn btn-sm btn-info editCourseBtn" data-id="{{ $course->id }}"
                                             data-code="{{ $course->code }}" data-title="{{ $course->title }}"
                                             data-description="{{ $course->description }}"
-                                            data-credit_hours="{{ $course->credit_hours }}">
+                                            data-credit_hours="{{ $course->credit_hours }}"
+                                            data-program_id="{{ $course->program_id }}"> <!-- Add this attribute -->
                                             <i class="fadeIn animated bx bx-edit-alt"></i>
                                         </button>
                                         <button class="btn btn-sm btn-primary viewCourseBtn" data-id="{{ $course->id }}"
                                             data-code="{{ $course->code }}" data-title="{{ $course->title }}"
                                             data-description="{{ $course->description }}"
-                                            data-credit_hours="{{ $course->credit_hours }}">
+                                            data-credit_hours="{{ $course->credit_hours }}"
+                                            data-program_name="{{ $course->program->name ?? '' }}"
+                                            data-program_id="{{ $course->program_id }}">
                                             <i class="fadeIn animated bx bx-detail"></i>
                                         </button>
 
-                                        <a onclick="return confirm('Are you sure ?')"  href="{{ route('admin.courses.delete', $course->id) }}" class="btn btn-sm btn-danger">
+                                        <a onclick="return confirm('Are you sure ?')"
+                                            href="{{ route('admin.courses.delete', $course->id) }}"
+                                            class="btn btn-sm btn-danger">
                                             <i class="fadeIn animated bx bx-trash"></i>
                                         </a>
                                     </td>
@@ -79,6 +90,7 @@
             });
 
             // show modal to edit course
+            // In the editCourseBtn click handler
             $('.editCourseBtn').click(function() {
                 $('#courseModalLabel').text('Edit Course');
                 $('#course_id').val($(this).data('id'));
@@ -86,18 +98,27 @@
                 $('#title').val($(this).data('title'));
                 $('#description').val($(this).data('description'));
                 $('#credit_hours').val($(this).data('credit_hours'));
+
+                // Select the previous program
+                let programId = $(this).data('program_id');
+                $('#program_id option').each(function() {
+                    if ($(this).val() == programId) {
+                        $(this).prop('selected', true);
+                    }
+                });
+
                 $('.text-danger').text('');
                 $('#courseModal').modal('show');
             });
 
             $('.viewCourseBtn').click(function() {
-
                 // Setting the modal title and content
                 $('#courseModalLabel').text('View Course Details');
                 $('#modal_code').text($(this).data('code'));
                 $('#modal_title').text($(this).data('title'));
                 $('#modal_description').text($(this).data('description'));
                 $('#modal_credit_hours').text($(this).data('credit_hours'));
+                $('#modal_program').text($(this).data('program_name')); // Add this line
 
                 // Showing the modal
                 $('#courseView').modal('show');

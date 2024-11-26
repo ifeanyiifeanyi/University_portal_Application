@@ -4,7 +4,7 @@
         <div class="modal-content">
             <form id="courseForm">
                 @csrf
-
+                <input type="hidden" id="course_id" name="course_id">
                 <div class="modal-header">
                     <h5 class="modal-title" id="courseModalLabel">Add/Edit Course</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -23,6 +23,16 @@
                         <span class="text-danger" id="titleError"></span>
                     </div>
                     <div class="form-group mb-3">
+                        <label for="program_id">Select Program</label>
+                        <select class="form-control" id="program_id" name="program_id" required>
+                            <option value="">Select a Program</option>
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->id }}">{{ $program->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="text-danger" id="programIdError"></span>
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="description">Course Description</label>
                         <textarea class="form-control" id="description" name="description" required></textarea>
                         <span class="text-danger" id="descriptionError"></span>
@@ -32,7 +42,6 @@
                         <input type="number" class="form-control" id="credit_hours" name="credit_hours" required>
                         <span class="text-danger" id="creditHoursError"></span>
                     </div>
-                    <input type="hidden" id="course_id" name="course_id">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -13,18 +13,33 @@ return new class extends Migration
     {
         Schema::table('departments', function (Blueprint $table) {
 
-            $table->string('phone')->nullable()->after('name');
-            $table->string('email')->nullable()->after('phone');
+            if (!Schema::hasColumn('departments', 'phone')) {
+                $table->string('phone')->nullable()->after('name');
+            }
 
-            $table->unsignedBigInteger('program_id')->nullable()->after('faculty_id');
-            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
+            if (!Schema::hasColumn('departments', 'email')) {
+                $table->string('email')->nullable()->after('phone');
+            }
 
-            $table->unsignedBigInteger('department_head_id')->nullable();
-            $table->foreign('department_head_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->unsignedBigInteger('chairperson_id')->nullable();
-            $table->foreign('chairperson_id')->references('id')->on('users')->onDelete('cascade');
 
+            // Repeat for other columns
+            if (!Schema::hasColumn('departments', 'program_id')) {
+                $table->foreignId('program_id')->nullable();
+            }
+
+
+            // Repeat for other columns
+            if (!Schema::hasColumn('departments', 'department_head_id')) {
+                $table->unsignedBigInteger('department_head_id')->nullable();
+                $table->foreign('department_head_id')->references('id')->on('users')->onDelete('cascade');
+            }
+
+
+            if (!Schema::hasColumn('departments', 'chairperson_id')) {
+                $table->unsignedBigInteger('chairperson_id')->nullable();
+                $table->foreign('chairperson_id')->references('id')->on('users')->onDelete('cascade');
+            }
         });
     }
 

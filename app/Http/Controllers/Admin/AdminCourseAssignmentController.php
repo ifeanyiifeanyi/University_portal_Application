@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Course;
+use App\Models\Program;
 use App\Models\Semester;
 use App\Models\Department;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\AcademicSession;
 use App\Models\CourseAssignment;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssignCourseToDepartmentRequest;
+
+// ** THIS CONTROLLER IS FOR ASSIGNING COURSES TO DEPARTMENTS, BASED ON ACADEMIC SESSION, SEMESTER, LEVEL AND DEPARTMENT **
 
 class AdminCourseAssignmentController extends Controller
 {
@@ -18,37 +23,61 @@ class AdminCourseAssignmentController extends Controller
         return view('admin.course_assignments.index', compact('assignments'));
     }
 
+
+
+
     public function create()
     {
         $courses = Course::all();
         $departments = Department::all();
         $semesters = Semester::all();
+        $programs = Program::active()->get();
+        $academicSessions = AcademicSession::all();
 
-        return view('admin.course_assignments.create', compact('courses', 'departments', 'semesters'));
+        return view('admin.course_assignments.create', compact('courses', 'departments', 'semesters', 'academicSessions'));
     }
 
-    public function store(Request $request)
+    // public function store(AssignCourseToDepartmentRequest $request)
+    // {
+    //     $validated = $request->validated();
+
+    //     $department = Department::findOrFail($validated['department_id']);
+    //     $maxLevel = $department->duration * 100;
+
+    //     if ($validated['level'] > $maxLevel) {
+    //         return back()->withErrors(['level' => "The maximum level for this department is $maxLevel."]);
+    //     }
+
+
+    //     CourseAssignment::create($validated);
+
+
+
+    //     return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');
+    // }
+    public function store(AssignCourseToDepartmentRequest $request)
     {
-        $request->validate([
-            'course_id' => 'required|exists:courses,id',
-            'department_id' => 'required|exists:departments,id',
-            'semester_id' => 'required|exists:semesters,id',
-            'level' => 'required|integer|min:100|max:600|multiple_of:100',
-        ]);
+        $validated = $request->validated();
 
-        $department = Department::findOrFail($request->department_id);
-        $maxLevel = $department->duration * 100;
+        try {
+            $department = Department::findOrFail($validated['department_id']);
+            $maxLevel = $department->duration * 100;
 
-        if ($request->level > $maxLevel) {
-            return back()->withErrors(['level' => "The maximum level for this department is $maxLevel."]);
+            if ($validated['level'] > $maxLevel) {
+                return back()->withErrors(['level' => "The maximum level for this department is $maxLevel."]);
+            }
+
+            CourseAssignment::create($validated);
+
+            return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Check if the error is a unique constraint violation
+            if ($e->getCode() === '23000') {
+                return back()->withErrors(['course_id' => 'This course is already assigned to the specified department, level, semester, and academic session.']);
+            }
+
+            throw $e; // Rethrow other exceptions
         }
-
-        
-        CourseAssignment::create($request->all());
-
-
-
-        return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');
     }
 
 

@@ -6,14 +6,16 @@ use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseRequest;
+use App\Models\Program;
 use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::query()->latest()->get();
-        return view('admin.courses.index', compact('courses'));
+        $courses = Course::with('user')->latest()->get();
+        $programs = Program::active()->get();
+        return view('admin.courses.index', compact('courses', 'programs'));
     }
 
     public function store(CourseRequest $request)

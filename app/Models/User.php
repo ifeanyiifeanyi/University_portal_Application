@@ -27,6 +27,10 @@ class User extends Authenticatable
      */
     protected $guarded = [];
 
+    public function courses(){
+        return $this->belongsToMany(Course::class);
+    }
+
 public function getUserAccessTypeAttribute(){
     if($this->user_type == self::TYPE_ADMIN){
         return "ADMIN";

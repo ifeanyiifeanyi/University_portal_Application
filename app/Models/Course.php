@@ -8,11 +8,31 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     use HasFactory;
-    protected $fillable = ['code', 'title', 'description', 'credit_hours', 'created_by'];
+    protected $fillable = [
+        'code',
+        'title',
+        'description',
+        'credit_hours',
+        'program_id',
+        'created_by',
+        'updated_by'
+    ];
+
+    public function admin()
+    {
+        // return $this->belongsToMany(User::class,'created_by');
+        return $this->belongsTo(Admin::class, 'created_by', 'user_id');
+
+    }
 
     public function timetables()
     {
         return $this->hasMany(TimeTable::class);
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function teacher()
@@ -76,5 +96,9 @@ class Course extends Model
     public function attendance()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }

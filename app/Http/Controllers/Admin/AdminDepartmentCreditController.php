@@ -26,7 +26,13 @@ class AdminDepartmentCreditController extends Controller
         $creditAssignments = DB::table('department_semester')
             ->join('departments', 'department_semester.department_id', '=', 'departments.id')
             ->join('semesters', 'department_semester.semester_id', '=', 'semesters.id')
-            ->select('department_semester.*', 'departments.name as department_name', 'semesters.name as semester_name')
+            ->join('academic_sessions', 'semesters.academic_session_id', '=', 'academic_sessions.id') // Join with academic_sessions
+            ->select(
+                'department_semester.*',
+                'departments.name as department_name',
+                'semesters.name as semester_name',
+                'academic_sessions.name as academic_session_name' // Select academic session name
+            )
             ->orderByDesc('department_id')
             ->get();
 

@@ -22,10 +22,11 @@ class CourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string|unique:courses,code,' . $this->course,
+            'code' => 'required|string|unique:courses,code,' . $this->route('course'),
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'credit_hours' => 'required|integer|min:1',
+            'program_id' => 'required|exists:programs,id',
         ];
     }
 }

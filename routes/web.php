@@ -195,6 +195,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // Course Assignment Management
     Route::middleware('permission:manage courses')->group(function () {
+        
         Route::resource('course-assignments', AdminCourseAssignmentController::class);
     });
 

@@ -94,12 +94,14 @@
                                 <th class="border-0 rounded-start ps-4">#</th>
                                 <th class="border-0">Department</th>
                                 <th class="border-0">Faculty</th>
+                                <th class="border-0">Program</th>
                                 <th class="border-0">Duration</th>
                                 <th class="border-0">Contact</th>
                                 <th class="border-0 rounded-end text-end pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {{-- @dd($departments) --}}
                             @forelse ($departments as $department)
                                 <tr>
                                     <td class="ps-4">{{ $loop->iteration }}</td>
@@ -118,9 +120,10 @@
                                     </td>
                                     <td>
                                         <span
-                                            class="badge bg-primary bg-opacity-10 text-l
-                                        ">{{ $department->faculty->name }}</span>
+                                            class="badge bg-primary bg-opacity-10 text-light"
+                                        >{{ $department->faculty->name }}</span>
                                     </td>
+                                    <td>{{ $department->program->name }}</td>
                                     <td>
                                         <span class="badge bg-success bg-opacity-10 text-light">
                                             {{ $department->duration }} years

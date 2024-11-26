@@ -195,7 +195,7 @@
         <a href="{{ route('course-assignments.index') }}" class="btn btn-secondary mt-3">Back to Overview</a>
     </div>
 
-    <div class="row">
+    {{-- <div class="row">
         @forelse ($departments as $department)
             @if(isset($groupedAssignments[$department->id]))
                 <div class="col-12 mb-4">
@@ -256,7 +256,7 @@
         @endforelse
     </div>
 
-    <a href="{{ route('course-assignments.index') }}" class="btn btn-secondary mt-3">Back to Overview</a>
+    <a href="{{ route('course-assignments.index') }}" class="btn btn-secondary mt-3">Back to Overview</a> --}}
 </div>
 @endsection
 

@@ -56,4 +56,16 @@ class CourseAssignment extends Model
         )->where('teacher_assignments.semester_id', $this->semester_id)
             ->where('teacher_assignments.department_id', $this->department_id);
     }
+
+    // public function teacherAssignments()
+    // {
+    //     return $this->hasManyThrough(
+    //         Teacher::class,
+    //         TeacherCourseAssignment::class,
+    //         'department_id',
+    //         'id',
+    //         'id',
+    //         'teacher_id'
+    //     );
+    // }
 }

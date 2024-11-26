@@ -13,8 +13,6 @@
             <div class="col-md-12">
                 <div class="card shadow">
                     <div class="card-body">
-
-
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
                                 <a href="{{ route('admin.student.create') }}"
@@ -42,10 +40,6 @@
                                     </ul>
                                 </div>
 
-                                {{-- <a href="{{ route('admin.students.import') }}"
-                                    style="background-color: rgba(172, 255, 47, 0.616)" class="btn btn-sm float-left ms-2">
-                                    <i class="fas fa-users-cog"></i> Import Students
-                                </a> --}}
                                 <!-- Import Button -->
                                 <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
                                     data-bs-target="#importModal">
@@ -102,8 +96,8 @@
                                         <th scope="col">Name</th>
                                         <th scope="col">Matr No.</th>
                                         <th scope="col">Department</th>
-                                        <th scope="col">Year of Admission</th>
-                                        <th scope="col">Current Level</th>
+                                        <th scope="col">Admission</th>
+                                        <th scope="col">Level</th>
                                         <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
@@ -122,15 +116,29 @@
                                                 <code>{{ $student->matric_number }}</code> <br>
                                                 <a href="{{ route('admin.student.idcard', $student) }}" class="badge bg-secondary"><i class="fas fa-id-card"></i></a>
                                             </td>
-                                            <td>{{ $student->department->name }}</td>
-                                            <td>{{ $student->year_of_admission }}</td>
-                                            <td>{{ $student->current_level }}</td>
+                                            <td>
+                                                {{ $student->department->name }} <br>
+                                                <small class="text-muted">({{ $student->department->faculty->name }})</small>
+                                            </td>
+                                            <td>
+                                                <p  class="float-end">
+                                                    <i class="bx bx-calendar me-0"></i>
+                                                    {{ $student->year_of_admission }}
+                                                </p>
+
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    <i class="bx bx-user me-0"></i>
+                                                    {{ $student->current_level }}
+                                                </div>
+                                            </td>
                                             <td scope="row">
-                                                <div class="col">
+                                                <div class="col float-end">
                                                     <div class="dropdown">
-                                                        <span class=" dropdown-toggle text-primary" type="button"
+                                                        <span class=" dropdown-toggle text-secondary" type="button"
                                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <x-menu-icon />
+                                                            {{-- <x-menu-icon /> --}}
                                                         </span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">

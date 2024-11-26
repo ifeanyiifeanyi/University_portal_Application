@@ -4,10 +4,11 @@
 
 @section('admin')
     <div class="container">
-        <h5 class="text-center">@yield('title')</h5>
+        @include('admin.alert')
         <div class="row">
             <div class="col-md-6 mx-auto shadow-lg mb-5">
                 <div class="card-body">
+                    <h5 class="text-center">@yield('title')</h5>
                     <form action="{{ route('course-assignments.store') }}" method="POST">
                         @csrf
                         <div class="form-group mb-3">
@@ -30,6 +31,18 @@
                                     <option value="{{ $department->id }}"
                                         {{ isset($assignment) && $assignment->department_id == $department->id ? 'selected' : '' }}>
                                         {{ $department->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="academic_session_id">Academic Session</label>
+                            <select class="form-control single-select" id="academic_session_id" name="academic_session_id"
+                                required>
+                                <option value="">Select Academic Session</option>
+                                @foreach ($academicSessions as $session)
+                                    <option value="{{ $session->id }}" {{ $session->is_current ? 'selected' : '' }}>
+                                        {{ $session->name }} {{ $session->is_current ? '(Current Academic Session)' : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -59,8 +72,8 @@
 
 
 
-                        <button type="submit"
-                            class="btn btn-secondary btn-sm"><i class="fas fa-save"></i>{{ isset($assignment) ? 'Update' : 'Create' }}</button>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i
+                                class="fas fa-save"></i>{{ isset($assignment) ? 'Update' : 'Create' }}</button>
                     </form>
                 </div>
             </div>

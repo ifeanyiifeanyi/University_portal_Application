@@ -18,7 +18,6 @@
 
 
         .print-button {
-            position: fixed;
             top: 20px;
             right: 20px;
             padding: 10px 20px;
@@ -27,11 +26,38 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            z-index: 1000;
+            /* z-index: 1000; */
+            animation: pulseAndBounce 2s infinite;
+            transition: transform 0.2s ease;
+            margin-bottom: 39px
+        }
+
+        @keyframes pulseAndBounce {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(124, 172, 108, 0.7);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(124, 172, 108, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(124, 172, 108, 0);
+            }
+        }
+
+        .print-button:hover {
+            animation-play-state: paused;
+            transform: scale(1.1);
+            background: var(--primary-green);
         }
 
         .id-card-container {
             display: flex;
+            flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
             margin: 20px;
@@ -77,16 +103,16 @@
         }
 
         .school-name {
-            color: var(--dark-green);
+            color: var(--dark);
             font-size: 10px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 900;
             padding: 0 2mm;
             margin-top: 1mm;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             line-height: 1.2;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
         }
 
 
@@ -267,47 +293,74 @@
         }
 
         .details-list {
-            font-size: 8px;
+            font-size: 10px;
             color: var(--dark);
             text-align: left;
-            padding: 2mm;
+            padding: 1mm;
             background: white;
             border-radius: 1mm;
             margin-top: auto;
         }
+        @page {
+            size: 53.98mm 85.6mm;
+            margin: 0;
+        }
 
         @media print {
-            body {
-                padding: 0;
-                background: none;
-            }
-
-            .print-button {
-                display: none;
+            body * {
+                visibility: hidden;
             }
 
             .id-card-container {
+                position: absolute;
+                left: 0;
+                top: 0;
                 margin: 0;
-                gap: 0;
+                padding: 0;
             }
 
-            .id-card-front,
-            .id-card-back {
+            .id-card-container .id-card-front,
+            .id-card-container .id-card-back {
+                visibility: visible;
+                position: relative;
+                padding: 0;
+                margin: 0;
+                width: 53.98mm;
+                height: 85.6mm;
+                page-break-after: always;
+                border: none;
                 box-shadow: none;
-                break-inside: avoid;
-                page-break-inside: avoid;
             }
 
-            @page {
-                size: CR80;
-                margin: 0;
+            .print-buttons {
+                display: none;
             }
         }
+
+        .print-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .print-button {
+            padding: 10px 20px;
+            background: var(--dark-green);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: pulseAndBounce 2s infinite;
+            transition: transform 0.2s ease;
+        }
+
     </style>
 @endsection
 
 @section('admin')
-
     <div class="id-card-container">
 
         <div class="id-card-front">
@@ -380,21 +433,125 @@
             </div>
         </div>
     </div>
-
+    <center>
+    <button onclick="downloadIDCard()" class="print-button" style="right: 100px;">
+        <i class="fas fa-download"></i> Download ID Card
+    </button>
+    <br>
+    <br>
+    <br>
+    <br>
+    </center>
 @endsection
 
 @section('css')
 @endsection
 
+
+
 @section('javascript')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
     <script>
-        JsBarcode("#barcode", "{{ $student->matric_number }}", {
-            format: "CODE128",
-            width: 0.91,
-            height: 25, // Slightly reduced
-            displayValue: false,
-            margin: 0
-        });
+        // Initialize jsPDF
+        window.jsPDF = window.jspdf.jsPDF;
+
+        async function downloadIDCard() {
+            // Create loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.position = 'fixed';
+            loadingDiv.style.zIndex = "1000";
+            loadingDiv.style.top = '50%';
+            loadingDiv.style.left = '50%';
+            loadingDiv.style.transform = 'translate(-50%, -50%)';
+            loadingDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+            loadingDiv.style.padding = '20px';
+            loadingDiv.style.borderRadius = '10px';
+            loadingDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.6)';
+            loadingDiv.innerHTML = '<h3><i class="fas fa-fan fa-2x fa-spin fa-fw"></i>Generating ID Card...</h3>';
+            document.body.appendChild(loadingDiv);
+
+            // Add delay of 5 seconds
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+
+            try {
+                // Capture front of ID card
+                const frontCard = document.querySelector('.id-card-front');
+                const frontCanvas = await html2canvas(frontCard, {
+                    scale: 4, // Higher scale for better quality
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null
+                });
+
+                // Capture back of ID card
+                const backCard = document.querySelector('.id-card-back');
+                const backCanvas = await html2canvas(backCard, {
+                    scale: 4,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null
+                });
+
+                // Create PDF with correct ID card dimensions for portrait
+                // CR80 card size in mm: 53.98 × 85.6
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: [53.98, 85.6]
+                });
+
+                // Add front image
+                pdf.addImage(
+                    frontCanvas.toDataURL('image/jpeg', 1.0),
+                    'JPEG',
+                    0,
+                    0,
+                    53.98,
+                    85.6,
+                    undefined,
+                    'FAST'
+                );
+
+                // Add new page for back
+                pdf.addPage([53.98, 85.6], 'portrait');
+
+                // Add back image
+                pdf.addImage(
+                    backCanvas.toDataURL('image/jpeg', 1.0),
+                    'JPEG',
+                    0,
+                    0,
+                    53.98,
+                    85.6,
+                    undefined,
+                    'FAST'
+                );
+
+                // Download the PDF
+                pdf.save(`ID_Card_${document.querySelector('.id-number').textContent.trim()}.pdf`);
+
+            } catch (error) {
+                console.error('Error generating ID card:', error);
+                alert('There was an error generating the ID card. Please try again.');
+            } finally {
+                // Remove loading indicator
+                document.body.removeChild(loadingDiv);
+            }
+        }
+
+        // Initialize barcode if it exists
+        if (document.getElementById('barcode')) {
+            JsBarcode("#barcode", "{{ $student->matric_number }}", {
+                format: "CODE128",
+                width: 0.91,
+                height: 25,
+                displayValue: false,
+                margin: 0
+            });
+        }
     </script>
 @endsection

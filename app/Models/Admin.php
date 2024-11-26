@@ -17,6 +17,10 @@ class Admin extends Model
 
     protected $guarded = [];
 
+    public function courses(){
+        return $this->belongsToMany(Course::class);
+    }
+
     public function getAdminUserRoleAttribute(){
         return Str::upper($this->role);
     }
