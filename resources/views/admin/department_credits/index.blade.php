@@ -60,7 +60,8 @@
                             <div class="text-center py-4">
                                 <i class="fas fa-info-circle text-info fa-2x mb-3"></i>
                                 <p class="text-muted">No credit load assignments have been created yet.</p>
-                                <a href="{{ route('admin.department.credit.create') }}" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('admin.department.credit.create') }}"
+                                    class="btn btn-outline-primary btn-sm">
                                     Create First Assignment
                                 </a>
                             </div>
@@ -86,9 +87,10 @@
                                             </thead>
                                             {{-- @dd($assignments) --}}
                                             <tbody>
-                                                @foreach ($assignments as $key => $assignment)
+                                                @foreach ($assignments->sortByDesc('level') as $key => $assignment)
                                                     <tr class="assignment-row">
-                                                        <td>{{ chr(65 + $key) }}</td> <!-- This converts 0 to A, 1 to B, etc. -->
+                                                        <td>{{ chr(65 + $key) }}</td>
+                                                        <!-- This converts 0 to A, 1 to B, etc. -->
                                                         <td>{{ $assignment->semester_name }}</td>
                                                         <td>{{ $assignment->academic_session_name }}</td>
                                                         <td>Level {{ $assignment->level }}</td>
@@ -100,7 +102,6 @@
                                                                     <i class="fas fa-edit text-primary"></i>
                                                                 </a>
                                                                 <form
-                                                                    onsubmit="return confirm('Are you sure you want to delete this assignment?')"
                                                                     action="{{ route('admin.department.credit.delete', $assignment->id) }}"
                                                                     method="POST" class="d-inline">
                                                                     @csrf
@@ -192,6 +193,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Existing filter functionality
             const searchInput = document.getElementById('searchInput');
             const departmentFilter = document.getElementById('departmentFilter');
             const semesterFilter = document.getElementById('semesterFilter');
@@ -212,9 +214,9 @@
                     rows.forEach(row => {
                         const text = row.textContent.toLowerCase();
                         const semesterText = row.querySelector('td:nth-child(1)').textContent
-                            .toLowerCase(); // Adjust based on column position
+                            .toLowerCase();
                         const academicSessionText = row.querySelector('td:nth-child(2)').textContent
-                            .toLowerCase(); // Adjust based on column position
+                            .toLowerCase();
 
                         const matchesSearch = text.includes(searchTerm);
                         const matchesDepartment = !selectedDepartment || departmentName ===
@@ -234,10 +236,35 @@
                 });
             }
 
+            // Add event listeners for filtering
             searchInput.addEventListener('input', filterContent);
             departmentFilter.addEventListener('change', filterContent);
             semesterFilter.addEventListener('change', filterContent);
             academicSessionFilter.addEventListener('change', filterContent);
+
+            // Handle delete buttons
+            document.querySelectorAll('.btn-group button[type="submit"]').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('form');
+
+                    Swal.fire({
+                        title: 'Delete Credit Load Assignment',
+                        text: "Are you sure you want to delete this assignment? This action cannot be undone.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete it',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
     </script>
 @endsection

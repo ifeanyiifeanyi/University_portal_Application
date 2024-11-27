@@ -21,7 +21,6 @@ class AdminDepartmentCreditController extends Controller
 
     public function index()
     {
-
         $departments = Department::all();
         $semesters = Semester::all();
         $creditAssignments = DB::table('department_semester')
@@ -34,8 +33,9 @@ class AdminDepartmentCreditController extends Controller
                 'semesters.name as semester_name',
                 'academic_sessions.name as academic_session_name' // Select academic session name
             )
-            ->orderByDesc('department_id')
+            ->orderByDesc('level')
             ->get();
+            // dd($creditAssignments);
 
         return view('admin.department_credits.index', compact('departments', 'semesters', 'creditAssignments'));
     }
@@ -68,8 +68,9 @@ class AdminDepartmentCreditController extends Controller
 
         $departments = Department::all();
         $semesters = Semester::all();
+        $academicSessions = AcademicSession::all();
 
-        return view('admin.department_credits.edit', compact('creditAssignment', 'departments', 'semesters'));
+        return view('admin.department_credits.edit', compact('creditAssignment', 'departments', 'semesters', 'academicSessions'));
     }
 
 

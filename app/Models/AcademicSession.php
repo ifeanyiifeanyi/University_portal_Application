@@ -15,6 +15,12 @@ class AcademicSession extends Model
         return $this->hasMany(Semester::class);
     }
 
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_semester')
+            ->withPivot('max_credit_hours', 'level')
+            ->withTimestamps();
+    }
 
     public function teacherAssignments()
     {

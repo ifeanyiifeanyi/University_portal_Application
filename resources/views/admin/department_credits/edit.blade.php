@@ -9,7 +9,6 @@
 
 @section('admin')
     <div class="container">
-        <h2 class="text-center">@yield('title')</h2>
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="card py-3 px-3">
@@ -22,6 +21,12 @@
                             <input type="text" class="form-control"
                                 value="{{ $departments->find($creditAssignment->department_id)->name }}" readonly>
                         </div>
+                        <div class="form-group mb-3">
+                            <label for="academic_session_id">Academic Session</label>
+                            <input type="text" class="form-control"
+                                value="{{ $academicSessions->find($creditAssignment->academic_session_id)->name }}" readonly>
+                        </div>
+
 
                         <div class="form-group mb-3">
                             <label for="semester_id">Semester</label>

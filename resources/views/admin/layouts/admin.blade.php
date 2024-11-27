@@ -28,7 +28,6 @@
 
     <!-- loader-->
     <link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
-    <script src="{{ asset('') }}assets/js/pace.min.js"></script>
     <!-- Bootstrap CSS -->
     <link href="{{ asset('') }}assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('') }}assets/css/app.css" rel="stylesheet">
@@ -45,9 +44,6 @@
     <link href="{{ asset('') }}assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
     <link href="{{ asset('') }}assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
 
-    <!-- loader-->
-    <link href="{{ asset('') }}assets/css/pace.min.css" rel="stylesheet" />
-    <script src="{{ asset('') }}assets/js/pace.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" />
 
@@ -79,7 +75,7 @@
                 <!--breadcrumb-->
                 <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
                     <div class="breadcrumb-title pe-3">
-                       <h3> @yield('title')</h3>
+                        <h3> @yield('title')</h3>
                     </div>
 
                     <div class="ms-auto">
@@ -124,6 +120,8 @@
     <!--end switcher-->
 
     <script src="{{ asset('') }}assets/js/jquery.min.js"></script>
+    <script src="{{ asset('') }}assets/js/pace.min.js"></script>
+
     <!-- Bootstrap JS -->
     <script src="{{ asset('') }}assets/js/bootstrap.bundle.min.js"></script>
     <!--plugins-->
