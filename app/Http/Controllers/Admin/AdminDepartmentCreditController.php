@@ -62,6 +62,7 @@ class AdminDepartmentCreditController extends Controller
 
     public function edit($id)
     {
+        
 
         $creditAssignment = DB::table('department_semester')->where('id', $id)->first();
 

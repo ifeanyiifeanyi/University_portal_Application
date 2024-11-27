@@ -4,7 +4,7 @@
 
 @section('admin')
     <div class="container">
-        <div class="card mb-4">
+        <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">Student Information</h5>
                 <p><strong>Name:</strong> {{ $registration->student->user->full_name }}</p>
