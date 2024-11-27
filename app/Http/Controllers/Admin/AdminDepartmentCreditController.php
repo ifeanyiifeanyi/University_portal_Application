@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Semester;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminDepartmentCreditForSemester;
@@ -43,7 +44,9 @@ class AdminDepartmentCreditController extends Controller
     {
         $departments = Department::all();
         $semesters = Semester::all();
-        return view('admin.department_credits.create', compact('departments', 'semesters'));
+        $academicSessions = AcademicSession::all();
+
+        return view('admin.department_credits.create', compact('departments', 'semesters', 'academicSessions'));
     }
 
     public function store(AdminDepartmentCreditForSemester $request)

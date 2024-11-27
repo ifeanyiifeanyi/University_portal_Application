@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"ColorfulMonorepo.workspaces.collection": [
+			{
+				"path": "/home/ifeanyi/Desktop/portal-starter",
+				"label": "🌱  undefined",
+				"foreground": "#ffffff",
+				"background": "#4c0d84"
+			}
+		]
+	}
+}

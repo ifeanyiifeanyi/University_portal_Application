@@ -4,17 +4,13 @@
 
 @section('admin')
     <div class="container">
-        <h5>Course Registration Details</h5>
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Student Information</h5>
                 <p><strong>Name:</strong> {{ $registration->student->user->full_name }}</p>
                 <p><strong>Student ID:</strong> {{ $registration->student->matric_number }}</p>
                 <p><strong>Department:</strong> {{ $registration->student->department->name }}</p>
-                <span>
-                    <button onclick="history.back()" class="btn btn-info">Back</button>
 
-                </span>
             </div>
         </div>
 
@@ -77,5 +73,5 @@
 @endsection
 
 @section('javascript')
-    
+
 @endsection

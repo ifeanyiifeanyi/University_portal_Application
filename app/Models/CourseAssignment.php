@@ -10,11 +10,16 @@ class CourseAssignment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'department_id', 'semester_id', 'level'];
+    protected $fillable = ['course_id', 'department_id', 'semester_id','academic_session_id','level'];
 
     public function course()
     {
         return $this->belongsTo(Course::class,);
+    }
+
+    public function academicSession()
+    {
+        return $this->belongsTo(AcademicSession::class);
     }
 
     public function department()

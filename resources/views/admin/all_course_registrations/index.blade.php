@@ -1,50 +1,140 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Registered Courses')
+@section('title', 'Course Registration Management')
 
 @section('css')
+
+    <style>
+        .stat-card {
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1);
+        }
+
+        .total-gradient {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        }
+
+        .pending-gradient {
+            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        }
+
+        .approved-gradient {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        }
+
+        .rejected-gradient {
+            background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-text {
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        /* Shimmer effect */
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    transparent 100%);
+            transform: rotate(30deg);
+            transition: transform 0.7s ease-in-out;
+            opacity: 0;
+        }
+
+        .stat-card:hover::after {
+            opacity: 1;
+            transform: rotate(30deg) translate(50%, -50%);
+        }
+    </style>
 
 @endsection
 
 @section('admin')
     <div class="container">
-        <h4>Course Registration Management</h4>
 
         <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card total-gradient text-white shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Total Registrations</h5>
-                        <p class="card-text">{{ $stats['total'] }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title text-white-50">Registrations</h5>
+                                <p class="card-text h2 mb-0">{{ $stats['total'] }}</p>
+                            </div>
+                            <i class="fas fa-users stat-icon"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card pending-gradient text-white shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Pending</h5>
-                        <p class="card-text">{{ $stats['pending'] }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title text-white-50">Pending</h5>
+                                <p class="card-text h2 mb-0">{{ $stats['pending'] }}</p>
+                            </div>
+                            <i class="fas fa-clock stat-icon"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card approved-gradient text-white shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Approved</h5>
-                        <p class="card-text">{{ $stats['approved'] }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title text-white-50">Approved</h5>
+                                <p class="card-text h2 mb-0">{{ $stats['approved'] }}</p>
+                            </div>
+                            <i class="fas fa-check-circle stat-icon"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card rejected-gradient text-white shadow">
                     <div class="card-body">
-                        <h5 class="card-title">Rejected</h5>
-                        <p class="card-text">{{ $stats['rejected'] }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title text-white-50">Rejected</h5>
+                                <p class="card-text h2 mb-0">{{ $stats['rejected'] }}</p>
+                            </div>
+                            <i class="fas fa-times-circle stat-icon"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="card py-3 px-3">
             <form action="{{ route('admin.students.all-course-registrations') }}" method="GET">
                 <div class="row">
@@ -112,7 +202,8 @@
             </form>
 
             <div class="mt-4">
-                <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-secondary"><i class="fas fa-file-csv"></i> Export</a>
+                <a href="{{ route('admin.course-registrations.export') }}" class="btn btn-secondary"><i
+                        class="fas fa-file-csv"></i> Export</a>
             </div>
         </div>
         <div class="card py-3 px-3">
@@ -151,7 +242,8 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm text-danger"><i class="fas fa-times"></i></button>
+                                            <button type="submit" class="btn btn-sm text-danger"><i
+                                                    class="fas fa-times"></i></button>
                                         </form>
                                     @endif
 
@@ -161,7 +253,8 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm text-success"><i class="fas fa-thumbs-up"></i></button>
+                                            <button type="submit" class="btn btn-sm text-success"><i
+                                                    class="fas fa-thumbs-up"></i></button>
                                         </form>
                                     @endif
                                     @if ($registration->status == 'pending')
@@ -170,7 +263,8 @@
                                             method="POST" style="display: inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-sm text-success"><i class="fas fa-thumbs-up"></i></button>
+                                            <button type="submit" class="btn btn-sm text-success"><i
+                                                    class="fas fa-thumbs-up"></i></button>
                                         </form>
                                         <form onsubmit="return confirm('Are sure of this action')"
                                             action="{{ route('admin.course-registrations.reject', $registration) }}"

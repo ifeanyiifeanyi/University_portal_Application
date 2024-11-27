@@ -19,7 +19,7 @@ class AdminCourseAssignmentController extends Controller
 {
     public function index()
     {
-        $assignments = CourseAssignment::with(['course', 'department', 'semester'])->get();
+        $assignments = CourseAssignment::with(['course', 'department', 'semester', 'academicSession'])->get();
         return view('admin.course_assignments.index', compact('assignments'));
     }
 
@@ -37,29 +37,23 @@ class AdminCourseAssignmentController extends Controller
         return view('admin.course_assignments.create', compact('courses', 'departments', 'semesters', 'academicSessions'));
     }
 
-    // public function store(AssignCourseToDepartmentRequest $request)
-    // {
-    //     $validated = $request->validated();
-
-    //     $department = Department::findOrFail($validated['department_id']);
-    //     $maxLevel = $department->duration * 100;
-
-    //     if ($validated['level'] > $maxLevel) {
-    //         return back()->withErrors(['level' => "The maximum level for this department is $maxLevel."]);
-    //     }
-
-
-    //     CourseAssignment::create($validated);
-
-
-
-    //     return redirect()->route('course-assignments.index')->with('success', 'Course assigned successfully.');
-    // }
     public function store(AssignCourseToDepartmentRequest $request)
     {
         $validated = $request->validated();
 
         try {
+            // Fetch the department and course with their programs
+            $departmentProgram = Department::with('program')->findOrFail($validated['department_id']);
+            $courseProgram = Course::with('program')->findOrFail($validated['course_id']);
+
+              // Validate program match
+              if ($departmentProgram->program_id !== $courseProgram->program_id) {
+                return back()->withErrors([
+                    'course_id' => "The course's program ({$courseProgram->program->name}) does not match the department's program ({$departmentProgram->program->name})."
+                ]);
+            }
+
+
             $department = Department::findOrFail($validated['department_id']);
             $maxLevel = $department->duration * 100;
 

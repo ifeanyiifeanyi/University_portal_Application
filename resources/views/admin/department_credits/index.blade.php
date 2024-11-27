@@ -5,7 +5,7 @@
 @section('admin')
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 mb-0">Department Credit Load Assignments</h2>
+
             <a href="{{ route('admin.department.credit.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus-circle me-2"></i>New Assignment
             </a>
@@ -60,7 +60,7 @@
                             <div class="text-center py-4">
                                 <i class="fas fa-info-circle text-info fa-2x mb-3"></i>
                                 <p class="text-muted">No credit load assignments have been created yet.</p>
-                                <a href="{{ route('admin.department.credit.create') }}" class="btn btn-outline-primary">
+                                <a href="{{ route('admin.department.credit.create') }}" class="btn btn-outline-primary btn-sm">
                                     Create First Assignment
                                 </a>
                             </div>
@@ -76,6 +76,7 @@
                                         <table class="table table-hover align-middle">
                                             <thead class="table-light">
                                                 <tr>
+                                                    <th>#</th>
                                                     <th>Semester</th>
                                                     <th>Academic Session</th>
                                                     <th>Level</th>
@@ -85,8 +86,9 @@
                                             </thead>
                                             {{-- @dd($assignments) --}}
                                             <tbody>
-                                                @foreach ($assignments as $assignment)
+                                                @foreach ($assignments as $key => $assignment)
                                                     <tr class="assignment-row">
+                                                        <td>{{ chr(65 + $key) }}</td> <!-- This converts 0 to A, 1 to B, etc. -->
                                                         <td>{{ $assignment->semester_name }}</td>
                                                         <td>{{ $assignment->academic_session_name }}</td>
                                                         <td>Level {{ $assignment->level }}</td>
@@ -94,8 +96,8 @@
                                                         <td class="text-end">
                                                             <div class="btn-group btn-group-sm">
                                                                 <a href="{{ route('admin.department.credit.edit', $assignment->id) }}"
-                                                                    class="btn btn-outline-primary">
-                                                                    <i class="fas fa-edit"></i>
+                                                                    class="btn">
+                                                                    <i class="fas fa-edit text-primary"></i>
                                                                 </a>
                                                                 <form
                                                                     onsubmit="return confirm('Are you sure you want to delete this assignment?')"
@@ -103,8 +105,8 @@
                                                                     method="POST" class="d-inline">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="btn btn-outline-danger">
-                                                                        <i class="fas fa-trash"></i>
+                                                                    <button type="submit" class="btn">
+                                                                        <i class="fas fa-trash text-danger"></i>
                                                                     </button>
                                                                 </form>
                                                             </div>

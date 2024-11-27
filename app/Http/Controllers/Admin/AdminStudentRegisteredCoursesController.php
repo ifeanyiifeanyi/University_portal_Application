@@ -12,7 +12,7 @@ use App\Models\SemesterCourseRegistration;
 
 class AdminStudentRegisteredCoursesController extends Controller
 {
-    
+
 
     public function index(Request $request)
     {
@@ -112,11 +112,6 @@ class AdminStudentRegisteredCoursesController extends Controller
         return view('admin.all_course_registrations.index', compact('registrations', 'departments', 'academicSessions', 'semesters', 'stats', 'topDepartments', 'topDepartmentRegistered'));
     }
 
-    // public function show(SemesterCourseRegistration $registration)
-    // {
-    //     $registration->load(['student', 'semester', 'academicSession', 'courseEnrollments.course', 'courseEnrollments']);
-    //     return view('admin.all_course_registrations.show', compact('registration'));
-    // }
 
 
     public function show(SemesterCourseRegistration $registration)

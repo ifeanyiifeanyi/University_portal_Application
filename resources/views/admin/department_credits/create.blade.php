@@ -9,7 +9,6 @@
 
 @section('admin')
     <div class="container">
-        <h2 class="text-center">@yield('title')</h2>
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="card py-3 px-3">
@@ -29,6 +28,21 @@
                             @enderror
                         </div>
 
+
+                        <div class="form-group mb-3">
+                            <label for="academic_session_id">Academic Session</label>
+                            <select name="academic_session_id" id="academic_session_id" class="form-control single-select" required>
+                                @foreach ($academicSessions as $session)
+                                    <option {{ $session->is_current ? 'selected' : '' }} value="{{ $session->id }}">
+                                        {{ $session->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('academic_session_id')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+
                         <div class="form-group mb-3">
                             <label for="semester_id">Semester</label>
                             <select name="semester_id" id="semester_id" class="form-control single-select" required>
@@ -45,7 +59,7 @@
                         <div class="form-group mb-3">
                             <label for="level">Level</label>
                             <select name="level" id="level" class="form-control" required>
-                                <option value="">Select Department First</option>
+                                <option value="">Select Semester First</option>
                             </select>
                             @error('level')
                                 <span class="text-danger">{{ $message }}</span>
@@ -61,7 +75,7 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Assign Credit Load</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-tasks"></i> Assign Credit Load</button>
                     </form>
                 </div>
             </div>
