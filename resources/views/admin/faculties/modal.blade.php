@@ -28,8 +28,8 @@
                     <input type="hidden" id="faculty_id" name="faculty_id">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Course</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Close</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save faculty</button>
                 </div>
             </form>
         </div>

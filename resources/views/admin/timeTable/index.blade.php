@@ -1,4 +1,5 @@
 @extends('admin.layouts.admin')
+@section('title', 'Time Table Manager')
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
@@ -6,8 +7,6 @@
 @endsection
 @section('admin')
     <div class="container-fluid">
-        <h1 class="h3 mb-2 text-gray-800">Timetables</h1>
-        <p class="mb-4">View and manage all timetables here.</p>
 
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -104,10 +103,6 @@
 
 
 @section('javascript')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Bootstrap JavaScript -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
     <script>

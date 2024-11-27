@@ -2,16 +2,14 @@
 
 @section('title', 'Faculties Manager')
 @section('css')
-
 @endsection
-
-
 
 @section('admin')
     <div class="container">
         <div>
-            <button class="btn btn-secondary" id="addFacultyBtn"><i class="fadeIn animated bx bx-add-to-queue"></i> Add
-                Faculty</button>
+            <button class="btn btn-secondary" id="addFacultyBtn">
+                <i class="fas fa-plus-square"></i>
+            </button>
         </div>
         <hr />
         <div class="card">
@@ -34,27 +32,27 @@
                                     <td>{{ $faculty->code }}</td>
                                     <td>{{ $faculty->name }}</td>
                                     <td>{{ formatDateWithOrdinal($faculty->created_at) }}</td>
-                                    <!-- Using the helper function -->
                                     <td class="d-flex justify-content-center">
-                                        <button style="background: transparent" class="border-0 editFacultyBtn" data-id="{{ $faculty->id }}"
-                                            data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
-                                            data-description="{{ $faculty->description }}">
-                                            <x-edit-icon />
-
+                                        <button style="background: transparent" class="border-0 editFacultyBtn"
+                                            data-id="{{ $faculty->id }}" data-code="{{ $faculty->code }}"
+                                            data-name="{{ $faculty->name }}" data-description="{{ $faculty->description }}">
+                                            <x-edit-icon/>
                                         </button>
-                                        <button style="background: transparent" class="border-0 viewFacutlyBtn" data-id="{{ $faculty->id }}"
-                                            data-code="{{ $faculty->code }}" data-name="{{ $faculty->name }}"
+                                        <button style="background: transparent" class="border-0 viewFacutlyBtn"
+                                            data-id="{{ $faculty->id }}" data-code="{{ $faculty->code }}"
+                                            data-name="{{ $faculty->name }}"
                                             data-description="{{ $faculty->description }}"
                                             data-departments="{{ $faculty->departments->pluck('name') }}"
                                             data-faculty="{{ $faculty }}">
-                                            <x-view-icon />
+                                            <x-view-icon/>
                                         </button>
-                                        <form onsubmit="return confirm('Are you sure ?')"
+                                        <form class="delete-faculty-form"
                                             action="{{ route('faculty-manager.destroy', $faculty) }}" method="post">
                                             @csrf
                                             @method('DELETE')
-                                            <button style="background: transparent" type="submit" class="text-danger border-0">
-                                                <x-delete-icon />
+                                            <button style="background: transparent" type="submit"
+                                                class="text-danger border-0">
+                                                <x-delete-icon/>
                                             </button>
                                         </form>
                                     </td>
@@ -67,7 +65,6 @@
         </div>
         @include('admin.faculties.modal')
         @include('admin.faculties.detail')
-
     </div>
 @endsection
 
@@ -101,7 +98,6 @@
                 $('#modal_name').text($(this).data('name'));
                 $('#modal_description').text($(this).data('description'));
 
-                // Handle departments
                 let departments = $(this).data('departments');
                 let departmentsList = $('#modal_departments');
                 departmentsList.empty();
@@ -116,12 +112,32 @@
                 $('#courseView').modal('show');
             });
 
+            // Handle delete with SweetAlert2
+            $('.delete-faculty-form').on('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
             // submite & update for faculty
             $('#facultyform').submit(function(e) {
                 e.preventDefault();
                 let formData = $(this).serialize();
                 let facultyId = $('#faculty_id').val();
-                // check url for update and create faculty
                 let url = facultyId ? '/admin/faculty-manager/' + facultyId : '/admin/faculty-manager';
 
                 $.ajax({
@@ -130,10 +146,15 @@
                     data: formData,
                     success: function(response) {
                         $('#facultyModal').modal('hide');
-                        toastr[response.notification['alert-type']](response.notification[
-                            'message']);
-                        location.reload(); // Refresh the page to see the changes
-
+                        Swal.fire({
+                            icon: response.notification['alert-type'],
+                            title: 'Success!',
+                            text: response.notification['message'],
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
                     },
                     error: function(response) {
                         let errors = response.responseJSON.errors;
@@ -144,6 +165,6 @@
                     }
                 });
             });
-        })
+        });
     </script>
 @endsection

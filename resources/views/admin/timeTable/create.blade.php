@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Time Table Manager | Create')
+@section('title', 'Create Time Table')
 
 @section('css')
     <!-- Add any additional CSS if needed -->
@@ -9,10 +9,8 @@
 @section('admin')
     <div class="container">
         @include('admin.alert')
-        <div class="card p-3">
             <div class="row">
-                <div class="col-md-8 mx-auto">
-                    <h4>Create Timetable Entry</h4>
+                <div class="col-md-8 mx-auto  shadow card py-3 px-3">
 
 
                     <form id="createTimetableForm" action="{{ route('admin.timetable.store') }}" method="POST">
@@ -173,11 +171,11 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Create Timetable Entry</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Timetable Entry</button>
                     </form>
                 </div>
             </div>
-        </div>
+
     </div>
 @endsection
 
