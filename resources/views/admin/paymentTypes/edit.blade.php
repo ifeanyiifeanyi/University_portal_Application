@@ -3,14 +3,11 @@
 @section('title', 'Edit Payment Type')
 
 @section('admin')
-<div class="container">
     @include('admin.alert')
 
-    <div class="card p-3">
         <div class="row">
             <div class="col-md-8 mx-auto">
-                <h4>Edit Payment Type</h4>
-                <div class="card-body">
+                <div class="card shadow py-3 px-3">
                     <form action="{{ route('admin.payment_type.update', $paymentType) }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -108,13 +105,11 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Update Payment Type</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Update</button>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 @endsection
 
 @section('javascript')

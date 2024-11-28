@@ -3,7 +3,6 @@
 @section('admin')
     <div class="container">
         @include('admin.alert')
-        @include('admin.return_btn')
 
         <div class="card">
 

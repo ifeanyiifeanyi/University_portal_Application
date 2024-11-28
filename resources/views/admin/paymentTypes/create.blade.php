@@ -3,14 +3,10 @@
 @section('title', 'Create new payment option')
 
 @section('admin')
-    <div class="container">
         @include('admin.alert')
 
-        <div class="card p-3">
-            @include('admin.return_btn')
             <div class="row">
-                <div class="col-md-8 mx-auto">
-                    <h4>Create New Payment Option</h4>
+                <div class="col-md-8 mx-auto card shadow">
                     <div class="card-body">
                         <form action="{{ route('admin.payment_type.store') }}" method="POST">
                             @csrf
@@ -92,13 +88,7 @@
 
                             <div class="form-group mb-3">
                                 <label>Apply to:</label>
-                                {{-- <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="level_type" id="allLevels"
-                                        value="all" checked>
-                                    <label class="form-check-label" for="allLevels">
-                                        All Levels
-                                    </label>
-                                </div> --}}
+
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="level_type" id="specificLevels"
                                         value="specific">
@@ -131,13 +121,13 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Create Payment Option</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+
 @endsection
 
 @section('javascript')

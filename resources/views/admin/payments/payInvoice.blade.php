@@ -170,7 +170,7 @@
                                     <i class="fas fa-times"></i> Cancel
                                 </button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Submit Payment Proof
+                                    <i class="fas fa-save"></i> Submit Prove
                                 </button>
                             </div>
                         </div>

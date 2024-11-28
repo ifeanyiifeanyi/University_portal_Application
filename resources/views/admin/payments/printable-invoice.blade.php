@@ -80,9 +80,9 @@
 </head>
 <body>
     <div class="invoice">
-        <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }} Logo" class="watermark">
+        <img src="{{ asset('nursinglogo.webp') }}" alt="{{ config('app.name') }} Logo" class="watermark">
         <div class="header">
-            <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }} Logo">
+            <img src="{{ asset('nursinglogo.webp') }}" alt="{{ config('app.name') }} Logo">
             <h1>{{ config('app.name') }}</h1>
         </div>
         <h2 class="invoice-title">Payment Invoice</h2>

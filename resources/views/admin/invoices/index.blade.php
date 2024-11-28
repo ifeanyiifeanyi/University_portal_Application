@@ -1,14 +1,11 @@
 @extends('admin.layouts.admin')
 
 @section('title', 'Invoice Manager')
-@section('css')
 
+@section('css')
 @endsection
 
-
-
 @section('admin')
-    @include('admin.alert')
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -17,8 +14,8 @@
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
                                 <p>
-                                    <a href="" class="btn btn-primary float-left" style="text-align: right">Generate New
-                                        Invoice
+                                    <a href="{{ route('admin.payment.pay') }}" class="btn btn-primary float-left">
+                                        <i class="fas fa-file-invoice fa-fw"></i> Generate New Invoice
                                     </a>
                                 </p>
                             </div>
@@ -26,16 +23,16 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered" id="example">
+                            <table class="table table-striped" id="example">
                                 <thead>
                                     <tr>
-                                        <th>sn</th>
-                                        <th>Invoice ID</th>
-                                        <th>Student Name</th>
-                                        <th>Department</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+                                        <th><i class="fas fa-hashtag fa-fw"></i> SN</th>
+                                        <th><i class="fas fa-file-invoice fa-fw"></i> Invoice ID</th>
+                                        <th><i class="fas fa-user-graduate fa-fw"></i> Student Name</th>
+                                        <th><i class="fas fa-building fa-fw"></i> Department</th>
+                                        <th><i class="fas fa-money-bill-wave fa-fw"></i> Amount</th>
+                                        <th><i class="fas fa-info-circle fa-fw"></i> Status</th>
+                                        <th><i class="fas fa-cogs fa-fw"></i> Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,37 +43,39 @@
                                             <td>{{ $invoice->student->user->full_name }}</td>
                                             <td>{{ $invoice->department->name }}</td>
                                             <td>₦{{ number_format($invoice->amount, 0, 2) }}</td>
-                                            <td>{{ $invoice->status }}</td>
                                             <td>
-                                                <a href="{{ route('admin.invoice.show', $invoice->id) }}" class="btn btn-sm"
-                                                    style="background: blueviolet; color:white">
-                                                    <i class="fas fa-eye"></i>
+                                                @if ($invoice->status == 'paid')
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle fa-fw"></i> Paid
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock fa-fw"></i> Pending
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('admin.invoice.show', $invoice->id) }}"
+                                                    class="btn btn-info btn-sm" title="View Invoice">
+                                                    <i class="fas fa-eye fa-fw"></i>
                                                 </a>
 
                                                 @if ($invoice->status == 'paid')
-                                                    <a href="" class="btn btn-sm"
-                                                        style="background: rgb(6, 199, 189);color:white"><i
-                                                            class="fas fa-edit"></i></a>
-                                                @endif
-
-
-
-                                                @if ($invoice->status == 'pending')
-                                                    <a href="{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}"
-                                                        class="btn btn-sm" style="background: rgb(95, 236, 163)">
-                                                        <i class="fas fa-credit-card"></i>
+                                                    <a href="" class="btn btn-success btn-sm" title="Edit Invoice">
+                                                        <i class="fas fa-edit fa-fw"></i>
                                                     </a>
                                                 @endif
 
-
                                                 @if ($invoice->status == 'pending')
-                                                    <a onclick="return confirm('Are you sure of this action ?')"
-                                                        href="{{ route('admin.invoice.cancel', $invoice->id) }}">
-                                                        <button class="btn btn-sm"
-                                                            style="background: rgba(255, 0, 0, 0.822); color:white">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </button>
+                                                    <a href="#" class="btn btn-primary btn-sm process-payment-btn"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Process Payment">
+                                                        <i class="fas fa-credit-card fa-fw"></i>
                                                     </a>
+
+                                                    <button class="btn btn-danger btn-sm delete-invoice"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Delete Invoice">
+                                                        <i class="fas fa-trash-alt fa-fw"></i>
+                                                    </button>
                                                 @endif
                                             </td>
                                         </tr>
@@ -88,8 +87,122 @@
                 </div>
             </div>
         </div>
-    @endsection
+    </div>
+    <div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel"
+        aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentMethodModalLabel">
+                        <i class="fas fa-money-bill fa-fw"></i> Select Payment Method
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-primary btn-lg" id="creditCardBtn">
+                            <i class="fas fa-credit-card fa-fw"></i> Credit Card (Online Payment)
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="bankTransferBtn">
+                            <i class="fas fa-university fa-fw"></i> Bank Transfer
+                        </button>
+                        <button type="button" class="btn btn-info btn-lg" id="cashBtn">
+                            <i class="fas fa-money-bill-wave fa-fw"></i> Cash Payment
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                        <i class="fas fa-times fa-fw"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 
-    @section('javascript')
+@section('javascript')
+    <script>
+        // Add this to your JavaScript section
+        $(document).ready(function() {
+            // Store the current invoice ID
+            let currentInvoiceId = null;
 
-    @endsection
+            // When the process payment button is clicked
+            $('.process-payment-btn').click(function(e) {
+                e.preventDefault();
+                currentInvoiceId = $(this).data('invoice-id');
+                $('#paymentMethodModal').modal('show');
+            });
+
+            // Handle credit card payment
+            $('#creditCardBtn').click(function() {
+                if (currentInvoiceId) {
+                    window.location.href = `{{ route('admin.payments.showConfirmation', $invoice->id) }}`;
+                }
+            });
+
+            // Handle bank transfer
+            $('#bankTransferBtn').click(function() {
+                if (currentInvoiceId) {
+                    window.location.href =
+                        `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+                }
+            });
+
+            // Handle cash payment
+            $('#cashBtn').click(function() {
+                if (currentInvoiceId) {
+                    window.location.href =
+                        `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+                }
+            });
+        });
+
+
+
+
+        // Show success message if exists in session
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        @endif
+
+        // Show error message if exists in session
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: "{{ session('error') }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        @endif
+
+        // Handle delete invoice confirmation
+        $('.delete-invoice').click(function(e) {
+            e.preventDefault();
+            const invoiceId = $(this).data('invoice-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ url('admin/invoice/cancel') }}/" + invoiceId;
+                }
+            });
+        });
+    </script>
+@endsection
