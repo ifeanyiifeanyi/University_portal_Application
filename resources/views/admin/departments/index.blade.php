@@ -34,6 +34,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        
                         <div class="col-sm-6 col-xl-3">
                             <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                                 <div class="card-body">
@@ -73,7 +75,8 @@
                                         </div>
                                         <div class="ms-4">
                                             <p class="text-muted mb-0">HOD</p>
-                                            <h3 class="mb-0">{{ $departments->whereNotNull('department_head_id')->count() }}</h3>
+                                            <h3 class="mb-0">
+                                                {{ $departments->whereNotNull('department_head_id')->count() }}</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -120,8 +123,7 @@
                                     </td>
                                     <td>
                                         <span
-                                            class="badge bg-primary bg-opacity-10 text-light"
-                                        >{{ $department->faculty->name }}</span>
+                                            class="badge bg-primary bg-opacity-10 text-light">{{ $department->faculty->name }}</span>
                                     </td>
                                     <td>{{ $department->program->name }}</td>
                                     <td>
