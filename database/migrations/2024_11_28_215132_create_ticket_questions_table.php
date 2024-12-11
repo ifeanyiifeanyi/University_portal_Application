@@ -18,6 +18,16 @@ return new class extends Migration
             $table->string('email_message_id')->unique();
             $table->timestamps();
         });
+
+        Schema::create('ticket_attachments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
+            $table->foreignId('question_id')->nullable()->constrained('ticket_questions')->onDelete('cascade');
+            $table->string('file_path');
+            $table->string('file_name');
+            $table->string('file_type');
+            $table->timestamps();
+        });
     }
 
     /**

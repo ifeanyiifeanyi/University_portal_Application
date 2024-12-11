@@ -64,6 +64,14 @@
                             </li>
 
 
+                             <li>
+                                <a href="{{ route('student.view.support-tickets') }}" class="text-dark">
+                                    <i data-feather="table"></i>
+                                    <span>Support Ticket</span>
+                                </a>
+                            </li>
+
+
 
 
                         </ul>

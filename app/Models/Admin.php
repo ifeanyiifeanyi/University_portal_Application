@@ -43,4 +43,8 @@ class Admin extends Model
     {
         return $this->role === 'staff';
     }
+
+    public function ticketResponse(){
+        return $this->hasMany(TicketResponse::class, 'admin_id');
+    }
 }

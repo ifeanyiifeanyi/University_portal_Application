@@ -19,4 +19,9 @@ class TicketQuestion extends Model
     {
         return $this->hasMany(TicketResponse::class, 'question_id');
     }
+
+    public function suggestedResponses()
+    {
+        return $this->hasMany(AiSuggestedResponse::class, 'question_id');
+    }
 }

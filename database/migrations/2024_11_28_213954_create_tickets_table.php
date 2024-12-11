@@ -21,9 +21,11 @@ return new class extends Migration
             $table->text('description');
             $table->enum('status', ['open', 'in_progress', 'resolved', 'closed'])->default('open');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
-            
+
             $table->timestamps();
         });
+
+        
     }
 
     /**

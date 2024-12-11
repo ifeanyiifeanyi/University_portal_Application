@@ -22,4 +22,20 @@ class AiSuggestedResponse extends Model
         'was_used' => 'boolean',
         'used_at' => 'datetime'
     ];
+
+    public function question()
+    {
+        return $this->belongsTo(TicketQuestion::class, 'question_id');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
+    }
+    
 }

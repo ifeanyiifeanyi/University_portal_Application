@@ -52,8 +52,9 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
+use App\Http\Controllers\Admin\AdminSupportTicketController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
-
+use App\Http\Controllers\Student\StudentSupportTicketController;
 
 Route::get('/migrate-and-seed', function () {
     try {
@@ -83,7 +84,9 @@ Route::get('/migrate-and-seed', function () {
     }
 });
 
-Route::middleware(['guest', 'security.headers'])->controller(AuthController::class)->group(function () {
+// Route::middleware(['guest', 'security.headers'])->controller(AuthController::class)->group(function () {
+
+Route::middleware(['guest'])->controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');
@@ -112,10 +115,6 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
-
-
-
-
 
 Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'security.headers'])->group(function () {
     Route::get('password/recovery',  'showRecoveryForm')->name('password.recovery.form');
@@ -151,6 +150,16 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('programs/{program}/edit', 'edit')->name('admin.programs.edit');
         Route::put('programs/{program}', 'update')->name('admin.programs.update');
         Route::delete('programs/{program}', 'destroy')->name('admin.programs.destroy');
+    });
+
+    Route::controller(AdminSupportTicketController::class)->group(function () {
+        Route::get('support-tickets', 'index')->name('admin.support_tickets.index');
+        Route::get('support-tickets/{ticket}/show', 'show')->name('admin.support_tickets.show');
+        Route::post('admin-tickets/{ticket}/respond', 'respond')->name('admin.support_tickets.respond');
+
+
+        Route::patch('support-tickets/{ticket}/update-status', 'updateStatus')->name('admin.support_tickets.update_status');
+        Route::patch('support-tickets/{ticket}/update-priority', 'updatePriority')->name('admin.support_tickets.update_priority');
     });
 
 
@@ -195,7 +204,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // Course Assignment Management
     Route::middleware('permission:manage courses')->group(function () {
-        
+
         Route::resource('course-assignments', AdminCourseAssignmentController::class);
     });
 
@@ -663,48 +672,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
 
-
-// Route::prefix('teacher')->middleware('teacher')->group(function () {
-
-//     Route::controller(TeacherController::class)->group(function () {
-//         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
-//         Route::get('profile', 'profile')->name('teacher.view.profile');
-//         // post requests
-//         Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
-//         Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
-
-//         Route::post('logout', 'logout')->name('teacher.logout');
-//     });
-//     Route::controller(TeacherDepartmentController::class)->group(function () {
-//         Route::get('departments', 'departments')->name('teacher.view.departments');
-//     });
-//     Route::prefix('courses')->group(function () {
-//         Route::controller(TeacherCoursesController::class)->group(function () {
-//             Route::get('/', 'courses')->name('teacher.view.courses');
-//             Route::get('/students/{id}', 'students')->name('teacher.view.courses.students');
-//             Route::get('/get-grade/{total}', 'getGrade')->name('getGrade');
-//             Route::post('/uploadresult/{courseid}', 'uploadresult')->name('teacher.upload.result');
-//             Route::get('/export/{id}', 'exportassessment')->name('exportassessment');
-//             Route::post('/importassessment', 'ImportAssessmentCsv')->name('importassessment.csv');
-//         });
-//     });
-
-//     Route::prefix('attendance')->group(function () {
-//         Route::controller(TeacherAttendanceController::class)->group(function () {
-//             Route::get('/', 'attendance')->name('teacher.view.attendance');
-//             Route::get('/create', 'create')->name('teacher.view.create.attendance');
-//             Route::get('/createattendance/{sessionid}/{semesterid}/{departmentid}/{courseid}', 'createattendance')->name('teacher.create.attendance');
-//             Route::get('/view/{attendanceid}/{departmentid}/{courseid}', 'view')->name('teacher.view.attendees');
-//             Route::post('/create-attendance', 'createstudentAttendance')->name('attendance.create');
-//             Route::post('/update-attendance', 'updateAttendance')->name('teacher.attendance.update');
-//         });
-//     });
-// });
-
-
-
-
-
 //! student routes
 Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
@@ -764,17 +731,23 @@ Route::prefix('student')->middleware('student')->group(function () {
 
         });
     });
-
-
     Route::controller(FeesPaymentsController::class)->group(function () {
         Route::prefix('/payments')->group(function () {
             Route::get('/', 'index')->name('student.view.payments');
         });
     });
-
-
     Route::controller(OnlineClassesController::class)->group(function () {
         Route::get('onlineclasses', 'index')->name('student.view.onlineclasses');
+    });
+
+
+    //: SUPPORT TICKET SECTION added to student section by ifeanyi
+    Route::controller(StudentSupportTicketController::class)->group(function () {
+        Route::get('support-tickets', 'index')->name('student.view.support-tickets');
+        Route::get('support-tickets/{ticket}', 'show')->name('student.support-tickets.show');
+        Route::get('tickets/create', 'create')->name('student.support-tickets.create');
+        Route::post('support-tickets', 'store')->name('student.tickets.store');
+        Route::post('tickets/{ticket}/reply', 'reply')->name('student.tickets.reply');
     });
 });
 

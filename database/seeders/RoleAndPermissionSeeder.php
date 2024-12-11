@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -146,5 +148,34 @@ class RoleAndPermissionSeeder extends Seeder
             'view timetable',
             'view notifications'
         ]);
+
+
+        $superAdminUser = User::firstOrCreate(
+            [
+                'email' => 'superadmin@admin.com'
+            ],
+            [
+                'first_name' => 'Super',
+                'last_name' => 'Admin',
+                'other_name' => 'Admin',
+                'username' => 'superadmin',
+                'slug' => 'superadmin',
+                'phone' => '1234567890',
+                'password' => bcrypt('password'),
+                'user_type' => User::TYPE_ADMIN,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        Admin::firstOrCreate(
+            [
+                'user_id' => $superAdminUser->id,
+            ],
+            [
+                'role' => 'superAdmin',
+            ]
+        );
+         // Assign the superAdmin role to the user
+         $superAdminUser->assignRole($superAdmin);
     }
 }

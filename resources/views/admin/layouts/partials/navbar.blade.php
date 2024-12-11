@@ -147,6 +147,9 @@
                     <li><a class="dropdown-item" href="{{ route('admin.backups.index') }}"><i
                                 class="bx bx-cog"></i><span>Settings</span></a>
                     </li>
+                    <li><a class="dropdown-item" href="{{ route('admin.support_tickets.index') }}"><i
+                        class="bx bx-cog"></i><span>Student Support Tickets</span></a>
+            </li>
                     <li>
                         <div class="dropdown-divider mb-0"></div>
                     </li>

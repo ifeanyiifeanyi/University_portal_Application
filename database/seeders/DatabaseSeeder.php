@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             // SemesterSeeder::class,
             // UserTeacherStudentSeeder::class,
             RoleAndPermissionSeeder::class,
-            AdminSeeder::class,
+            // AdminSeeder::class,
         ]);
 
 

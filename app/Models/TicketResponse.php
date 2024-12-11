@@ -26,7 +26,7 @@ class TicketResponse extends Model
         return $this->belongsTo(TicketQuestion::class);
     }
 
-    public function staff()
+    public function admin()
     {
         return $this->belongsTo(Admin::class);
     }

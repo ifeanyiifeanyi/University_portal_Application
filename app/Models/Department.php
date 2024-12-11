@@ -30,10 +30,6 @@ class Department extends Model
         return $this->belongsTo(User::class, 'department_head_id');
     }
 
-
-
-
-
     public function timetables()
     {
         return $this->hasMany(TimeTable::class);
@@ -43,6 +39,7 @@ class Department extends Model
     {
         return $this->belongsTo(Faculty::class);
     }
+
     public function paymentTypes()
     {
         return $this->belongsToMany(PaymentType::class)->withPivot('level');
@@ -72,6 +69,7 @@ class Department extends Model
         return $this->hasMany(CourseAssignment::class);
     }
 
+    
 
     public function courses()
     {
