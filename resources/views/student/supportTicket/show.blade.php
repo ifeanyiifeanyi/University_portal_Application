@@ -146,8 +146,8 @@
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="reply" class="form-label">Your Reply</label>
-                                    <textarea class="form-control" id="reply" name="reply" rows="3" required></textarea>
+                                    <label for="editor" class="form-label">Your Reply</label>
+                                    <textarea class="form-control" id="editor" name="reply" rows="3" required></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <label for="attachments" class="form-label">Attachments (optional)</label>

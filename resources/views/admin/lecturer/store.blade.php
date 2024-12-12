@@ -2,81 +2,6 @@
 
 @section('title', 'Create Lecturer Account')
 
-@section('css')
-    <style>
-        .edit-teacher-container {
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-top: 20px;
-        }
-
-        .section-title {
-            color: #3a3a3a;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-control,
-        .form-select {
-            border-radius: 8px;
-        }
-
-        .btn-save {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-save:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875em;
-            margin-top: 0.25rem;
-        }
-
-        #image-label {
-            background: linear-gradient(135deg, #9faef2e5 0%, #b477f2de 100%);
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
-            color: white;
-            border-radius: 8px;
-        }
-
-        #profile_photo {
-            display: none;
-        }
-
-        .image-preview {
-            width: 100%;
-            max-width: 150px;
-            margin-top: 10px;
-            z-index: 70;
-        }
-    </style>
-@endsection
 
 @section('admin')
     <div class="container edit-teacher-container">
@@ -374,6 +299,85 @@
             </div>
         </form>
     </div>
+@endsection
+
+
+
+
+@section('css')
+    <style>
+        .edit-teacher-container {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .section-title {
+            color: #3a3a3a;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+
+        #image-label {
+            background: linear-gradient(135deg, #9faef2e5 0%, #b477f2de 100%);
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: white;
+            border-radius: 8px;
+        }
+
+        #profile_photo {
+            display: none;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-width: 150px;
+            margin-top: 10px;
+            z-index: 70;
+        }
+    </style>
 @endsection
 
 @section('javascript')

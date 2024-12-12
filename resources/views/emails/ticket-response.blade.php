@@ -1,7 +1,5 @@
-<!-- resources/views/emails/ticket-response.blade.php -->
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +10,6 @@
             .inner-body {
                 width: 100% !important;
             }
-
             .footer {
                 width: 100% !important;
             }
@@ -86,11 +83,43 @@
             color: #4a5568;
         }
 
+        .qa-pair {
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .question {
+            background: #f3f4f6;
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .question h3 {
+            margin: 0;
+            color: #1a56db;
+            font-size: 16px;
+        }
+
         .response {
             background: #ffffff;
             padding: 16px;
-            border-left: 4px solid #1a56db;
-            margin-top: 20px;
+            white-space: pre-line;
+        }
+
+        .response-header {
+            margin-bottom: 10px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .reply-info {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #4a5568;
         }
 
         /* Footer section */
@@ -106,9 +135,18 @@
             font-size: 12px;
             text-align: center;
         }
+
+        .reply-button {
+            display: inline-block;
+            background: #1a56db;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
-
 <body>
     <div class="wrapper">
         <div class="inner-body">
@@ -121,11 +159,28 @@
                     <p><strong>Ticket #:</strong> {{ $ticketNumber }}</p>
                     <p><strong>Subject:</strong> {{ $subject }}</p>
                     <p><strong>Department:</strong> {{ $department }}</p>
+                    <p><strong>Status:</strong> {{ Str::replace('_', ' ', ucfirst($ticket->status)) }}</p>
                 </div>
 
-                <div class="response">
-                    {!! nl2br(e($response)) !!}
-                </div>
+                @foreach($responses as $response)
+                    <div class="qa-pair">
+                        <div class="question">
+                            <h3>Question {{ $loop->iteration }}:</h3>
+                            <p>{{ $response->question->question }}</p>
+                        </div>
+                        <div class="response">
+                            <div class="response-header">
+                                <strong>Response from {{ $response->admin->user->full_name }}:</strong>
+                                <br>
+                                <small>{{ $response->created_at->format('F j, Y, g:i a') }}</small>
+                            </div>
+                            {!! nl2br(e($response->response)) !!}
+                        </div>
+                        <div class="reply-info">
+                            <p>To reply to this specific response, please include "Re: Question {{ $loop->iteration }}" in your email subject when responding.</p>
+                        </div>
+                    </div>
+                @endforeach
 
                 <div style="margin-top: 30px;">
                     <p><strong>Best regards,</strong></p>
@@ -136,10 +191,10 @@
         </div>
 
         <div class="footer">
-            <p>This is an automated response to your support ticket. Please do not reply to this email directly.</p>
-            <p>If you need to provide additional information, please log in to your support portal.</p>
+            <p>You can reply to this email directly to continue the conversation.</p>
+            <p>Each response includes a reference to the specific question it addresses.</p>
+            <p>For a complete overview of your ticket, visit the support portal.</p>
         </div>
     </div>
 </body>
-
 </html>

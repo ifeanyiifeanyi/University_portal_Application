@@ -10,6 +10,7 @@ use App\Models\TicketResponse;
 use App\Mail\TicketResponseMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Database\Eloquent\Collection;
 
 class AdminSupportTicketController extends Controller
 {
@@ -79,19 +80,24 @@ class AdminSupportTicketController extends Controller
 
     public function respond(Request $request, Ticket $ticket)
     {
-        // dd($ticket->user->email);
         $request->validate([
             'responses' => 'required|array',
             'responses.*' => 'required|string',
         ]);
 
-        foreach ($request->responses as $questionId => $responseText) {
-            // Generate a unique message ID for this response
-            $messageId = '<' . Str::uuid() . '@' . config('app.url') . '>';
+        // Initialize an empty Eloquent Collection instead of a basic Collection
+        $responses = new Collection();
 
-            // Get the original question's message ID to link the response
+        foreach ($request->responses as $questionId => $responseText) {
+            // Generate RFC 2822 compliant message ID
+            $messageId = sprintf(
+                '%s.%s@%s',
+                time(),
+                substr(md5(uniqid(rand(), true)), 0, 10),
+                parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost.com'
+            );
+
             $question = $ticket->questions()->findOrFail($questionId);
-            $inReplyTo = $question->email_message_id;
 
             $response = TicketResponse::create([
                 'ticket_id' => $ticket->id,
@@ -100,15 +106,16 @@ class AdminSupportTicketController extends Controller
                 'response' => $responseText,
                 'is_ai_response' => $request->input("use_ai.$questionId", false),
                 'email_message_id' => $messageId,
-                'in_reply_to' => $inReplyTo,
+                'in_reply_to' => $question->email_message_id,
                 'sent_at' => now(),
             ]);
 
-            // Send email to student
-            Mail::to($ticket->user->email)->send(
-                new TicketResponseMail($ticket, $response)
-            );
+            $responses->push($response);
         }
+
+        // Send single email with all responses
+        Mail::to($ticket->user->email)
+            ->send(new TicketResponseMail($ticket, $responses));
 
         $ticket->update(['status' => 'in_progress']);
 

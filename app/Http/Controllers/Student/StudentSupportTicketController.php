@@ -64,8 +64,14 @@ class StudentSupportTicketController extends Controller
 
 
         foreach ($request->questions as $questionText) {
-             // Generate a unique message ID for this response
-             $messageId = '<' . Str::uuid() . '@' . config('app.url') . '>';
+            // Generate a unique message ID for this response
+            // Generate RFC 2822 compliant message ID
+            $messageId = sprintf(
+                '%s.%s@%s',
+                time(),
+                substr(md5(uniqid(rand(), true)), 0, 10),
+                parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost.com'
+            );
 
             $question = $ticket->questions()->create([
                 'question' => $questionText,
@@ -114,9 +120,19 @@ class StudentSupportTicketController extends Controller
             'attachments.*' => 'nullable|file|max:10240',
         ]);
 
+        // Generate RFC 2822 compliant message ID
+        $messageId = sprintf(
+            '%s.%s@%s',
+            time(),
+            substr(md5(uniqid(rand(), true)), 0, 10),
+            parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost.com'
+        );
+
         // Create new question
         $question = $ticket->questions()->create([
             'question' => $request->reply,
+            'email_message_id' => $messageId,
+            // 'in_reply_to' => $ticket->questions()->latest()->value('email_message_id'),
         ]);
 
         // Handle attachments if any
