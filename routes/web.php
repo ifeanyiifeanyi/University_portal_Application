@@ -160,6 +160,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         Route::patch('support-tickets/{ticket}/update-status', 'updateStatus')->name('admin.support_tickets.update_status');
         Route::patch('support-tickets/{ticket}/update-priority', 'updatePriority')->name('admin.support_tickets.update_priority');
+
+        Route::get('ticket-history/{ticket}', 'ticketHistory')->name('admin.support_tickets.history');
+
+        Route::delete('support-tickets/{ticket}', 'destroy')->name('admin.support_tickets.destroy');
     });
 
 

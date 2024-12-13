@@ -85,7 +85,8 @@
 
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                    <a href="{{ route('admin.support_tickets.index') }}" class="btn btn-secondary">Reset</a>
+                                    <a href="{{ route('admin.support_tickets.index') }}"
+                                        class="btn btn-secondary">Reset</a>
                                 </div>
                             </form>
                         </div>
@@ -102,7 +103,8 @@
                                                 class="text-decoration-none text-dark">
                                                 Ticket
                                                 @if (request('sort') === 'ticket_number')
-                                                <i class="fas fa-arrows-alt-v"></i>                                               @endif
+                                                    <i class="fas fa-arrows-alt-v"></i>
+                                                @endif
                                             </a>
                                         </th>
                                         <th>Subject</th>
@@ -112,7 +114,7 @@
                                                 class="text-decoration-none text-dark">
                                                 Created
                                                 @if (request('sort') === 'created_at')
-                                                <i class="fas fa-arrows-alt-v"></i>
+                                                    <i class="fas fa-arrows-alt-v"></i>
                                                 @endif
                                             </a>
                                         </th>
@@ -126,7 +128,13 @@
                                     @forelse($tickets as $ticket)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $ticket->ticket_number }}</td>
+                                            <td>
+                                                {{ $ticket->ticket_number }} <br>
+                                                @if ($ticket->questions()->count() > 0)
+                                                    <a href="{{ route('admin.support_tickets.history', $ticket) }}"
+                                                        class="badge bg-primary">History</a>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if ($ticket->questions()->count() > 0)
@@ -164,6 +172,7 @@
                                                         class="btn btn-sm btn-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
+
                                                     <button type="button" class="btn btn-sm btn-secondary dropdown-toggle"
                                                         data-bs-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
@@ -205,8 +214,23 @@
                                                                 </button>
                                                             </form>
                                                         </li>
+                                                        <li>
+                                                            @can('delete', $ticket)
+                                                                <form
+                                                                    action="{{ route('admin.support_tickets.destroy', $ticket) }}"
+                                                                    method="POST" class="d-inline"
+                                                                    onsubmit="return confirm('Are you sure you want to delete this ticket? This action cannot be undone and will delete all related data.');">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="dropdown-item text-danger">
+                                                                        <i class="fas fa-trash-alt me-2"></i> Delete Ticket
+                                                                    </button>
+                                                                </form>
+                                                            @endcan
+                                                        </li>
                                                     </ul>
                                                 </div>
+
                                             </td>
                                         </tr>
                                     @empty
@@ -246,17 +270,17 @@
 
 
 @section('css')
-<!-- Add this to your layout file -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- Add this to your layout file -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 @endsection
 @section('javascript')
-<script>
-    // Persist collapse state
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterSection = document.getElementById('filterSection');
-        if (new URLSearchParams(window.location.search).toString()) {
-            filterSection.classList.add('show');
-        }
-    });
-</script>
+    <script>
+        // Persist collapse state
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterSection = document.getElementById('filterSection');
+            if (new URLSearchParams(window.location.search).toString()) {
+                filterSection.classList.add('show');
+            }
+        });
+    </script>
 @endsection

@@ -8,12 +8,15 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\TicketResponse;
 use App\Mail\TicketResponseMail;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 use App\Notifications\TicketResponseNotification;
 use App\Notifications\TicketStatusUpdateNotification;
 use App\Notifications\TicketPriorityUpdateNotification;
+use Exception;
 
 class AdminSupportTicketController extends Controller
 {
@@ -173,5 +176,80 @@ class AdminSupportTicketController extends Controller
         ));
 
         return redirect()->back()->with('success', 'Ticket priority updated successfully');
+    }
+
+
+    public function ticketHistory(Ticket $ticket)
+    {
+        $ticket->load([
+            'questions.responses' => function($query) {
+                $query->orderBy('created_at', 'asc');
+            },
+            'questions.suggestedResponses',
+            'attachments',
+            'questions.responses.admin'
+        ]);
+
+        // Group responses by question
+        $conversationHistory = $ticket->questions->map(function($question) {
+            return [
+                'question' => $question,
+                'responses' => $question->responses,
+                'has_response' => $question->responses->isNotEmpty()
+            ];
+        });
+        return view('admin.supportTicket.history', compact('ticket', 'conversationHistory'));
+    }
+
+
+    public function destroy(Ticket $ticket)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Delete all attachments from storage first
+            foreach ($ticket->attachments as $attachment) {
+                // Delete the file from storage
+                if (Storage::exists($attachment->file_path)) {
+                    Storage::delete($attachment->file_path);
+                }
+                $attachment->delete();
+            }
+
+            // Delete AI suggested responses
+            foreach ($ticket->questions as $question) {
+                $question->suggestedResponses()->delete();
+            }
+
+            // Delete all responses
+            foreach ($ticket->questions as $question) {
+                $question->responses()->delete();
+            }
+
+            // Delete all questions
+            $ticket->questions()->delete();
+
+            // Delete all notifications related to this ticket
+            DB::table('notifications')
+                ->where('type', 'LIKE', '%TicketNotification%')
+                ->where('data', 'LIKE', '%"ticket_id":' . $ticket->id . '%')
+                ->delete();
+
+            // Finally delete the ticket itself
+            $ticket->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.support_tickets.index')
+                ->with('success', 'Ticket and all related data have been successfully deleted.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to delete ticket. Please try again.');
+        }
     }
 }

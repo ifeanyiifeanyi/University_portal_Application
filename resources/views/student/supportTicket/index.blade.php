@@ -27,12 +27,12 @@
                             <table class="table table-centered table-nowrap mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 20px;">
+                                        {{-- <th style="width: 20px;">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="customCheck1">
                                                 <label class="form-check-label" for="customCheck1">&nbsp;</label>
                                             </div>
-                                        </th>
+                                        </th> --}}
                                         <th style="width: 20px;">#</th>
                                         <th>Title</th>
                                         <th>Category</th>
@@ -44,21 +44,20 @@
                                 <tbody>
                                     @foreach ($supportTickets as $supportTicket)
                                         <tr>
-                                            <td>
+                                            {{-- <td>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="customCheck2">
                                                     <label class="form-check-label" for="customCheck2">&nbsp;</label>
                                                 </div>
-                                            </td>
+                                            </td> --}}
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ Str::title($supportTicket->subject) }}</td>
                                             <td>{{ $supportTicket->category }}</td>
                                             <td>{{ $supportTicket->priority }}</td>
                                             <td>{{ $supportTicket->created_at }}</td>
-                                            <td class="table-action btn-group">
+                                            <td class="">
                                                 <a href="{{ route('student.support-tickets.show', $supportTicket) }}"
                                                     class="btn btn-sm btn-info">View</a>
-                                                <a href="" class="btn btn-danger btn-sm">Delete</a>
                                             </td>
                                         </tr>
                                     @endforeach
