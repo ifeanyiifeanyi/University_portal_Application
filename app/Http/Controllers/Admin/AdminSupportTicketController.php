@@ -11,6 +11,9 @@ use App\Mail\TicketResponseMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Collection;
+use App\Notifications\TicketResponseNotification;
+use App\Notifications\TicketStatusUpdateNotification;
+use App\Notifications\TicketPriorityUpdateNotification;
 
 class AdminSupportTicketController extends Controller
 {
@@ -113,12 +116,62 @@ class AdminSupportTicketController extends Controller
             $responses->push($response);
         }
 
-        // Send single email with all responses
-        Mail::to($ticket->user->email)
-            ->send(new TicketResponseMail($ticket, $responses));
+        // Send response notification to student
+        $ticket->user->notify(new TicketResponseNotification($ticket, $responses));
 
+
+
+        $oldStatus = $ticket->status;
         $ticket->update(['status' => 'in_progress']);
 
+        // Notify student of status change if it changed
+        if ($oldStatus !== 'in_progress') {
+            $ticket->user->notify(new TicketStatusUpdateNotification(
+                $ticket,
+                $oldStatus,
+                'in_progress'
+            ));
+        }
+
         return redirect()->back()->with('success', 'Responses sent successfully');
+    }
+
+    public function updateStatus(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'status' => 'required|in:open,in_progress,resolved,closed'
+        ]);
+
+        $oldStatus = $ticket->status;
+        $ticket->update(['status' => $request->status]);
+
+        // Notify student of status change
+        $ticket->user->notify(new TicketStatusUpdateNotification(
+            $ticket,
+            $oldStatus,
+            $request->status
+        ));
+
+        return redirect()->back()->with('success', 'Ticket status updated successfully');
+    }
+
+
+    public function updatePriority(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'priority' => 'required|in:low,medium,high'
+        ]);
+
+        $oldPriority = $ticket->priority;
+        $ticket->update(['priority' => $request->priority]);
+
+
+        $ticket->user->notify(new TicketPriorityUpdateNotification(
+            $ticket,
+            $oldPriority,
+            $request->priority
+        ));
+
+        return redirect()->back()->with('success', 'Ticket priority updated successfully');
     }
 }

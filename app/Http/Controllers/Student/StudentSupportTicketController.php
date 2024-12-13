@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Models\User;
 use App\Models\Ticket;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Services\AITicketService;
 use App\Http\Controllers\Controller;
+use App\Notifications\NewTicketNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\NewTicketReplyNotification;
 
 class StudentSupportTicketController extends Controller
 {
@@ -97,15 +101,14 @@ class StudentSupportTicketController extends Controller
             }
         }
 
+        //send mail to the admins
+        Notification::send(User::admins()->get(), new NewTicketNotification($ticket));
 
-        // return redirect()->route('student.supportTicket.index')->with('success', 'Ticket created successfully!');
         return redirect()->route('student.support-tickets.show', $ticket)->with('success', 'Ticket created successfully.');
     }
 
     public function show(Ticket $ticket)
     {
-        // $this->authorize('view', $ticket);
-        // dd($ticket);
 
         $ticket->load(['questions', 'attachments', 'questions']);
 
@@ -152,6 +155,9 @@ class StudentSupportTicketController extends Controller
         if ($ticket->status === 'resolved') {
             $ticket->update(['status' => 'in_progress']);
         }
+
+        // notify admins
+        Notification::send(User::admins()->get(), new NewTicketReplyNotification($ticket));
 
         return redirect()->back()->with('success', 'Reply sent successfully');
     }

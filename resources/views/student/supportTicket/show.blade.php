@@ -102,7 +102,7 @@
                                     <h6 class="text-primary">
                                         Question {{ $index + 1 }}:
                                     </h6>
-                                    <p class="ms-3 mb-3">{{ $question->question }}</p>
+                                    <p class="ms-3 mb-3">{{ Str::title($question->question) }}</p>
 
                                     @if ($question->responses->count() > 0)
                                         @foreach ($question->responses as $response)
@@ -113,7 +113,7 @@
                                                         {{ $response->created_at->format('M d, Y h:i A') }}
                                                     </small>
                                                 </div>
-                                                <p class="mb-0 mt-2">{{ $response->response }}</p>
+                                                <p class="mb-0 mt-2">{{ Str::title($response->response) }}</p>
                                             </div>
                                         @endforeach
                                     @else

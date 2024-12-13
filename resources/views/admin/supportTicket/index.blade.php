@@ -100,21 +100,19 @@
                                         <th>
                                             <a href="{{ route('admin.support_tickets.index', array_merge(request()->query(), ['sort' => 'ticket_number'])) }}"
                                                 class="text-decoration-none text-dark">
-                                                Ticket #
+                                                Ticket
                                                 @if (request('sort') === 'ticket_number')
-                                                    <i class="bi bi-arrow-down-up"></i>
-                                                @endif
+                                                <i class="fas fa-arrows-alt-v"></i>                                               @endif
                                             </a>
                                         </th>
                                         <th>Subject</th>
                                         <th>Student</th>
-                                        <th>Department</th>
                                         <th>
                                             <a href="{{ route('admin.support_tickets.index', array_merge(request()->query(), ['sort' => 'created_at'])) }}"
                                                 class="text-decoration-none text-dark">
                                                 Created
                                                 @if (request('sort') === 'created_at')
-                                                    <i class="bi bi-arrow-down-up"></i>
+                                                <i class="fas fa-arrows-alt-v"></i>
                                                 @endif
                                             </a>
                                         </th>
@@ -136,11 +134,10 @@
                                                             {{ $ticket->questions()->count() }}
                                                         </span>
                                                     @endif
-                                                    {{ Str::limit($ticket->subject, 50) }}
+                                                    {{ Str::title(Str::limit($ticket->subject, 50)) }}
                                                 </div>
                                             </td>
                                             <td>{{ Str::title($ticket->user->full_name) }}</td>
-                                            <td>{{ $ticket->department->name }}</td>
                                             <td>{{ $ticket->created_at->format('M d, Y') }}</td>
                                             <td>
                                                 <span

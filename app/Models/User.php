@@ -18,6 +18,14 @@ class User extends Authenticatable
     public const TYPE_TEACHER = 2;
     public const TYPE_STUDENT = 3;
     public const TYPE_PARENT = 4;
+    public function scopeAdmins($query)
+    {
+        return $query->where('user_type', self::TYPE_ADMIN)
+            ->whereHas('admin', function ($query) {
+                $query->whereIn('role', ['superadmin', 'admin']);
+            });
+    }
+
 
 
     /**
@@ -27,46 +35,55 @@ class User extends Authenticatable
      */
     protected $guarded = [];
 
-    public function courses(){
+    public function courses()
+    {
         return $this->belongsToMany(Course::class);
     }
 
-public function getUserAccessTypeAttribute(){
-    if($this->user_type == self::TYPE_ADMIN){
-        return "ADMIN";
-    } else if($this->user_type == self::TYPE_TEACHER){
-        return "LECTURER";
-    }else if($this->user_type == self::TYPE_STUDENT){
-        return "STUDENT";
-    }else if($this->user_type == self::TYPE_PARENT){
-        return "PARENT";
+    public function getUserAccessTypeAttribute()
+    {
+        if ($this->user_type == self::TYPE_ADMIN) {
+            return "ADMIN";
+        } else if ($this->user_type == self::TYPE_TEACHER) {
+            return "LECTURER";
+        } else if ($this->user_type == self::TYPE_STUDENT) {
+            return "STUDENT";
+        } else if ($this->user_type == self::TYPE_PARENT) {
+            return "PARENT";
+        }
+        return null;
     }
-    return null;
-}
-    public function teacher(){
+    public function teacher()
+    {
         return $this->hasOne(Teacher::class);
     }
-    public function student(){
+    public function student()
+    {
         return $this->hasOne(Student::class);
     }
-    public function parent(){
+    public function parent()
+    {
         return $this->hasOne(Parents::class);
     }
 
-    public function profileImage(){
+    public function profileImage()
+    {
         return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);
     }
 
-    public function fullName(){
-        return Str::title($this->first_name.' '.$this->last_name. ' '. $this->other_name ?? '');
+    public function fullName()
+    {
+        return Str::title($this->first_name . ' ' . $this->last_name . ' ' . $this->other_name ?? '');
     }
 
-    public function getFullNameAttribute(){
-        return Str::title($this->first_name.' '.$this->last_name. ' '. $this->other_name ?? '');
+    public function getFullNameAttribute()
+    {
+        return Str::title($this->first_name . ' ' . $this->last_name . ' ' . $this->other_name ?? '');
     }
 
 
-    public function admin(){
+    public function admin()
+    {
         return $this->hasOne(Admin::class);
     }
 

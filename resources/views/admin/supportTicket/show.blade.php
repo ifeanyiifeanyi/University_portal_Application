@@ -11,7 +11,7 @@
                 <h5 class="mb-0">Ticket #{{ $ticket->ticket_number }}</h5>
                 <span
                     class="badge bg-{{ $ticket->status === 'open' ? 'danger' : ($ticket->status === 'in_progress' ? 'warning' : 'success') }}">
-                    {{ ucfirst($ticket->status) }}
+                    {{ Str::replace('_', ' ', ucfirst($ticket->status)) }}
                 </span>
             </div>
             <div class="card-body">

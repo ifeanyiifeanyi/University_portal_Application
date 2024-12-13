@@ -16,16 +16,19 @@ class Ticket extends Model
         return $this->hasMany(TicketQuestion::class);
     }
 
-    public function attachments(){
+    public function attachments()
+    {
         return $this->hasMany(TicketAttachment::class);
     }
 
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function responses(){
+    public function responses()
+    {
         return $this->hasMany(TicketResponse::class);
     }
 
@@ -40,4 +43,24 @@ class Ticket extends Model
     }
 
 
+    // piority scopes
+    public function scopeHighPriority($query)
+    {
+        return $query->where('priority', 'high');
+    }
+
+    public function scopeMediumPriority($query)
+    {
+        return $query->where('priority', 'medium');
+    }
+
+    public function scopeLowPriority($query)
+    {
+        return $query->where('priority', 'low');
+    }
+
+    public function scopePriority($query, $priority)
+    {
+        return $query->where('priority', $priority);
+    }
 }
