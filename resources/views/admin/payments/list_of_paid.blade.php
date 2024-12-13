@@ -121,6 +121,7 @@
                                     <td>
                                         <a href="{{ route('admin.payments.ProcessedPayment_details', $payment) }}" class="badge bg-primary">
                                             <i class="fas fa-file-invoice-dollar"></i>
+                                            view Detail
                                         </a>
                                     </td>
                                 </tr>

@@ -407,4 +407,19 @@ class AdminPaymentController extends Controller
 
         return view('admin.payments.list_of_paid', compact('payments', 'departments', 'academicSessions', 'semesters'));
     }
+
+    public function ProcessedPaymentDetails(Payment $payment)
+    {
+        return $payment->load([
+            'student.user',
+            'student.department',
+            'paymentType',
+            'paymentMethod',
+            'academicSession',
+            'semester',
+            'invoice',
+            'receipt'
+        ]);
+        return view('admin.payments.paidDetails', compact('payment'));
+    }
 }
