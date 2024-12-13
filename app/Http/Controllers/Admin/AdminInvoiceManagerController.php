@@ -57,6 +57,7 @@ class AdminInvoiceManagerController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
-        //
+        $invoice->delete();
+        return redirect()->route('admin.invoice.view')->with('success', 'Invoice deleted successfully!');
     }
 }

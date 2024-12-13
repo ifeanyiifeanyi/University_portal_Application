@@ -140,10 +140,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
         Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
-
     });
 
-    Route::controller(AdminProgramsController::class)->group(function(){
+    Route::controller(AdminProgramsController::class)->group(function () {
         Route::get('programs', 'index')->name('admin.programs.index');
         Route::get('programs/create', 'create')->name('admin.programs.create');
         Route::post('programs', 'store')->name('admin.programs.store');
@@ -593,7 +592,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
             Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
+
+            // show all successful payments
             Route::get('/payments/active', 'ProcessedPayments')->name('admin.payments.ProcessedPayments');
+            Route::get('/payments/active/{payment}', 'ProcessedPaymentDetails')
+                ->name('admin.payments.ProcessedPayment_details');
         });
     });
 
@@ -628,6 +631,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('invoice-manager', 'index')->name('admin.invoice.view');
             Route::get('invoice-manager/{invoice}/details', 'show')->name('admin.invoice.show');
             Route::get('invoice-manager/download/{invoice}', 'download')->name('admin.invoice.download');
+
+            // todo: add invoice delete
+            Route::delete('invoice-manager/{invoice}', 'destroy')->name('admin.invoice.destroy');
         });
     });
 

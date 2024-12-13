@@ -18,9 +18,7 @@
                             <i class="fas fa-file-invoice fa-fw"></i> Invoice Details
                         </h4>
                         <div class="float-end">
-                            <a href="" class="btn btn-secondary" title="Download Invoice">
-                                <i class="fas fa-file-pdf fa-fw"></i> Download PDF
-                            </a>
+
                             @if($invoice->status === 'pending')
                                 <button class="btn btn-success mark-paid" title="Mark as Paid"
                                     data-invoice-id="{{ $invoice->id }}">

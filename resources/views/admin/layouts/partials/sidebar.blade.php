@@ -109,9 +109,11 @@
                 <div class="menu-title">Payment Manager</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.payment_type.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
-                        Payment Types</a>
+                <li> <a href="{{ route('admin.payments.ProcessedPayments') }}"><i class="bx bx-right-arrow-alt"></i>Paid Fees Manager</a>
                 </li>
+                <li> <a href="{{ route('admin.payment_type.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                    Payment Types</a>
+            </li>
                 <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Payment Methods</a>
                 </li>

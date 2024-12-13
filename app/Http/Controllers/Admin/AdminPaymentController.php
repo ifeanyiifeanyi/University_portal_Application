@@ -383,4 +383,28 @@ class AdminPaymentController extends Controller
 
         return view('admin.payments.payInvoice', compact('invoice'));
     }
+
+
+
+
+
+    public function ProcessedPayments()
+    {
+        $payments = Payment::with([
+            'student.user',
+            'student.department',
+            'paymentType',
+            'paymentMethod',
+            'academicSession',
+            'semester'
+        ])->where('status', 'paid')->get();
+        $departments = Department::all();
+        $academicSessions = AcademicSession::all();
+        $semesters = Semester::all();
+
+        // dd($payments);
+
+
+        return view('admin.payments.list_of_paid', compact('payments', 'departments', 'academicSessions', 'semesters'));
+    }
 }
