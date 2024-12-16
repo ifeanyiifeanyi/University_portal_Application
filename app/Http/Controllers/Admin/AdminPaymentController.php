@@ -44,7 +44,7 @@ class AdminPaymentController extends Controller
             }])
             ->active()
             ->get();
-            
+
         $paymentMethods = PaymentMethod::active()->get();
         $academicSessions = AcademicSession::all();
         $semesters = Semester::all();
@@ -56,6 +56,10 @@ class AdminPaymentController extends Controller
     public function getDepartmentsAndLevels(Request $request)
     {
         $paymentType = PaymentType::findOrFail($request->payment_type_id);
+
+        $currentDate = now();
+        $lateFee = $paymentType->calculateLateFee($currentDate);
+
         $departmentsAndLevels = $paymentType->departments()->with(['paymentTypes' => function ($query) use ($paymentType) {
             $query->where('payment_types.id', $paymentType->id);
         }])->get()->map(function ($department) {
@@ -63,13 +67,15 @@ class AdminPaymentController extends Controller
             return [
                 'id' => $department->id,
                 'name' => $department->name,
-                'levels' => $levels->toArray()
+                'levels' => $levels->toArray(),
             ];
         });
 
         return response()->json([
             'departments' => $departmentsAndLevels,
-            'amount' => $paymentType->amount
+            'amount' => $paymentType->amount + $lateFee, // Include the penalty in the amount
+            'late_fee' => $lateFee,
+            'due_date' => $paymentType->due_date,
         ]);
     }
 
@@ -227,8 +233,23 @@ class AdminPaymentController extends Controller
             'semester_id' => 'required|exists:semesters,id',
             'invoice_number' => 'required|exists:invoices,invoice_number',
         ]);
-        // $invoice = Invoice::findOrFail($validated['invoice_id']);
-        // $paymentMethod = $invoice->paymentMethod;
+        //check for late fee
+
+        $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
+        $currentDate = now();
+        $lateFee = $paymentType->calculateLateFee($currentDate);
+
+        // Calculate the total amount (including penalty, if any)
+        $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
+        if (!$baseAmount) {
+            return redirect()->back()->with('error', 'Payment amount could not be determined for the selected department and level.');
+        }
+        $totalAmountDue = $baseAmount + $lateFee;
+
+        // Verify the submitted amount matches what we expect
+        if ((float) $validated['amount'] !== (float) $totalAmountDue) {
+            return redirect()->back()->with('error', 'Invalid payment amount. Expected: ' . $totalAmountDue);
+        }
 
         DB::beginTransaction();
 
@@ -254,7 +275,9 @@ class AdminPaymentController extends Controller
                 'academic_session_id' => $validated['academic_session_id'],
                 'semester_id' => $validated['semester_id'],
                 'invoice_number' => $validated['invoice_number'],
-                'amount' => $request->amount,
+                'amount' => $totalAmountDue, // Using our calculated total that includes the late fee
+                'base_amount' => $baseAmount, // Original amount without late fee
+                'late_fee' => $lateFee, // Store the late fee separately
                 'department_id' => $validated['department_id'],
                 'level' => $validated['level'],
                 'status' => 'pending',

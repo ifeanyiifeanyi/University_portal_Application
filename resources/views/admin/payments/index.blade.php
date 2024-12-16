@@ -4,6 +4,25 @@
 @section('css')
     <!-- Add any additional CSS here -->
     <style>
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffecb5;
+            color: #664d03;
+        }
+
+        .alert-warning .alert-heading {
+            color: #664d03;
+        }
+
+        #late-fee-alert {
+            border-left: 4px solid #ffc107;
+        }
+
+        #late-fee-alert i {
+            color: #ffc107;
+            font-size: 1.25rem;
+        }
+
         .card-step {
             display: flex;
             align-items: center;
@@ -180,6 +199,26 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
+                                                <div id="late-fee-alert" class="alert alert-warning mb-3"
+                                                    style="display: none;">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                                        <div>
+                                                            <h6 class="alert-heading mb-1">Late Payment Fee Applied</h6>
+                                                            <div id="late-fee-message"></div>
+                                                            <div id="payment-breakdown" class="mt-2">
+                                                                <small class="d-block">Base Amount: <span
+                                                                        id="base-amount"></span></small>
+                                                                <small class="d-block">Late Fee: <span
+                                                                        id="late-fee"></span></small>
+                                                                <small class="d-block">Total Amount: <span
+                                                                        id="total-amount"></span></small>
+                                                            </div>
+                                                            <small class="text-muted d-block mt-1"
+                                                                id="due-date-message"></small>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <label for="amount">Amount</label>
                                                 <input type="number" name="amount" id="amount" class="form-control"
                                                     required readonly>
@@ -204,6 +243,7 @@
 @section('javascript')
     <script>
         $(document).ready(function() {
+
             // $('#payment_type_id').change(function() {
             //     var paymentTypeId = $(this).val();
             //     if (paymentTypeId) {
@@ -214,22 +254,67 @@
             //                 payment_type_id: paymentTypeId
             //             },
             //             success: function(data) {
-            //                 $('#department_id').empty().append(
-            //                     '<option value="">Select Department</option>').prop(
-            //                     'disabled', false);
-            //                 $.each(data.departments, function(key, value) {
-            //                     $('#department_id').append('<option value="' + value
-            //                         .id + '" data-levels=\'' + JSON.stringify(value
-            //                             .levels) + '\'>' + value.name + '</option>');
+            //                 console.log(data);
+            //                 // Clear and disable department dropdown initially
+            //                 $('#department_id').empty()
+            //                     .append('<option value="">Select Department</option>')
+            //                     .prop('disabled', false);
+
+            //                 // Create a map to store unique departments
+            //                 let uniqueDepartments = new Map();
+
+            //                 // Process departments to remove duplicates
+            //                 data.departments.forEach(function(dept) {
+            //                     // Use department name as key to check for duplicates
+            //                     if (!uniqueDepartments.has(dept.name)) {
+            //                         uniqueDepartments.set(dept.name, {
+            //                             id: dept.id,
+            //                             name: dept.name,
+            //                             levels: dept.levels
+            //                         });
+            //                     }
             //                 });
+
+            //                 // Add unique departments to dropdown
+            //                 uniqueDepartments.forEach(function(dept) {
+            //                     $('#department_id').append(
+            //                         '<option value="' + dept.id +
+            //                         '" data-levels=\'' +
+            //                         JSON.stringify(dept.levels) + '\'>' + dept
+            //                         .name + '</option>'
+            //                     );
+            //                 });
+            //                 if (data.late_fee > 0) {
+            //                     const baseAmount = data.amount - data.late_fee;
+            //                     const formattedDueDate = new Date(data.due_date)
+            //                         .toLocaleDateString();
+
+            //                     $('#late-fee-message').html(
+            //                         `A late payment fee of ₦${data.late_fee.toLocaleString()} has been added to your base amount of ₦${baseAmount.toLocaleString()}.`
+            //                     );
+            //                     $('#due-date-message').text(
+            //                         `Original due date was ${formattedDueDate}`);
+            //                     $('#late-fee-alert').show();
+            //                 } else {
+            //                     $('#late-fee-alert').hide();
+            //                 }
+
+            //                 // Set the amount
             //                 $('#amount').val(data.amount);
             //             }
             //         });
             //     } else {
-            //         $('#department_id').empty().append('<option value="">Select Department</option>').prop(
-            //             'disabled', true);
-            //         $('#level').empty().append('<option value="">Select Level</option>').prop('disabled',
-            //             true);
+            //         // Existing reset code...
+            //         $('#late-fee-alert').hide();
+            //         // Reset dropdowns when no payment type is selected
+            //         $('#department_id')
+            //             .empty()
+            //             .append('<option value="">Select Department</option>')
+            //             .prop('disabled', true);
+            //         $('#level')
+            //             .empty()
+            //             .append('<option value="">Select Level</option>')
+            //             .prop('disabled', true);
             //         $('#student-table').empty();
             //         $('#amount').val('');
             //     }
@@ -244,17 +329,14 @@
                             payment_type_id: paymentTypeId
                         },
                         success: function(data) {
-                            // Clear and disable department dropdown initially
+                            // Handle departments
                             $('#department_id').empty()
                                 .append('<option value="">Select Department</option>')
                                 .prop('disabled', false);
 
-                            // Create a map to store unique departments
                             let uniqueDepartments = new Map();
 
-                            // Process departments to remove duplicates
                             data.departments.forEach(function(dept) {
-                                // Use department name as key to check for duplicates
                                 if (!uniqueDepartments.has(dept.name)) {
                                     uniqueDepartments.set(dept.name, {
                                         id: dept.id,
@@ -264,22 +346,55 @@
                                 }
                             });
 
-                            // Add unique departments to dropdown
                             uniqueDepartments.forEach(function(dept) {
                                 $('#department_id').append(
-                                    '<option value="' + dept.id +
-                                    '" data-levels=\'' +
-                                    JSON.stringify(dept.levels) + '\'>' + dept
-                                    .name + '</option>'
+                                    `<option value="${dept.id}" data-levels='${JSON.stringify(dept.levels)}'>${dept.name}</option>`
                                 );
                             });
 
-                            // Set the amount
+                            // Handle late fee display
+                            if (data.late_fee > 0) {
+                                const baseAmount = data.amount - data.late_fee;
+                                const formattedDueDate = new Date(data.due_date)
+                                    .toLocaleDateString();
+                                const formatter = new Intl.NumberFormat('en-NG', {
+                                    style: 'currency',
+                                    currency: 'NGN',
+                                    minimumFractionDigits: 2
+                                });
+
+                                // Update payment breakdown
+                                $('#base-amount').text(formatter.format(baseAmount));
+                                $('#late-fee').text(formatter.format(data.late_fee));
+                                $('#total-amount').text(formatter.format(data.amount));
+
+                                $('#late-fee-message').html(
+                                    `A late payment fee has been added to your payment due to payment after the due date.`
+                                );
+                                $('#due-date-message').text(
+                                    `Original due date was ${formattedDueDate}`
+                                );
+                                $('#late-fee-alert').slideDown();
+                            } else {
+                                $('#late-fee-alert').slideUp();
+                            }
+
+                            // Set the total amount
                             $('#amount').val(data.amount);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching payment data:', error);
+                            $('#late-fee-alert').hide();
+                            $('#department_id')
+                                .empty()
+                                .append('<option value="">Select Department</option>')
+                                .prop('disabled', true);
+                            $('#amount').val('');
                         }
                     });
                 } else {
-                    // Reset dropdowns when no payment type is selected
+                    // Reset form when no payment type selected
+                    $('#late-fee-alert').hide();
                     $('#department_id')
                         .empty()
                         .append('<option value="">Select Department</option>')
