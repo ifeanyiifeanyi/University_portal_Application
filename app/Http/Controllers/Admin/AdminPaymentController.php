@@ -118,6 +118,37 @@ class AdminPaymentController extends Controller
 
 
 
+    // public function submitPaymentForm(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'academic_session_id' => 'required|exists:academic_sessions,id',
+    //         'semester_id' => 'required|exists:semesters,id',
+    //         'payment_type_id' => 'required|exists:payment_types,id',
+    //         'department_id' => 'required|exists:departments,id',
+    //         'level' => 'required|numeric|min:100|max:600',
+    //         'student_id' => 'required|exists:students,id',
+    //         'payment_method_id' => 'required|exists:payment_methods,id',
+    //         'amount' => 'required|numeric|min:0',
+    //     ]);
+
+
+    //     $invoice = Invoice::create([
+    //         'student_id' => $validated['student_id'],
+    //         'payment_type_id' => $validated['payment_type_id'],
+    //         'department_id' => $validated['department_id'],
+    //         'level' => $validated['level'],
+    //         'academic_session_id' => $validated['academic_session_id'],
+    //         'semester_id' => $validated['semester_id'],
+    //         'amount' => $validated['amount'],
+    //         'payment_method_id' => $validated['payment_method_id'],
+    //         'status' => 'pending',
+    //         'invoice_number' => 'INV' . uniqid(),
+    //     ]);
+
+
+    //     return redirect()->route('admin.payments.showConfirmation', $invoice->id);
+    // }
+
     public function submitPaymentForm(Request $request)
     {
         $validated = $request->validate([
@@ -131,23 +162,53 @@ class AdminPaymentController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
+        DB::beginTransaction();
 
-        $invoice = Invoice::create([
-            'student_id' => $validated['student_id'],
-            'payment_type_id' => $validated['payment_type_id'],
-            'department_id' => $validated['department_id'],
-            'level' => $validated['level'],
-            'academic_session_id' => $validated['academic_session_id'],
-            'semester_id' => $validated['semester_id'],
-            'amount' => $validated['amount'],
-            'payment_method_id' => $validated['payment_method_id'],
-            'status' => 'pending',
-            'invoice_number' => 'INV' . uniqid(),
-        ]);
+        try {
+            // Check if an invoice exists for the student and payment context
+            $invoice = Invoice::where([
+                'student_id' => $validated['student_id'],
+                'payment_type_id' => $validated['payment_type_id'],
+                'department_id' => $validated['department_id'],
+                'level' => $validated['level'],
+                'academic_session_id' => $validated['academic_session_id'],
+                'semester_id' => $validated['semester_id'],
+            ])->first();
 
+            if ($invoice) {
+                // Update the existing invoice
+                $invoice->update([
+                    'amount' => $validated['amount'],
+                    'payment_method_id' => $validated['payment_method_id'],
+                    'status' => 'pending', // Reset status if needed
+                    'updated_at' => now(), // Update the timestamp
+                ]);
+            } else {
+                // Create a new invoice if none exists
+                $invoice = Invoice::create([
+                    'student_id' => $validated['student_id'],
+                    'payment_type_id' => $validated['payment_type_id'],
+                    'department_id' => $validated['department_id'],
+                    'level' => $validated['level'],
+                    'academic_session_id' => $validated['academic_session_id'],
+                    'semester_id' => $validated['semester_id'],
+                    'amount' => $validated['amount'],
+                    'payment_method_id' => $validated['payment_method_id'],
+                    'status' => 'pending',
+                    'invoice_number' => 'INV' . uniqid(),
+                ]);
+            }
 
-        return redirect()->route('admin.payments.showConfirmation', $invoice->id);
+            DB::commit();
+
+            return redirect()->route('admin.payments.showConfirmation', $invoice->id);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Invoice creation or update failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process invoice. Please try again.');
+        }
     }
+
 
     //ths is what we see before actual payment is done
     public function showConfirmation($invoiceId = null)
@@ -238,23 +299,39 @@ class AdminPaymentController extends Controller
         $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
         $currentDate = now();
         $lateFee = $paymentType->calculateLateFee($currentDate);
+        Log::info('Payment Type and Late Fee:', [
+            'payment_type_id' => $paymentType->id,
+            'late_fee' => $lateFee,
+            'current_date' => $currentDate
+        ]);
+
 
         // Calculate the total amount (including penalty, if any)
         $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
+
+
+        // Add more detailed logging for pivot data
+        $pivotData = $paymentType->departments()
+            ->where('department_id', $validated['department_id'])
+            ->where('level', $validated['level'])
+            ->first();
+
+
         if (!$baseAmount) {
             return redirect()->back()->with('error', 'Payment amount could not be determined for the selected department and level.');
         }
         $totalAmountDue = $baseAmount + $lateFee;
 
+
+
         // Verify the submitted amount matches what we expect
-        if ((float) $validated['amount'] !== (float) $totalAmountDue) {
+        if ((float)$validated['amount'] !== (float)$totalAmountDue) {
             return redirect()->back()->with('error', 'Invalid payment amount. Expected: ' . $totalAmountDue);
         }
 
         DB::beginTransaction();
 
         try {
-
             // Check if payment already exists
             $existingPayment = Payment::where([
                 'student_id' => $request->student_id,
@@ -264,33 +341,50 @@ class AdminPaymentController extends Controller
             ])->first();
 
             if ($existingPayment) {
-                DB::rollBack();
-                return redirect()->back()->withError('Payment already exists for this student.');
+                if ($existingPayment->status !== 'pending') {
+                    DB::rollBack();
+                    return redirect()->back()->withError('Payment already exists for this student.');
+                }
+
+                // Update existing pending payment
+                $existingPayment->update([
+                    'payment_method_id' => $validated['payment_method_id'],
+                    'invoice_number' => $validated['invoice_number'],
+                    'amount' => $totalAmountDue,
+                    'base_amount' => $baseAmount,
+                    'late_fee' => $lateFee,
+                    'department_id' => $validated['department_id'],
+                    'level' => $validated['level'],
+                    'admin_id' => Auth::id(),
+                    'transaction_reference' => 'PAY' . uniqid(),
+                    'payment_date' => now()
+                ]);
+
+                $payment = $existingPayment;
+            } else {
+                // Create new payment if none exists
+                $payment = Payment::create([
+                    'student_id' => $validated['student_id'],
+                    'payment_type_id' => $validated['payment_type_id'],
+                    'payment_method_id' => $validated['payment_method_id'],
+                    'academic_session_id' => $validated['academic_session_id'],
+                    'semester_id' => $validated['semester_id'],
+                    'invoice_number' => $validated['invoice_number'],
+                    'amount' => $totalAmountDue,
+                    'base_amount' => $baseAmount,
+                    'late_fee' => $lateFee,
+                    'department_id' => $validated['department_id'],
+                    'level' => $validated['level'],
+                    'status' => 'pending',
+                    'admin_id' => Auth::id(),
+                    'transaction_reference' => 'PAY' . uniqid(),
+                    'payment_date' => now()
+                ]);
             }
 
-            $payment = Payment::create([
-                'student_id' => $validated['student_id'],
-                'payment_type_id' => $validated['payment_type_id'],
-                'payment_method_id' => $validated['payment_method_id'],
-                'academic_session_id' => $validated['academic_session_id'],
-                'semester_id' => $validated['semester_id'],
-                'invoice_number' => $validated['invoice_number'],
-                'amount' => $totalAmountDue, // Using our calculated total that includes the late fee
-                'base_amount' => $baseAmount, // Original amount without late fee
-                'late_fee' => $lateFee, // Store the late fee separately
-                'department_id' => $validated['department_id'],
-                'level' => $validated['level'],
-                'status' => 'pending',
-                'admin_id' => Auth::id(),
-                'transaction_reference' => 'PAY' . uniqid(),
-                'payment_date' => now()
-            ]);
-
             $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
-            // dd($paymentUrl);
 
             DB::commit();
-
             return redirect()->away($paymentUrl);
         } catch (\Exception $e) {
             DB::rollBack();

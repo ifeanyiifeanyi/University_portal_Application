@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PaymentType extends Model
 {
@@ -50,15 +51,41 @@ class PaymentType extends Model
         return $this->belongsTo(AcademicSession::class);
     }
 
+    // public function getAmount($departmentId, $level)
+    // {
+    //     $pivot = $this->departments()
+    //         ->where('department_id', $departmentId)
+    //         ->where('level', $level)
+    //         ->first();
+
+    //     if (!$pivot || !$pivot->pivot) {
+    //         return null;
+    //     }
+
+    //     // Check for late fee
+    //     $currentDate = now();
+    //     $lateFee = $this->calculateLateFee($currentDate);
+
+    //     // Return total amount (base amount + late fee if applicable)
+    //     return $pivot->pivot->amount;
+    // }
     public function getAmount($departmentId, $level)
     {
         $pivot = $this->departments()
             ->where('department_id', $departmentId)
             ->where('level', $level)
-            ->first()
-            ->pivot;
+            ->first();
 
-        return $pivot ? $pivot->amount : null;
+        // If the relationship exists, return the payment type's amount
+        if ($pivot) {
+            return $this->amount; // Using the amount from payment_types table
+            Log::info('Payment Type Amount:', [
+                'payment_type_id' => $this->id,
+                'amount' => $this->amount,
+            ]);
+        }
+
+        return null;
     }
 
     public function payments()
