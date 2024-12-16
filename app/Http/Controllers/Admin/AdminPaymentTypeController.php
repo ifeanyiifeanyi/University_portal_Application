@@ -45,6 +45,13 @@ class AdminPaymentTypeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+
+            'is_recurring' => 'required|boolean',
+            'due_date' => 'required|date|after:now()',
+            'grace_period_days' => 'required|integer|min:0',
+            'late_fee_amount' => 'required|numeric|min:0',
+            'payment_period' => 'required|string',
+
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'semester_id' => 'required|exists:semesters,id',
             'department_id' => 'required|exists:departments,id',
@@ -57,6 +64,13 @@ class AdminPaymentTypeController extends Controller
         ]);
         $paymentType = PaymentType::create([
             'name' => $validated['name'],
+
+            'is_recurring' => $validated['is_recurring'],
+            'due_date' => $validated['due_date'],
+            'grace_period_days' => $validated['grace_period_days'],
+            'late_fee_amount' => $validated['late_fee_amount'],
+            'payment_period' => $validated['payment_period'],
+
             'academic_session_id' => $validated['academic_session_id'],
             'semester_id' => $validated['semester_id'],
             'is_active' => $request->has('is_active'),
@@ -117,6 +131,13 @@ class AdminPaymentTypeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
+
+            'is_recurring' => 'required|boolean',
+            'due_date' => 'required|date|after:now()',
+            'grace_period_days' => 'required|integer|min:0',
+            'late_fee_amount' => 'required|numeric|min:0',
+            'payment_period' => 'required|string',
+
             'levels' => 'required|array',
             'levels.*' => 'integer|min:100|max:600',
             'is_active' => 'required|boolean',
@@ -128,6 +149,13 @@ class AdminPaymentTypeController extends Controller
 
         $paymentType->update([
             'name' => $validated['name'],
+
+            'is_recurring' => $validated['is_recurring'],
+            'due_date' => $validated['due_date'],
+            'grace_period_days' => $validated['grace_period_days'],
+            'late_fee_amount' => $validated['late_fee_amount'],
+            'payment_period' => $validated['payment_period'],
+
             'is_active' => $request->has('is_active'),
             'amount' => $validated['amount'],
             'description' => $validated['description'],
@@ -173,12 +201,10 @@ class AdminPaymentTypeController extends Controller
      */
     public function destroy(PaymentType $paymentType)
     {
-        if (Auth::check()) {
-            $paymentType->delete();
-            return redirect()->route('admin.payment_type.index')->with([
-                'message' => 'Payment Type Deleted Successfully!!',
-                'alert-type' => 'success'
-            ]);
-        }
+        $paymentType->delete();
+        return redirect()->route('admin.payment_type.index')->with([
+            'message' => 'Payment Type Deleted Successfully!!',
+            'alert-type' => 'success'
+        ]);
     }
 }

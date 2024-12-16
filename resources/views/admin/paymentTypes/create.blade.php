@@ -3,13 +3,15 @@
 @section('title', 'Create new payment option')
 
 @section('admin')
-        @include('admin.alert')
+    @include('admin.alert')
 
-            <div class="row">
-                <div class="col-md-8 mx-auto card shadow">
-                    <div class="card-body">
-                        <form action="{{ route('admin.payment_type.store') }}" method="POST">
-                            @csrf
+    <div class="row">
+        <div class="col-md-8 mx-auto card shadow">
+            <div class="card-body">
+                <form action="{{ route('admin.payment_type.store') }}" method="POST">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="name">Payment Option Name</label>
                                 <input type="text" class="form-control" id="name" name="name"
@@ -18,114 +20,173 @@
                                     <p class="text-danger">{{ $message }}</p>
                                 @enderror
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <label for="academic_session_id">Academic Session:</label>
-                                        <select id="academic_session_id" name="academic_session_id" class="form-control"
-                                            required>
-                                            <option value="" disabled selected>Select Academic Session</option>
-
-                                            @foreach ($academic_sessions as $as)
-                                                <option {{ $as->is_current ? 'selected' : '' }} value="{{ $as->id }}">
-                                                    {{ $as->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('academic_session_id')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <label for="semester_id">Semester:</label>
-                                        <select id="semester_id" name="semester_id" class="form-control" required>
-                                            <option value="" disabled selected>Select Semester</option>
-
-                                            @foreach ($semesters as $ss)
-                                                <option {{ $ss->is_current ? 'selected' : '' }} value="{{ $ss->id }}">
-                                                    {{ $ss->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('semester_id')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <label for="amount">Amount (₦)</label>
-                                        <input type="number" class="form-control" id="amount" name="amount"
-                                            value="{{ old('amount') }}" required placeholder="Amount">
-                                        @error('amount')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <label for="department">Department:</label>
-                                        <select id="department" name="department_id" class="form-control" required>
-                                            <option value="" disabled selected>Select Department</option>
-                                            <option value="all">All Departments</option>
-                                            @foreach ($departments as $department)
-                                                <option {{ old('department_id') == 'department_id' ? 'selected' : '' }}
-                                                    value="{{ $department->id }}">{{ $department->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('department_id')
-                                            <p class="text-danger">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-
-
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label>Apply to:</label>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="level_type" id="specificLevels"
-                                        value="specific">
-                                    <label class="form-check-label" for="specificLevels">
-                                        Specific Levels
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div id="levelSelection" class="form-group mb-3" style="display: none;">
-                                <label>Select Levels:</label>
-                                <div id="levelCheckboxes">
-                                    <!-- Checkboxes will be dynamically added here -->
-                                </div>
-                            </div>
-
-
-                            <div class="form-group mb-3">
-                                <label for="description">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="3" required>{{ old('description') }}</textarea>
-                                @error('description')
+                                <label for="due_date">Due Date</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date"
+                                    value="{{ old('due_date') }}" required placeholder="Enter payment due date">
+                                @error('due_date')
                                     <p class="text-danger">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="form-group mb-3">
-                                <label for="is_active">Check for active payment option</label>
-                                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1">
-                                @error('is_active')
-                                    <p class="text-danger">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>
-                        </form>
+                        </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="grace_period_days">Grace period (No. of days)</label>
+                                <input type="number" class="form-control" id="grace_period_days" name="grace_period_days"
+                                    value="{{ old('grace_period_days') }}" required placeholder="Grace period days">
+                                @error('grace_period_days')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="late_fee_amount">Late fee amount (₦)</label>
+                                <input type="number" class="form-control" id="late_fee_amount" name="late_fee_amount"
+                                    value="{{ old('late_fee_amount') }}" required placeholder="Late penalty fee">
+                                @error('late_fee_amount')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="is_recurring">Is Payment Recurring ?</label>
+                                <select name="is_recurring" id="is_recurring" class="form-control" required>
+                                    <option value="1">Yes</option>
+                                    <option value="0" selected>No</option>
+                                </select>
+                                @error('is_recurring')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="payment_period">Payment Period:</label>
+                                <select name="payment_period" id="payment_period" class="form-control" required>
+                                    <option value="" disabled selected>Select Payment Period</option>
+                                    <option value="semester">Semester</option>
+                                    <option value="session">Academic Session</option>
+                                </select>
+                                @error('payment_period')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="academic_session_id">Academic Session:</label>
+                                <select id="academic_session_id" name="academic_session_id" class="form-control" required>
+                                    <option value="" disabled selected>Select Academic Session</option>
+
+                                    @foreach ($academic_sessions as $as)
+                                        <option {{ $as->is_current ? 'selected' : '' }} value="{{ $as->id }}">
+                                            {{ $as->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('academic_session_id')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label for="semester_id">Semester:</label>
+                                <select id="semester_id" name="semester_id" class="form-control" required>
+                                    <option value="" disabled selected>Select Semester</option>
+
+                                    @foreach ($semesters as $ss)
+                                        <option {{ $ss->is_current ? 'selected' : '' }} value="{{ $ss->id }}">
+                                            {{ $ss->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('semester_id')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="amount">Amount (₦)</label>
+                                <input type="number" class="form-control" id="amount" name="amount"
+                                    value="{{ old('amount') }}" required placeholder="Fee Amount">
+                                @error('amount')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="department">Department:</label>
+                                <select id="department" name="department_id" class="form-control" required>
+                                    <option value="" disabled selected>Select Department</option>
+                                    <option value="all">All Departments</option>
+                                    @foreach ($departments as $department)
+                                        <option {{ old('department_id') == 'department_id' ? 'selected' : '' }}
+                                            value="{{ $department->id }}">{{ $department->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('department_id')
+                                    <p class="text-danger">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group mb-3">
+                        <label>Apply to:</label>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="level_type" id="specificLevels"
+                                value="specific">
+                            <label class="form-check-label" for="specificLevels">
+                                Specific Levels
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="levelSelection" class="form-group mb-3" style="display: none;">
+                        <label>Select Levels:</label>
+                        <div id="levelCheckboxes">
+                            <!-- Checkboxes will be dynamically added here -->
+                        </div>
+                    </div>
+
+
+                    <div class="form-group mb-3">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required>{{ old('description') }}</textarea>
+                        @error('description')
+                            <p class="text-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="is_active">Check for active payment option</label>
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1">
+                        @error('is_active')
+                            <p class="text-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>
+                </form>
             </div>
+        </div>
+    </div>
 
 
 @endsection

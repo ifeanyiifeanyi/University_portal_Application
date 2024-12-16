@@ -593,6 +593,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
 
+
+            // hanle 
+
             // show all successful payments
             Route::get('/payments/active', 'ProcessedPayments')->name('admin.payments.ProcessedPayments');
             Route::get('/payments/active/{payment}', 'ProcessedPaymentDetails')

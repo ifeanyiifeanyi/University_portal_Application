@@ -204,6 +204,36 @@
 @section('javascript')
     <script>
         $(document).ready(function() {
+            // $('#payment_type_id').change(function() {
+            //     var paymentTypeId = $(this).val();
+            //     if (paymentTypeId) {
+            //         $.ajax({
+            //             url: '{{ route('payments.getDepartmentsAndLevels') }}',
+            //             type: 'GET',
+            //             data: {
+            //                 payment_type_id: paymentTypeId
+            //             },
+            //             success: function(data) {
+            //                 $('#department_id').empty().append(
+            //                     '<option value="">Select Department</option>').prop(
+            //                     'disabled', false);
+            //                 $.each(data.departments, function(key, value) {
+            //                     $('#department_id').append('<option value="' + value
+            //                         .id + '" data-levels=\'' + JSON.stringify(value
+            //                             .levels) + '\'>' + value.name + '</option>');
+            //                 });
+            //                 $('#amount').val(data.amount);
+            //             }
+            //         });
+            //     } else {
+            //         $('#department_id').empty().append('<option value="">Select Department</option>').prop(
+            //             'disabled', true);
+            //         $('#level').empty().append('<option value="">Select Level</option>').prop('disabled',
+            //             true);
+            //         $('#student-table').empty();
+            //         $('#amount').val('');
+            //     }
+            // });
             $('#payment_type_id').change(function() {
                 var paymentTypeId = $(this).val();
                 if (paymentTypeId) {
@@ -214,27 +244,54 @@
                             payment_type_id: paymentTypeId
                         },
                         success: function(data) {
-                            $('#department_id').empty().append(
-                                '<option value="">Select Department</option>').prop(
-                                'disabled', false);
-                            $.each(data.departments, function(key, value) {
-                                $('#department_id').append('<option value="' + value
-                                    .id + '" data-levels=\'' + JSON.stringify(value
-                                        .levels) + '\'>' + value.name + '</option>');
+                            // Clear and disable department dropdown initially
+                            $('#department_id').empty()
+                                .append('<option value="">Select Department</option>')
+                                .prop('disabled', false);
+
+                            // Create a map to store unique departments
+                            let uniqueDepartments = new Map();
+
+                            // Process departments to remove duplicates
+                            data.departments.forEach(function(dept) {
+                                // Use department name as key to check for duplicates
+                                if (!uniqueDepartments.has(dept.name)) {
+                                    uniqueDepartments.set(dept.name, {
+                                        id: dept.id,
+                                        name: dept.name,
+                                        levels: dept.levels
+                                    });
+                                }
                             });
+
+                            // Add unique departments to dropdown
+                            uniqueDepartments.forEach(function(dept) {
+                                $('#department_id').append(
+                                    '<option value="' + dept.id +
+                                    '" data-levels=\'' +
+                                    JSON.stringify(dept.levels) + '\'>' + dept
+                                    .name + '</option>'
+                                );
+                            });
+
+                            // Set the amount
                             $('#amount').val(data.amount);
                         }
                     });
                 } else {
-                    $('#department_id').empty().append('<option value="">Select Department</option>').prop(
-                        'disabled', true);
-                    $('#level').empty().append('<option value="">Select Level</option>').prop('disabled',
-                        true);
+                    // Reset dropdowns when no payment type is selected
+                    $('#department_id')
+                        .empty()
+                        .append('<option value="">Select Department</option>')
+                        .prop('disabled', true);
+                    $('#level')
+                        .empty()
+                        .append('<option value="">Select Level</option>')
+                        .prop('disabled', true);
                     $('#student-table').empty();
                     $('#amount').val('');
                 }
             });
-
             $('#department_id').change(function() {
                 var levelsData = $(this).find(':selected').data('levels');
                 var levels = [];

@@ -36,7 +36,15 @@ class AdminPaymentController extends Controller
     // process payment for student
     public function index()
     {
-        $paymentTypes = PaymentType::with('departments')->active()->get();
+        $paymentTypes = PaymentType::select('payment_types.*')
+            ->distinct()
+            ->with(['departments' => function ($query) {
+                $query->select('departments.id', 'departments.name')
+                    ->distinct();
+            }])
+            ->active()
+            ->get();
+            
         $paymentMethods = PaymentMethod::active()->get();
         $academicSessions = AcademicSession::all();
         $semesters = Semester::all();
@@ -388,29 +396,99 @@ class AdminPaymentController extends Controller
 
 
 
-    public function ProcessedPayments()
+    // public function ProcessedPayments()
+    // {
+    //     $payments = Payment::with([
+    //         'student.user',
+    //         'student.department',
+    //         'paymentType',
+    //         'paymentMethod',
+    //         'academicSession',
+    //         'semester'
+    //     ])->where('status', 'paid')->get();
+    //     $departments = Department::all();
+    //     $academicSessions = AcademicSession::all();
+    //     $semesters = Semester::all();
+
+    //     // dd($payments);
+
+
+    //     return view('admin.payments.list_of_paid', compact('payments', 'departments', 'academicSessions', 'semesters'));
+    // }
+
+    public function ProcessedPayments(Request $request)
     {
-        $payments = Payment::with([
+        $query = Payment::with([
             'student.user',
             'student.department',
             'paymentType',
             'paymentMethod',
             'academicSession',
             'semester'
-        ])->where('status', 'paid')->get();
+        ])->where('status', 'paid');
+
+        // Academic Session Filter
+        if ($request->filled('academic_session')) {
+            $query->where('academic_session_id', $request->academic_session);
+        }
+
+        // Semester Filter
+        if ($request->filled('semester')) {
+            $query->where('semester_id', $request->semester);
+        }
+
+        // Department Filter
+        if ($request->filled('department')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('department_id', $request->department);
+            });
+        }
+
+        // Date Range Filter
+        if ($request->filled('date_range')) {
+            switch ($request->date_range) {
+                case 'today':
+                    $query->whereDate('created_at', today());
+                    break;
+                case 'week':
+                    $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    break;
+                case 'month':
+                    $query->whereMonth('created_at', now()->month);
+                    break;
+                case 'year':
+                    $query->whereYear('created_at', now()->year);
+                    break;
+            }
+        }
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('student', function ($q) use ($search) {
+                $q->where('matric_number', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('full_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $payments = $query->latest()->paginate(15);
         $departments = Department::all();
         $academicSessions = AcademicSession::all();
         $semesters = Semester::all();
 
-        // dd($payments);
-
-
-        return view('admin.payments.list_of_paid', compact('payments', 'departments', 'academicSessions', 'semesters'));
+        return view('admin.payments.list_of_paid', compact(
+            'payments',
+            'departments',
+            'academicSessions',
+            'semesters'
+        ));
     }
 
     public function ProcessedPaymentDetails(Payment $payment)
     {
-        return $payment->load([
+        $payment->load([
             'student.user',
             'student.department',
             'paymentType',
@@ -420,6 +498,7 @@ class AdminPaymentController extends Controller
             'invoice',
             'receipt'
         ]);
+
         return view('admin.payments.paidDetails', compact('payment'));
     }
 }

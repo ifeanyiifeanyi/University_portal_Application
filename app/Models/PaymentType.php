@@ -9,7 +9,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PaymentType extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = ['name', 'amount', 'description', 'is_active', 'academic_session_id', 'semester_id', 'slug'];
+    protected $fillable = [
+        'name',
+        'amount',
+        'description',
+        'is_active',
+        'academic_session_id',
+        'semester_id',
+        'slug',
+        'payment_period', // 'semester' or 'session'
+        'due_date',
+        'late_fee_amount',
+        'late_fee_type', // 'fixed' or 'percentage'
+        'grace_period_days',
+        'is_recurring'
+    ];
 
     public function departments()
     {
@@ -21,15 +35,18 @@ class PaymentType extends Model
         return $query->where('is_active', true);
     }
 
-    public function proveOfPayment(){
+    public function proveOfPayment()
+    {
         return $this->hasMany(ProveOfPayment::class);
     }
 
-    public function semester(){
+    public function semester()
+    {
         return $this->belongsTo(Semester::class);
     }
 
-    public function academicSession(){
+    public function academicSession()
+    {
         return $this->belongsTo(AcademicSession::class);
     }
 
@@ -44,13 +61,49 @@ class PaymentType extends Model
         return $pivot ? $pivot->amount : null;
     }
 
-    public function payments(){
+    public function payments()
+    {
         return $this->hasMany(Payment::class);
     }
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_recurring' => 'boolean',
+        'due_date' => 'date',
+        'grace_period_days' => 'integer',
+    ];
 
     public function departmentPaymentType()
     {
         return $this->hasMany(DepartmentPaymentType::class);
+    }
+
+
+    // method to calculate late fee
+    public function calculateLateFee($paymentDate)
+    {
+        if (!$this->due_date || $paymentDate <= $this->due_date) {
+            return 0;
+        }
+
+        // Check if still within grace period
+        $gracePeriodEnd = $this->due_date->addDays($this->grace_period_days);
+        if ($paymentDate <= $gracePeriodEnd) {
+            return 0;
+        }
+
+        if ($this->late_fee_type === 'fixed') {
+            return $this->late_fee_amount;
+        }
+
+        // Percentage calculation
+        return ($this->amount * $this->late_fee_amount) / 100;
+    }
+
+    // method to check if payment is late
+    public function isLate($date = null)
+    {
+        $checkDate = $date ?? now();
+        $gracePeriodEnd = $this->due_date->addDays($this->grace_period_days);
+        return $checkDate > $gracePeriodEnd;
     }
 }

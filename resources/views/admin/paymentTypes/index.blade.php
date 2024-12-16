@@ -29,11 +29,11 @@
                 <table id="example" class="table table-striped">
                     <thead>
                         <tr>
-                            <th><i class="fas fa-hashtag me-2"></i>SN</th>
+                            <th><i class="fas fa-hashtag"></i></th>
                             <th><i class="fas fa-money-bill-wave me-2"></i>Amount</th>
                             <th><i class="fas fa-building me-2"></i>Department</th>
-                            <th><i class="fas fa-calendar-alt me-2"></i>Semester</th>
-                            <th><i class="fas fa-graduation-cap me-2"></i>Academic Session</th>
+                            <th><i class="fas fa-calendar-alt me-2"></i>Due Date</th>
+                            <th><i class="fas fa-graduation-cap me-2"></i>Session/semester</th>
                             <th><i class="fas fa-cogs me-2"></i>Actions</th>
                         </tr>
                     </thead>
@@ -41,13 +41,27 @@
                         @foreach ($paymentTypes as $key => $paymentType)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>₦{{ number_format($paymentType->amount, 2) }}</td>
+                                <td>
+                                    <span>₦{{ number_format($paymentType->amount, 2) }}</span><br>
+                                    <small class="text-muted">Penalty: ₦{{ number_format($paymentType->late_fee_amount, 2) }}</small>
+                                </td>
                                 <td>{{ $paymentType->departments->first()->name }}</td>
-                                <td>{{ $paymentType->semester->name }}</td>
-                                <td>{{ $paymentType->academicSession->name }}</td>
+                                <td>{{ $paymentType->due_date->format('M d, Y') }}</td>
+                                <td>
+                                    <small>Session: {{ $paymentType->academicSession->name }} </small> <br>
+                                    <small class="text-muted">{{ $paymentType->semester->name }}</small>
+                                </td>
                                 <td class="action-icons">
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#viewModal"
-                                        data-id="{{ $paymentType->id }}" data-name="{{ $paymentType->name }}"
+                                        data-id="{{ $paymentType->id }}"
+
+                                        data-due="{{ $paymentType->due_date->format('M d, Y') }}"
+                                        data-late_fee_amount="{{ $paymentType->late_fee_amount }}"
+                                        data-grace_period_days="{{ $paymentType->grace_period_days }}"
+                                        data-payment_period={{ $paymentType->payment_period }}
+                                        data-is_recurring={{ $paymentType->is_recurring }}
+
+                                        data-name="{{ $paymentType->name }}"
                                         data-amount="{{ number_format($paymentType->amount, 2) }}"
                                         data-status="{{ $paymentType->is_active ? 'Active' : 'Inactive' }}"
                                         data-academic-session="{{ $paymentType->academicSession->name }}"
@@ -105,6 +119,21 @@
                         <dt class="col-sm-3">Academic Session:</dt>
                         <dd class="col-sm-9" id="modal-academic-session"></dd>
 
+                        <dt class="col sm-3">Due Date</dt>
+                        <dd class="col-sm-9" id="modal-due"></dd>
+
+                        <dt class="col-sm-3">Late Fee Amount:</dt>
+                        <dd class="col-sm-9" id="modal-late_fee_amount"></dd>
+
+                        <dt class="col-sm-3">Grace Period Days:</dt>
+                        <dd class="col-sm-9" id="modal-grace_period_days"></dd>
+
+                        <dt class="col-sm-3">Payment Period:</dt>
+                        <dd class="col-sm-9" id="modal-payment_period"></dd>
+
+                        <dt class="col-sm-3">Is Recurring:</dt>
+                        <dd class="col-sm-9" id="modal-is_recurring"></dd>
+
                         <dt class="col-sm-3">Semester:</dt>
                         <dd class="col-sm-9" id="modal-semester"></dd>
 
@@ -151,6 +180,12 @@
                 document.getElementById('modal-description').textContent = data.description;
                 document.getElementById('modal-departments').innerHTML = data.departments.replace(/&#13;/g,
                     '<br>');
+
+                document.getElementById('modal-due').textContent = data.due;
+                document.getElementById('modal-late_fee_amount').textContent = '₦' + data.late_fee_amount;
+                document.getElementById('modal-grace_period_days').textContent = data.grace_period_days + ' days';
+                document.getElementById('modal-payment_period').textContent = data.payment_period;
+                document.getElementById('modal-is_recurring').textContent = data.is_recurring == 1 ? 'Yes' : 'No';
 
                 // Set up action buttons
                 const modalEditBtn = document.getElementById('modalEditBtn');

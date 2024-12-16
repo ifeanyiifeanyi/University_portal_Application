@@ -25,7 +25,56 @@ class Payment extends Model
         'is_manual',
         'invoice_number',
 
+        'payment_schedule_id',
+        'is_installment',
+        'total_amount',
+        'paid_amount',
+        'remaining_amount',
+        'next_installment_date',
+        'total_penalty_amount',
+
     ];
+
+    public function installments()
+    {
+        return $this->hasMany(PaymentInstallment::class);
+    }
+
+    // public function setupInstallments($numberOfInstallments)
+    // {
+    //     $schedule = $this->paymentSchedule;
+    //     $installmentAmount = $this->total_amount / $numberOfInstallments;
+    //     $interval = $schedule->installment_interval_days;
+
+    //     for ($i = 0; $i < $numberOfInstallments; $i++) {
+    //         $dueDate = $schedule->due_date->copy()->addDays($i * $interval);
+
+    //         // First installment has minimum requirement
+    //         if ($i === 0) {
+    //             $minAmount = $this->total_amount * ($schedule->minimum_first_installment_percentage / 100);
+    //             $installmentAmount = max($installmentAmount, $minAmount);
+    //         }
+
+    //         $this->installments()->create([
+    //             'amount' => $installmentAmount,
+    //             'due_date' => $dueDate,
+    //             'installment_number' => $i + 1,
+    //             'status' => 'pending'
+    //         ]);
+    //     }
+    // }
+    public function updatePenalties()
+    {
+        $totalPenalty = 0;
+        foreach ($this->installments as $installment) {
+            $penalty = $installment->calculatePenalty();
+            $installment->update(['penalty_amount' => $penalty]);
+            $totalPenalty += $penalty;
+        }
+
+        $this->update(['total_penalty_amount' => $totalPenalty]);
+        return $totalPenalty;
+    }
 
     protected $casts = [
         'amount' => 'decimal:2',
@@ -39,7 +88,8 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'processed_by');
     }
 
-    public function proveOfPayment(){
+    public function proveOfPayment()
+    {
         return $this->hasMany(ProveOfPayment::class);
     }
 

@@ -123,7 +123,9 @@
 
 @section('javascript')
     <script>
-        // Add this to your JavaScript section
+        const creditCardRoute = "{{ route('admin.payments.showConfirmation', ':id') }}";
+        const manualPaymentRoute = "{{ route('admin.payment.pay_manual', ['invoice' => ':id']) }}";
+
         $(document).ready(function() {
             // Store the current invoice ID
             let currentInvoiceId = null;
@@ -138,28 +140,66 @@
             // Handle credit card payment
             $('#creditCardBtn').click(function() {
                 if (currentInvoiceId) {
-                    window.location.href = `{{ route('admin.payments.showConfirmation', $invoice->id) }}`;
+                    window.location.href = creditCardRoute.replace(':id', currentInvoiceId);
                 }
             });
 
             // Handle bank transfer
             $('#bankTransferBtn').click(function() {
                 if (currentInvoiceId) {
-                    window.location.href =
-                        `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+                    window.location.href = manualPaymentRoute.replace(':id', currentInvoiceId);
                 }
             });
 
             // Handle cash payment
             $('#cashBtn').click(function() {
                 if (currentInvoiceId) {
-                    window.location.href =
-                        `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+                    window.location.href = manualPaymentRoute.replace(':id', currentInvoiceId);
                 }
             });
+
+            // Rest of your existing JavaScript code...
         });
 
 
+        {{--
+        // Add this to your JavaScript section
+        // $(document).ready(function() {
+        //     // Store the current invoice ID
+        //     let currentInvoiceId = null;
+
+        //     // When the process payment button is clicked
+        //     $('.process-payment-btn').click(function(e) {
+        //         e.preventDefault();
+        //         currentInvoiceId = $(this).data('invoice-id');
+        //         $('#paymentMethodModal').modal('show');
+        //     });
+
+        //     // Handle credit card payment
+        //     $('#creditCardBtn').click(function() {
+        //         if (currentInvoiceId) {
+        //             window.location.href = `{{ route('admin.payments.showConfirmation', $invoice->id) }}`;
+        //         }
+        //     });
+
+        //     // Handle bank transfer
+        //     $('#bankTransferBtn').click(function() {
+        //         if (currentInvoiceId) {
+        //             window.location.href =
+        //                 `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+        //         }
+        //     });
+
+        //     // Handle cash payment
+        //     $('#cashBtn').click(function() {
+        //         if (currentInvoiceId) {
+        //             window.location.href =
+        //                 `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
+        //         }
+        //     });
+        // });
+
+        --}}
 
 
         // Show success message if exists in session
