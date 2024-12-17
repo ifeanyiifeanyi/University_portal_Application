@@ -16,6 +16,8 @@ use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProcessPaymentRequest;
+use App\Http\Requests\SubmitPaymentFormRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\PaymentProcessed;
@@ -117,50 +119,9 @@ class AdminPaymentController extends Controller
     }
 
 
-
-    // public function submitPaymentForm(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'academic_session_id' => 'required|exists:academic_sessions,id',
-    //         'semester_id' => 'required|exists:semesters,id',
-    //         'payment_type_id' => 'required|exists:payment_types,id',
-    //         'department_id' => 'required|exists:departments,id',
-    //         'level' => 'required|numeric|min:100|max:600',
-    //         'student_id' => 'required|exists:students,id',
-    //         'payment_method_id' => 'required|exists:payment_methods,id',
-    //         'amount' => 'required|numeric|min:0',
-    //     ]);
-
-
-    //     $invoice = Invoice::create([
-    //         'student_id' => $validated['student_id'],
-    //         'payment_type_id' => $validated['payment_type_id'],
-    //         'department_id' => $validated['department_id'],
-    //         'level' => $validated['level'],
-    //         'academic_session_id' => $validated['academic_session_id'],
-    //         'semester_id' => $validated['semester_id'],
-    //         'amount' => $validated['amount'],
-    //         'payment_method_id' => $validated['payment_method_id'],
-    //         'status' => 'pending',
-    //         'invoice_number' => 'INV' . uniqid(),
-    //     ]);
-
-
-    //     return redirect()->route('admin.payments.showConfirmation', $invoice->id);
-    // }
-
-    public function submitPaymentForm(Request $request)
+    public function submitPaymentForm(SubmitPaymentFormRequest $request)
     {
-        $validated = $request->validate([
-            'academic_session_id' => 'required|exists:academic_sessions,id',
-            'semester_id' => 'required|exists:semesters,id',
-            'payment_type_id' => 'required|exists:payment_types,id',
-            'department_id' => 'required|exists:departments,id',
-            'level' => 'required|numeric|min:100|max:600',
-            'student_id' => 'required|exists:students,id',
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'amount' => 'required|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
 
@@ -281,29 +242,14 @@ class AdminPaymentController extends Controller
         return view('admin.payments.printable-invoice', compact('paymentType', 'student', 'academicSession', 'semester'));
     }
 
-    public function processPayment(Request $request)
+    public function processPayment(ProcessPaymentRequest $request)
     {
-        $validated = $request->validate([
-            'payment_type_id' => 'required|exists:payment_types,id',
-            'department_id' => 'required|exists:departments,id',
-            'level' => 'required|numeric|min:100|max:600',
-            'student_id' => 'required|exists:students,id',
-            'amount' => 'required|numeric|min:0',
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'academic_session_id' => 'required|exists:academic_sessions,id',
-            'semester_id' => 'required|exists:semesters,id',
-            'invoice_number' => 'required|exists:invoices,invoice_number',
-        ]);
-        //check for late fee
+        $validated = $request->validated();
 
+        //check for late fee
         $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
         $currentDate = now();
         $lateFee = $paymentType->calculateLateFee($currentDate);
-        Log::info('Payment Type and Late Fee:', [
-            'payment_type_id' => $paymentType->id,
-            'late_fee' => $lateFee,
-            'current_date' => $currentDate
-        ]);
 
 
         // Calculate the total amount (including penalty, if any)
@@ -311,10 +257,10 @@ class AdminPaymentController extends Controller
 
 
         // Add more detailed logging for pivot data
-        $pivotData = $paymentType->departments()
-            ->where('department_id', $validated['department_id'])
-            ->where('level', $validated['level'])
-            ->first();
+        // $pivotData = $paymentType->departments()
+        //     ->where('department_id', $validated['department_id'])
+        //     ->where('level', $validated['level'])
+        //     ->first();
 
 
         if (!$baseAmount) {
@@ -510,28 +456,6 @@ class AdminPaymentController extends Controller
     }
 
 
-
-
-
-    // public function ProcessedPayments()
-    // {
-    //     $payments = Payment::with([
-    //         'student.user',
-    //         'student.department',
-    //         'paymentType',
-    //         'paymentMethod',
-    //         'academicSession',
-    //         'semester'
-    //     ])->where('status', 'paid')->get();
-    //     $departments = Department::all();
-    //     $academicSessions = AcademicSession::all();
-    //     $semesters = Semester::all();
-
-    //     // dd($payments);
-
-
-    //     return view('admin.payments.list_of_paid', compact('payments', 'departments', 'academicSessions', 'semesters'));
-    // }
 
     public function ProcessedPayments(Request $request)
     {

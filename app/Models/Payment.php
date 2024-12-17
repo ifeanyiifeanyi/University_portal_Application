@@ -25,13 +25,8 @@ class Payment extends Model
         'is_manual',
         'invoice_number',
 
-        'payment_schedule_id',
-        'is_installment',
-        'total_amount',
-        'paid_amount',
-        'remaining_amount',
-        'next_installment_date',
-        'total_penalty_amount',
+        'base_amount',
+        'late_fee'
 
     ];
 

@@ -5,6 +5,160 @@
 
 @section('admin')
     @include('admin.alert')
+    <!-- Analytics Section -->
+    <div class="container-fluid mb-4">
+        <div class="row">
+            <!-- Total Amount Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Amount</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    ₦{{ number_format($payments->sum('amount')) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Payments Count -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Payments</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ $payments->count() }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Late Fees -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Total Late Fees</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    ₦{{ number_format($payments->sum('late_fee')) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Payment -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Average Payment</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    ₦{{ number_format($payments->avg('amount'), 2) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Analysis Row -->
+        <div class="row">
+            <!-- Department Analysis -->
+            <div class="col-xl-6 col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Payments by Department</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Count</th>
+                                        <th>Total Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $deptStats = $payments->groupBy('student.department.name');
+                                    @endphp
+                                    @foreach ($deptStats as $dept => $deptPayments)
+                                        <tr>
+                                            <td>{{ $dept }}</td>
+                                            <td>{{ $deptPayments->count() }}</td>
+                                            <td>₦{{ number_format($deptPayments->sum('amount')) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Timeline -->
+            <div class="col-xl-6 col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Payment Timeline</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline-small">
+                            @foreach ($payments->take(5) as $payment)
+                                <div class="timeline-item">
+                                    <div class="row">
+                                        <div class="col-auto text-center">
+                                            <div class="timeline-date">
+                                                {{ $payment->created_at->format('M d') }}
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="timeline-content">
+                                                <strong>{{ $payment->student->user->full_name }}</strong>
+                                                <p class="mb-0">
+                                                    Paid ₦{{ number_format($payment->amount) }} for
+                                                    {{ $payment->paymentType->name ?? 'Payment' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -116,7 +270,14 @@
                                             <td>{{ $payment->student->department->name }}</td>
                                             <td>{{ $payment->academicSession->name }} <br> {{ $payment->semester->name }}
                                             </td>
-                                            <td>{{ number_format($payment->amount) }}</td>
+                                            <td>
+                                                <small class="text-success"><b>Paid:
+                                                    </b>₦{{ number_format($payment->amount) }}</small> <br>
+                                                <small class="text-primary"><b>Base:
+                                                    </b>₦{{ number_format($payment->base_amount) }}</small> <br>
+                                                <small class="text-danger"><b>Pen:
+                                                    </b>₦{{ number_format($payment->late_fee) }}</small> <br>
+                                            </td>
                                             <td>
                                                 {{ $payment->created_at->format('M d, Y h:i A') }} <br>
                                                 <small
@@ -145,7 +306,60 @@
 
 
 @section('css')
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df !important;
+        }
 
+        .border-left-success {
+            border-left: 4px solid #1cc88a !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc !important;
+        }
+
+        .timeline-small {
+            padding: 20px;
+        }
+
+        .timeline-item {
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child):before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 24px;
+            height: 100%;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .timeline-date {
+            width: 30px;
+            height: 30px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #4e73df;
+        }
+
+        .timeline-content {
+            padding-left: 1rem;
+            border-left: 2px solid #e9ecef;
+        }
+    </style>
 @endsection
 @section('javascript')
 
