@@ -1,141 +1,6 @@
 @extends('admin.layouts.admin')
 
 @section('title', 'Lecturer Details')
-@section('css')
-    <style>
-        .lecturer-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid white;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .info-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .info-card-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #667eea;
-        }
-
-        .section-title {
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 0.5rem;
-        }
-
-        .course-item,
-        .publication-item {
-            background-color: white;
-            border-radius: 8px;
-            height: fit-content;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .contact-info {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-        }
-
-        .contact-item {
-            margin-bottom: 1rem;
-        }
-
-        .contact-icon {
-            color: #667eea;
-            margin-right: 0.5rem;
-        }
-
-        .publication-item {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-
-        .publication-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .publication-title {
-            font-weight: bold;
-        }
-
-        .publication-year {
-            font-style: italic;
-        }
-
-        .certification-item {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-
-        .certification-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .certification-title {
-            font-weight: bold;
-        }
-
-        .teacher-header {
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-        }
-
-        h1.gradient-text {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        h1.gradient-text small {
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        code.gradient-text {
-            font-size: 1.8rem;
-            padding: 5px 10px;
-            border: 2px solid;
-            border-image: linear-gradient(135deg, #ff6b6b, #4ecdc4) 1;
-        }
-    </style>
-
-@endsection
-
 
 
 @section('admin')
@@ -360,6 +225,141 @@
     </div>
 
 @endsection
+@section('css')
+    <style>
+        .lecturer-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .course-item,
+        .publication-item {
+            background-color: white;
+            border-radius: 8px;
+            height: fit-content;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-info {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .contact-item {
+            margin-bottom: 1rem;
+        }
+
+        .contact-icon {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+
+        .publication-item {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .publication-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .publication-title {
+            font-weight: bold;
+        }
+
+        .publication-year {
+            font-style: italic;
+        }
+
+        .certification-item {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .certification-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .certification-title {
+            font-weight: bold;
+        }
+
+        .teacher-header {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h1.gradient-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        h1.gradient-text small {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        code.gradient-text {
+            font-size: 1.8rem;
+            padding: 5px 10px;
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #ff6b6b, #4ecdc4) 1;
+        }
+    </style>
+
+@endsection
+
 
 @section('javascript')
 

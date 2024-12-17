@@ -594,7 +594,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
 
 
-            // hanle 
+            // hanle
 
             // show all successful payments
             Route::get('/payments/active', 'ProcessedPayments')->name('admin.payments.ProcessedPayments');
@@ -622,7 +622,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             // Route::get('/notifications', 'index')->name('admin.notifications.index');
             Route::post('/notifications/{id}/mark-as-read', 'markAsRead')->name('admin.notifications.markAsRead');
             Route::post('/notifications/mark-all-as-read', 'markAllAsRead')->name('admin.notifications.markAllAsRead');
-            Route::delete('/notifications/{id}', 'destroy')->name('admin.notifications.destroy');
+            Route::delete('/notifications/{id}/del', 'destroy')->name('admin.notifications.destroy');
             Route::get('/notifications/latest', 'getLatestNotifications')->name('admin.notifications.latest');
             Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
         });

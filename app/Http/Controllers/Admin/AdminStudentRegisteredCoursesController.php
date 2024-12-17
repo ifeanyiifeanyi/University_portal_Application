@@ -118,6 +118,7 @@ class AdminStudentRegisteredCoursesController extends Controller
     {
         $registration->load(['student', 'semester', 'academicSession', 'courseEnrollments.course']);
 
+        
         // Fetch all course registrations for this student
         $allRegistrations = SemesterCourseRegistration::where('student_id', $registration->student_id)
             ->with(['semester', 'academicSession', 'courseEnrollments.course'])

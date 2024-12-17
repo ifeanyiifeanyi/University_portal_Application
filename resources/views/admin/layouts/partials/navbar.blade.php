@@ -201,7 +201,7 @@
 
     function getNotificationLink(notification) {
         if (notification.data.payment_id) {
-            return '{{ route('admin.notifications.view', ':id') }}'.replace(':id', notification.data.payment_id);
+            return '{{ route('admin.notifications.view', ':id') }}'.replace(':id', notification.id);
         }
         return '{{ route('admin.notification.view') }}';
     }

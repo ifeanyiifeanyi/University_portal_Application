@@ -49,7 +49,6 @@
 
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title mb-4">Notifications</h4>
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5>Unread Notifications: <span id="unread-count">{{ $unreadCount }}</span></h5>
@@ -145,26 +144,49 @@
             // Delete Notification
             $(document).on('click', '.delete-notification', function() {
                 var id = $(this).data('id');
-                if (confirm('Are you sure you want to delete this notification?')) {
-                    $.ajax({
-                        url: '{{ route('admin.notifications.destroy', ':id') }}'.replace(':id',
-                            id),
-                        method: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            $(`[data-id="${id}"]`).remove();
-                            updateUnreadCount();
-                        }
-                    });
-                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '{{ route('admin.notifications.destroy', ':id') }}'
+                                .replace(':id', id),
+                            method: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire(
+                                        'Deleted!',
+                                        response.message,
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire(
+                                    'Error!',
+                                    xhr.responseJSON?.message ||
+                                    'Something went wrong!',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
             });
 
-            function updateUnreadCount() {
-                var unreadCount = $('.notification-item.unread').length;
-                $('#unread-count').text(unreadCount);
-            }
+            // The updateUnreadCount function is no longer needed since we're refreshing the page
         });
     </script>
 @endsection

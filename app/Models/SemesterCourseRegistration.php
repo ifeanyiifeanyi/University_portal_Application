@@ -16,8 +16,10 @@ class SemesterCourseRegistration extends Model
         'total_credit_hours'
     ];
 
+    
     protected $casts = [
         'total_credit_hours' => 'integer',
+        'registered_at' => 'date'
     ];
 
     // Define possible statuses

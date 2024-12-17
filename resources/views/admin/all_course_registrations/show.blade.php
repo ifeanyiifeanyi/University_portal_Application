@@ -42,7 +42,7 @@
                                         <td>{{ $enrollment->course->code }}</td>
                                         <td>{{ $enrollment->course->title }}</td>
                                         <td>{{ $enrollment->course->credit_hours }}</td>
-                                        <td>{{ $enrollment->registered_at->format('jS F Y, g:ia') }}</td>
+                                        <td>{{ $enrollment->created_at->format('jS F Y, g:ia') ?? '' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

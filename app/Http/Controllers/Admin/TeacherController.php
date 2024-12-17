@@ -387,6 +387,25 @@ class TeacherController extends Controller
         return floatval($scoreData);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     public function exportScores($assignmentId)
     {
         $assignment = TeacherAssignment::findOrFail($assignmentId);

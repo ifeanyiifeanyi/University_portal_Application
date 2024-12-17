@@ -47,11 +47,21 @@ class AdminNotificationController extends Controller
 
     public function destroy($id)
     {
-        $notification = DatabaseNotification::findOrFail($id);
-        $notification->delete();
-        return redirect()->back()->with('success', 'Notification deleted');
-    }
+        try {
+            $notification = DatabaseNotification::findOrFail($id);
+            $notification->delete();
 
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting notification'
+            ], 500);
+        }
+    }
     public function getLatestNotifications()
     {
 
@@ -71,7 +81,8 @@ class AdminNotificationController extends Controller
         ]);
     }
 
-    public function viewNotification($id){
+    public function viewNotification($id)
+    {
         $notification = DatabaseNotification::findOrFail($id);
         $notification->markAsRead();
         return view('admin.notifications.show', compact('notification'));

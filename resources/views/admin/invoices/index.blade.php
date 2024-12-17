@@ -7,6 +7,117 @@
 
 @section('admin')
     <div class="container">
+        <div class="row mb-4">
+            <!-- Total Invoices Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Invoices</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $invoices->count() }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paid Invoices Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Paid Invoices</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ $invoices->where('status', 'paid')->count() }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Invoices Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Pending Invoices</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ $invoices->where('status', 'pending')->count() }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Amount Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Total Amount</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    ₦{{ number_format($invoices->sum('amount'), 0, 2) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <!-- Payment Status Chart -->
+            <div class="col-xl-6 col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Payment Status Distribution</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4">
+                            <canvas id="paymentStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Payments Chart -->
+            <div class="col-xl-6 col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Payments</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar">
+                            <canvas id="monthlyPaymentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card shadow">
@@ -122,6 +233,7 @@
 @endsection
 
 @section('javascript')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const creditCardRoute = "{{ route('admin.payments.showConfirmation', ':id') }}";
         const manualPaymentRoute = "{{ route('admin.payment.pay_manual', ['invoice' => ':id']) }}";
@@ -244,5 +356,58 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        // Payment Status Chart
+        const ctxPie = document.getElementById('paymentStatusChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Paid', 'Pending'],
+                datasets: [{
+                    data: [
+                        {{ $invoices->where('status', 'paid')->count() }},
+                        {{ $invoices->where('status', 'pending')->count() }}
+                    ],
+                    backgroundColor: ['#1cc88a', '#f6c23e']
+                }]
+            }
+        });
+
+        // Monthly Payments Chart
+        const ctxBar = document.getElementById('monthlyPaymentsChart').getContext('2d');
+        const monthlyData = @json(
+            $invoices->where('status', 'paid')->groupBy(function ($invoice) {
+                    return \Carbon\Carbon::parse($invoice->created_at)->format('M');
+                })->map(function ($group) {
+                    return $group->sum('amount');
+                }));
+
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(monthlyData),
+                datasets: [{
+                    label: 'Monthly Payments (₦)',
+                    data: Object.values(monthlyData),
+                    backgroundColor: '#36b9cc'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₦' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Your existing JavaScript code...
     </script>
 @endsection
