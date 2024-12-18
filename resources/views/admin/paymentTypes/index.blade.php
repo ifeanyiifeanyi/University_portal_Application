@@ -43,7 +43,8 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>
                                     <span>₦{{ number_format($paymentType->amount, 2) }}</span><br>
-                                    <small class="text-muted">Penalty: ₦{{ number_format($paymentType->late_fee_amount, 2) }}</small>
+                                    <small class="text-muted">Penalty:
+                                        ₦{{ number_format($paymentType->late_fee_amount, 2) }}</small>
                                 </td>
                                 <td>{{ $paymentType->departments->first()->name }}</td>
                                 <td>{{ $paymentType->due_date->format('M d, Y') }}</td>
@@ -54,13 +55,12 @@
                                 <td class="action-icons">
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#viewModal"
                                         data-id="{{ $paymentType->id }}"
-
                                         data-due="{{ $paymentType->due_date->format('M d, Y') }}"
                                         data-late_fee_amount="{{ $paymentType->late_fee_amount }}"
                                         data-grace_period_days="{{ $paymentType->grace_period_days }}"
                                         data-payment_period={{ $paymentType->payment_period }}
                                         data-is_recurring={{ $paymentType->is_recurring }}
-
+                                        data-paystack_subaccount_code="********" data-subaccount_percentage="**"
                                         data-name="{{ $paymentType->name }}"
                                         data-amount="{{ number_format($paymentType->amount, 2) }}"
                                         data-status="{{ $paymentType->is_active ? 'Active' : 'Inactive' }}"
@@ -107,41 +107,47 @@
                         </a>
                     </div>
                     <dl class="row">
-                        <dt class="col-sm-3">Name:</dt>
-                        <dd class="col-sm-9" id="modal-name"></dd>
+                        <dt class="col-sm-5">Name:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-name"></dd>
 
-                        <dt class="col-sm-3">Amount:</dt>
-                        <dd class="col-sm-9" id="modal-amount"></dd>
+                        <dt class="col-sm-5">Amount:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-amount"></dd>
 
-                        <dt class="col-sm-3">Status:</dt>
-                        <dd class="col-sm-9" id="modal-status"></dd>
+                        <dt class="col-sm-5">Paystack Subaccount Code:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-paystack_subaccount_code">********</dd>
 
-                        <dt class="col-sm-3">Academic Session:</dt>
-                        <dd class="col-sm-9" id="modal-academic-session"></dd>
+                        <dt class="col-sm-5">Subaccount Percentage:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-subaccount_percentage">**%</dd>
+
+                        <dt class="col-sm-5">Status:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-status"></dd>
+
+                        <dt class="col-sm-5">Academic Session:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-academic-session"></dd>
 
                         <dt class="col sm-3">Due Date</dt>
-                        <dd class="col-sm-9" id="modal-due"></dd>
+                        <dd class="col-sm-7 mb-4" id="modal-due"></dd>
 
-                        <dt class="col-sm-3">Late Fee Amount:</dt>
-                        <dd class="col-sm-9" id="modal-late_fee_amount"></dd>
+                        <dt class="col-sm-5">Late Fee Amount:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-late_fee_amount"></dd>
 
-                        <dt class="col-sm-3">Grace Period Days:</dt>
-                        <dd class="col-sm-9" id="modal-grace_period_days"></dd>
+                        <dt class="col-sm-5">Grace Period Days:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-grace_period_days"></dd>
 
-                        <dt class="col-sm-3">Payment Period:</dt>
-                        <dd class="col-sm-9" id="modal-payment_period"></dd>
+                        <dt class="col-sm-5">Payment Period:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-payment_period"></dd>
 
-                        <dt class="col-sm-3">Is Recurring:</dt>
-                        <dd class="col-sm-9" id="modal-is_recurring"></dd>
+                        <dt class="col-sm-5">Is Recurring:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-is_recurring"></dd>
 
-                        <dt class="col-sm-3">Semester:</dt>
-                        <dd class="col-sm-9" id="modal-semester"></dd>
+                        <dt class="col-sm-5">Semester:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-semester"></dd>
 
-                        <dt class="col-sm-3">Description:</dt>
-                        <dd class="col-sm-9" id="modal-description"></dd>
+                        <dt class="col-sm-5">Description:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-description"></dd>
 
-                        <dt class="col-sm-3">Departments:</dt>
-                        <dd class="col-sm-9" id="modal-departments"></dd>
+                        <dt class="col-sm-5">Departments:</dt>
+                        <dd class="col-sm-7 mb-4" id="modal-departments"></dd>
                     </dl>
                 </div>
                 <div class="modal-footer">
@@ -183,9 +189,11 @@
 
                 document.getElementById('modal-due').textContent = data.due;
                 document.getElementById('modal-late_fee_amount').textContent = '₦' + data.late_fee_amount;
-                document.getElementById('modal-grace_period_days').textContent = data.grace_period_days + ' days';
+                document.getElementById('modal-grace_period_days').textContent = data.grace_period_days +
+                    ' days';
                 document.getElementById('modal-payment_period').textContent = data.payment_period;
-                document.getElementById('modal-is_recurring').textContent = data.is_recurring == 1 ? 'Yes' : 'No';
+                document.getElementById('modal-is_recurring').textContent = data.is_recurring == 1 ? 'Yes' :
+                    'No';
 
                 // Set up action buttons
                 const modalEditBtn = document.getElementById('modalEditBtn');
