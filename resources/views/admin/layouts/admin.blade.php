@@ -79,7 +79,6 @@
                     </div>
 
                     <div class="ms-auto">
-                        @include('admin.return_btn')
 
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary">Quick Links</button>

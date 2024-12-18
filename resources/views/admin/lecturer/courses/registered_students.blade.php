@@ -1,11 +1,10 @@
 @extends('admin.layouts.admin')
 
 
-@section('title', 'Registered Students')
+@section('title', 'Steady green like brocoli Students')
 
 @section('admin')
     <div class="container">
-        @include('admin.return_btn')
         @include('admin.alert')
         <div class="card py-3 px-3">
 
@@ -20,8 +19,8 @@
                 <div class="me-3">
                     <a href="{{ route('admin.export.scores', $assignment->id) }}" class="btn btn-primary">Export Template</a>
                 </div>
-                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST"
-                    enctype="multipart/form-data" class="d-flex align-items-center">
+                <form action="{{ route('admin.import.scores', $assignment->id) }}" method="POST" enctype="multipart/form-data"
+                    class="d-flex align-items-center">
                     @csrf
                     <input type="file" name="csv_file" class="form-control me-2" required>
                     @error('csv_file')
@@ -61,32 +60,12 @@
                                         <th>{{ $loop->iteration }}</th>
                                         <td>{{ $enrollment->student->matric_number }}</td>
                                         <td>{{ $enrollment->student->user->fullName() }}</td>
-                                        {{-- <td>
-                                            <input type="number" name="scores[{{ $enrollment->id }}][assessment]"
-                                                class="form-control assessment-score" min="0" max="40"
-                                                step="0.01"
-                                                value="{{ old('scores.' . $enrollment->id . '.assessment', $previousScore->assessment_score ?? 0) }}"
-                                                required>
-                                            @error('scores.' . $enrollment->id . '.assessment')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
 
-                                        </td>
-
-                                        <td>
-                                            <input type="number" name="scores[{{ $enrollment->id }}][exam]"
-                                                class="form-control exam-score" min="0" max="60" step="0.01"
-                                                value="{{ old('scores.' . $enrollment->id . '.exam', $previousScore->exam_score ?? 0) }}"
-                                                required>
-                                            @error('scores.' . $enrollment->id . '.exam')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-
-                                        </td> --}}
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][assessment]"
                                                 value="{{ $previousScore->assessment_score ?? 0 }}" min="0"
-                                                max="40" step="0.01" required class="form-control assessment-score">
+                                                max="40" step="0.01" required
+                                                class="form-control assessment-score">
 
                                             @error('scores.' . $enrollment->id . '.assessment')
                                                 <span class="text-danger">{{ $message }}</span>
@@ -96,8 +75,8 @@
 
                                         <td>
                                             <input type="number" name="scores[{{ $enrollment->id }}][exam]"
-                                                value="{{ $previousScore->exam_score ?? 0 }}" min="0"
-                                                max="60" step="0.01" required class="form-control exam-score">
+                                                value="{{ $previousScore->exam_score ?? 0 }}" min="0" max="60"
+                                                step="0.01" required class="form-control exam-score">
                                             @error('scores.' . $enrollment->id . '.exam')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
@@ -142,20 +121,42 @@
                 const gradeInput = row.querySelector('.grade');
                 const statusCell = row.querySelector('.status');
 
+
                 function validateInput(input, max) {
                     input.addEventListener('input', function(e) {
                         let value = parseFloat(e.target.value);
-                        if (isNaN(value) || value < 0) {
+                        if (isNaN(value)) {
                             e.target.value = '';
+                        } else if (value < 0) {
+                            e.target.value = '0';
                         } else if (value > max) {
-                            e.target.value = '';
+                            e.target.value = max.toString();
+                        } else {
+                            e.target.value = value.toFixed(2);
                         }
+                        calculateTotal();
                     });
                 }
 
                 validateInput(assessmentInput, 40);
                 validateInput(examInput, 60);
 
+                // function calculateTotal() {
+                //     const assessment = parseFloat(assessmentInput.value) || 0;
+                //     const exam = parseFloat(examInput.value) || 0;
+                //     const total = assessment + exam;
+
+                //     totalInput.value = total.toFixed(2);
+
+
+                //     fetch(`/admin/get-grade/${total}`)
+                //         .then(response => response.json())
+                //         .then(data => {
+                //             gradeInput.value = data.grade;
+                //             statusCell.textContent = data.status;
+                //             statusCell.classList.toggle('text-danger', data.status === 'Failed');
+                //         });
+                // }
                 function calculateTotal() {
                     const assessment = parseFloat(assessmentInput.value) || 0;
                     const exam = parseFloat(examInput.value) || 0;
@@ -163,14 +164,30 @@
 
                     totalInput.value = total.toFixed(2);
 
-                    fetch(`/admin/get-grade/${total}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            gradeInput.value = data.grade;
-                            statusCell.textContent = data.status;
-                            statusCell.classList.toggle('text-danger', data.status === 'Failed');
-                        });
+                    if (assessment > 0 || exam > 0) {
+                        fetch(`/admin/get-student-grade/${total}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log(data);
+
+                                gradeInput.value = data.grade;
+                                statusCell.textContent = data.status;
+                                statusCell.classList.remove('text-success', 'text-danger');
+                                statusCell.classList.add(data.status === 'Failed' ? 'text-danger' :
+                                    'text-success');
+                            })
+                            .catch(error => {
+                                console.error('Error fetching grade:', error);
+                            });
+                    } else {
+                        gradeInput.value = '';
+                        statusCell.textContent = '';
+                        statusCell.classList.remove('text-success', 'text-danger');
+                    }
                 }
+
+                // Calculate initial values on page load
+                calculateTotal();
 
                 assessmentInput.addEventListener('change', calculateTotal);
                 examInput.addEventListener('change', calculateTotal);

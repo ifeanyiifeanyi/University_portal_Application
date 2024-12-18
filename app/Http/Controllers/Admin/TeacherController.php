@@ -8,6 +8,7 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\GpaRecord;
 use App\Models\Department;
 use App\Models\GradeSystem;
 use Illuminate\Support\Str;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Models\CourseEnrollment;
 use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\DB;
+use App\Models\StudentFailedCourse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -160,6 +162,18 @@ class TeacherController extends Controller
         return view('admin.lecturer.courses.department', compact('department', 'teacher', 'teacherAssignments', 'levels'));
     }
 
+    public function getGradeApi($score)
+    {
+        $grade = GradeSystem::getGrade($score);
+        $status = $grade === 'F' ? 'Failed' : 'Passed';
+
+        return response()->json([
+            'grade' => $grade,
+            'status' => $status,
+            'grade_point' => $this->calculateGradePoint($grade)
+        ]);
+    }
+
     public function viewRegisteredStudents($teacherId, $courseId, $semesterId, $academicSessionId)
     {
         //find if  teacher was really assigned to the course
@@ -193,16 +207,17 @@ class TeacherController extends Controller
     }
 
 
-
     public function storeScores(Request $request, $assignmentId)
     {
         $assignment = TeacherAssignment::findOrFail($assignmentId);
         $validator = Validator::make($request->all(), [
-            'scores.*.assessment' => 'required',
-            'scores.*.exam' => 'required',
+            'scores.*.assessment' => 'required|numeric|min:0|max:40',
+            'scores.*.exam' => 'required|numeric|min:0|max:60',
         ], [
             'scores.*.assessment.required' => 'Assessment score is required for all students.',
             'scores.*.exam.required' => 'Exam score is required for all students.',
+            'scores.*.assessment.max' => 'Assessment score cannot exceed 40.',
+            'scores.*.exam.max' => 'Exam score cannot exceed 60.',
         ]);
 
         if ($validator->fails()) {
@@ -215,23 +230,16 @@ class TeacherController extends Controller
             foreach ($request->scores as $enrollmentId => $scoreData) {
                 $enrollment = CourseEnrollment::findOrFail($enrollmentId);
 
-                $assessmentScore = floatval($this->extractScore($scoreData['assessment']));
-                // dd($assessmentScore);
-                $examScore = floatval($this->extractScore($scoreData['exam']));
-                // dd($examScore);
-
-                if ($assessmentScore > 40 || $examScore > 60) {
-                    // throw new \Exception("Invalid score range for enrollment ID: $enrollmentId");
-                    return redirect()->back()->withErrors("Invalid score range for enrollment ID: $enrollmentId")->withInput();
-                }
+                $assessmentScore = (float) $scoreData['assessment'];
+                $examScore = (float) $scoreData['exam'];
 
                 $totalScore = $assessmentScore + $examScore;
-                // dd($totalScore);
-
                 $grade = GradeSystem::getGrade($totalScore);
                 $isFailed = $grade === 'F';
+                
+                $gradePoint = $this->calculateGradePoint($grade);
 
-                StudentScore::updateOrCreate(
+                $studentScore = StudentScore::updateOrCreate(
                     [
                         'student_id' => $enrollment->student_id,
                         'course_id' => $assignment->course_id,
@@ -243,11 +251,32 @@ class TeacherController extends Controller
                         'department_id' => $enrollment->student->department_id,
                         'assessment_score' => $assessmentScore,
                         'exam_score' => $examScore,
-                        'total_score' => floatval($totalScore),
+                        'total_score' => $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
+                        'grade_point' => (float) $gradePoint
                     ]
                 );
+
+                // Track failed courses
+                if ($isFailed) {
+                    StudentFailedCourse::updateOrCreate(
+                        [
+                            'student_id' => $enrollment->student_id,
+                            'course_id' => $assignment->course_id,
+                            'academic_session_id' => $assignment->academic_session_id,
+                            'semester_id' => $assignment->semester_id,
+                            'department_id' => $enrollment->student->department_id,
+                        ],
+                        [
+                            'student_score_id' => $studentScore->id,
+                            'is_retaken' => false
+                        ]
+                    );
+                }
+
+                // Update GPA records
+                $this->updateGpaRecord($enrollment->student_id, $assignment->academic_session_id, $assignment->semester_id);
             }
 
             DB::commit();
@@ -259,12 +288,66 @@ class TeacherController extends Controller
         }
     }
 
-    private function extractScore($scoreData)
+    private function calculateGradePoint($grade)
     {
-        if (is_array($scoreData)) {
-            return isset($scoreData['to']) ? floatval($scoreData['to']) : floatval($scoreData[0]);
+        switch ($grade) {
+            case 'A':
+                return 5.0;
+            case 'B':
+                return 4.0;
+            case 'C':
+                return 3.0;
+            case 'D':
+                return 2.0;
+            default:
+                return 0.0;
         }
-        return floatval($scoreData);
+    }
+
+    private function updateGpaRecord($studentId, $academicSession, $semesterId)
+    {
+        $enrollments = CourseEnrollment::whereHas('semesterCourseRegistration', function ($query) use ($semesterId) {
+            $query->where('semester_id', $semesterId);
+        })
+            ->where('student_id', $studentId)
+            ->with(['studentScore', 'course'])
+            ->get();
+
+        $totalGradePoints = 0;
+        $totalCreditUnits = 0;
+
+        foreach ($enrollments as $enrollment) {
+            if ($enrollment->studentScore) {
+                $totalGradePoints += $enrollment->studentScore->grade_point * $enrollment->course->credit_hours;
+                $totalCreditUnits += $enrollment->course->credit_hours;
+            }
+        }
+
+        $gpa = $totalCreditUnits > 0 ? $totalGradePoints / $totalCreditUnits : 0;
+
+        $gpaRecord = GpaRecord::updateOrCreate(
+            [
+                'student_id' => $studentId,
+                'semester_id' => $semesterId,
+                'academic_session_id' => $academicSession
+            ],
+            ['gpa' => $gpa]
+        );
+
+        $this->updateCGPA($studentId);
+
+        return $gpaRecord;
+    }
+
+    private function updateCGPA($studentId)
+    {
+        $gpaRecords = GpaRecord::where('student_id', $studentId)->get();
+        $totalGPA = $gpaRecords->sum('gpa');
+        $cgpa = $gpaRecords->count() > 0 ? $totalGPA / $gpaRecords->count() : 0;
+
+        return Student::where('id', $studentId)->update([
+            'cgpa' => $cgpa
+        ]);
     }
 
 
@@ -285,7 +368,103 @@ class TeacherController extends Controller
 
 
 
-    
+
+
+
+    // public function storeScores(Request $request, $assignmentId)
+    // {
+    //     $assignment = TeacherAssignment::findOrFail($assignmentId);
+    //     $validator = Validator::make($request->all(), [
+    //         'scores.*.assessment' => 'required',
+    //         'scores.*.exam' => 'required',
+    //     ], [
+    //         'scores.*.assessment.required' => 'Assessment score is required for all students.',
+    //         'scores.*.exam.required' => 'Exam score is required for all students.',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->back()->withErrors($validator)->withInput();
+    //     }
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         foreach ($request->scores as $enrollmentId => $scoreData) {
+    //             $enrollment = CourseEnrollment::findOrFail($enrollmentId);
+
+    //             $assessmentScore = floatval($this->extractScore($scoreData['assessment']));
+    //             // dd($assessmentScore);
+    //             $examScore = floatval($this->extractScore($scoreData['exam']));
+    //             // dd($examScore);
+
+    //             if ($assessmentScore > 40 || $examScore > 60) {
+    //                 // throw new \Exception("Invalid score range for enrollment ID: $enrollmentId");
+    //                 return redirect()->back()->withErrors("Invalid score range for enrollment ID: $enrollmentId")->withInput();
+    //             }
+
+    //             $totalScore = $assessmentScore + $examScore;
+    //             // dd($totalScore);
+
+    //             $grade = GradeSystem::getGrade($totalScore);
+    //             $isFailed = $grade === 'F';
+
+    //             StudentScore::updateOrCreate(
+    //                 [
+    //                     'student_id' => $enrollment->student_id,
+    //                     'course_id' => $assignment->course_id,
+    //                     'academic_session_id' => $assignment->academic_session_id,
+    //                     'semester_id' => $assignment->semester_id,
+    //                 ],
+    //                 [
+    //                     'teacher_id' => $assignment->teacher_id,
+    //                     'department_id' => $enrollment->student->department_id,
+    //                     'assessment_score' => $assessmentScore,
+    //                     'exam_score' => $examScore,
+    //                     'total_score' => floatval($totalScore),
+    //                     'grade' => $grade,
+    //                     'is_failed' => $isFailed,
+    //                 ]
+    //             );
+    //         }
+
+    //         DB::commit();
+    //         return redirect()->back()->with('success', 'Scores have been saved successfully.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Error saving scores: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'An error occurred while saving scores. Please try again.');
+    //     }
+    // }
+
+
+
+    // private function extractScore($scoreData)
+    // {
+    //     if (is_array($scoreData)) {
+    //         return isset($scoreData['to']) ? floatval($scoreData['to']) : floatval($scoreData[0]);
+    //     }
+    //     return floatval($scoreData);
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function exportScores($assignmentId)
     {
         $assignment = TeacherAssignment::findOrFail($assignmentId);

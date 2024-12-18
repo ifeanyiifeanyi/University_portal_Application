@@ -215,6 +215,7 @@
                             <th>Exam</th>
                             <th>Total</th>
                             <th>Grade</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -235,12 +236,12 @@
                                 <td>{{ $score->grade }}</td>
                                 <td>
                                     <a onclick="handleSingleApproval('{{ route('admin.score.approval.single.approve', $score->id) }}')"
-                                        href="javascript:void(0)" class="btn text-light">
+                                        href="javascript:void(0)" class="btn">
                                         <i class="fas fa-check-square text-primary"></i> Approve Score
                                     </a>
 
                                     <a onclick="handleSingleRejection('{{ route('admin.score.approval.single.reject', $score->id) }}')"
-                                        href="javascript:void(0)" class="btn text-light">
+                                        href="javascript:void(0)" class="btn">
                                         <i class="fas fa-window-close text-danger"></i> Reject Score
                                     </a>
                                 </td>

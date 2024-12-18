@@ -2,111 +2,110 @@
 
 @section('title', 'Assignment Details')
 @section('css')
+<style>
+    .details-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        height: 100%;
+    }
 
+    .card-title {
+        color: #2d3436;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f2f6;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-label {
+        color: #636e72;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        color: #2d3436;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-image {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 2rem;
+        border: 4px solid #f1f2f6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-back {
+        background-color: #576574;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background-color: #222f3e;
+        color: white;
+    }
+
+    .btn-edit {
+        background-color: #10ac84;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        background-color: #0a8967;
+        color: white;
+    }
+
+    .list-unstyled {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .list-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f2f6;
+    }
+
+    .list-item:last-child {
+        border-bottom: none;
+    }
+
+    .date-info {
+        font-size: 0.9rem;
+        color: #636e72;
+        font-style: italic;
+    }
+</style>
 @endsection
 
 @section('admin')
     <div class="container py-4">
-        @include('admin.return_btn')
 
-        <style>
-            .details-card {
-                background: #ffffff;
-                border-radius: 12px;
-                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-                padding: 2rem;
-                height: 100%;
-            }
 
-            .card-title {
-                color: #2d3436;
-                font-size: 1.5rem;
-                font-weight: 600;
-                margin-bottom: 1.5rem;
-                padding-bottom: 1rem;
-                border-bottom: 2px solid #f1f2f6;
-            }
-
-            .info-group {
-                margin-bottom: 1.5rem;
-            }
-
-            .info-label {
-                color: #636e72;
-                font-size: 0.9rem;
-                font-weight: 600;
-                margin-bottom: 0.25rem;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .info-value {
-                color: #2d3436;
-                font-size: 1rem;
-                margin-bottom: 1rem;
-            }
-
-            .profile-image {
-                width: 180px;
-                height: 180px;
-                border-radius: 50%;
-                object-fit: cover;
-                margin: 0 auto 2rem;
-                border: 4px solid #f1f2f6;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 1rem;
-                margin-top: 2rem;
-            }
-
-            .btn-back {
-                background-color: #576574;
-                color: white;
-                padding: 0.5rem 1.5rem;
-                border-radius: 6px;
-                transition: all 0.3s ease;
-            }
-
-            .btn-back:hover {
-                background-color: #222f3e;
-                color: white;
-            }
-
-            .btn-edit {
-                background-color: #10ac84;
-                color: white;
-                padding: 0.5rem 1.5rem;
-                border-radius: 6px;
-                transition: all 0.3s ease;
-            }
-
-            .btn-edit:hover {
-                background-color: #0a8967;
-                color: white;
-            }
-
-            .list-unstyled {
-                list-style: none;
-                padding-left: 0;
-            }
-
-            .list-item {
-                padding: 0.5rem 0;
-                border-bottom: 1px solid #f1f2f6;
-            }
-
-            .list-item:last-child {
-                border-bottom: none;
-            }
-
-            .date-info {
-                font-size: 0.9rem;
-                color: #636e72;
-                font-style: italic;
-            }
-        </style>
 
         <div class="row g-4">
             <!-- Left side: Assignment Details -->

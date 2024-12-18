@@ -103,7 +103,7 @@ Route::get('student-info/{student}', function (Student $student) {
     return view('admin.student.show_student_idcard', compact('student'));
 })->name('student.show');
 
-
+Route::get('/admin/get-grade/{score}', [AdminTeacherController::class, 'getGradeApi'])->name('admin.get.grade');
 
 Route::middleware('admin')->group(function () {
     Route::post('/timetables/bulk-approve', [AdminTimeTableController::class, 'bulkApprove'])->name('admin.timetables.bulk-approve');
@@ -258,6 +258,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     // Lecturers Management
     Route::middleware('permission:manage lecturers')->group(function () {
         Route::controller(AdminTeacherController::class)->group(function () {
+
+            Route::get('/get-student-grade/{score}', 'getGradeApi')->name('admin.get.grade');
+
+
             Route::get('manage-lecturers', 'index')->name('admin.teacher.view');
             Route::post('manage-lecturers/store', 'store')->name('admin.teacher.store');
             Route::get('manage-lecturers/create', 'create')->name('admin.teacher.create');
@@ -289,7 +293,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:view grades')->group(function () {
         // for controlling the grade types
         Route::controller(AdminGradeController::class)->group(function () {
-            Route::get('/get-grade/{score}', 'getGrade');
+            // Route::get('/get-grade/{score}', 'getGrade');
         });
     });
 

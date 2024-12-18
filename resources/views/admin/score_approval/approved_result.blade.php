@@ -37,7 +37,7 @@
                                             {{ $session->name }}
                                         </option>
                                     @endforeach
-                                </select>   
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <select name="semester_id" class="form-control">
@@ -89,7 +89,7 @@
             <form id="approvedScoresForm" action="{{ route('admin.score.approval.approved.bulk-revert') }}" method="POST">
                 @csrf
                 <div class="table-responsive mt-4">
-                    <table class="table table-striped table-bordered" id="example">
+                    <table class="table table-striped" id="example">
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="select-all"></th>
