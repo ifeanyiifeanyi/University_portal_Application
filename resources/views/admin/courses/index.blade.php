@@ -24,6 +24,7 @@
                                 <th>Title</th>
                                 <th>Program</th>
                                 <th style="width: 20px !important">Credit Hours</th>
+                                <th>Course Type</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
@@ -35,11 +36,18 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         {{ $course->code }} <br>
-                                        <small class="text-muted">Created by: <b>{{  $course->admin->user->full_name ?? 'N/A' }}</b></small>
+                                        <small class="text-muted">Created by:
+                                            <b>{{ $course->admin->user->full_name ?? 'N/A' }}</b></small>
                                     </td>
                                     <td>{{ $course->title }}</td>
                                     <td>{{ $course->program->name }}</td>
                                     <td>{{ $course->credit_hours }}</td>
+                                    <td>
+                                        <span
+                                            class="badge bg-{{ $course->course_type === 'compulsory' ? 'primary' : ($course->course_type === 'elective' ? 'success' : 'info') }}">
+                                            {{ ucfirst($course->course_type) }}
+                                        </span>
+                                    </td>
                                     <td>{{ formatDateWithOrdinal($course->created_at) }}</td>
                                     <!-- Using the helper function -->
                                     <td>
@@ -47,6 +55,7 @@
                                             data-code="{{ $course->code }}" data-title="{{ $course->title }}"
                                             data-description="{{ $course->description }}"
                                             data-credit_hours="{{ $course->credit_hours }}"
+                                            data-course_type="{{ $course->course_type }}"
                                             data-program_id="{{ $course->program_id }}"> <!-- Add this attribute -->
                                             <i class="fadeIn animated bx bx-edit-alt"></i>
                                         </button>
@@ -54,6 +63,7 @@
                                             data-code="{{ $course->code }}" data-title="{{ $course->title }}"
                                             data-description="{{ $course->description }}"
                                             data-credit_hours="{{ $course->credit_hours }}"
+                                            data-course_type="{{ $course->course_type }}"
                                             data-program_name="{{ $course->program->name ?? '' }}"
                                             data-program_id="{{ $course->program_id }}">
                                             <i class="fadeIn animated bx bx-detail"></i>
@@ -118,7 +128,17 @@
                 $('#modal_title').text($(this).data('title'));
                 $('#modal_description').text($(this).data('description'));
                 $('#modal_credit_hours').text($(this).data('credit_hours'));
-                $('#modal_program').text($(this).data('program_name')); // Add this line
+
+                // Update course type badge with proper styling
+                let courseType = $(this).data('course_type');
+                let badgeClass = courseType === 'compulsory' ? 'bg-primary' :
+                    (courseType === 'elective' ? 'bg-success' : 'bg-info');
+                $('#modal_course_type_badge')
+                    .text(courseType.charAt(0).toUpperCase() + courseType.slice(1))
+                    .removeClass('bg-primary bg-success bg-info')
+                    .addClass(badgeClass);
+
+                $('#modal_program').text($(this).data('program_name'));
 
                 // Showing the modal
                 $('#courseView').modal('show');

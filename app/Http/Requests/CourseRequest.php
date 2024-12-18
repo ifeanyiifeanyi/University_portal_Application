@@ -27,6 +27,7 @@ class CourseRequest extends FormRequest
             'description' => 'required|string',
             'credit_hours' => 'required|integer|min:1',
             'program_id' => 'required|exists:programs,id',
+            'course_type' => 'required|in:compulsory,elective,optional'
         ];
     }
 }

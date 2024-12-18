@@ -42,6 +42,15 @@
                         <input type="number" class="form-control" id="credit_hours" name="credit_hours" required>
                         <span class="text-danger" id="creditHoursError"></span>
                     </div>
+                    <div class="form-group mb-3">
+                        <label for="course_type">Course Type</label>
+                        <select class="form-control" id="course_type" name="course_type" required>
+                            <option value="compulsory">Compulsory</option>
+                            <option value="elective">Elective</option>
+                            <option value="optional">Optional</option>
+                        </select>
+                        <span class="text-danger" id="courseTypeError"></span>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

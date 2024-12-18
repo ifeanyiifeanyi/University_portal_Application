@@ -3,34 +3,45 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="courseModalLabel">View Course Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="courseViewLabel">Course Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <strong>Course Code:</strong>
-                        <p id="modal_code"></p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Course Title:</strong>
-                        <p id="modal_title"></p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Program:</strong>
-                        <p id="modal_program"></p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Credit Hours:</strong>
-                        <p id="modal_credit_hours"></p>
-                    </div>
                     <div class="col-md-12">
-                        <strong>Description:</strong>
-                        <p id="modal_description"></p>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Course Code:</th>
+                                <td id="modal_code"></td>
+                            </tr>
+                            <tr>
+                                <th>Course Title:</th>
+                                <td id="modal_title"></td>
+                            </tr>
+                            <tr>
+                                <th>Program:</th>
+                                <td id="modal_program"></td>
+                            </tr>
+                            <tr>
+                                <th>Course Type:</th>
+                                <td>
+                                    <span id="modal_course_type_badge" class="badge"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Credit Hours:</th>
+                                <td id="modal_credit_hours"></td>
+                            </tr>
+                            <tr>
+                                <th>Description:</th>
+                                <td id="modal_description"></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
