@@ -102,7 +102,6 @@
                                 <th>Exam</th>
                                 <th>Total</th>
                                 <th>Grade</th>
-                                {{-- <th>Status</th> --}}
                                 <th>Action</th>
                             </tr>
                         </thead>

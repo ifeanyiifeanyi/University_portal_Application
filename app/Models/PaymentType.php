@@ -23,7 +23,9 @@ class PaymentType extends Model
         'late_fee_amount',
         'late_fee_type', // 'fixed' or 'percentage'
         'grace_period_days',
-        'is_recurring'
+        'is_recurring',
+        'paystack_subaccount_code',
+        'subaccount_percentage'
     ];
 
     public function departments()
@@ -51,24 +53,6 @@ class PaymentType extends Model
         return $this->belongsTo(AcademicSession::class);
     }
 
-    // public function getAmount($departmentId, $level)
-    // {
-    //     $pivot = $this->departments()
-    //         ->where('department_id', $departmentId)
-    //         ->where('level', $level)
-    //         ->first();
-
-    //     if (!$pivot || !$pivot->pivot) {
-    //         return null;
-    //     }
-
-    //     // Check for late fee
-    //     $currentDate = now();
-    //     $lateFee = $this->calculateLateFee($currentDate);
-
-    //     // Return total amount (base amount + late fee if applicable)
-    //     return $pivot->pivot->amount;
-    // }
     public function getAmount($departmentId, $level)
     {
         $pivot = $this->departments()

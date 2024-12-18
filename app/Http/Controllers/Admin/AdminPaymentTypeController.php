@@ -52,6 +52,10 @@ class AdminPaymentTypeController extends Controller
             'late_fee_amount' => 'required|numeric|min:0',
             'payment_period' => 'required|string',
 
+            'paystack_subaccount_code' => 'nullable|string',
+            'subaccount_percentage' => 'nullable|numeric|min:0|max:100',
+
+
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'semester_id' => 'required|exists:semesters,id',
             'department_id' => 'required|exists:departments,id',
@@ -70,6 +74,9 @@ class AdminPaymentTypeController extends Controller
             'grace_period_days' => $validated['grace_period_days'],
             'late_fee_amount' => $validated['late_fee_amount'],
             'payment_period' => $validated['payment_period'],
+
+            'paystack_subaccount_code' => $validated['paystack_subaccount_code'],
+            'subaccount_percentage' => $validated['subaccount_percentage'],
 
             'academic_session_id' => $validated['academic_session_id'],
             'semester_id' => $validated['semester_id'],
