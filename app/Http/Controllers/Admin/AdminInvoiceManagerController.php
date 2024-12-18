@@ -55,9 +55,13 @@ class AdminInvoiceManagerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Invoice $invoice)
+    public function destroy($invoice)
     {
-        $invoice->delete();
-        return redirect()->route('admin.invoice.view')->with('success', 'Invoice deleted successfully!');
+        $invoice = Invoice::find($invoice);
+        if ($invoice) {
+            $invoice->delete();
+            return redirect()->route('admin.invoice.view')->with('success', 'Invoice deleted successfully!');
+        }
+        return redirect()->route('admin.invoice.view')->with('error', 'Invoice not found!');
     }
 }

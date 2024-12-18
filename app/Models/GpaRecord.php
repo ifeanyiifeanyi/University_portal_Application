@@ -21,4 +21,9 @@ class GpaRecord extends Model
     {
         return $this->belongsTo(Semester::class);
     }
+
+    public function academicSession(): BelongsTo
+    {
+        return $this->belongsTo(AcademicSession::class);
+    }
 }

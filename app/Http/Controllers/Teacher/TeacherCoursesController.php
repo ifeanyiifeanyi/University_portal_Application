@@ -22,44 +22,46 @@ class TeacherCoursesController extends Controller
 {
     protected $authService;
 
-    
+
     /**
      * CLASS
      * instance of our auth service class
      */
-    public function __construct(AuthService $authService){
+    public function __construct(AuthService $authService)
+    {
 
         $this->authService = $authService;
     }
-    public function courses(){
-         // get the teachers details
-         $teacher = Teacher::with(['user'])->where('user_id',$this->authService->user()->id)->first();
-         // get the department
-         $coursesassigned = TeacherAssignment::with(['course','department','semester','academicSession'])->where('teacher_id',$teacher->id)->get();
-         return view('teacher.courses.courses',[
-            'coursesassigned'=>$coursesassigned
+    public function courses()
+    {
+        // get the teachers details
+        $teacher = Teacher::with(['user'])->where('user_id', $this->authService->user()->id)->first();
+        // get the department
+        $coursesassigned = TeacherAssignment::with(['course', 'department', 'semester', 'academicSession'])->where('teacher_id', $teacher->id)->get();
+        return view('teacher.courses.courses', [
+            'coursesassigned' => $coursesassigned
         ]);
     }
 
-public function students($courseId)
-{
-    $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
+    public function students($courseId)
+    {
+        $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
 
-    // Eager load the studentScore with additional constraints
-    $students = CourseEnrollment::with(['student.user', 'course', 'department', 'studentScore' => function ($query) use ($teacher) {
-        $query->where('teacher_id', $teacher->id);
-    }])
-    ->where('course_id', $courseId)
-    ->whereHas('semesterCourseRegistration', function ($query) {
-        $query->where('status', 'approved');
-    })
-    ->get();
+        // Eager load the studentScore with additional constraints
+        $students = CourseEnrollment::with(['student.user', 'course', 'department', 'studentScore' => function ($query) use ($teacher) {
+            $query->where('teacher_id', $teacher->id);
+        }])
+            ->where('course_id', $courseId)
+            ->whereHas('semesterCourseRegistration', function ($query) {
+                $query->where('status', 'approved');
+            })
+            ->get();
 
-    return view('teacher.courses.enrolledstudents', [
-        'students' => $students,
-        'courseId' => $courseId,
-    ]);
-}
+        return view('teacher.courses.enrolledstudents', [
+            'students' => $students,
+            'courseId' => $courseId,
+        ]);
+    }
 
     public function getGrade($score)
     {
@@ -74,7 +76,8 @@ public function students($courseId)
 
 
 
-    public function exportassessment($courseId){
+    public function exportassessment($courseId)
+    {
 
         $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
 
@@ -82,13 +85,13 @@ public function students($courseId)
         $exportaccess = CourseEnrollment::with(['student.user', 'course', 'department', 'studentScore' => function ($query) use ($teacher) {
             $query->where('teacher_id', $teacher->id);
         }])
-        ->where('course_id', $courseId)
-        ->whereHas('semesterCourseRegistration', function ($query) {
-            $query->where('status', 'approved');
-        })
-        ->get();
+            ->where('course_id', $courseId)
+            ->whereHas('semesterCourseRegistration', function ($query) {
+                $query->where('status', 'approved');
+            })
+            ->get();
         $csv = \League\Csv\Writer::createFromFileObject(new \SplTempFileObject());
-        $csv->insertOne(['Matric Number', 'Student Name', 'Course Name', 'Course Code','Assessment Score', 'Exam Score']);
+        $csv->insertOne(['Matric Number', 'Student Name', 'Course Name', 'Course Code', 'Assessment Score', 'Exam Score']);
         foreach ($exportaccess as $exportaccess) {
 
             $name = $exportaccess->student->user->first_name . ' ' . $exportaccess->student->user->last_name . ' ' . $exportaccess->student->user->other_name;
@@ -115,10 +118,10 @@ public function students($courseId)
             'assessment_import' => 'required|mimes:csv,txt'
         ]);
 
-        $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
-        $assignment = TeacherAssignment::where('teacher_id',$teacher->id)
-        ->where('course_id', $request->course_id)
-        ->first();
+        $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
+        $assignment = TeacherAssignment::where('teacher_id', $teacher->id)
+            ->where('course_id', $request->course_id)
+            ->first();
         $csv = Reader::createFromPath($request->file('assessment_import')->getPathname());
         $csv->setHeaderOffset(0);
 
@@ -155,12 +158,12 @@ public function students($courseId)
                         'total_score' => $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
-                        'grade_point'=>(float) $gradePoint
+                        'grade_point' => (float) $gradePoint
                     ]
                 );
-                 // cgpa
+                // cgpa
 
-        $this->updateGpaRecord($student->id, $assignment->academic_session_id, $assignment->semester_id);
+                $this->updateGpaRecord($student->id, $assignment->academic_session_id, $assignment->semester_id);
             }
 
             DB::commit();
@@ -173,10 +176,11 @@ public function students($courseId)
 
 
 
-    public function uploadresult(Request $uploadresult,$courseid){
+    public function uploadresult(Request $uploadresult, $courseid)
+    {
         $validator = Validator::make($uploadresult->all(), [
             'scores.*.assessment' => 'required|numeric|min:0|max:40|integer',  // Changed to integer validation
-        'scores.*.exam' => 'required|numeric|min:0|max:60|integer',      
+            'scores.*.exam' => 'required|numeric|min:0|max:60|integer',
         ], [
             'scores.*.assessment.required' => 'Assessment score is required for all students.',
             'scores.*.exam.required' => 'Exam score is required for all students.',
@@ -190,10 +194,10 @@ public function students($courseId)
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        $teacher = Teacher::where('user_id',$this->authService->user()->id)->first();
-        $assignment = TeacherAssignment::where('teacher_id',$teacher->id)
-        ->where('course_id', $courseid)
-        ->first();
+        $teacher = Teacher::where('user_id', $this->authService->user()->id)->first();
+        $assignment = TeacherAssignment::where('teacher_id', $teacher->id)
+            ->where('course_id', $courseid)
+            ->first();
         try {
             DB::beginTransaction();
 
@@ -221,18 +225,17 @@ public function students($courseId)
                     [
                         'teacher_id' => $assignment->teacher_id,
                         'department_id' => $enrollment->student->department_id,
-                      'assessment_score' => (int) $scoreData['assessment'],  // Force integer
-        'exam_score' => (int) $scoreData['exam'],               // Force integer
-        'total_score' => (int) $totalScore,  
+                        'assessment_score' => (int) $scoreData['assessment'],  // Force integer
+                        'exam_score' => (int) $scoreData['exam'],               // Force integer
+                        'total_score' => (int) $totalScore,
                         'grade' => $grade,
                         'is_failed' => $isFailed,
-                        'grade_point'=> (float) $gradePoint
+                        'grade_point' => (float) $gradePoint
                     ]
                 );
 
-                 // cgpa
-
-        $this->updateGpaRecord($enrollment->student_id, $assignment->academic_session_id, $assignment->semester_id);
+                // cgpa
+                $this->updateGpaRecord($enrollment->student_id, $assignment->academic_session_id, $assignment->semester_id);
             }
 
             DB::commit();
@@ -247,15 +250,20 @@ public function students($courseId)
     private function calculateGradePoint($grade)
     {
         switch ($grade) {
-            case 'A': return 5.0;
-            case 'B': return 4.0;
-            case 'C': return 3.0;
-            case 'D': return 2.0;
-            default: return 0.0;
+            case 'A':
+                return 5.0;
+            case 'B':
+                return 4.0;
+            case 'C':
+                return 3.0;
+            case 'D':
+                return 2.0;
+            default:
+                return 0.0;
         }
     }
 
-    private function updateGpaRecord($studentId ,$acamdicsession, $semesterId)
+    private function updateGpaRecord($studentId, $acamdicsession, $semesterId)
     {
         $enrollments = CourseEnrollment::whereHas('semesterCourseRegistration', function ($query) use ($semesterId) {
             $query->where('semester_id', $semesterId);
@@ -277,7 +285,7 @@ public function students($courseId)
         $gpa = $totalCreditUnits > 0 ? $totalGradePoints / $totalCreditUnits : 0;
 
         $gpaRecord = GpaRecord::updateOrCreate(
-            ['student_id' => $studentId, 'semester_id' => $semesterId, 'academic_session_id'=>$acamdicsession],
+            ['student_id' => $studentId, 'semester_id' => $semesterId, 'academic_session_id' => $acamdicsession],
             ['gpa' => $gpa]
         );
 
@@ -292,12 +300,9 @@ public function students($courseId)
         $gpaRecords = GpaRecord::where('student_id', $studentId)->get();
         $totalGPA = $gpaRecords->sum('gpa');
         $cgpa = $gpaRecords->count() > 0 ? $totalGPA / $gpaRecords->count() : 0;
-        $updatestudent = Student::where('id',$studentId)->update([
-            'cgpa'=>$cgpa
+        $updatestudent = Student::where('id', $studentId)->update([
+            'cgpa' => $cgpa
         ]);
         return $updatestudent;
-        // foreach ($gpaRecords as $record) {
-        //     $record->update(['cgpa' => $cgpa]);
-        // }
     }
 }
