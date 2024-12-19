@@ -12,6 +12,7 @@ class Payment extends Model
         'student_id',
         'department_id',
         'level',
+        'status',
         'academic_session_id',
         'semester_id',
         'payment_type_id',

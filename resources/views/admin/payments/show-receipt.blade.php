@@ -88,7 +88,7 @@
                 </span>
                 <span class="tm_btn_text">Download</span>
             </button>
-            <a href="{{ route('admin.payment.pay') }}" class="tm_invoice_btn tm_color1">
+            <a href="#!" onclick="history.back()" class="tm_invoice_btn tm_color1">
                 <span class="tm_btn_icon">
                     <!-- SVG for Return to Previous Page (Left Arrow) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">

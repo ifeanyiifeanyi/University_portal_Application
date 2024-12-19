@@ -654,6 +654,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('invoice-manager/trashed', 'trashed')->name('admin.invoice.trashed');
             Route::get('invoice/restore/{id}', 'restore')->name('admin.invoice.restore');
             Route::delete('invoice/force-delete/{id}', 'forceDelete')->name('admin.invoice.force-delete');
+
+
+            //mark as paid
+            Route::get('invoice/mark-paid/{id}', 'markAsPaid')->name('admin.invoice.mark-paid');
         });
     });
 

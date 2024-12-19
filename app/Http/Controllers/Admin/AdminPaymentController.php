@@ -524,24 +524,7 @@ class AdminPaymentController extends Controller
         return view('admin.payments.show-receipt', compact('receipt'));
     }
 
-    // protected function generateReceipt(Payment $payment)
-    // {
-    //     return Receipt::create([
-    //         'payment_id' => $payment->id,
-    //         'receipt_number' => 'REC' . uniqid(),
-    //         'amount' => $payment->amount,
-    //         'date' => now(),
-    //     ]);
-    // }
-
-    // public function showReceipt(Receipt $receipt)
-    // {
-    //     if (!$receipt) {
-    //         return redirect()->route('admin.payment.pay');
-    //     }
-    //     return view('admin.payments.show-receipt', compact('receipt'));
-    // }
-
+   
 
     public function payTransfer($invoice)
     {
