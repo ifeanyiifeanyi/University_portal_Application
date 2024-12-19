@@ -364,53 +364,138 @@ class AdminPaymentController extends Controller
     }
 
 
+    // public function verifyPayment(Request $request, $gateway)
+    // {
+    //     $reference = $request->query('reference');
+    //     $admin = User::findOrFail(Auth::id());
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
+
+    //         if ($result['success']) {
+    //             $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
+    //             $payment->status = 'paid';
+    //             $payment->admin_comment = "Credit card payment was processed by, " . $admin->full_name;
+    //             $payment->save();
+
+    //             // Update invoice status
+    //             // $invoice = $payment->invoice;
+    //             $invoice = Invoice::where('invoice_number', $payment->invoice_number)->first();
+    //             if ($invoice) {
+    //                 $invoice->status = 'paid';
+    //                 $invoice->save();
+    //             }
+    //             // Generate payment receipt
+    //             $receipt = $this->generateReceipt($payment);
+
+    //             // Send notifications (student, admin)
+    //             $this->sendPaymentNotification($payment);
+
+    //             DB::commit();
+
+    //             return redirect()->route('admin.payments.showReceipt', $receipt->id)
+    //                 ->with('success', 'Payment verified successfully')
+    //                 ->with('receipt', $receipt);
+    //         } else {
+    //             throw new \Exception('Payment verification failed');
+    //         }
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Payment verification failed: ' . $e->getMessage());
+    //         return redirect()->route('admin.payments.showConfirmation')
+    //             ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
+    //     }
+    // }
+
     public function verifyPayment(Request $request, $gateway)
     {
         $reference = $request->query('reference');
         $admin = User::findOrFail(Auth::id());
 
+        Log::info('Starting payment verification', [
+            'gateway' => $gateway,
+            'reference' => $reference
+        ]);
+
         DB::beginTransaction();
 
         try {
+            // First, find the payment before verification
+            $payment = Payment::where('transaction_reference', $reference)
+                ->with(['invoice', 'student.user'])
+                ->firstOrFail();
+
             $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
 
             if ($result['success']) {
-                $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
+                // Update payment status
                 $payment->status = 'paid';
-                $payment->admin_comment = "Credit card payment was processed by, " . $admin->full_name;
+                $payment->admin_comment = "Credit card payment was processed by " . $admin->full_name;
                 $payment->save();
 
-                // Update invoice status
-                // $invoice = $payment->invoice;
-                $invoice = Invoice::where('invoice_number', $payment->invoice_number)->first();
-                if ($invoice) {
-                    $invoice->status = 'paid';
-                    $invoice->save();
+                // Update invoice status if it exists
+                if ($payment->invoice) {
+                    $payment->invoice->status = 'paid';
+                    $payment->invoice->save();
+                } else {
+                    Log::warning('Invoice not found for payment', [
+                        'payment_id' => $payment->id,
+                        'invoice_number' => $payment->invoice_number
+                    ]);
                 }
-                // Generate payment receipt
+
+                // Generate receipt
                 $receipt = $this->generateReceipt($payment);
 
-                // Send notifications (student, admin)
-                $this->sendPaymentNotification($payment);
+                // Send notifications
+                try {
+                    $this->sendPaymentNotification($payment);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send payment notification: ' . $e->getMessage());
+                    // Continue execution even if notification fails
+                }
 
                 DB::commit();
 
+                Log::info('Payment verification successful', [
+                    'payment_id' => $payment->id,
+                    'receipt_id' => $receipt->id
+                ]);
+
                 return redirect()->route('admin.payments.showReceipt', $receipt->id)
-                    ->with('success', 'Payment verified successfully')
-                    ->with('receipt', $receipt);
+                    ->with('success', 'Payment verified successfully');
             } else {
-                throw new \Exception('Payment verification failed');
+                throw new \Exception('Payment verification returned false');
             }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            Log::error('Payment record not found during verification', [
+                'reference' => $reference,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->route('admin.payment.pay')
+                ->with('error', 'Payment record not found. Please contact support if you believe this is an error.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment verification failed: ' . $e->getMessage());
-            return redirect()->route('admin.payments.showConfirmation')
+            Log::error('Payment verification failed', [
+                'reference' => $reference,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->route('admin.payment.pay')
                 ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
         }
     }
 
     protected function generateReceipt(Payment $payment)
     {
+        // Check if receipt already exists
+        $existingReceipt = Receipt::where('payment_id', $payment->id)->first();
+        if ($existingReceipt) {
+            return $existingReceipt;
+        }
+
         return Receipt::create([
             'payment_id' => $payment->id,
             'receipt_number' => 'REC' . uniqid(),
@@ -422,10 +507,40 @@ class AdminPaymentController extends Controller
     public function showReceipt(Receipt $receipt)
     {
         if (!$receipt) {
-            return redirect()->route('admin.payment.pay');
+            Log::error('Attempt to view non-existent receipt');
+            return redirect()->route('admin.payment.pay')
+                ->with('error', 'Receipt not found');
         }
+
+        $receipt->load([
+            'payment.student.user',
+            'payment.student.department',
+            'payment.paymentType',
+            'payment.paymentMethod',
+            'payment.academicSession',
+            'payment.semester'
+        ]);
+
         return view('admin.payments.show-receipt', compact('receipt'));
     }
+
+    // protected function generateReceipt(Payment $payment)
+    // {
+    //     return Receipt::create([
+    //         'payment_id' => $payment->id,
+    //         'receipt_number' => 'REC' . uniqid(),
+    //         'amount' => $payment->amount,
+    //         'date' => now(),
+    //     ]);
+    // }
+
+    // public function showReceipt(Receipt $receipt)
+    // {
+    //     if (!$receipt) {
+    //         return redirect()->route('admin.payment.pay');
+    //     }
+    //     return view('admin.payments.show-receipt', compact('receipt'));
+    // }
 
 
     public function payTransfer($invoice)

@@ -38,7 +38,7 @@
                         <div class="col-md-8">
                             <div class="form-group mb-4">
                                 <label for="paystack_subaccount_code">Paystack Subaccount Code</label>
-                                <input type="number" class="form-control" id="paystack_subaccount_code" name="paystack_subaccount_code"
+                                <input type="string" class="form-control" id="paystack_subaccount_code" name="paystack_subaccount_code"
                                     value="{{ old('paystack_subaccount_code') }}" required placeholder="Paystack subaccount code">
                                 @error('paystack_subaccount_code')
                                     <p class="text-danger">{{ $message }}</p>

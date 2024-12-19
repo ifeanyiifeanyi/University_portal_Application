@@ -19,7 +19,7 @@ class AdminPaymentTypeController extends Controller
      */
     public function index()
     {
-        $paymentTypes = PaymentType::with('departments')->get();
+        $paymentTypes = PaymentType::with('departments')->latest()->get();
         return view('admin.paymentTypes.index', compact('paymentTypes'));
     }
 

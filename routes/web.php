@@ -574,7 +574,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('payments', 'payments')->name('admin.payments.show');
 
             Route::get('/payments/get-departments-and-levels',  'getDepartmentsAndLevels')->name('payments.getDepartmentsAndLevels');
-            Route::get('/payment-types/get-amount', [AdminPaymentController::class, 'getAmount'])->name('payment-types.getAmount');
+            Route::get('/payment-types/get-amount', 'getAmount')->name('payment-types.getAmount');
             Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
 
             Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
@@ -631,6 +631,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/notifications/view/{id}', 'viewNotification')->name('admin.notifications.view');
         });
     });
+
 
     // Invoice
     Route::middleware('permission:view invoice manager')->group(function () {

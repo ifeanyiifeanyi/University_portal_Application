@@ -26,7 +26,11 @@ class Payment extends Model
         'invoice_number',
 
         'base_amount',
-        'late_fee'
+        'late_fee',
+
+        'payment_reference',
+        'gateway_response',
+        'payment_channel'
 
     ];
 

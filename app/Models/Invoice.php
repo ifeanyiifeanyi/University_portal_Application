@@ -34,28 +34,10 @@ class Invoice extends Model
             ->setDescriptionForEvent(fn(string $eventName) => "Invoice has been {$eventName}")
             ->useLogName('invoice');
     }
-    // Auto-generate invoice number
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($invoice) {
-            $latestInvoice = static::latest()->first();
-            $year = date('Y');
-            $month = date('m');
 
-            if (!$latestInvoice) {
-                $number = 1;
-            } else {
-                $number = static::whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
-                    ->count() + 1;
-            }
 
-            // Format: INV-YYYYMM-XXXX (e.g., INV-202312-0001)
-            $invoice->invoice_number = sprintf("INV-%s%s-%04d", $year, $month, $number);
-        });
-    }
+
 
 
     protected $casts = ['archived_at' => 'date', 'deleted_at' => 'date'];

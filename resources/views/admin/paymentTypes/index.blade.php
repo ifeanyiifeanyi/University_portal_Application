@@ -30,6 +30,7 @@
                     <thead>
                         <tr>
                             <th><i class="fas fa-hashtag"></i></th>
+                            <th><i class="fas fa-user-cog"></i> Name</th>
                             <th><i class="fas fa-money-bill-wave me-2"></i>Amount</th>
                             <th><i class="fas fa-building me-2"></i>Department</th>
                             <th><i class="fas fa-calendar-alt me-2"></i>Due Date</th>
@@ -41,6 +42,9 @@
                         @foreach ($paymentTypes as $key => $paymentType)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
+                                <td>
+                                    {{ Str::title($paymentType->name) }}
+                                </td>
                                 <td>
                                     <span>₦{{ number_format($paymentType->amount, 2) }}</span><br>
                                     <small class="text-muted">Penalty:
