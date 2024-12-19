@@ -642,6 +642,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('invoice-manager/{invoice}/details', 'show')->name('admin.invoice.show');
             Route::get('invoice-manager/download/{invoice}', 'download')->name('admin.invoice.download');
 
+            Route::get('reverse-archive-ticket/{ticket}', 'reverseTicketOnArchive')->name('admin.invoice.reverseArchive');
+
             // todo: add invoice delete
             Route::get('invoice/cancel/{invoice}', 'destroy')->name('admin.invoice.cancel');
             Route::get('invoice/archive/{invoice}', 'archive')->name('admin.invoice.archive');

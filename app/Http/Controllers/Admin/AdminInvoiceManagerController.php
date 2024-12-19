@@ -79,6 +79,33 @@ class AdminInvoiceManagerController extends Controller
         return view('admin.invoices.trashed', compact('trashedInvoices'));
     }
 
+    public function reverseTicketOnArchive($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+
+
+
+        DB::beginTransaction();
+        try {
+            $invoice->update([
+                'archived_at' => null
+            ]);
+
+            activity()
+                ->performedOn($invoice)
+                ->withProperties(['status' => 'archived'])
+                ->log('Invoice removed from archive');
+
+            DB::commit();
+            return redirect()->route('admin.invoice.view')
+                ->with('success', 'Invoice has been removed from archive successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'An error occurred while archiving the invoice');
+        }
+    }
+
     public function restore($id)
     {
         DB::beginTransaction();
@@ -124,6 +151,8 @@ class AdminInvoiceManagerController extends Controller
                 ->with('error', 'An error occurred while permanently deleting the invoice');
         }
     }
+
+    
     /**
      * Display the specified resource.
      */

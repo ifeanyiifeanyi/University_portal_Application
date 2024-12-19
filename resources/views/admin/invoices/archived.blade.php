@@ -33,7 +33,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             {{ $invoice->invoice_number }} <br>
-                                            <a href="" class="btn-sm btn btn-primary">Retrieve</a>
+                                            <a href="{{ route('admin.invoice.reverseArchive', $invoice) }}" class="btn-sm btn btn-primary"> <i class="fas fa-recycle"></i> Retrieve</a>
                                         </td>
                                         <td>{{ $invoice->student->user->full_name }}</td>
                                         <td>{{ $invoice->department->name }}</td>
