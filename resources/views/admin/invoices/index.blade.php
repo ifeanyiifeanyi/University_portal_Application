@@ -125,9 +125,18 @@
                         <div class="card-title d-flex align-items-center gap-5">
                             <div>
                                 <p>
-                                    <a href="{{ route('admin.payment.pay') }}" class="btn btn-primary float-left">
+                                    <a href="{{ route('admin.payment.pay') }}" class="btn btn-primary float-end">
                                         <i class="fas fa-file-invoice fa-fw"></i> Generate New Invoice
                                     </a>
+                                    &nbsp;
+                                    <a href="{{ route('admin.invoice.archived') }}" class="btn btn-info float-start ml-3">
+                                        <i class="fas fa-archive fa-fw"></i> View Archive
+                                    </a>
+                                    &nbsp;
+                                    <a href="{{ route('admin.invoice.trashed') }}" class="btn btn-danger ml-3">
+                                        <i class="fas fa-trash fa-fw"></i> View Trash
+                                    </a>
+                                    &nbsp;
                                 </p>
                             </div>
                         </div>
@@ -178,14 +187,16 @@
                                                 @endif
 
                                                 @if ($invoice->status == 'pending')
-                                                    <a href="#" class="btn btn-primary btn-sm process-payment-btn"
-                                                        data-invoice-id="{{ $invoice->id }}" title="Process Payment">
-                                                        <i class="fas fa-credit-card fa-fw"></i>
-                                                    </a>
-
                                                     <button class="btn btn-danger btn-sm delete-invoice"
                                                         data-invoice-id="{{ $invoice->id }}" title="Delete Invoice">
                                                         <i class="fas fa-trash-alt fa-fw"></i>
+                                                    </button>
+                                                @endif
+
+                                                @if ($invoice->status !== 'pending')
+                                                    <button class="btn btn-warning btn-sm archive-invoice"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Archive Invoice">
+                                                        <i class="fas fa-archive fa-fw"></i>
                                                     </button>
                                                 @endif
                                             </td>
@@ -274,45 +285,6 @@
         });
 
 
-        {{--
-        // Add this to your JavaScript section
-        // $(document).ready(function() {
-        //     // Store the current invoice ID
-        //     let currentInvoiceId = null;
-
-        //     // When the process payment button is clicked
-        //     $('.process-payment-btn').click(function(e) {
-        //         e.preventDefault();
-        //         currentInvoiceId = $(this).data('invoice-id');
-        //         $('#paymentMethodModal').modal('show');
-        //     });
-
-        //     // Handle credit card payment
-        //     $('#creditCardBtn').click(function() {
-        //         if (currentInvoiceId) {
-        //             window.location.href = `{{ route('admin.payments.showConfirmation', $invoice->id) }}`;
-        //         }
-        //     });
-
-        //     // Handle bank transfer
-        //     $('#bankTransferBtn').click(function() {
-        //         if (currentInvoiceId) {
-        //             window.location.href =
-        //                 `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
-        //         }
-        //     });
-
-        //     // Handle cash payment
-        //     $('#cashBtn').click(function() {
-        //         if (currentInvoiceId) {
-        //             window.location.href =
-        //                 `{{ route('admin.payment.pay_manual', ['invoice' => $invoice->id]) }}`;
-        //         }
-        //     });
-        // });
-
-        --}}
-
 
         // Show success message if exists in session
         @if (session('success'))
@@ -353,6 +325,27 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "{{ url('admin/invoice/cancel') }}/" + invoiceId;
+                }
+            });
+        });
+
+        // Handle archive invoice confirmation
+        $('.archive-invoice').click(function(e) {
+            e.preventDefault();
+            const invoiceId = $(this).data('invoice-id');
+
+            Swal.fire({
+                title: 'Archive this invoice?',
+                text: "You can still view it in the archived section",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, archive it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ url('admin/invoice/archive') }}/" + invoiceId;
                 }
             });
         });

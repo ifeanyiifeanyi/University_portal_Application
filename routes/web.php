@@ -636,11 +636,21 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:view invoice manager')->group(function () {
         Route::controller(AdminInvoiceManagerController::class)->group(function () {
             Route::get('invoice-manager', 'index')->name('admin.invoice.view');
+            Route::get('invoice-manager/archived', 'archived')->name('admin.invoice.archived');
+
+
             Route::get('invoice-manager/{invoice}/details', 'show')->name('admin.invoice.show');
             Route::get('invoice-manager/download/{invoice}', 'download')->name('admin.invoice.download');
 
             // todo: add invoice delete
-            Route::delete('invoice-manager/{invoice}', 'destroy')->name('admin.invoice.destroy');
+            Route::get('invoice/cancel/{invoice}', 'destroy')->name('admin.invoice.cancel');
+            Route::get('invoice/archive/{invoice}', 'archive')->name('admin.invoice.archive');
+
+
+            // Trashed invoice routes
+            Route::get('invoice-manager/trashed', 'trashed')->name('admin.invoice.trashed');
+            Route::get('invoice/restore/{id}', 'restore')->name('admin.invoice.restore');
+            Route::delete('invoice/force-delete/{id}', 'forceDelete')->name('admin.invoice.force-delete');
         });
     });
 
