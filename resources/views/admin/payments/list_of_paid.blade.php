@@ -252,7 +252,7 @@
                                     <tr>
                                         <th>S/N</th>
                                         <th>Student Name</th>
-                                        <th>Department</th>
+                                        <th>Payment Channel</th>
                                         <th>Session/Semester</th>
                                         <th>Amount</th>
                                         <th>Date</th>
@@ -267,7 +267,9 @@
                                                 {{ $payment->student->user->full_name }} <br>
                                                 <small class="text-muted">{{ $payment->student->matric_number }}</small>
                                             </td>
-                                            <td>{{ $payment->student->department->name }}</td>
+                                            <td>
+                                                {{ Str::upper($payment->payment_channel ?? 'NA')  }}
+                                            </td>
                                             <td>{{ $payment->academicSession->name }} <br> {{ $payment->semester->name }}
                                             </td>
                                             <td>

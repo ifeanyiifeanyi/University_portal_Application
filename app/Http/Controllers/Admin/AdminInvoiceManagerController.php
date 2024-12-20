@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\PaymentApprovedNotification;
+use App\Notifications\AdminInvoicePaymentApprovedNotification;
+use App\Notifications\SuperAdminInvoicePaymentApprovedNotification;
 
 class AdminInvoiceManagerController extends Controller
 {
@@ -34,6 +37,98 @@ class AdminInvoiceManagerController extends Controller
             ->get();
         return view('admin.invoices.index', compact('invoices'));
     }
+
+
+
+    // public function markAsPaid($id)
+    // {
+    //     $invoice = Invoice::findOrFail($id);
+
+    //     if ($invoice->status === 'paid') {
+    //         return redirect()->back()->with('error', 'Invoice is already marked as paid');
+    //     }
+
+    //     DB::beginTransaction();
+    //     try {
+    //         // Update invoice status
+    //         $invoice->update([
+    //             'status' => 'paid'
+    //         ]);
+
+    //         // Check for an existing payment record
+    //         $payment = Payment::where('student_id', $invoice->student_id)
+    //             ->where('department_id', $invoice->department_id)
+    //             ->where('payment_type_id', $invoice->payment_type_id)
+    //             ->first();
+
+    //         if (!$payment) {
+    //             DB::rollBack();
+    //             return redirect()->back()
+    //                 ->with('error', 'No corresponding payment record found for the invoice. Please verify.');
+    //         }
+
+
+    //         // Update existing payment record
+    //         try {
+    //             $updateResult = $payment->update([
+    //                 'status' => 'paid',  // Make sure this matches your enum value exactly
+    //                 'admin_id' => Auth::id(),
+    //                 'admin_comment' => 'Payment manually verified by admin: ' . Auth::user()->full_name,
+    //                 'payment_date' => now()
+    //             ]);
+
+    //             // Log the update result
+    //             Log::info("Payment update result: " . ($updateResult ? 'success' : 'failed'));
+    //         } catch (\Exception $e) {
+    //             Log::error("Payment update failed: " . $e->getMessage());
+    //             DB::rollBack();
+    //             return redirect()->back()
+    //                 ->with('error', 'Failed to update payment status. Error: ' . $e->getMessage());
+    //         }
+
+    //         // Check if receipt already exists for this payment
+    //         $existingReceipt = Receipt::where('payment_id', $payment->id)->first();
+
+    //         if ($existingReceipt) {
+    //             DB::commit();
+    //             return redirect()->route('admin.payments.showReceipt', $existingReceipt->id)
+    //                 ->with('success', 'Payment has been marked as paid and existing receipt found');
+    //         }
+
+    //         // Generate receipt
+    //         $receipt = Receipt::create([
+    //             'payment_id' => $payment->id,
+    //             'receipt_number' => 'REC' . uniqid(),
+    //             'amount' => $payment->amount,
+    //             'date' => now(),
+    //         ]);
+
+    //         // Log the activity
+    //         activity()
+    //             ->performedOn($invoice)
+    //             ->withProperties([
+    //                 'status' => 'paid',
+    //                 'admin' => Auth::user()->full_name,
+    //                 'payment_id' => $payment->id
+    //             ])
+    //             ->log('Invoice marked as paid manually');
+
+    //         if ($receipt) {
+    //             DB::commit();
+    //             return redirect()->route('admin.payments.showReceipt', $receipt->id)
+    //                 ->with('success', 'Payment marked as paid and new receipt generated');
+    //         }
+
+    //         DB::rollBack();
+    //         return redirect()->back()
+    //             ->with('error', 'Failed to generate receipt. Please try again.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Failed to mark payment as paid: ' . $e->getMessage());
+    //         return redirect()->back()
+    //             ->with('error', 'An error occurred while processing the payment. Please try again.');
+    //     }
+    // }
 
     public function markAsPaid($id)
     {
@@ -62,66 +157,65 @@ class AdminInvoiceManagerController extends Controller
                     ->with('error', 'No corresponding payment record found for the invoice. Please verify.');
             }
 
-
             // Update existing payment record
-            try {
-                $updateResult = $payment->update([
-                    'status' => 'paid',  // Make sure this matches your enum value exactly
-                    'admin_id' => Auth::id(),
-                    'admin_comment' => 'Payment manually verified by admin: ' . Auth::user()->full_name,
-                    'payment_date' => now()
-                ]);
-
-                // Log the update result
-                Log::info("Payment update result: " . ($updateResult ? 'success' : 'failed'));
-            } catch (\Exception $e) {
-                Log::error("Payment update failed: " . $e->getMessage());
-                DB::rollBack();
-                return redirect()->back()
-                    ->with('error', 'Failed to update payment status. Error: ' . $e->getMessage());
-            }
+            $payment->update([
+                'status' => 'paid',
+                'admin_id' => Auth::id(),
+                'admin_comment' => 'Payment manually verified by admin: ' . Auth::user()->full_name,
+                'payment_date' => now()
+            ]);
 
             // Check if receipt already exists for this payment
             $existingReceipt = Receipt::where('payment_id', $payment->id)->first();
 
-            if ($existingReceipt) {
-                DB::commit();
-                return redirect()->route('admin.payments.showReceipt', $existingReceipt->id)
-                    ->with('success', 'Payment has been marked as paid and existing receipt found');
+            if (!$existingReceipt) {
+                // Generate receipt
+                $receipt = Receipt::create([
+                    'payment_id' => $payment->id,
+                    'receipt_number' => 'REC' . uniqid(),
+                    'amount' => $payment->amount,
+                    'date' => now(),
+                ]);
+            } else {
+                $receipt = $existingReceipt;
             }
 
-            // Generate receipt
-            $receipt = Receipt::create([
-                'payment_id' => $payment->id,
-                'receipt_number' => 'REC' . uniqid(),
-                'amount' => $payment->amount,
-                'date' => now(),
-            ]);
+            // Commit transaction
+            DB::commit();
 
-            // Log the activity
-            activity()
-                ->performedOn($invoice)
-                ->withProperties([
-                    'status' => 'paid',
-                    'admin' => Auth::user()->full_name,
-                    'payment_id' => $payment->id
-                ])
-                ->log('Invoice marked as paid manually');
+            // Send notifications
+            $this->sendPaymentNotifications($invoice);
 
-            if ($receipt) {
-                DB::commit();
-                return redirect()->route('admin.payments.showReceipt', $receipt->id)
-                    ->with('success', 'Payment marked as paid and new receipt generated');
-            }
-
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Failed to generate receipt. Please try again.');
+            return redirect()->route('admin.payments.showReceipt', $receipt->id)
+                ->with('success', 'Payment marked as paid and receipt generated');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to mark payment as paid: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'An error occurred while processing the payment. Please try again.');
+        }
+    }
+
+
+    protected function sendPaymentNotifications($invoice)
+    {
+        // Notify the student
+        $studentUser = $invoice->student->user;
+        $studentUser->notify(new PaymentApprovedNotification($invoice));
+
+        // Notify all admins
+        $admins = User::admins()->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminInvoicePaymentApprovedNotification($invoice));
+        }
+
+        // Notify super admins
+        $superAdmins = User::whereHas('admin', function ($query) {
+            $query->where('role', 'superAdmin');
+        })->get();
+
+        foreach ($superAdmins as $superAdmin) {
+            $superAdmin->notify(new SuperAdminInvoicePaymentApprovedNotification($invoice));
         }
     }
 

@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->string('payment_reference')->nullable();
             $table->text('gateway_response')->nullable();
             $table->string('payment_channel')->nullable();
         });

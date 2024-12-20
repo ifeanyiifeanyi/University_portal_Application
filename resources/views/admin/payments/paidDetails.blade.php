@@ -9,7 +9,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">Payment Details</h5>
-
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -50,7 +49,6 @@
                                         </tr>
                                     </table>
                                 </div>
-
                             </div>
 
                             <!-- Payment Information -->
@@ -87,6 +85,10 @@
                                             <td>{{ $payment->paymentMethod->name }}</td>
                                         </tr>
                                         <tr>
+                                            <th>Payment Channel:</th>
+                                            <td>{{ Str::upper($payment->payment_channel ?? 'N/A') }}</td>
+                                        </tr>
+                                        <tr>
                                             <th>Transaction Ref:</th>
                                             <td>{{ $payment->transaction_reference }}</td>
                                         </tr>
@@ -95,6 +97,78 @@
                                             <td>{{ $payment->payment_date->format('M d, Y h:i A') }}</td>
                                         </tr>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gateway Response Details -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Gateway Response Details</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        @if ($payment->gateway_response)
+                                            @php
+                                                $gatewayData = json_decode($payment->gateway_response, true);
+                                            @endphp
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-borderless">
+                                                            <tr>
+                                                                <th width="150">Status:</th>
+                                                                <td>
+                                                                    <span class="badge bg-{{ $gatewayData['status'] === 'success' ? 'success' : 'danger' }}">
+                                                                        {{ Str::upper($gatewayData['status']) }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Gateway Response:</th>
+                                                                <td>{{ $gatewayData['gateway_response'] }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Payment Channel:</th>
+                                                                <td>{{ Str::upper($gatewayData['channel']) }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Currency:</th>
+                                                                <td>{{ $gatewayData['currency'] }}</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                @if(isset($gatewayData['authorization']))
+                                                <div class="col-md-6">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-borderless">
+                                                            <tr>
+                                                                <th width="150">Card Type:</th>
+                                                                <td>{{ Str::upper($gatewayData['authorization']['card_type']) }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Bank:</th>
+                                                                <td>{{ $gatewayData['authorization']['bank'] }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Last 4 Digits:</th>
+                                                                <td>**** **** **** {{ $gatewayData['authorization']['last4'] }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Expiry:</th>
+                                                                <td>{{ $gatewayData['authorization']['exp_month'] }}/{{ $gatewayData['authorization']['exp_year'] }}</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <p class="text-muted">No gateway response information available</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
