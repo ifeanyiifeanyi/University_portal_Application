@@ -56,6 +56,26 @@
             .card-body {
                 padding: 16px;
             }
+
+            #installment-breakdown {
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+
+            #installment-breakdown p {
+                margin-bottom: 8px;
+                color: #495057;
+            }
+
+            #installment-breakdown p:last-child {
+                margin-bottom: 0;
+            }
+
+            #installment-info {
+                border-left: 4px solid #17a2b8;
+            }
         }
     </style>
 @endsection
@@ -112,15 +132,36 @@
                                     <h5 class="card-title mb-0">Payment Details</h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="form-group mb-3">
-                                        <label for="payment_type_id">Payment Type</label>
-                                        <select name="payment_type_id" id="payment_type_id" class="form-control" required>
-                                            <option value="">Select Payment Type</option>
-                                            @foreach ($paymentTypes as $type)
-                                                <option value="{{ $type->id }}">{{ $type->name }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="payment_type_id">Payment Type</label>
+                                                <select name="payment_type_id" id="payment_type_id" class="form-control"
+                                                    required>
+                                                    <option value="">Select Payment Type</option>
+                                                    @foreach ($paymentTypes as $type)
+                                                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div id="installment-options" class="mt-3" style="display: none;">
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" name="is_installment"
+                                                        id="is_installment">
+                                                    <label class="form-check-label" for="is_installment">
+                                                        Pay in Installments
+                                                    </label>
+                                                </div>
+                                                <div id="installment-info" class="alert alert-info" style="display: none;">
+                                                    <h6 class="alert-heading mb-2">Installment Payment Details</h6>
+                                                    <div id="installment-breakdown"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
 
@@ -188,8 +229,8 @@
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="payment_method_id">Payment Method</label>
-                                                <select name="payment_method_id" id="payment_method_id" class="form-control"
-                                                    required>
+                                                <select name="payment_method_id" id="payment_method_id"
+                                                    class="form-control" required>
                                                     <option value="">Select Payment Method</option>
                                                     @foreach ($paymentMethods as $method)
                                                         <option value="{{ $method->id }}">{{ $method->name }}</option>
@@ -241,84 +282,11 @@
 @endsection
 
 @section('javascript')
+
     <script>
         $(document).ready(function() {
 
-            // $('#payment_type_id').change(function() {
-            //     var paymentTypeId = $(this).val();
-            //     if (paymentTypeId) {
-            //         $.ajax({
-            //             url: '{{ route('payments.getDepartmentsAndLevels') }}',
-            //             type: 'GET',
-            //             data: {
-            //                 payment_type_id: paymentTypeId
-            //             },
-            //             success: function(data) {
-            //                 console.log(data);
-            //                 // Clear and disable department dropdown initially
-            //                 $('#department_id').empty()
-            //                     .append('<option value="">Select Department</option>')
-            //                     .prop('disabled', false);
 
-            //                 // Create a map to store unique departments
-            //                 let uniqueDepartments = new Map();
-
-            //                 // Process departments to remove duplicates
-            //                 data.departments.forEach(function(dept) {
-            //                     // Use department name as key to check for duplicates
-            //                     if (!uniqueDepartments.has(dept.name)) {
-            //                         uniqueDepartments.set(dept.name, {
-            //                             id: dept.id,
-            //                             name: dept.name,
-            //                             levels: dept.levels
-            //                         });
-            //                     }
-            //                 });
-
-            //                 // Add unique departments to dropdown
-            //                 uniqueDepartments.forEach(function(dept) {
-            //                     $('#department_id').append(
-            //                         '<option value="' + dept.id +
-            //                         '" data-levels=\'' +
-            //                         JSON.stringify(dept.levels) + '\'>' + dept
-            //                         .name + '</option>'
-            //                     );
-            //                 });
-            //                 if (data.late_fee > 0) {
-            //                     const baseAmount = data.amount - data.late_fee;
-            //                     const formattedDueDate = new Date(data.due_date)
-            //                         .toLocaleDateString();
-
-            //                     $('#late-fee-message').html(
-            //                         `A late payment fee of ₦${data.late_fee.toLocaleString()} has been added to your base amount of ₦${baseAmount.toLocaleString()}.`
-            //                     );
-            //                     $('#due-date-message').text(
-            //                         `Original due date was ${formattedDueDate}`);
-            //                     $('#late-fee-alert').show();
-            //                 } else {
-            //                     $('#late-fee-alert').hide();
-            //                 }
-
-            //                 // Set the amount
-            //                 $('#amount').val(data.amount);
-            //             }
-            //         });
-            //     } else {
-            //         // Existing reset code...
-            //         $('#late-fee-alert').hide();
-            //         // Reset dropdowns when no payment type is selected
-            //         $('#department_id')
-            //             .empty()
-            //             .append('<option value="">Select Department</option>')
-            //             .prop('disabled', true);
-            //         $('#level')
-            //             .empty()
-            //             .append('<option value="">Select Level</option>')
-            //             .prop('disabled', true);
-            //         $('#student-table').empty();
-            //         $('#amount').val('');
-            //     }
-            // });
             $('#payment_type_id').change(function() {
                 var paymentTypeId = $(this).val();
                 if (paymentTypeId) {
@@ -381,6 +349,40 @@
 
                             // Set the total amount
                             $('#amount').val(data.amount);
+                            // Handle installment options
+                            if (data.supports_installments) {
+                                $('#installment-options').slideDown();
+                                $('#installment-info').show();
+
+
+                                if (data.installment_config) {
+                                    const config = data.installment_config;
+                                    const totalAmount = data.amount;
+                                    const firstPaymentAmount = (totalAmount * config
+                                        .minimum_first_payment_percentage) / 100;
+                                    const remainingAmount = totalAmount - firstPaymentAmount;
+                                    const regularInstallmentAmount = remainingAmount / (config
+                                        .number_of_installments - 1);
+
+                                    let breakdownHtml = `
+                                        <p><strong>First Payment:</strong> ₦${firstPaymentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
+                                        <p><strong>Remaining ${config.number_of_installments - 1} Installments:</strong> ₦${regularInstallmentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})} each</p>
+                                        <p><strong>Payment Interval:</strong> ${config.interval_days} days</p>
+                                        <p><strong>Late Fee per Installment:</strong> ${config.late_fee_type === 'fixed' ? 
+                                            '₦' + config.late_fee_amount.toLocaleString('en-NG', {minimumFractionDigits: 2}) : 
+                                            config.late_fee_amount + '%'}</p>
+                                `;
+
+                                    $('#installment-breakdown').html(breakdownHtml);
+                                }
+                            } else {
+                                $('#installment-options').slideUp();
+                                $('#is_installment').prop('checked', false);
+                                $('#installment-info').hide();
+                            }
+
+                            // Handle amount display based on installment selection
+                            updateAmountDisplay(data.amount, data.installment_config);
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching payment data:', error);
@@ -474,6 +476,35 @@
             // Add change event listeners to ensure student list is updated when these fields change
             $('#academic_session_id, #semester_id').change(function() {
                 $('#level').trigger('change');
+            });
+
+            // Add a function to update the amount display
+            function updateAmountDisplay(totalAmount, installmentConfig) {
+                const isInstallment = $('#is_installment').is(':checked');
+                if (isInstallment && installmentConfig) {
+                    const firstPaymentAmount = (totalAmount * installmentConfig.minimum_first_payment_percentage) /
+                        100;
+                    $('#amount').val(firstPaymentAmount);
+                } else {
+                    $('#amount').val(totalAmount);
+                }
+            }
+
+            // Update amount when installment checkbox changes
+            $('#is_installment').change(function() {
+                const paymentTypeId = $('#payment_type_id').val();
+                if (paymentTypeId) {
+                    $.ajax({
+                        url: '{{ route('payments.getDepartmentsAndLevels') }}',
+                        type: 'GET',
+                        data: {
+                            payment_type_id: paymentTypeId
+                        },
+                        success: function(data) {
+                            updateAmountDisplay(data.amount, data.installment_config);
+                        }
+                    });
+                }
             });
         });
     </script>

@@ -78,8 +78,11 @@ class AdminPaymentController extends Controller
             'amount' => $paymentType->amount + $lateFee, // Include the penalty in the amount
             'late_fee' => $lateFee,
             'due_date' => $paymentType->due_date,
+            'supports_installments' => $paymentType->supportsInstallments(),
+            'installment_config' => $paymentType->supportsInstallments() ? $paymentType->installmentConfig : null
         ]);
     }
+    
 
     public function getStudents(Request $request)
     {
@@ -242,92 +245,143 @@ class AdminPaymentController extends Controller
         return view('admin.payments.printable-invoice', compact('paymentType', 'student', 'academicSession', 'semester'));
     }
 
+    // public function processPayment(ProcessPaymentRequest $request)
+    // {
+    //     $validated = $request->validated();
+
+    //     //check for late fee
+    //     $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
+    //     $currentDate = now();
+    //     $lateFee = $paymentType->calculateLateFee($currentDate);
+
+
+    //     // Calculate the total amount (including penalty, if any)
+    //     $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
+
+    //     if (!$baseAmount) {
+    //         return redirect()->back()->with('error', 'Payment amount could not be determined for the selected department and level.');
+    //     }
+    //     $totalAmountDue = $baseAmount + $lateFee;
+
+
+
+    //     // Verify the submitted amount matches what we expect
+    //     if ((float)$validated['amount'] !== (float)$totalAmountDue) {
+    //         return redirect()->back()->with('error', 'Invalid payment amount. Expected: ' . $totalAmountDue);
+    //     }
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         // Check if payment already exists
+    //         $existingPayment = Payment::where([
+    //             'student_id' => $request->student_id,
+    //             'payment_type_id' => $request->payment_type_id,
+    //             'academic_session_id' => $request->academic_session_id,
+    //             'semester_id' => $request->semester_id,
+    //         ])->first();
+
+    //         if ($existingPayment) {
+    //             if ($existingPayment->status !== 'pending') {
+    //                 DB::rollBack();
+    //                 return redirect()->back()->withError('Payment already exists for this student.');
+    //             }
+
+    //             // Update existing pending payment
+    //             $existingPayment->update([
+    //                 'payment_method_id' => $validated['payment_method_id'],
+    //                 'invoice_number' => $validated['invoice_number'],
+    //                 'amount' => $totalAmountDue,
+    //                 'base_amount' => $baseAmount,
+    //                 'late_fee' => $lateFee,
+    //                 'department_id' => $validated['department_id'],
+    //                 'level' => $validated['level'],
+    //                 'admin_id' => Auth::id(),
+    //                 'transaction_reference' => 'PAY' . uniqid(),
+    //                 'payment_date' => now()
+    //             ]);
+
+    //             $payment = $existingPayment;
+    //         } else {
+    //             // Create new payment if none exists
+    //             $payment = Payment::create([
+    //                 'student_id' => $validated['student_id'],
+    //                 'payment_type_id' => $validated['payment_type_id'],
+    //                 'payment_method_id' => $validated['payment_method_id'],
+    //                 'academic_session_id' => $validated['academic_session_id'],
+    //                 'semester_id' => $validated['semester_id'],
+    //                 'invoice_number' => $validated['invoice_number'],
+    //                 'amount' => $totalAmountDue,
+    //                 'base_amount' => $baseAmount,
+    //                 'late_fee' => $lateFee,
+    //                 'department_id' => $validated['department_id'],
+    //                 'level' => $validated['level'],
+    //                 'status' => 'pending',
+    //                 'admin_id' => Auth::id(),
+    //                 'transaction_reference' => 'PAY' . uniqid(),
+    //                 'payment_date' => now()
+    //             ]);
+    //         }
+
+    //         $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
+
+    //         DB::commit();
+    //         return redirect()->away($paymentUrl);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Payment initialization failed: ' . $e->getMessage());
+    //         return redirect()->back()->with('error', 'Failed to initialize payment. Please try again later.');
+    //     }
+    // }
     public function processPayment(ProcessPaymentRequest $request)
     {
         $validated = $request->validated();
-
-        //check for late fee
         $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
+
+        // Calculate amounts including late fee
         $currentDate = now();
         $lateFee = $paymentType->calculateLateFee($currentDate);
-
-
-        // Calculate the total amount (including penalty, if any)
         $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
 
-
-        // Add more detailed logging for pivot data
-        // $pivotData = $paymentType->departments()
-        //     ->where('department_id', $validated['department_id'])
-        //     ->where('level', $validated['level'])
-        //     ->first();
-
-
         if (!$baseAmount) {
-            return redirect()->back()->with('error', 'Payment amount could not be determined for the selected department and level.');
+            return redirect()->back()->with('error', 'Payment amount could not be determined.');
         }
+
         $totalAmountDue = $baseAmount + $lateFee;
 
-
-
-        // Verify the submitted amount matches what we expect
-        if ((float)$validated['amount'] !== (float)$totalAmountDue) {
-            return redirect()->back()->with('error', 'Invalid payment amount. Expected: ' . $totalAmountDue);
-        }
+        // Check if payment type supports installments
+        $isInstallment = $request->has('is_installment') && $paymentType->supportsInstallments();
 
         DB::beginTransaction();
 
         try {
-            // Check if payment already exists
-            $existingPayment = Payment::where([
-                'student_id' => $request->student_id,
-                'payment_type_id' => $request->payment_type_id,
-                'academic_session_id' => $request->academic_session_id,
-                'semester_id' => $request->semester_id,
-            ])->first();
+            // Check for existing payment
+            $existingPayment = $this->findExistingPayment($validated);
 
-            if ($existingPayment) {
-                if ($existingPayment->status !== 'pending') {
-                    DB::rollBack();
-                    return redirect()->back()->withError('Payment already exists for this student.');
-                }
-
-                // Update existing pending payment
-                $existingPayment->update([
-                    'payment_method_id' => $validated['payment_method_id'],
-                    'invoice_number' => $validated['invoice_number'],
-                    'amount' => $totalAmountDue,
-                    'base_amount' => $baseAmount,
-                    'late_fee' => $lateFee,
-                    'department_id' => $validated['department_id'],
-                    'level' => $validated['level'],
-                    'admin_id' => Auth::id(),
-                    'transaction_reference' => 'PAY' . uniqid(),
-                    'payment_date' => now()
-                ]);
-
-                $payment = $existingPayment;
-            } else {
-                // Create new payment if none exists
-                $payment = Payment::create([
-                    'student_id' => $validated['student_id'],
-                    'payment_type_id' => $validated['payment_type_id'],
-                    'payment_method_id' => $validated['payment_method_id'],
-                    'academic_session_id' => $validated['academic_session_id'],
-                    'semester_id' => $validated['semester_id'],
-                    'invoice_number' => $validated['invoice_number'],
-                    'amount' => $totalAmountDue,
-                    'base_amount' => $baseAmount,
-                    'late_fee' => $lateFee,
-                    'department_id' => $validated['department_id'],
-                    'level' => $validated['level'],
-                    'status' => 'pending',
-                    'admin_id' => Auth::id(),
-                    'transaction_reference' => 'PAY' . uniqid(),
-                    'payment_date' => now()
-                ]);
+            if ($existingPayment && $existingPayment->status !== 'pending') {
+                DB::rollBack();
+                return redirect()->back()->withError('Payment already exists for this student.');
             }
 
+            // Create or update payment record
+            $payment = $this->createOrUpdatePayment(
+                $existingPayment,
+                $validated,
+                $totalAmountDue,
+                $baseAmount,
+                $lateFee,
+                $isInstallment
+            );
+
+            // Handle installment setup if applicable
+            if ($isInstallment) {
+                $this->setupInstallmentPayments($payment);
+                // For installments, we only process the first payment initially
+                $firstInstallment = $payment->installments()->where('installment_number', 1)->first();
+                $totalAmountDue = $firstInstallment->amount;
+            }
+
+            // Initialize payment with payment gateway
             $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
 
             DB::commit();
@@ -335,9 +389,164 @@ class AdminPaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Payment initialization failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to initialize payment. Please try again later.');
+            return redirect()->back()->with('error', 'Failed to initialize payment. Please try again.');
         }
     }
+
+    protected function setupInstallmentPayments(Payment $payment)
+    {
+        try {
+            $payment->setupInstallments();
+        } catch (\Exception $e) {
+            Log::error('Failed to setup installment payments: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    protected function findExistingPayment($validated)
+    {
+        return Payment::where([
+            'student_id' => $validated['student_id'],
+            'payment_type_id' => $validated['payment_type_id'],
+            'academic_session_id' => $validated['academic_session_id'],
+            'semester_id' => $validated['semester_id'],
+        ])->first();
+    }
+
+    protected function createOrUpdatePayment($existingPayment, $validated, $totalAmount, $baseAmount, $lateFee, $isInstallment)
+    {
+        $paymentData = [
+            'payment_method_id' => $validated['payment_method_id'],
+            'invoice_number' => $validated['invoice_number'],
+            'amount' => $totalAmount,
+            'base_amount' => $baseAmount,
+            'late_fee' => $lateFee,
+            'department_id' => $validated['department_id'],
+            'level' => $validated['level'],
+            'admin_id' => Auth::id(),
+            'transaction_reference' => 'PAY' . uniqid(),
+            'payment_date' => now(),
+            'is_installment' => $isInstallment,
+            'status' => 'pending'
+        ];
+
+        if ($existingPayment) {
+            $existingPayment->update($paymentData);
+            return $existingPayment;
+        }
+
+        $paymentData = array_merge($paymentData, [
+            'student_id' => $validated['student_id'],
+            'payment_type_id' => $validated['payment_type_id'],
+            'academic_session_id' => $validated['academic_session_id'],
+            'semester_id' => $validated['semester_id'],
+        ]);
+
+        return Payment::create($paymentData);
+    }
+
+
+    public function verifyPayment(Request $request, $gateway)
+    {
+        $reference = $request->query('reference');
+        $admin = User::findOrFail(Auth::id());
+
+
+
+        DB::beginTransaction();
+
+        try {
+            $payment = Payment::where('transaction_reference', $reference)
+                ->with(['invoice', 'student.user', 'installments'])
+                ->firstOrFail();
+
+            $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
+
+            if ($result['success']) {
+                if ($payment->is_installment) {
+                    $this->handleInstallmentVerification($payment, $result['amount']);
+                } else {
+                    $this->handleFullPaymentVerification($payment, $admin);
+                }
+
+                // Generate receipt and send notifications
+                $receipt = $this->generateReceipt($payment);
+                $this->sendPaymentNotification($payment);
+
+                DB::commit();
+
+                return redirect()->route('admin.payments.showReceipt', $receipt->id)
+                    ->with('success', 'Payment verified successfully');
+            }
+
+            throw new \Exception('Payment verification returned false');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Payment verification failed', [
+                'reference' => $reference,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->route('admin.payment.pay')
+                ->with('error', 'Payment verification failed. Please contact support.');
+        }
+    }
+
+    protected function handleInstallmentVerification(Payment $payment, $paidAmount)
+    {
+        $currentInstallment = $payment->installments()
+            ->where('status', 'pending')
+            ->orderBy('installment_number')
+            ->first();
+
+        if (!$currentInstallment) {
+            throw new \Exception('No pending installment found');
+        }
+
+        // Verify the amount paid matches the current installment
+        if ((float)$paidAmount !== (float)$currentInstallment->amount) {
+            throw new \Exception('Invalid payment amount for current installment');
+        }
+
+        // Update the current installment
+        $currentInstallment->update([
+            'status' => 'paid',
+            'paid_amount' => $paidAmount,
+            'paid_at' => now()
+        ]);
+
+        // Check if all installments are paid
+        $allPaid = !$payment->installments()
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($allPaid) {
+            $payment->update(['status' => 'paid']);
+            if ($payment->invoice) {
+                $payment->invoice->update(['status' => 'paid']);
+            }
+        }
+    }
+
+    protected function handleFullPaymentVerification(Payment $payment, $admin)
+    {
+        $payment->update([
+            'status' => 'paid',
+            'admin_comment' => "Payment was processed by " . $admin->full_name
+        ]);
+
+        if ($payment->invoice) {
+            $payment->invoice->update(['status' => 'paid']);
+        }
+    }
+
+
+
+
+
+
+
+
 
 
     protected function sendPaymentNotification(Payment $payment)
@@ -363,84 +572,95 @@ class AdminPaymentController extends Controller
         return true;
     }
 
-    public function verifyPayment(Request $request, $gateway)
-    {
-        $reference = $request->query('reference');
-        $admin = User::findOrFail(Auth::id());
+    // public function verifyPayment(Request $request, $gateway)
+    // {
+    //     $reference = $request->query('reference');
+    //     $admin = User::findOrFail(Auth::id());
 
-        Log::info('Starting payment verification', [
-            'gateway' => $gateway,
-            'reference' => $reference
-        ]);
+    //     Log::info('Starting payment verification', [
+    //         'gateway' => $gateway,
+    //         'reference' => $reference
+    //     ]);
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        try {
-            // First, find the payment before verification
-            $payment = Payment::where('transaction_reference', $reference)
-                ->with(['invoice', 'student.user'])
-                ->firstOrFail();
+    //     try {
+    //         // First, find the payment before verification
+    //         $payment = Payment::where('transaction_reference', $reference)
+    //             ->with(['invoice', 'student.user'])
+    //             ->firstOrFail();
 
-            $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
+    //         $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
 
-            if ($result['success']) {
-                // Update payment status
-                $payment->status = 'paid';
-                $payment->admin_comment = "Credit card payment was processed by " . $admin->full_name;
-                $payment->save();
+    //         if ($result['success']) {
+    //             // Update payment status
+    //             $payment->status = 'paid';
+    //             $payment->admin_comment = "Credit card payment was processed by " . $admin->full_name;
+    //             $payment->save();
 
-                // Update invoice status if it exists
-                if ($payment->invoice) {
-                    $payment->invoice->status = 'paid';
-                    $payment->invoice->save();
-                } else {
-                    Log::warning('Invoice not found for payment', [
-                        'payment_id' => $payment->id,
-                        'invoice_number' => $payment->invoice_number
-                    ]);
-                }
+    //             // Update invoice status if it exists
+    //             if ($payment->invoice) {
+    //                 $payment->invoice->status = 'paid';
+    //                 $payment->invoice->save();
+    //             } else {
+    //                 Log::warning('Invoice not found for payment', [
+    //                     'payment_id' => $payment->id,
+    //                     'invoice_number' => $payment->invoice_number
+    //                 ]);
+    //             }
 
-                // Generate receipt
-                $receipt = $this->generateReceipt($payment);
+    //             // Generate receipt
+    //             $receipt = $this->generateReceipt($payment);
 
-                // Send notifications
-                try {
-                    $this->sendPaymentNotification($payment);
-                } catch (\Exception $e) {
-                    Log::error('Failed to send payment notification: ' . $e->getMessage());
-                    // Continue execution even if notification fails
-                }
+    //             // Send notifications
+    //             try {
+    //                 $this->sendPaymentNotification($payment);
+    //             } catch (\Exception $e) {
+    //                 Log::error('Failed to send payment notification: ' . $e->getMessage());
+    //                 // Continue execution even if notification fails
+    //             }
 
-                DB::commit();
+    //             DB::commit();
 
-                Log::info('Payment verification successful', [
-                    'payment_id' => $payment->id,
-                    'receipt_id' => $receipt->id
-                ]);
+    //             Log::info('Payment verification successful', [
+    //                 'payment_id' => $payment->id,
+    //                 'receipt_id' => $receipt->id
+    //             ]);
 
-                return redirect()->route('admin.payments.showReceipt', $receipt->id)
-                    ->with('success', 'Payment verified successfully');
-            } else {
-                throw new \Exception('Payment verification returned false');
-            }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            DB::rollBack();
-            Log::error('Payment record not found during verification', [
-                'reference' => $reference,
-                'error' => $e->getMessage()
-            ]);
-            return redirect()->route('admin.payment.pay')
-                ->with('error', 'Payment record not found. Please contact support if you believe this is an error.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment verification failed', [
-                'reference' => $reference,
-                'error' => $e->getMessage()
-            ]);
-            return redirect()->route('admin.payment.pay')
-                ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
-        }
-    }
+    //             return redirect()->route('admin.payments.showReceipt', $receipt->id)
+    //                 ->with('success', 'Payment verified successfully');
+    //         } else {
+    //             throw new \Exception('Payment verification returned false');
+    //         }
+    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+    //         DB::rollBack();
+    //         Log::error('Payment record not found during verification', [
+    //             'reference' => $reference,
+    //             'error' => $e->getMessage()
+    //         ]);
+    //         return redirect()->route('admin.payment.pay')
+    //             ->with('error', 'Payment record not found. Please contact support if you believe this is an error.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Payment verification failed', [
+    //             'reference' => $reference,
+    //             'error' => $e->getMessage()
+    //         ]);
+    //         return redirect()->route('admin.payment.pay')
+    //             ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
+    //     }
+    // }
+
+
+
+
+
+
+
+
+
+
+
 
     protected function generateReceipt(Payment $payment)
     {
