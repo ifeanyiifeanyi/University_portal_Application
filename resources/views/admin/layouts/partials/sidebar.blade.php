@@ -83,7 +83,8 @@
                 <div class="menu-title">Course Registrations</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i class="bx bx-right-arrow-alt"></i>Manage Student Course Registrations</a>
+                <li> <a href="{{ route('admin.students.all-course-registrations') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Manage Student Course Registrations</a>
                 </li>
             </ul>
         </li>
@@ -109,17 +110,28 @@
                 <div class="menu-title">Payment Manager</div>
             </a>
             <ul>
-                <li> <a href="{{ route('admin.payments.ProcessedPayments') }}"><i class="bx bx-right-arrow-alt"></i>Paid Fees Manager</a>
+                <li> <a href="{{ route('admin.payments.ProcessedPayments') }}"><i
+                            class="bx bx-right-arrow-alt"></i>Paid Fees Manager</a>
                 </li>
-                <li> <a href="{{ route('admin.payment_type.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
-                    Payment Types</a>
-            </li>
-                <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
-                        Payment Methods</a>
+                <li> <a href="{{ route('admin.payments.paidReceipts') }}"><i class="bx bx-right-arrow-alt"></i>Paid
+                        Receipts</a>
+                </li>
+                <li> <a href="{{ route('admin.payments.getSubaccountTransactions') }}"><i class="bx bx-right-arrow-alt"></i>Subaccount
+                        Payments</a>
                 </li>
                 <li> <a href="{{ route('admin.invoice.view') }}"><i class="bx bx-right-arrow-alt"></i>Invoice
                         Manager</a>
                 </li>
+                <li> <a href="{{ route('admin.payment_type.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Payment Types</a>
+                </li>
+                 <li> <a href="{{ route('admin.installment-config.index') }}"><i class="bx bx-right-arrow-alt"></i>Installment
+                        Payment Config</a>
+                </li>
+                <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        Payment Methods</a>
+                </li>
+
                 <li> <a href="{{ route('admin.payment.pay') }}">
                         <i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
                 </li>

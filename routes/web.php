@@ -50,6 +50,7 @@ use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminInstallmentConfigController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -598,12 +599,17 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/payments/invoice', 'generateTicket')->name('admin.payments.generateTicket');
 
 
-            // hanle
-
             // show all successful payments
             Route::get('/payments/active', 'ProcessedPayments')->name('admin.payments.ProcessedPayments');
             Route::get('/payments/active/{payment}', 'ProcessedPaymentDetails')
                 ->name('admin.payments.ProcessedPayment_details');
+
+
+            // show reciepts details
+            Route::get('paid-receipts', 'paidReceipts')->name('admin.payments.paidReceipts');
+
+            // fetch all sub account transactions from paystack
+            Route::get('/payments/get-subaccount-transactions', 'getSubaccountTransactions')->name('admin.payments.getSubaccountTransactions');
         });
     });
 
@@ -695,7 +701,16 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/admin-users/assign-roles', 'assignRoles')->name('admin.admin-users.assign-roles');
         Route::delete('/admin/users/revoke-role', 'revokeRole')->name('admin.admin-users.revoke-role');
     });
-    // });
+
+    // Installment payment route
+    Route::controller(AdminInstallmentConfigController::class)->group(function () {
+        Route::get('installment-config', 'index')->name('admin.installment-config.index');
+        Route::post('installment-config/store', 'store')->name('admin.installment-config.store');
+
+        Route::get('/installment-config/{config}/edit','edit')->name('admin.installment-config.edit');
+        Route::put('/installment-config/{config}/update', 'update')->name('admin.installment-config.update');
+        Route::delete('/installment-config/{config}/delete', 'destroy')->name('admin.installment-config.destroy');
+    });
 
 
 

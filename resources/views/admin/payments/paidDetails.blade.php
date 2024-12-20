@@ -120,7 +120,8 @@
                                                             <tr>
                                                                 <th width="150">Status:</th>
                                                                 <td>
-                                                                    <span class="badge bg-{{ $gatewayData['status'] === 'success' ? 'success' : 'danger' }}">
+                                                                    <span
+                                                                        class="badge bg-{{ $gatewayData['status'] === 'success' ? 'success' : 'danger' }}">
                                                                         {{ Str::upper($gatewayData['status']) }}
                                                                     </span>
                                                                 </td>
@@ -140,29 +141,32 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                @if(isset($gatewayData['authorization']))
-                                                <div class="col-md-6">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-borderless">
-                                                            <tr>
-                                                                <th width="150">Card Type:</th>
-                                                                <td>{{ Str::upper($gatewayData['authorization']['card_type']) }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Bank:</th>
-                                                                <td>{{ $gatewayData['authorization']['bank'] }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Last 4 Digits:</th>
-                                                                <td>**** **** **** {{ $gatewayData['authorization']['last4'] }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Expiry:</th>
-                                                                <td>{{ $gatewayData['authorization']['exp_month'] }}/{{ $gatewayData['authorization']['exp_year'] }}</td>
-                                                            </tr>
-                                                        </table>
+                                                @if (isset($gatewayData['authorization']))
+                                                    <div class="col-md-6">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-borderless">
+                                                                <tr>
+                                                                    <th width="150">Card Type:</th>
+                                                                    <td>{{ Str::upper($gatewayData['authorization']['card_type']) }}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Bank:</th>
+                                                                    <td>{{ $gatewayData['authorization']['bank'] }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Last 4 Digits:</th>
+                                                                    <td>**** **** ****
+                                                                        {{ $gatewayData['authorization']['last4'] }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Expiry:</th>
+                                                                    <td>{{ $gatewayData['authorization']['exp_month'] }}/{{ $gatewayData['authorization']['exp_year'] }}
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
                                                     </div>
-                                                </div>
                                                 @endif
                                             </div>
                                         @else

@@ -129,11 +129,6 @@ class PaymentGatewayService
     }
 
 
-
-
-
-
-
     private function initializeRemitaPayment(Payment $payment)
     {
         $paymentDetails = [
@@ -170,20 +165,6 @@ class PaymentGatewayService
         }
     }
 
-    // private function verifyPaystackPayments($reference)
-    // {
-    //     $paymentDetails = Paystack::getPaymentData();
-
-    //     if ($paymentDetails['status'] && $paymentDetails['data']['status'] === 'success') {
-    //         return [
-    //             'success' => true,
-    //             'reference' => $reference,
-    //             'amount' => $paymentDetails['data']['amount'] / 100,
-    //         ];
-    //     }
-
-    //     return ['success' => false];
-    // }
 
     private function verifyPaystackPayment($reference)
     {
@@ -291,53 +272,6 @@ class PaymentGatewayService
     }
 
 
-
-
-
-
-
-
-
-    // private function verifyPaystackPayment($reference)
-    // {
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Bearer ' . $this->paystackSecretKey,
-    //             'Content-Type' => 'application/json',
-    //         ])->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-    //         if ($response->successful()) {
-    //             $responseData = $response->json();
-
-    //             if ($responseData['status'] && $responseData['data']['status'] === 'success') {
-    //                 // Verify the amount matches
-    //                 $payment = Payment::where('transaction_reference', $reference)->first();
-    //                 $expectedAmount = $payment->amount * 100; // Convert to kobo
-
-    //                 if ($responseData['data']['amount'] === $expectedAmount) {
-    //                     // Store additional transaction details
-    //                     $payment->update([
-    //                         'payment_reference' => $responseData['data']['reference'],
-    //                         'gateway_response' => json_encode($responseData['data']),
-    //                         'payment_channel' => $responseData['data']['channel']
-    //                     ]);
-
-    //                     return [
-    //                         'success' => true,
-    //                         'reference' => $reference,
-    //                         'amount' => $responseData['data']['amount'] / 100,
-    //                     ];
-    //                 }
-    //             }
-    //         }
-
-    //         return ['success' => false];
-    //     } catch (\Exception $e) {
-    //         Log::error('Payment verification error: ' . $e->getMessage());
-    //         return ['success' => false];
-    //     }
-    // }
-
     private function verifyRemitaPayment($reference)
     {
         $response = $this->remitaService->verifyPayment($reference);
@@ -351,5 +285,37 @@ class PaymentGatewayService
         }
 
         return ['success' => false];
+    }
+
+
+
+
+    // TODO: This is incomplete Fetch subaccount transactions
+    public function getSubaccountTransactionsPaystack($subaccountCode)
+    {
+        try {
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('PAYSTACK_SECRET_KEY'),
+                'Accept' => 'application/json',
+            ])->get('https://api.paystack.co/transaction', [
+                'subaccount' => $subaccountCode,
+                
+                'perPage' => 100,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Paystack subaccount transactions fetch failed', [
+                    'response' => $response->json(),
+                    'subaccount' => $subaccountCode
+                ]);
+                return ['data' => [], 'error' => 'Failed to fetch transactions'];
+            }
+
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('Error fetching Paystack subaccount transactions: ' . $e->getMessage());
+            return ['data' => [], 'error' => $e->getMessage()];
+        }
     }
 }

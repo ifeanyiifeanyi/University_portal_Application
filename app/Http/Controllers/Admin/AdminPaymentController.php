@@ -363,52 +363,6 @@ class AdminPaymentController extends Controller
         return true;
     }
 
-
-    // public function verifyPayment(Request $request, $gateway)
-    // {
-    //     $reference = $request->query('reference');
-    //     $admin = User::findOrFail(Auth::id());
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
-
-    //         if ($result['success']) {
-    //             $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
-    //             $payment->status = 'paid';
-    //             $payment->admin_comment = "Credit card payment was processed by, " . $admin->full_name;
-    //             $payment->save();
-
-    //             // Update invoice status
-    //             // $invoice = $payment->invoice;
-    //             $invoice = Invoice::where('invoice_number', $payment->invoice_number)->first();
-    //             if ($invoice) {
-    //                 $invoice->status = 'paid';
-    //                 $invoice->save();
-    //             }
-    //             // Generate payment receipt
-    //             $receipt = $this->generateReceipt($payment);
-
-    //             // Send notifications (student, admin)
-    //             $this->sendPaymentNotification($payment);
-
-    //             DB::commit();
-
-    //             return redirect()->route('admin.payments.showReceipt', $receipt->id)
-    //                 ->with('success', 'Payment verified successfully')
-    //                 ->with('receipt', $receipt);
-    //         } else {
-    //             throw new \Exception('Payment verification failed');
-    //         }
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         Log::error('Payment verification failed: ' . $e->getMessage());
-    //         return redirect()->route('admin.payments.showConfirmation')
-    //             ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
-    //     }
-    // }
-
     public function verifyPayment(Request $request, $gateway)
     {
         $reference = $request->query('reference');
@@ -524,7 +478,7 @@ class AdminPaymentController extends Controller
         return view('admin.payments.show-receipt', compact('receipt'));
     }
 
-   
+
 
     public function payTransfer($invoice)
     {
@@ -639,5 +593,91 @@ class AdminPaymentController extends Controller
         ]);
 
         return view('admin.payments.paidDetails', compact('payment'));
+    }
+
+
+    // paid receipts
+    public function paidReceipts(Request $request)
+    {
+        $query = Receipt::with(['payment.student', 'payment.academicSession', 'payment.semester'])
+            ->whereHas('payment', function ($q) {
+                $q->where('status', 'paid');
+            });
+
+        // Filter by academic session
+        if ($request->filled('academic_session')) {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $q->where('academic_session_id', $request->academic_session);
+            });
+        }
+
+        // Filter by semester
+        if ($request->filled('semester')) {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $q->where('semester_id', $request->semester);
+            });
+        }
+
+        // Filter by date range
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        }
+
+        $receipts = $query->latest()->paginate(15);
+        $academicSessions = AcademicSession::orderBy('created_at', 'desc')->get();
+        $semesters = Semester::all();
+
+        return view('admin.payments.paidReceiptsList', compact('receipts', 'academicSessions', 'semesters'));
+    }
+
+    // TODO: This is incomplete( subccount payments)
+    // ! getting empty array from the api
+    public function getSubaccountTransactions(Request $request)
+    {
+        $paymentTypes = PaymentType::whereNotNull('paystack_subaccount_code')
+            ->where('is_active', true)
+            ->get();
+
+        $selectedPaymentType = null;
+        $transactions = [];
+        $error = null;
+
+        if ($request->has('payment_type')) {
+            $selectedPaymentType = PaymentType::findOrFail($request->payment_type);
+
+            // Log the subaccount code being used
+            Log::info('Fetching transactions for payment type', [
+                'payment_type_id' => $selectedPaymentType->id,
+                'subaccount_code' => $selectedPaymentType->paystack_subaccount_code
+            ]);
+
+            $response = $this->paymentGatewayService->getSubaccountTransactionsPaystack(
+                $selectedPaymentType->paystack_subaccount_code
+            );
+
+            dd($response);
+
+            // Log the response
+            Log::info('Paystack service response', [
+                'status' => $response['status'],
+                'data_count' => count($response['data']),
+                'error' => $response['error'] ?? null
+            ]);
+
+            if ($response['status']) {
+                $transactions = $response['data'];
+            } else {
+                $error = $response['error'] ?? 'Failed to fetch transactions';
+            }
+        }
+        return view('admin.payments.apiSubaccountPayments', compact(
+            'paymentTypes',
+            'selectedPaymentType',
+            'transactions',
+            'error'
+        ));
     }
 }

@@ -117,4 +117,17 @@ class PaymentType extends Model
         $gracePeriodEnd = $this->due_date->addDays($this->grace_period_days);
         return $checkDate > $gracePeriodEnd;
     }
+
+
+
+    // there below are relationships for installment payments & configurations
+    public function installmentConfig()
+    {
+        return $this->hasOne(PaymentInstallmentConfig::class);
+    }
+
+    public function supportsInstallments()
+    {
+        return $this->installmentConfig && $this->installmentConfig->is_active;
+    }
 }

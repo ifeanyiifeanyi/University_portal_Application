@@ -35,34 +35,52 @@ class Payment extends Model
 
     ];
 
+    // installments configs and relations
     public function installments()
     {
         return $this->hasMany(PaymentInstallment::class);
     }
 
-    // public function setupInstallments($numberOfInstallments)
-    // {
-    //     $schedule = $this->paymentSchedule;
-    //     $installmentAmount = $this->total_amount / $numberOfInstallments;
-    //     $interval = $schedule->installment_interval_days;
+    public function setupInstallments()
+    {
+        $config = $this->paymentType->installmentConfig;
+        if (!$config) {
+            throw new \Exception('Installment configuration not found for this payment type');
+        }
 
-    //     for ($i = 0; $i < $numberOfInstallments; $i++) {
-    //         $dueDate = $schedule->due_date->copy()->addDays($i * $interval);
+        $totalAmount = $this->amount;
+        $firstInstallmentAmount = ($totalAmount * $config->minimum_first_payment_percentage) / 100;
+        $remainingAmount = $totalAmount - $firstInstallmentAmount;
+        $remainingInstallments = $config->number_of_installments - 1;
+        $regularInstallmentAmount = $remainingAmount / $remainingInstallments;
 
-    //         // First installment has minimum requirement
-    //         if ($i === 0) {
-    //             $minAmount = $this->total_amount * ($schedule->minimum_first_installment_percentage / 100);
-    //             $installmentAmount = max($installmentAmount, $minAmount);
-    //         }
+        // Create first installment
+        $this->installments()->create([
+            'amount' => $firstInstallmentAmount,
+            'due_date' => now(),
+            'installment_number' => 1,
+            'status' => 'pending'
+        ]);
 
-    //         $this->installments()->create([
-    //             'amount' => $installmentAmount,
-    //             'due_date' => $dueDate,
-    //             'installment_number' => $i + 1,
-    //             'status' => 'pending'
-    //         ]);
-    //     }
-    // }
+        // Create remaining installments
+        for ($i = 0; $i < $remainingInstallments; $i++) {
+            $this->installments()->create([
+                'amount' => $regularInstallmentAmount,
+                'due_date' => now()->addDays(($i + 1) * $config->interval_days),
+                'installment_number' => $i + 2,
+                'status' => 'pending'
+            ]);
+        }
+    }
+
+
+
+
+
+
+
+
+
     public function updatePenalties()
     {
         $totalPenalty = 0;
