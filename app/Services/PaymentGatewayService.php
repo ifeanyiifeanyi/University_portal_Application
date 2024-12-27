@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\RemitaService;
 use Illuminate\Support\Facades\Log;
@@ -414,6 +415,15 @@ class PaymentGatewayService
 
             'admin_id' => auth()->user()->id
         ]);
+
+        // Update invoice status based on payment completion
+        $invoiceStatus = $nextInstallment ? 'partial' : 'paid';
+        Invoice::where([
+            'student_id' => $payment->student_id,
+            'payment_type_id' => $payment->payment_type_id,
+            'academic_session_id' => $payment->academic_session_id,
+            'semester_id' => $payment->semester_id,
+        ])->update(['status' => $invoiceStatus]);
     }
 
     private function handleFullPayment(Payment $payment, $paidAmount, $responseData)
@@ -425,6 +435,14 @@ class PaymentGatewayService
             'payment_channel' => $responseData['data']['channel'] ?? 'unknown',
             'status' => 'paid'
         ]);
+
+        // Update the associated invoice status
+        Invoice::where([
+            'student_id' => $payment->student_id,
+            'payment_type_id' => $payment->payment_type_id,
+            'academic_session_id' => $payment->academic_session_id,
+            'semester_id' => $payment->semester_id,
+        ])->update(['status' => 'paid']);
     }
 
     private function verifyRemitaPayment($reference)
