@@ -30,10 +30,22 @@ class SubmitPaymentFormRequest extends FormRequest
             'student_id' => 'required|exists:students,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'amount' => 'required|numeric|min:0',
+            'is_installment' => 'sometimes|boolean'
         ];
     }
 
-    public function messages(): array{
+    protected function prepareForValidation()
+    {
+        // Convert checkbox input to boolean
+        if ($this->has('is_installment')) {
+            $this->merge([
+                'is_installment' => filter_var($this->is_installment, FILTER_VALIDATE_BOOLEAN)
+            ]);
+        }
+    }
+
+    public function messages(): array
+    {
         return [
             'academic_session_id.required' => 'Associated academic session is required!',
             'semester_id.required' => 'Associated semester is required!',

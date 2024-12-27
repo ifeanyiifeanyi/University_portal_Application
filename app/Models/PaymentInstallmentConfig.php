@@ -31,4 +31,11 @@ class PaymentInstallmentConfig extends Model
     {
         return $this->belongsTo(PaymentType::class);
     }
+
+    public function installments()
+    {
+        return $this->hasMany(PaymentInstallment::class);
+    }
+
+
 }

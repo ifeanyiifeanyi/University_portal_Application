@@ -13,14 +13,24 @@ class Receipt extends Model
         'receipt_number',
         'amount',
         'date',
+        'is_installment',
+        'installment_number',
+        'total_amount',
+        'remaining_amount',
     ];
 
     protected $casts = [
         'date' => 'datetime',
+        'is_installment' => 'boolean',
     ];
 
     public function payment()
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    public function installments()
+    {
+        return $this->hasMany(PaymentInstallment::class);
     }
 }

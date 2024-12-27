@@ -146,17 +146,21 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
+                                        
                                             <div id="installment-options" class="mt-3" style="display: none;">
-                                                <div class="form-check mb-3">
-                                                    <input class="form-check-input" type="checkbox" name="is_installment"
-                                                        id="is_installment">
-                                                    <label class="form-check-label" for="is_installment">
-                                                        Pay in Installments
-                                                    </label>
-                                                </div>
-                                                <div id="installment-info" class="alert alert-info" style="display: none;">
-                                                    <h6 class="alert-heading mb-2">Installment Payment Details</h6>
-                                                    <div id="installment-breakdown"></div>
+                                                <div class="form-group mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="is_installment" value="1" id="is_installment">
+                                                        <label class="form-check-label" for="is_installment">
+                                                            Pay in Installments
+                                                        </label>
+                                                    </div>
+                                                    <div id="installment-info" class="alert alert-info mt-2"
+                                                        style="display: none;">
+                                                        <h6 class="alert-heading mb-2">Installment Payment Details</h6>
+                                                        <div id="installment-breakdown"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -368,8 +372,8 @@
                                         <p><strong>First Payment:</strong> ₦${firstPaymentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
                                         <p><strong>Remaining ${config.number_of_installments - 1} Installments:</strong> ₦${regularInstallmentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})} each</p>
                                         <p><strong>Payment Interval:</strong> ${config.interval_days} days</p>
-                                        <p><strong>Late Fee per Installment:</strong> ${config.late_fee_type === 'fixed' ? 
-                                            '₦' + config.late_fee_amount.toLocaleString('en-NG', {minimumFractionDigits: 2}) : 
+                                        <p><strong>Late Fee per Installment:</strong> ${config.late_fee_type === 'fixed' ?
+                                            '₦' + config.late_fee_amount.toLocaleString('en-NG', {minimumFractionDigits: 2}) :
                                             config.late_fee_amount + '%'}</p>
                                 `;
 

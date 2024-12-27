@@ -169,6 +169,9 @@
                                                     <input type="hidden" name="invoice_number"
                                                         value="{{ $invoice->invoice_number }}">
 
+                                                        <input type="hidden" name="is_installment"
+                                                        value="{{ $invoice->is_installment }}">
+
 
                                                     <input type="hidden" name="payment_type_id"
                                                         value="{{ $invoice->payment_type_id }}">

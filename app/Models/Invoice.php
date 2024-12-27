@@ -23,7 +23,9 @@ class Invoice extends Model
         'status',
         'invoice_number',
         'archived_at',
-        'deleted_at'
+        'deleted_at',
+        'is_installment',
+        'current_transaction_amount'
     ];
     // Activity Log Configuration
     public function getActivitylogOptions(): LogOptions
@@ -40,7 +42,13 @@ class Invoice extends Model
 
 
 
-    protected $casts = ['archived_at' => 'date', 'deleted_at' => 'date'];
+    protected $casts = [
+        'archived_at' => 'date',
+        'deleted_at' => 'date',
+        'is_installment' => 'boolean',
+        'amount' => 'decimal:2',
+        'current_transaction_amount' => 'decimal:2'
+    ];
 
     public function scopeExpired($query)
     {

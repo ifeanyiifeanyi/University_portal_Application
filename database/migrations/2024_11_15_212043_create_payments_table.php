@@ -23,7 +23,16 @@ return new class extends Migration
             $table->foreignId('payment_method_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->date('payment_date');
-            $table->enum('status', ['pending', 'paid', 'processing'])->default('pending');
+            $table->enum('status', [
+                'pending',
+                'paid',
+                'processing',
+                'partial',
+                'rejected',
+                'failed',
+                'cancelled',
+                'refunded'
+            ])->default('pending');
             $table->string('payment_proof')->nullable();
             $table->string('invoice_number')->nullable();
             $table->foreignId('admin_id')->constrained()->nullable();

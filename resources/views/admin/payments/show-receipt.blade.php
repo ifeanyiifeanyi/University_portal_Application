@@ -55,6 +55,14 @@
                         <div class="tm_bill_title tm_bill_focus">Total Amount:</div>
                         <div class="tm_bill_value tm_bill_focus">₦{{ number_format($receipt->amount, 2) }}</div>
                     </div>
+                    <div class="tm_bill_list_in">
+                        <div class="tm_bill_title tm_bill_focus" style="color: green">Paid Amount:</div>
+                        <div class="tm_bill_value tm_bill_focus" style="color: green">₦{{ number_format($receipt->total_amount - $receipt->remaining_amount, 2) }}</div>
+                    </div>
+                    <div class="tm_bill_list_in">
+                        <div class="tm_bill_title tm_bill_focus" style="color: red">Remaining Amount:</div>
+                        <div class="tm_bill_value tm_bill_focus" style="color: red">₦{{ number_format($receipt->remaining_amount, 2) }}</div>
+                    </div>
                 </div>
                 <div class="tm_pos_sample_text">Thank you for your payment. This receipt is proof of payment for the
                     specified service.</div>

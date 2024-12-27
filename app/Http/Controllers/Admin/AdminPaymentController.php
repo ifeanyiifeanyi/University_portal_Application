@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Models\Admin;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -13,17 +14,19 @@ use App\Models\PaymentType;
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Models\AcademicSession;
+use App\Models\PaymentInstallment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ProcessPaymentRequest;
-use App\Http\Requests\SubmitPaymentFormRequest;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\PaymentProcessed;
 use App\Services\PaymentGatewayService;
+use App\Models\PaymentInstallmentConfig;
+use App\Http\Requests\ProcessPaymentRequest;
 use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\SubmitPaymentFormRequest;
 use App\Notifications\AdminPaymentNotification;
+use Illuminate\Support\Facades\View;
 
 class AdminPaymentController extends Controller
 {
@@ -82,7 +85,7 @@ class AdminPaymentController extends Controller
             'installment_config' => $paymentType->supportsInstallments() ? $paymentType->installmentConfig : null
         ]);
     }
-    
+
 
     public function getStudents(Request $request)
     {
@@ -121,7 +124,6 @@ class AdminPaymentController extends Controller
         return response()->json(['amount' => $paymentType->amount]);
     }
 
-
     public function submitPaymentForm(SubmitPaymentFormRequest $request)
     {
         $validated = $request->validated();
@@ -139,28 +141,30 @@ class AdminPaymentController extends Controller
                 'semester_id' => $validated['semester_id'],
             ])->first();
 
+            $invoiceData = [
+                'amount' => $validated['amount'],
+                'payment_method_id' => $validated['payment_method_id'],
+                'status' => 'pending',
+                'is_installment' => $validated['is_installment'] ?? false,
+                'updated_at' => now(),
+            ];
+
             if ($invoice) {
                 // Update the existing invoice
-                $invoice->update([
-                    'amount' => $validated['amount'],
-                    'payment_method_id' => $validated['payment_method_id'],
-                    'status' => 'pending', // Reset status if needed
-                    'updated_at' => now(), // Update the timestamp
-                ]);
+                $invoice->update($invoiceData);
             } else {
                 // Create a new invoice if none exists
-                $invoice = Invoice::create([
+                $invoiceDataCreate = array_merge($invoiceData, [
                     'student_id' => $validated['student_id'],
                     'payment_type_id' => $validated['payment_type_id'],
                     'department_id' => $validated['department_id'],
                     'level' => $validated['level'],
                     'academic_session_id' => $validated['academic_session_id'],
                     'semester_id' => $validated['semester_id'],
-                    'amount' => $validated['amount'],
-                    'payment_method_id' => $validated['payment_method_id'],
-                    'status' => 'pending',
                     'invoice_number' => 'INV' . uniqid(),
                 ]);
+
+                $invoice = Invoice::create($invoiceDataCreate);
             }
 
             DB::commit();
@@ -245,94 +249,6 @@ class AdminPaymentController extends Controller
         return view('admin.payments.printable-invoice', compact('paymentType', 'student', 'academicSession', 'semester'));
     }
 
-    // public function processPayment(ProcessPaymentRequest $request)
-    // {
-    //     $validated = $request->validated();
-
-    //     //check for late fee
-    //     $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
-    //     $currentDate = now();
-    //     $lateFee = $paymentType->calculateLateFee($currentDate);
-
-
-    //     // Calculate the total amount (including penalty, if any)
-    //     $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
-
-    //     if (!$baseAmount) {
-    //         return redirect()->back()->with('error', 'Payment amount could not be determined for the selected department and level.');
-    //     }
-    //     $totalAmountDue = $baseAmount + $lateFee;
-
-
-
-    //     // Verify the submitted amount matches what we expect
-    //     if ((float)$validated['amount'] !== (float)$totalAmountDue) {
-    //         return redirect()->back()->with('error', 'Invalid payment amount. Expected: ' . $totalAmountDue);
-    //     }
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // Check if payment already exists
-    //         $existingPayment = Payment::where([
-    //             'student_id' => $request->student_id,
-    //             'payment_type_id' => $request->payment_type_id,
-    //             'academic_session_id' => $request->academic_session_id,
-    //             'semester_id' => $request->semester_id,
-    //         ])->first();
-
-    //         if ($existingPayment) {
-    //             if ($existingPayment->status !== 'pending') {
-    //                 DB::rollBack();
-    //                 return redirect()->back()->withError('Payment already exists for this student.');
-    //             }
-
-    //             // Update existing pending payment
-    //             $existingPayment->update([
-    //                 'payment_method_id' => $validated['payment_method_id'],
-    //                 'invoice_number' => $validated['invoice_number'],
-    //                 'amount' => $totalAmountDue,
-    //                 'base_amount' => $baseAmount,
-    //                 'late_fee' => $lateFee,
-    //                 'department_id' => $validated['department_id'],
-    //                 'level' => $validated['level'],
-    //                 'admin_id' => Auth::id(),
-    //                 'transaction_reference' => 'PAY' . uniqid(),
-    //                 'payment_date' => now()
-    //             ]);
-
-    //             $payment = $existingPayment;
-    //         } else {
-    //             // Create new payment if none exists
-    //             $payment = Payment::create([
-    //                 'student_id' => $validated['student_id'],
-    //                 'payment_type_id' => $validated['payment_type_id'],
-    //                 'payment_method_id' => $validated['payment_method_id'],
-    //                 'academic_session_id' => $validated['academic_session_id'],
-    //                 'semester_id' => $validated['semester_id'],
-    //                 'invoice_number' => $validated['invoice_number'],
-    //                 'amount' => $totalAmountDue,
-    //                 'base_amount' => $baseAmount,
-    //                 'late_fee' => $lateFee,
-    //                 'department_id' => $validated['department_id'],
-    //                 'level' => $validated['level'],
-    //                 'status' => 'pending',
-    //                 'admin_id' => Auth::id(),
-    //                 'transaction_reference' => 'PAY' . uniqid(),
-    //                 'payment_date' => now()
-    //             ]);
-    //         }
-
-    //         $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
-
-    //         DB::commit();
-    //         return redirect()->away($paymentUrl);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         Log::error('Payment initialization failed: ' . $e->getMessage());
-    //         return redirect()->back()->with('error', 'Failed to initialize payment. Please try again later.');
-    //     }
-    // }
     public function processPayment(ProcessPaymentRequest $request)
     {
         $validated = $request->validated();
@@ -349,7 +265,7 @@ class AdminPaymentController extends Controller
 
         $totalAmountDue = $baseAmount + $lateFee;
 
-        // Check if payment type supports installments
+        // Determine if this is an installment payment
         $isInstallment = $request->has('is_installment') && $paymentType->supportsInstallments();
 
         DB::beginTransaction();
@@ -363,6 +279,23 @@ class AdminPaymentController extends Controller
                 return redirect()->back()->withError('Payment already exists for this student.');
             }
 
+            // Get installment configuration if needed
+            $paymentAmountForGateway = $totalAmountDue; // Default to full amount
+            $installmentConfig = null;
+
+            if ($isInstallment) {
+                $installmentConfig = PaymentInstallmentConfig::where('payment_type_id', $paymentType->id)
+                    ->where('is_active', true)
+                    ->first();
+                if (!$installmentConfig) {
+                    throw new \Exception('No active installment configuration found for this payment type');
+                }
+
+                // Calculate first installment amount based on minimum percentage
+                $firstInstallmentPercentage = $installmentConfig->minimum_first_payment_percentage;
+                $paymentAmountForGateway = ($totalAmountDue * $firstInstallmentPercentage) / 100;
+            }
+
             // Create or update payment record
             $payment = $this->createOrUpdatePayment(
                 $existingPayment,
@@ -373,24 +306,86 @@ class AdminPaymentController extends Controller
                 $isInstallment
             );
 
-            // Handle installment setup if applicable
-            if ($isInstallment) {
-                $this->setupInstallmentPayments($payment);
-                // For installments, we only process the first payment initially
-                $firstInstallment = $payment->installments()->where('installment_number', 1)->first();
-                $totalAmountDue = $firstInstallment->amount;
+            // Store installment details if applicable
+            if ($isInstallment && $installmentConfig) {
+                $payment->update([
+                    'current_transaction_amount' => $paymentAmountForGateway,
+                    'remaining_amount' => $totalAmountDue - $paymentAmountForGateway,
+                    'next_installment_date' => now()->addDays($installmentConfig->interval_days),
+                    'payment_installment_configs_id' => $installmentConfig->id
+                ]);
+
+                // Create installment records
+                $this->createInstallmentRecords($payment, $installmentConfig, $totalAmountDue);
             }
 
-            // Initialize payment with payment gateway
-            $paymentUrl = $this->paymentGatewayService->initializePayment($payment);
+            // Initialize payment with the gateway
+            $paymentUrl = $this->paymentGatewayService->initializePayment(
+                $payment,
+                $paymentAmountForGateway
+            );
 
             DB::commit();
             return redirect()->away($paymentUrl);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment initialization failed: ' . $e->getMessage());
+            Log::error('Payment initialization failed: ' . $e->getMessage(), [
+                'error' => $e->getMessage(),
+                'payment_type_id' => $validated['payment_type_id'],
+                'is_installment' => $isInstallment,
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'Failed to initialize payment. Please try again.');
         }
+    }
+
+    protected function createInstallmentRecords(Payment $payment, PaymentInstallmentConfig $config, $totalAmount)
+    {
+        // Calculate base installment amount (excluding the first payment)
+        $firstInstallmentAmount = ($totalAmount * $config->minimum_first_payment_percentage) / 100;
+        $remainingAmount = $totalAmount - $firstInstallmentAmount;
+        $remainingInstallments = $config->number_of_installments - 1;
+        $baseInstallmentAmount = $remainingInstallments > 0 ? $remainingAmount / $remainingInstallments : 0;
+
+        // Create first installment record
+        PaymentInstallment::create([
+            'payment_id' => $payment->id,
+            'installment_number' => 1,
+            'amount' => $firstInstallmentAmount,
+            'paid_amount' => 0.00,
+            'due_date' => now(),
+            'status' => 'pending',
+            'penalty_amount' => 0.00,
+            'paid_at' => null
+        ]);
+
+        // Create remaining installment records
+        $dueDate = now();
+        for ($i = 2; $i <= $config->number_of_installments; $i++) {
+            $dueDate = $dueDate->copy()->addDays($config->interval_days);
+
+            // Check if the due date is already passed
+            $status = $dueDate->isPast() ? 'overdue' : 'pending';
+
+            PaymentInstallment::create([
+                'payment_id' => $payment->id,
+                'installment_number' => $i,
+                'amount' => $baseInstallmentAmount,
+                'paid_amount' => 0.00,
+                'due_date' => $dueDate,
+                'status' => $status,
+                'penalty_amount' => 0.00,
+                'paid_at' => null
+            ]);
+        }
+
+        // Update the payment record with installment tracking
+        $payment->update([
+            'current_transaction_amount' => $firstInstallmentAmount,
+            'remaining_amount' => $remainingAmount,
+            'next_installment_date' => now(),
+            'payment_installment_configs_id' => $config->id
+        ]);
     }
 
     protected function setupInstallmentPayments(Payment $payment)
@@ -446,12 +441,11 @@ class AdminPaymentController extends Controller
     }
 
 
+
     public function verifyPayment(Request $request, $gateway)
     {
         $reference = $request->query('reference');
         $admin = User::findOrFail(Auth::id());
-
-
 
         DB::beginTransaction();
 
@@ -462,12 +456,13 @@ class AdminPaymentController extends Controller
 
             $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
 
+
             if ($result['success']) {
-                if ($payment->is_installment) {
-                    $this->handleInstallmentVerification($payment, $result['amount']);
-                } else {
-                    $this->handleFullPaymentVerification($payment, $admin);
-                }
+                // if ($payment->is_installment) {
+                //     $this->handleInstallmentVerification($payment, $result['amount']);
+                // } else {
+                //     $this->handleFullPaymentVerification($payment, $admin);
+                // }
 
                 // Generate receipt and send notifications
                 $receipt = $this->generateReceipt($payment);
@@ -479,52 +474,94 @@ class AdminPaymentController extends Controller
                     ->with('success', 'Payment verified successfully');
             }
 
-            throw new \Exception('Payment verification returned false');
+            throw new \Exception('Payment verification failed');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Payment verification failed', [
                 'reference' => $reference,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return redirect()->route('admin.payment.pay')
-                ->with('error', 'Payment verification failed. Please contact support.');
+                ->with('error', 'Payment verification failed: ' . $e->getMessage());
         }
     }
 
+
     protected function handleInstallmentVerification(Payment $payment, $paidAmount)
     {
-        $currentInstallment = $payment->installments()
-            ->where('status', 'pending')
-            ->orderBy('installment_number')
-            ->first();
+        DB::beginTransaction();
+        try {
+            // Get current installment record
+            $currentInstallment = $payment->installments()
+                ->where('status', 'pending')
+                ->orderBy('installment_number')
+                ->lockForUpdate()
+                ->first();
 
-        if (!$currentInstallment) {
-            throw new \Exception('No pending installment found');
-        }
+            if (!$currentInstallment) {
+                throw new \Exception('No pending installment found');
+            }
 
-        // Verify the amount paid matches the current installment
-        if ((float)$paidAmount !== (float)$currentInstallment->amount) {
-            throw new \Exception('Invalid payment amount for current installment');
-        }
+            // Calculate penalty if due date has passed
+            $penaltyAmount = 0;
+            if (now()->isAfter($currentInstallment->due_date)) {
+                $penaltyAmount = $currentInstallment->calculatePenalty();
+            }
 
-        // Update the current installment
-        $currentInstallment->update([
-            'status' => 'paid',
-            'paid_amount' => $paidAmount,
-            'paid_at' => now()
-        ]);
+            // Update the current installment
+            $currentInstallment->update([
+                'status' => 'paid',
+                'paid_amount' => $paidAmount,
+                'paid_at' => now(),
+                'penalty_amount' => $penaltyAmount
+            ]);
 
-        // Check if all installments are paid
-        $allPaid = !$payment->installments()
-            ->where('status', 'pending')
-            ->exists();
+            // Update payment tracking fields
+            $totalPaidSoFar = $payment->current_transaction_amount ?? 0;
+            $newTotalPaid = $totalPaidSoFar + $paidAmount;
+            $remainingAmount = $payment->amount - $newTotalPaid;
 
-        if ($allPaid) {
-            $payment->update(['status' => 'paid']);
-            if ($payment->invoice) {
+            // Get next installment if it exists
+            $nextInstallment = $payment->installments()
+                ->where('status', 'pending')
+                ->orderBy('installment_number')
+                ->first();
+
+            // Update the main payment record
+            $paymentUpdate = [
+                'base_amount' => $newTotalPaid,
+                'remaining_amount' => $remainingAmount,
+                'current_transaction_amount' => null
+            ];
+
+            if ($nextInstallment) {
+                $paymentUpdate['installment_status'] = 'partial';
+                $paymentUpdate['next_installment_date'] = $nextInstallment->due_date;
+                $paymentUpdate['current_transaction_amount'] = $nextInstallment->amount;
+            } else {
+                $paymentUpdate['installment_status'] = 'completed';
+                $paymentUpdate['next_installment_date'] = null;
+            }
+
+            $payment->update($paymentUpdate);
+
+            // Update invoice status if payment is complete
+            if ($payment->installment_status === 'paid' && $payment->invoice) {
                 $payment->invoice->update(['status' => 'paid']);
             }
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Installment verification failed', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 
@@ -572,88 +609,6 @@ class AdminPaymentController extends Controller
         return true;
     }
 
-    // public function verifyPayment(Request $request, $gateway)
-    // {
-    //     $reference = $request->query('reference');
-    //     $admin = User::findOrFail(Auth::id());
-
-    //     Log::info('Starting payment verification', [
-    //         'gateway' => $gateway,
-    //         'reference' => $reference
-    //     ]);
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // First, find the payment before verification
-    //         $payment = Payment::where('transaction_reference', $reference)
-    //             ->with(['invoice', 'student.user'])
-    //             ->firstOrFail();
-
-    //         $result = $this->paymentGatewayService->verifyPayment($gateway, $reference);
-
-    //         if ($result['success']) {
-    //             // Update payment status
-    //             $payment->status = 'paid';
-    //             $payment->admin_comment = "Credit card payment was processed by " . $admin->full_name;
-    //             $payment->save();
-
-    //             // Update invoice status if it exists
-    //             if ($payment->invoice) {
-    //                 $payment->invoice->status = 'paid';
-    //                 $payment->invoice->save();
-    //             } else {
-    //                 Log::warning('Invoice not found for payment', [
-    //                     'payment_id' => $payment->id,
-    //                     'invoice_number' => $payment->invoice_number
-    //                 ]);
-    //             }
-
-    //             // Generate receipt
-    //             $receipt = $this->generateReceipt($payment);
-
-    //             // Send notifications
-    //             try {
-    //                 $this->sendPaymentNotification($payment);
-    //             } catch (\Exception $e) {
-    //                 Log::error('Failed to send payment notification: ' . $e->getMessage());
-    //                 // Continue execution even if notification fails
-    //             }
-
-    //             DB::commit();
-
-    //             Log::info('Payment verification successful', [
-    //                 'payment_id' => $payment->id,
-    //                 'receipt_id' => $receipt->id
-    //             ]);
-
-    //             return redirect()->route('admin.payments.showReceipt', $receipt->id)
-    //                 ->with('success', 'Payment verified successfully');
-    //         } else {
-    //             throw new \Exception('Payment verification returned false');
-    //         }
-    //     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-    //         DB::rollBack();
-    //         Log::error('Payment record not found during verification', [
-    //             'reference' => $reference,
-    //             'error' => $e->getMessage()
-    //         ]);
-    //         return redirect()->route('admin.payment.pay')
-    //             ->with('error', 'Payment record not found. Please contact support if you believe this is an error.');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         Log::error('Payment verification failed', [
-    //             'reference' => $reference,
-    //             'error' => $e->getMessage()
-    //         ]);
-    //         return redirect()->route('admin.payment.pay')
-    //             ->with('error', 'Payment verification failed. Please contact support if you believe this is an error.');
-    //     }
-    // }
-
-
-
-
 
 
 
@@ -673,8 +628,14 @@ class AdminPaymentController extends Controller
         return Receipt::create([
             'payment_id' => $payment->id,
             'receipt_number' => 'REC' . uniqid(),
-            'amount' => $payment->amount,
+            'amount' => $payment->base_amount,
             'date' => now(),
+            'is_installment' => $payment->is_installment,
+            'installment_number' => $payment->is_installment ?
+                $payment->installments()->where('status', 'paid')->count() : null,
+            'total_amount' => $payment->amount, // Full payment amount
+            'remaining_amount' => $payment->is_installment ?
+                $payment->remaining_amount : 0
         ]);
     }
 

@@ -8,32 +8,34 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'student_id',
-        'department_id',
-        'level',
-        'status',
-        'academic_session_id',
-        'semester_id',
-        'payment_type_id',
-        'payment_method_id',
-        'transaction_reference',
-        'amount',
-        'payment_date',
-        'payment_proof',
-        'admin_id',
-        'admin_comment',
-        'is_manual',
-        'invoice_number',
+    // protected $fillable = [
+    //     'student_id',
+    //     'department_id',
+    //     'level',
+    //     'status',
+    //     'academic_session_id',
+    //     'semester_id',
+    //     'payment_type_id',
+    //     'payment_method_id',
+    //     'transaction_reference',
+    //     'amount',
+    //     'payment_date',
+    //     'payment_proof',
+    //     'admin_id',
+    //     'admin_comment',
+    //     'is_manual',
+    //     'invoice_number',
 
-        'base_amount',
-        'late_fee',
+    //     'base_amount',
+    //     'late_fee',
 
-        'payment_reference',
-        'gateway_response',
-        'payment_channel'
+    //     'payment_reference',
+    //     'gateway_response',
+    //     'payment_channel'
 
-    ];
+    // ];
+
+    protected $guarded = [];
 
     // installments configs and relations
     public function installments()
