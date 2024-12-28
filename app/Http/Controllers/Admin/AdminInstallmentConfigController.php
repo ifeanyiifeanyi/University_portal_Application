@@ -24,8 +24,6 @@ class AdminInstallmentConfigController extends Controller
             'number_of_installments' => 'required|integer|min:2',
             'minimum_first_payment_percentage' => 'required|numeric|min:1|max:99',
             'interval_days' => 'required|integer|min:1',
-            'late_fee_amount' => 'required|numeric|min:0',
-            'late_fee_type' => 'required|in:fixed,percentage'
         ]);
 
         PaymentInstallmentConfig::create($validated);
@@ -45,8 +43,6 @@ class AdminInstallmentConfigController extends Controller
             'number_of_installments' => 'required|integer|min:2',
             'minimum_first_payment_percentage' => 'required|numeric|min:1|max:99',
             'interval_days' => 'required|integer|min:1',
-            'late_fee_amount' => 'required|numeric|min:0',
-            'late_fee_type' => 'required|in:fixed,percentage',
             'is_active' => 'boolean'
         ]);
 

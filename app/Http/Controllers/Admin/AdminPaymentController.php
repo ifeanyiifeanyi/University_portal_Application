@@ -57,7 +57,7 @@ class AdminPaymentController extends Controller
         return view('admin.payments.index', compact('paymentTypes', 'paymentMethods', 'academicSessions', 'semesters'));
     }
 
-    
+
     //get department level for api(payment resquest)
     public function getDepartmentsAndLevels(Request $request)
     {
@@ -312,7 +312,7 @@ class AdminPaymentController extends Controller
             // Store installment details if applicable
             if ($isInstallment && $installmentConfig) {
                 $payment->update([
-                    'current_transaction_amount' => $paymentAmountForGateway,
+                    'next_transaction_amount' => $paymentAmountForGateway,
                     'remaining_amount' => $totalAmountDue - $paymentAmountForGateway,
                     'next_installment_date' => now()->addDays($installmentConfig->interval_days),
                     'payment_installment_configs_id' => $installmentConfig->id
@@ -358,7 +358,6 @@ class AdminPaymentController extends Controller
             'paid_amount' => 0.00,
             'due_date' => now(),
             'status' => 'pending',
-            'penalty_amount' => 0.00,
             'paid_at' => null
         ]);
 
@@ -377,14 +376,13 @@ class AdminPaymentController extends Controller
                 'paid_amount' => 0.00,
                 'due_date' => $dueDate,
                 'status' => $status,
-                'penalty_amount' => 0.00,
                 'paid_at' => null
             ]);
         }
 
         // Update the payment record with installment tracking
         $payment->update([
-            'current_transaction_amount' => $firstInstallmentAmount,
+            'next_transaction_amount' => $firstInstallmentAmount,
             'remaining_amount' => $remainingAmount,
             'next_installment_date' => now(),
             'payment_installment_configs_id' => $config->id
@@ -518,11 +516,10 @@ class AdminPaymentController extends Controller
                 'status' => 'paid',
                 'paid_amount' => $paidAmount,
                 'paid_at' => now(),
-                'penalty_amount' => $penaltyAmount
             ]);
 
             // Update payment tracking fields
-            $totalPaidSoFar = $payment->current_transaction_amount ?? 0;
+            $totalPaidSoFar = $payment->next_transaction_amount ?? 0;
             $newTotalPaid = $totalPaidSoFar + $paidAmount;
             $remainingAmount = $payment->amount - $newTotalPaid;
 
@@ -536,13 +533,13 @@ class AdminPaymentController extends Controller
             $paymentUpdate = [
                 'base_amount' => $newTotalPaid,
                 'remaining_amount' => $remainingAmount,
-                'current_transaction_amount' => null
+                'next_transaction_amount' => null
             ];
 
             if ($nextInstallment) {
                 $paymentUpdate['installment_status'] = 'partial';
                 $paymentUpdate['next_installment_date'] = $nextInstallment->due_date;
-                $paymentUpdate['current_transaction_amount'] = $nextInstallment->amount;
+                $paymentUpdate['next_transaction_amount'] = $nextInstallment->amount;
             } else {
                 $paymentUpdate['installment_status'] = 'completed';
                 $paymentUpdate['next_installment_date'] = null;
@@ -783,10 +780,24 @@ class AdminPaymentController extends Controller
     // paid receipts
     public function paidReceipts(Request $request)
     {
-        $query = Receipt::with(['payment.student', 'payment.academicSession', 'payment.semester'])
-            ->whereHas('payment', function ($q) {
-                $q->where('status', 'paid');
+        $query = Receipt::with([
+            'payment.student.user',
+            'payment.academicSession',
+            'payment.semester',
+            // 'payment.admin'
+        ]);
+
+        if ($request->filled('payment_status')) {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $q->where('status', $request->payment_status);
             });
+        }
+
+        if ($request->filled('payment_type')) {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $q->where('is_installment', $request->payment_type === 'installment');
+            });
+        }
 
         // Filter by academic session
         if ($request->filled('academic_session')) {
@@ -810,7 +821,7 @@ class AdminPaymentController extends Controller
             ]);
         }
 
-        $receipts = $query->latest()->paginate(15);
+        $receipts = $query->latest()->paginate(1000);
         $academicSessions = AcademicSession::orderBy('created_at', 'desc')->get();
         $semesters = Semester::all();
 
@@ -841,8 +852,6 @@ class AdminPaymentController extends Controller
             $response = $this->paymentGatewayService->getSubaccountTransactionsPaystack(
                 $selectedPaymentType->paystack_subaccount_code
             );
-
-            dd($response);
 
             // Log the response
             Log::info('Paystack service response', [

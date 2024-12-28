@@ -90,7 +90,7 @@ Route::get('/migrate-and-seed', function () {
 
 // Route::middleware(['guest', 'security.headers'])->controller(AuthController::class)->group(function () {
 
-Route::middleware(['guest'])->controller(AuthController::class)->group(function () {
+Route::controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');

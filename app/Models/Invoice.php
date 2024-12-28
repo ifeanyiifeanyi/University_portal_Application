@@ -25,7 +25,7 @@ class Invoice extends Model
         'archived_at',
         'deleted_at',
         'is_installment',
-        'current_transaction_amount'
+        'next_transaction_amount'
     ];
     // Activity Log Configuration
     public function getActivitylogOptions(): LogOptions
@@ -47,7 +47,7 @@ class Invoice extends Model
         'deleted_at' => 'date',
         'is_installment' => 'boolean',
         'amount' => 'decimal:2',
-        'current_transaction_amount' => 'decimal:2'
+        'next_transaction_amount' => 'decimal:2'
     ];
 
     public function scopeExpired($query)

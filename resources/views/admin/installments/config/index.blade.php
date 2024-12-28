@@ -15,7 +15,7 @@
                 <form action="{{ route('admin.installment-config.store') }}" method="POST" class="mb-4">
                     @csrf
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Payment Type</label>
                             <select name="payment_type_id" class="form-select">
                                 @foreach ($paymentTypes as $type)
@@ -28,7 +28,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Number of Installments</label>
                             <input type="number" name="number_of_installments" min="2"
                                 value="{{ old('number_of_installments', 2) }}" class="form-control">
@@ -37,7 +37,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Minimum First Payment (%)</label>
                             <input type="number" name="minimum_first_payment_percentage" min="1" max="99"
                                 value="60" class="form-control">
@@ -46,33 +46,11 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Interval Days</label>
                             <input type="number" name="interval_days" min="1" value="{{ old('interval_days', 30) }}"
                                 class="form-control">
                             @error('interval_days')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Late Fee Amount</label>
-                            <input type="number" name="late_fee_amount" min="0" step="0.01"
-                                value="{{ old('late_fee_amount', 0) }}" class="form-control">
-                            @error('late_fee_amount')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Late Fee Type</label>
-                            <select name="late_fee_type" class="form-select">
-                                <option {{ old('late_fee_type') == 'fixed' ? 'selected' : '' }} value="fixed">Fixed
-                                </option>
-                                <option {{ old('late_fee_type') == 'percentage' ? 'selected' : '' }} value="percentage">
-                                    Percentage</option>
-                            </select>
-                            @error('late_fee_type')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -170,25 +148,6 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Late Fee Amount</label>
-                            <input type="number" name="late_fee_amount" min="0" step="0.01"
-                                class="form-control">
-                            @error('late_fee_amount')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Late Fee Type</label>
-                            <select name="late_fee_type" class="form-select">
-                                <option value="fixed">Fixed</option>
-                                <option value="percentage">Percentage</option>
-                            </select>
-                            @error('late_fee_type')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
 
                         <div class="mb-3 form-check">
                             <input type="checkbox" value="1" name="is_active" class="form-check-input" id="isActive">
@@ -229,8 +188,6 @@
                     form.querySelector('[name="minimum_first_payment_percentage"]').value = data
                         .minimum_first_payment_percentage;
                     form.querySelector('[name="interval_days"]').value = data.interval_days;
-                    form.querySelector('[name="late_fee_amount"]').value = data.late_fee_amount;
-                    form.querySelector('[name="late_fee_type"]').value = data.late_fee_type;
                     form.querySelector('[name="is_active"]').checked = data.is_active;
 
                     // Show modal

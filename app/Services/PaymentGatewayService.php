@@ -48,7 +48,7 @@ class PaymentGatewayService
             $paymentType = $payment->paymentType;
 
             // Use the explicitly passed amount or fall back to the payment's current transaction amount
-            $amountToCharge = ($amount ?? $payment->current_transaction_amount ?? $payment->amount) * 100; // Convert to kobo
+            $amountToCharge = ($amount ?? $payment->next_transaction_amount ?? $payment->amount) * 100; // Convert to kobo
 
             // Calculate the minimum amount needed for Paystack fees
             // Paystack charges 1.5% + NGN 100 for transactions
@@ -208,7 +208,7 @@ class PaymentGatewayService
 
             // Determine expected amount based on installment status
             $expectedAmount = $payment->is_installment
-                ? $payment->current_transaction_amount
+                ? $payment->next_transaction_amount
                 : $payment->amount;
 
             // Allow for a small difference in amount
@@ -272,7 +272,6 @@ class PaymentGatewayService
         // Update current installment
         $currentInstallment->update([
             'paid_amount' => $paidAmount,
-            'penalty_amount' => $penaltyAmount,
             'status' => 'paid',
             'paid_at' => now()
         ]);
@@ -292,13 +291,12 @@ class PaymentGatewayService
         $payment->update([
             'base_amount' => $totalPaid,
             'remaining_amount' => $remainingAmount,
-            'current_transaction_amount' => $nextInstallment ? $nextInstallment->amount : null,
+            'next_transaction_amount' => $nextInstallment ? $nextInstallment->amount : null,
             'installment_status' => $nextInstallment ? 'partial' : 'completed',
             'next_installment_date' => $nextInstallment ? $nextInstallment->due_date : null,
             'payment_reference' => $responseData['data']['reference'],
             'gateway_response' => json_encode($responseData['data']),
             'payment_channel' => $responseData['data']['channel'] ?? 'unknown',
-            'total_penalty_amount' => $payment->total_penalty_amount + $penaltyAmount,
             'status' => $nextInstallment ? 'partial' : 'paid',
             'admin_comment' => 'Payment received for installment ' . $currentInstallment->installment_number . ' of ' . $payment->installments()->count() . ' installments',
 

@@ -15,7 +15,6 @@ class PaymentInstallment extends Model
         'paid_amount',
         'status',
         'installment_number',
-        'penalty_amount',
         'paid_at'
     ];
 
@@ -24,7 +23,6 @@ class PaymentInstallment extends Model
         'paid_at' => 'datetime',
         'amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
-        'penalty_amount' => 'decimal:2'
     ];
 
     public function payment()
@@ -39,7 +37,7 @@ class PaymentInstallment extends Model
         }
 
         $config = $this->payment->paymentType->installmentConfig;
-        
+
         if ($config->late_fee_type === 'fixed') {
             return $config->late_fee_amount;
         }

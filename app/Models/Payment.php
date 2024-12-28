@@ -80,32 +80,28 @@ class Payment extends Model
 
 
 
+// penalty_amount
 
 
 
-    public function updatePenalties()
-    {
-        $totalPenalty = 0;
-        foreach ($this->installments as $installment) {
-            $penalty = $installment->calculatePenalty();
-            $installment->update(['penalty_amount' => $penalty]);
-            $totalPenalty += $penalty;
-        }
-
-        $this->update(['total_penalty_amount' => $totalPenalty]);
-        return $totalPenalty;
-    }
 
     protected $casts = [
         'amount' => 'decimal:2',
         'status' => 'string',
         'payment_date' => 'date',
         'is_manual' => 'boolean',
+        'is_installment' => 'boolean',
+        'base_amount' => 'decimal:2',
+        'late_fee' => 'decimal:2',
+        'next_installment_date' => 'date',
+        'remaining_amount' => 'decimal:2',
+        'installment_status' => 'boolean',
+        'next_transaction_amount' => 'decimal:2',
 
     ];
     public function processedBy()
     {
-        return $this->belongsTo(User::class, 'processed_by');
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     public function proveOfPayment()

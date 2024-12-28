@@ -146,7 +146,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                        
+
                                             <div id="installment-options" class="mt-3" style="display: none;">
                                                 <div class="form-group mb-3">
                                                     <div class="form-check">
@@ -372,10 +372,7 @@
                                         <p><strong>First Payment:</strong> ₦${firstPaymentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})}</p>
                                         <p><strong>Remaining ${config.number_of_installments - 1} Installments:</strong> ₦${regularInstallmentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})} each</p>
                                         <p><strong>Payment Interval:</strong> ${config.interval_days} days</p>
-                                        <p><strong>Late Fee per Installment:</strong> ${config.late_fee_type === 'fixed' ?
-                                            '₦' + config.late_fee_amount.toLocaleString('en-NG', {minimumFractionDigits: 2}) :
-                                            config.late_fee_amount + '%'}</p>
-                                `;
+                                    `;
 
                                     $('#installment-breakdown').html(breakdownHtml);
                                 }

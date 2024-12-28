@@ -17,8 +17,6 @@ return new class extends Migration
             $table->integer('number_of_installments')->default(2);
             $table->decimal('minimum_first_payment_percentage', 5, 2)->default(60.00);
             $table->integer('interval_days')->default(30);
-            $table->decimal('late_fee_amount', 10, 2)->default(0.00);
-            $table->enum('late_fee_type', ['fixed', 'percentage'])->default('fixed');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

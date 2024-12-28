@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('payments', function (Blueprint $table) {
             $table->boolean('is_installment')->default(false);
-            $table->decimal('total_penalty_amount', 10, 2)->default(0);
         });
     }
 
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('payments', function (Blueprint $table) {
             $table->dropColumn('is_installment');
-            $table->dropColumn('total_penalty_amount');
         });
     }
 };

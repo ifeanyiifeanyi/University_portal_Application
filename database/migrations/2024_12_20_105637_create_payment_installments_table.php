@@ -19,7 +19,6 @@ return new class extends Migration
             $table->decimal('paid_amount', 10, 2)->default(0.00);
             $table->enum('status', ['pending', 'paid', 'overdue'])->default('pending');
             $table->integer('installment_number');
-            $table->decimal('penalty_amount', 10, 2)->default(0.00);
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });

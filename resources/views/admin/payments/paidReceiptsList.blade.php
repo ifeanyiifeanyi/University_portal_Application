@@ -2,6 +2,22 @@
 
 @section('title', 'Payment Receipts')
 
+@php
+    function getStatusColor($status)
+    {
+        return match ($status) {
+            'paid' => 'success',
+            'partial' => 'info',
+            'pending' => 'warning',
+            'processing' => 'primary',
+            'failed' => 'danger',
+            'rejected' => 'danger',
+            'cancelled' => 'secondary',
+            'refunded' => 'dark',
+            default => 'secondary',
+        };
+    }
+@endphp
 @section('admin')
     <div class="container-fluid">
         <div class="card">
@@ -17,37 +33,65 @@
                                 <label>Academic Session</label>
                                 <select name="academic_session" class="form-control">
                                     <option value="">All Sessions</option>
-                                    @foreach($academicSessions as $session)
-                                        <option value="{{ $session->id }}" {{ request('academic_session') == $session->id ? 'selected' : '' }}>
+                                    @foreach ($academicSessions as $session)
+                                        <option value="{{ $session->id }}"
+                                            {{ request('academic_session') == $session->id ? 'selected' : '' }}>
                                             {{ $session->name }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
-                                <label>Semester</label>
-                                <select name="semester" class="form-control">
-                                    <option value="">All Semesters</option>
-                                    @foreach($semesters as $semester)
-                                        <option value="{{ $semester->id }}" {{ request('semester') == $semester->id ? 'selected' : '' }}>
-                                            {{ $semester->name }}
-                                        </option>
-                                    @endforeach
+                                <label>Payment Status</label>
+                                <select name="payment_status" class="form-control">
+                                    <option value="">All Statuses</option>
+                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid
+                                    </option>
+                                    <option value="partial" {{ request('payment_status') == 'partial' ? 'selected' : '' }}>
+                                        Partial</option>
+                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>
+                                        Pending</option>
+                                    <option value="processing"
+                                        {{ request('payment_status') == 'processing' ? 'selected' : '' }}>Processing
+                                    </option>
+                                    <option value="failed" {{ request('payment_status') == 'failed' ? 'selected' : '' }}>
+                                        Failed</option>
+                                    <option value="rejected"
+                                        {{ request('payment_status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="cancelled"
+                                        {{ request('payment_status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    <option value="refunded"
+                                        {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Payment Type</label>
+                                <select name="payment_type" class="form-control">
+                                    <option value="">All Types</option>
+                                    <option value="installment"
+                                        {{ request('payment_type') == 'installment' ? 'selected' : '' }}>Installment
+                                    </option>
+                                    <option value="full" {{ request('payment_type') == 'full' ? 'selected' : '' }}>Full
+                                        Payment</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Start Date</label>
-                                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                                <input type="date" name="start_date" class="form-control"
+                                    value="{{ request('start_date') }}">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>End Date</label>
-                                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                                <input type="date" name="end_date" class="form-control"
+                                    value="{{ request('end_date') }}">
                             </div>
                         </div>
                     </div>
@@ -60,16 +104,17 @@
                 </form>
 
                 <!-- Receipts Table -->
-                <div class="table-responsive">
+                {{-- <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Receipt No.</th>
                                 <th>Student</th>
+                                <th>Payment Type</th>
                                 <th>Amount</th>
-                                <th>Session</th>
-                                <th>Semester</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
                                 <th>Date</th>
                                 <th>Action</th>
                             </tr>
@@ -80,20 +125,113 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $receipt->receipt_number }}</td>
                                     <td>{{ $receipt->payment->student->user->full_name }}</td>
-                                    <td>₦{{ number_format($receipt->amount, 2) }}</td>
-                                    <td>{{ $receipt->payment->academicSession->name }}</td>
-                                    <td>{{ $receipt->payment->semester->name }}</td>
+                                    <td>
+                                        {{ $receipt->payment->is_installment ? 'Installment' : 'Full Payment' }}
+                                        @if ($receipt->payment->is_installment)
+                                            <span class="badge bg-info">
+                                                {{ ucfirst($receipt->payment->installment_status) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        ₦{{ number_format($receipt->amount, 2) }}
+                                        @if ($receipt->payment->late_fee > 0)
+                                            <span class="badge bg-warning" title="Includes Late Fee">
+                                                +₦{{ number_format($receipt->payment->late_fee, 2) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ getStatusColor($receipt->payment->status) }}">
+                                            {{ ucfirst($receipt->payment->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $receipt->payment->payment_channel ?? $receipt->payment->paymentMethod->name }}
+                                    </td>
                                     <td>{{ $receipt->date->format('d M, Y') }}</td>
                                     <td>
                                         <a href="{{ route('admin.payments.showReceipt', $receipt) }}"
-                                           class="btn btn-sm btn-info">
+                                            class="btn btn-sm btn-info">
                                             View Receipt
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">No receipts found</td>
+                                    <td colspan="9" class="text-center">No receipts found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div> --}}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Receipt No.</th>
+                                <th>Student</th>
+                                <th>Payment Type</th>
+                                <th>Total Fee</th>
+                                <th>Amount Paid</th>
+                                <th>Remaining</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($receipts as $receipt)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $receipt->receipt_number }}</td>
+                                    <td>{{ $receipt->payment->student->user->full_name }}</td>
+                                    <td>
+                                        {{ $receipt->payment->is_installment ? 'Installment' : 'Full Payment' }}
+                                        @if ($receipt->payment->is_installment)
+                                            <br>
+                                            <small class="badge bg-info">
+                                                {{ ucfirst($receipt->payment->installment_status) }}
+                                            </small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div>₦{{ number_format($receipt->payment->amount, 2) }}</div>
+
+                                    </td>
+                                    <td>
+                                        <div>₦{{ number_format($receipt->payment->base_amount, 2) }}</div>
+                                        @if ($receipt->payment->late_fee > 0)
+                                            <small class="badge bg-warning">
+                                                +₦{{ number_format($receipt->payment->late_fee, 2) }} Late Fee
+                                            </small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($receipt->payment->remaining_amount > 0)
+                                            <span class="text-danger">
+                                                ₦{{ number_format($receipt->payment->remaining_amount, 2) }}
+                                            </span>
+                                        @else
+                                            <span class="badge bg-success">Fully Paid</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ getStatusColor($receipt->payment->status) }}">
+                                            {{ ucfirst($receipt->payment->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $receipt->date->format('d M, Y') }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.payments.showReceipt', $receipt) }}"
+                                            class="btn btn-sm btn-info">
+                                            View Receipt
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="text-center">No receipts found</td>
                                 </tr>
                             @endforelse
                         </tbody>

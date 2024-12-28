@@ -16,8 +16,8 @@ return new class extends Migration
             if (!Schema::hasColumn('payments', 'remaining_amount')) {
                 $table->decimal('remaining_amount', 10, 2)->nullable();
             }
-            if (!Schema::hasColumn('payments', 'current_transaction_amount')) {
-                $table->decimal('current_transaction_amount', 10, 2)->nullable();
+            if (!Schema::hasColumn('payments', 'next_transaction_amount')) {
+                $table->decimal('next_transaction_amount', 10, 2)->nullable();
             }
             if (!Schema::hasColumn('payments', 'installment_status')) {
                 $table->enum('installment_status', ['pending', 'partial', 'completed'])->nullable();
@@ -28,10 +28,6 @@ return new class extends Migration
             if (!Schema::hasColumn('payments', 'installment_config_id')) {
                 $table->foreignId('installment_config_id')->nullable()->constrained('payment_installment_configs');
             }
-
-
-
-
         });
     }
 
@@ -42,7 +38,7 @@ return new class extends Migration
     {
         Schema::table('payments', function (Blueprint $table) {
             $table->dropColumn('remaining_amount');
-            $table->dropColumn('current_transaction_amount');
+            $table->dropColumn('next_transaction_amount');
             $table->dropColumn('installment_status');
             $table->dropColumn('next_installment_date');
             $table->dropColumn('installment_config_id');

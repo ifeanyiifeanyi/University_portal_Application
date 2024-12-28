@@ -16,8 +16,8 @@ return new class extends Migration
             if (!Schema::hasColumn('payments', 'is_installment')) {
                 $table->boolean('is_installment')->default(false);
             }
-            // if (!Schema::hasColumn('payments', 'current_transaction_amount')) {
-            //     $table->decimal('current_transaction_amount', 10, 2)->default(0);
+            // if (!Schema::hasColumn('payments', 'next_transaction_amount')) {
+            //     $table->decimal('next_transaction_amount', 10, 2)->default(0);
             // }
         });
     }
@@ -29,7 +29,7 @@ return new class extends Migration
     {
         Schema::table('invoices', function (Blueprint $table) {
             $table->dropColumn('is_installment');
-            // $table->dropColumn('current_transaction_amount');
+            // $table->dropColumn('next_transaction_amount');
         });
     }
 };
