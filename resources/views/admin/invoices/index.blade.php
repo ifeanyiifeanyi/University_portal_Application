@@ -4,7 +4,18 @@
 
 @section('css')
 @endsection
-
+@php
+    $statusConfig = [
+        'paid' => ['bg-success', 'fas fa-check-circle', 'Paid'],
+        'pending' => ['bg-warning', 'fas fa-clock', 'Pending'],
+        'processing' => ['bg-info', 'fas fa-spinner', 'Processing'],
+        'partial' => ['bg-primary', 'fas fa-percentage', 'Partial'],
+        'rejected' => ['bg-danger', 'fas fa-times-circle', 'Rejected'],
+        'failed' => ['bg-danger', 'fas fa-exclamation-circle', 'Failed'],
+        'cancelled' => ['bg-secondary', 'fas fa-ban', 'Cancelled'],
+        'refunded' => ['bg-info', 'fas fa-undo', 'Refunded'],
+    ];
+@endphp
 @section('admin')
     <div class="container">
         <div class="row mb-4">
@@ -149,7 +160,7 @@
                                         <th><i class="fas fa-hashtag fa-fw"></i> SN</th>
                                         <th><i class="fas fa-file-invoice fa-fw"></i> Invoice ID</th>
                                         <th><i class="fas fa-user-graduate fa-fw"></i> Student Name</th>
-                                        <th><i class="fas fa-building fa-fw"></i> Department</th>
+                                        <th><i class="fas fa-building fa-fw"></i> Type</th>
                                         <th><i class="fas fa-money-bill-wave fa-fw"></i> Amount</th>
                                         <th><i class="fas fa-info-circle fa-fw"></i> Status</th>
                                         <th><i class="fas fa-cogs fa-fw"></i> Action</th>
@@ -161,18 +172,25 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $invoice->invoice_number }}</td>
                                             <td>{{ $invoice->student->user->full_name }}</td>
-                                            <td>{{ $invoice->department->name }}</td>
-                                            <td>₦{{ number_format($invoice->amount, 0, 2) }}</td>
                                             <td>
-                                                @if ($invoice->status == 'paid')
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check-circle fa-fw"></i> Paid
+                                                @if ($invoice->is_installment)
+                                                    <span class="badge bg-primary">
+                                                        <i class="fas fa-percentage fa-fw"></i>
+                                                        Installment
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-warning">
-                                                        <i class="fas fa-clock fa-fw"></i> Pending
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-money-bill-wave fa-fw"></i>
+                                                        Regular
                                                     </span>
                                                 @endif
+                                            </td>
+                                            <td>₦{{ number_format($invoice->amount, 0, 2) }}</td>
+                                            <td>
+                                                <span class="badge {{ $statusConfig[$invoice->status][0] }}">
+                                                    <i class="{{ $statusConfig[$invoice->status][1] }} fa-fw"></i>
+                                                    {{ $statusConfig[$invoice->status][2] }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <a href="{{ route('admin.invoice.show', $invoice->id) }}"
@@ -180,11 +198,6 @@
                                                     <i class="fas fa-eye fa-fw"></i>
                                                 </a>
 
-                                                @if ($invoice->status == 'paid')
-                                                    <a href="" class="btn btn-success btn-sm" title="Edit Invoice">
-                                                        <i class="fas fa-edit fa-fw"></i>
-                                                    </a>
-                                                @endif
 
                                                 @if ($invoice->status == 'pending')
                                                     <button class="btn btn-danger btn-sm delete-invoice"
@@ -353,25 +366,42 @@
 
     <script>
         // Payment Status Chart
+        const statusColors = {
+            'paid': '#1cc88a',
+            'pending': '#f6c23e',
+            'processing': '#36b9cc',
+            'partial': '#4e73df',
+            'rejected': '#e74a3b',
+            'failed': '#e74a3b',
+            'cancelled': '#858796',
+            'refunded': '#36b9cc'
+        };
+
+        const statusData = @json($invoices->groupBy('status')->map(fn($group) => $group->count()));
+
         const ctxPie = document.getElementById('paymentStatusChart').getContext('2d');
         new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: ['Paid', 'Pending'],
+                labels: Object.keys(statusData),
                 datasets: [{
-                    data: [
-                        {{ $invoices->where('status', 'paid')->count() }},
-                        {{ $invoices->where('status', 'pending')->count() }}
-                    ],
-                    backgroundColor: ['#1cc88a', '#f6c23e']
+                    data: Object.values(statusData),
+                    backgroundColor: Object.keys(statusData).map(status => statusColors[status])
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
             }
         });
 
         // Monthly Payments Chart
         const ctxBar = document.getElementById('monthlyPaymentsChart').getContext('2d');
         const monthlyData = @json(
-            $invoices->where('status', 'paid')->groupBy(function ($invoice) {
+            $invoices->whereIn('status', ['paid', 'partial'])->groupBy(function ($invoice) {
                     return \Carbon\Carbon::parse($invoice->created_at)->format('M');
                 })->map(function ($group) {
                     return $group->sum('amount');
@@ -400,7 +430,5 @@
                 }
             }
         });
-
-        // Your existing JavaScript code...
     </script>
 @endsection

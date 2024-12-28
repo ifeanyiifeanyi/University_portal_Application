@@ -57,13 +57,16 @@ class AdminPaymentController extends Controller
         return view('admin.payments.index', compact('paymentTypes', 'paymentMethods', 'academicSessions', 'semesters'));
     }
 
+    
     //get department level for api(payment resquest)
     public function getDepartmentsAndLevels(Request $request)
     {
         $paymentType = PaymentType::findOrFail($request->payment_type_id);
 
+
         $currentDate = now();
         $lateFee = $paymentType->calculateLateFee($currentDate);
+
 
         $departmentsAndLevels = $paymentType->departments()->with(['paymentTypes' => function ($query) use ($paymentType) {
             $query->where('payment_types.id', $paymentType->id);

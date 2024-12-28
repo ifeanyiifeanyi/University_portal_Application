@@ -7,7 +7,18 @@
     <!-- Add SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.1/sweetalert2.min.css">
 @endsection
-
+@php
+    $statusConfig = [
+        'paid' => ['bg-success', 'fas fa-check-circle', 'Paid'],
+        'pending' => ['bg-warning', 'fas fa-clock', 'Pending'],
+        'processing' => ['bg-info', 'fas fa-spinner', 'Processing'],
+        'partial' => ['bg-primary', 'fas fa-percentage', 'Partial'],
+        'rejected' => ['bg-danger', 'fas fa-times-circle', 'Rejected'],
+        'failed' => ['bg-danger', 'fas fa-exclamation-circle', 'Failed'],
+        'cancelled' => ['bg-secondary', 'fas fa-ban', 'Cancelled'],
+        'refunded' => ['bg-info', 'fas fa-undo', 'Refunded'],
+    ];
+@endphp
 @section('admin')
     <div class="container">
         <div class="row">
@@ -43,17 +54,24 @@
                                     <tr>
                                         <th><i class="fas fa-chart-pie fa-fw"></i> Status</th>
                                         <td>
-                                            @if($invoice->status === 'paid')
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check-circle fa-fw"></i> Paid
-                                                </span>
-                                            @elseif($invoice->status === 'pending')
-                                                <span class="badge bg-warning">
-                                                    <i class="fas fa-clock fa-fw"></i> Pending
+                                            <span class="badge {{ $statusConfig[$invoice->status][0] }}">
+                                                <i class="{{ $statusConfig[$invoice->status][1] }} fa-fw"></i>
+                                                {{ $statusConfig[$invoice->status][2] }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th> <i class="fas fa-building fa-fw"></i> Type</th>
+                                        <td>
+                                            @if ($invoice->is_installment)
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-percentage fa-fw"></i>
+                                                    Installment
                                                 </span>
                                             @else
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-times-circle fa-fw"></i> Cancelled
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-money-bill-wave fa-fw"></i>
+                                                    Regular
                                                 </span>
                                             @endif
                                         </td>

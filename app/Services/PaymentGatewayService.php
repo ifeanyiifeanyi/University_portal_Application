@@ -42,13 +42,10 @@ class PaymentGatewayService
     {
         try {
             if (empty($this->paystackSecretKey)) {
-                Log::error('Paystack secret key is empty');
                 throw new \Exception('Paystack configuration is missing');
             }
 
             $paymentType = $payment->paymentType;
-
-            // Use provided amount or fall back to payment's full amount
 
             // Use the explicitly passed amount or fall back to the payment's current transaction amount
             $amountToCharge = ($amount ?? $payment->current_transaction_amount ?? $payment->amount) * 100; // Convert to kobo
@@ -60,7 +57,10 @@ class PaymentGatewayService
 
             $paymentData = [
                 'amount' => $amountToCharge,
+                'first_name' => $payment->student->user->first_name,
+                'last_name' => $payment->student->user->last_name,
                 'email' => $payment->student->user->email,
+                'phone' => $payment->student->user->phone,
                 'reference' => $payment->transaction_reference,
                 'callback_url' => route('payment.verify', ['gateway' => 'paystack']),
                 'metadata' => [
@@ -111,10 +111,7 @@ class PaymentGatewayService
                 'Content-Type' => 'application/json',
             ])->post('https://api.paystack.co/transaction/initialize', $paymentData);
 
-            Log::debug('Paystack API Request Data:', array_merge(
-                $paymentData,
-                ['amount' => $paymentData['amount'] / 100] // Log amount in main currency
-            ));
+
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -123,10 +120,6 @@ class PaymentGatewayService
                 }
             }
 
-            Log::error('Paystack payment initialization failed', [
-                'payment_id' => $payment->id,
-                'response' => $response->json()
-            ]);
 
             throw new \Exception('Failed to initialize payment: ' . ($response->json()['message'] ?? 'Unknown error'));
         } catch (\Exception $e) {
@@ -134,6 +127,8 @@ class PaymentGatewayService
             throw new \Exception('Failed to initialize Paystack payment: ' . $e->getMessage());
         }
     }
+
+
 
     private function initializeRemitaPayment(Payment $payment)
     {
@@ -159,6 +154,8 @@ class PaymentGatewayService
         }
     }
 
+
+
     public function verifyPayment($gateway, $reference)
     {
         switch ($gateway) {
@@ -170,114 +167,6 @@ class PaymentGatewayService
                 throw new \Exception("Unsupported payment gateway: {$gateway}");
         }
     }
-
-
-
-    // private function verifyPaystackPayment($reference)
-    // {
-    //     try {
-
-    //         if (empty($this->paystackSecretKey)) {
-    //             throw new \Exception('Paystack secret key is missing');
-    //         }
-
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
-    //             'Content-Type' => 'application/json',
-    //         ])->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-
-    //         if (!$response->successful()) {
-    //             throw new \Exception('Paystack API request failed: ' . ($response->json()['message'] ?? 'Unknown error'));
-    //         }
-
-    //         $responseData = $response->json();
-
-    //         // Validate response structure
-    //         if (!isset($responseData['data']) || !isset($responseData['data']['status'])) {
-    //             throw new \Exception('Invalid response structure from Paystack');
-    //         }
-
-    //         $successStatuses = ['success', 'completed'];
-    //         if (!$responseData['status'] || !in_array(strtolower($responseData['data']['status']), $successStatuses)) {
-    //             throw new \Exception('Payment not successful. Status: ' . ($responseData['data']['status'] ?? 'unknown'));
-    //         }
-
-    //         // Find the payment record
-    //         $payment = Payment::where('transaction_reference', $reference)->first();
-    //         if (!$payment) {
-    //             throw new \Exception('Payment record not found for reference: ' . $reference);
-    //         }
-
-    //         // Convert amount back from kobo
-    //         $paidAmount = $responseData['data']['amount'] / 100;
-
-    //         // Determine expected amount based on installment status
-    //         $expectedAmount = $payment->is_installment
-    //             ? $payment->current_transaction_amount
-    //             : $payment->amount;
-
-    //         // Allow for a small difference in amount
-    //         $difference = abs($paidAmount - $expectedAmount);
-    //         $allowedDifference = 1; // Allow 1 unit difference
-
-    //         if ($difference > $allowedDifference) {
-    //             throw new \Exception(sprintf(
-    //                 'Payment amount mismatch. Expected: %s, Received: %s',
-    //                 $expectedAmount,
-    //                 $paidAmount
-    //             ));
-    //         }
-
-    //         // Handle installment payment updates
-    //         if ($payment->is_installment) {
-    //             // ! there no column for amount paid
-    //             // TODO: remove this amount paid, use the requested_amount in the api response
-    //             $totalPaid = ($payment->amount_paid ?? 0) + $paidAmount;
-    //             $remainingAmount = $payment->amount - $totalPaid;
-
-    //             // Verify installment config exists
-    //             $installmentConfig = PaymentInstallmentConfig::find($payment->payment_installment_configs_id);
-    //             if (!$installmentConfig) {
-    //                 throw new \Exception('Installment configuration not found');
-    //             }
-
-    //             // Update payment with installment details
-    //             $payment->update([
-    //                 'remaining_amount' => $remainingAmount,
-    //                 'installment_status' => $remainingAmount <= 0 ? 'completed' : 'partial',
-    //                 'payment_reference' => $responseData['data']['reference'],
-    //                 'gateway_response' => json_encode($responseData['data']),
-    //                 'payment_channel' => $responseData['data']['channel'] ?? 'unknown',
-    //                 'status' => 'paid'
-    //             ]);
-    //         } else {
-    //             // Regular payment update
-    //             $payment->update([
-    //                 'payment_reference' => $responseData['data']['reference'],
-    //                 'gateway_response' => json_encode($responseData['data']),
-    //                 'payment_channel' => $responseData['data']['channel'] ?? 'unknown',
-    //                 'status' => 'paid'
-    //             ]);
-    //         }
-
-
-    //         return [
-    //             'success' => true,
-    //             'reference' => $reference,
-    //             'amount' => $paidAmount,
-    //             'is_installment' => $payment->is_installment,
-    //             'remaining_amount' => $payment->is_installment ? ($remainingAmount ?? 0) : 0,
-    //             'metadata' => [
-    //                 'channel' => $responseData['data']['channel'] ?? 'unknown',
-    //                 'card_type' => $responseData['data']['authorization']['card_type'] ?? null,
-    //                 'bank' => $responseData['data']['authorization']['bank'] ?? null,
-    //             ]
-    //         ];
-    //     } catch (\Exception $e) {
-    //         throw new \Exception('Payment verification failed: ' . $e->getMessage());
-    //     }
-    // }
 
     private function verifyPaystackPayment($reference)
     {

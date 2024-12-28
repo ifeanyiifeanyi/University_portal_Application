@@ -94,6 +94,7 @@ class Invoice extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
+    // find were to use this
     public function payment()
     {
         return $this->belongsTo(Payment::class);

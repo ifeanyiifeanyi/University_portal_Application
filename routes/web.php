@@ -63,6 +63,9 @@ Route::get('/migrate-and-seed', function () {
         Artisan::call('migrate');
         $migrationOutput = Artisan::output();
 
+        Artisan::call('optimize:clear');
+        $optimizeClearOutput = Artisan::output();
+
         // Run storage link seeder
         Artisan::call('storage:link');
         $storageLinkOutput = Artisan::output();

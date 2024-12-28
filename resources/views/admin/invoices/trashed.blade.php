@@ -1,7 +1,18 @@
 @extends('admin.layouts.admin')
 
 @section('title', 'Trashed Invoices')
-
+@php
+    $statusConfig = [
+        'paid' => ['bg-success', 'fas fa-check-circle', 'Paid'],
+        'pending' => ['bg-warning', 'fas fa-clock', 'Pending'],
+        'processing' => ['bg-info', 'fas fa-spinner', 'Processing'],
+        'partial' => ['bg-primary', 'fas fa-percentage', 'Partial'],
+        'rejected' => ['bg-danger', 'fas fa-times-circle', 'Rejected'],
+        'failed' => ['bg-danger', 'fas fa-exclamation-circle', 'Failed'],
+        'cancelled' => ['bg-secondary', 'fas fa-ban', 'Cancelled'],
+        'refunded' => ['bg-info', 'fas fa-undo', 'Refunded'],
+    ];
+@endphp
 @section('admin')
     <div class="container">
         <div class="row">
@@ -39,15 +50,10 @@
                                             <td>{{ $invoice->department->name }}</td>
                                             <td>₦{{ number_format($invoice->amount, 0, 2) }}</td>
                                             <td>
-                                                @if ($invoice->status == 'paid')
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check-circle fa-fw"></i> Paid
-                                                    </span>
-                                                @else
-                                                    <span class="badge bg-warning">
-                                                        <i class="fas fa-clock fa-fw"></i> Pending
-                                                    </span>
-                                                @endif
+                                                <span class="badge {{ $statusConfig[$invoice->status][0] }}">
+                                                    <i class="{{ $statusConfig[$invoice->status][1] }} fa-fw"></i>
+                                                    {{ $statusConfig[$invoice->status][2] }}
+                                                </span>
                                             </td>
                                             <td>{{ $invoice->deleted_at->format('d M Y, h:i A') }}</td>
                                             <td>

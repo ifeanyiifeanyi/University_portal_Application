@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('semester_id')->constrained();
             $table->decimal('amount', 10, 2);
             $table->foreignId('payment_method_id')->constrained();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('pending')->comment('pending, paid, processing, partial, rejected, failed, cancelled, refunded');
             $table->string('invoice_number')->unique();
             $table->timestamps();
         });
