@@ -103,69 +103,8 @@
                     </div>
                 </form>
 
-                <!-- Receipts Table -->
-                {{-- <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Receipt No.</th>
-                                <th>Student</th>
-                                <th>Payment Type</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Payment Method</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($receipts as $receipt)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $receipt->receipt_number }}</td>
-                                    <td>{{ $receipt->payment->student->user->full_name }}</td>
-                                    <td>
-                                        {{ $receipt->payment->is_installment ? 'Installment' : 'Full Payment' }}
-                                        @if ($receipt->payment->is_installment)
-                                            <span class="badge bg-info">
-                                                {{ ucfirst($receipt->payment->installment_status) }}
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        ₦{{ number_format($receipt->amount, 2) }}
-                                        @if ($receipt->payment->late_fee > 0)
-                                            <span class="badge bg-warning" title="Includes Late Fee">
-                                                +₦{{ number_format($receipt->payment->late_fee, 2) }}
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ getStatusColor($receipt->payment->status) }}">
-                                            {{ ucfirst($receipt->payment->status) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $receipt->payment->payment_channel ?? $receipt->payment->paymentMethod->name }}
-                                    </td>
-                                    <td>{{ $receipt->date->format('d M, Y') }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.payments.showReceipt', $receipt) }}"
-                                            class="btn btn-sm btn-info">
-                                            View Receipt
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center">No receipts found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div> --}}
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-striped" id="example">
                         <thead>
                             <tr>
                                 <th>#</th>

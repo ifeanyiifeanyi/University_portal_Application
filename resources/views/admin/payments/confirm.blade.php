@@ -1,5 +1,20 @@
 @extends('admin.layouts.invoice_layout')
-
+@php
+    function getStatusColor($status)
+    {
+        return match ($status) {
+            'paid' => 'success',
+            'partial' => 'info',
+            'pending' => 'warning',
+            'processing' => 'primary',
+            'failed' => 'danger',
+            'rejected' => 'danger',
+            'cancelled' => 'secondary',
+            'refunded' => 'dark',
+            default => 'secondary',
+        };
+    }
+@endphp
 @section('title', 'Invoice Manager')
 <style>
     @media print {
@@ -121,7 +136,8 @@
                                     Amount: ₦{{ number_format($invoice->amount, 2) }}
                                 </p>
                                 <p>
-                                    <button class="btn btn-sm btn-warning">{{ $invoice->status }}</button>
+                                    <button class="btn btn-sm btn-{{ getStatusColor($invoice->status) }}">
+                                        {{ Str::title($invoice->status) }}</button>
                                 </p>
                                 <div class="payment-method-container no-print">
                                     <p class="tm_m0">Change Payment Method:</p>
