@@ -128,6 +128,8 @@
                  <li> <a href="{{ route('admin.installment-config.index') }}"><i class="bx bx-right-arrow-alt"></i>Installment
                         Payment Config</a>
                 </li>
+                <li> <a href="{{ route('admin.installment_paid.index') }}"><i class="bx bx-right-arrow-alt"></i>Paid Installments</a>
+            </li>
                 <li> <a href="{{ route('admin.payment_method.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
                         Payment Methods</a>
                 </li>

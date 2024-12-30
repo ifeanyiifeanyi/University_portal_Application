@@ -24,7 +24,24 @@ class PaymentInstallment extends Model
         'amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
     ];
+    // PaymentInstallment Model Method
+    public function scopeOverdue($query)
+    {
+        return $query->where('status', 'pending')
+            ->where('due_date', '<', now());
+    }
 
+    public function updateStatus()
+    {
+        if ($this->status !== 'paid') {
+            if ($this->due_date < now()) {
+                $this->status = 'overdue';
+            } else {
+                $this->status = 'pending';
+            }
+            $this->save();
+        }
+    }
     public function payment()
     {
         return $this->belongsTo(Payment::class);

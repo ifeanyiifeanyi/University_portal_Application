@@ -51,6 +51,7 @@ use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminInstallmentConfigController;
+use App\Http\Controllers\Admin\AdminInstallmentPaidController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -167,6 +168,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('ticket-history/{ticket}', 'ticketHistory')->name('admin.support_tickets.history');
 
         Route::delete('support-tickets/{ticket}', 'destroy')->name('admin.support_tickets.destroy');
+    });
+
+    Route::controller(AdminInstallmentPaidController::class)->group(function () {
+        Route::get('installment-paid', 'index')->name('admin.installment_paid.index');
     });
 
 
