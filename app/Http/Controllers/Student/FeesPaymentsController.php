@@ -23,8 +23,19 @@ class FeesPaymentsController extends Controller
     public function index(){
   //   get the student id of the user
   $student = Student::where('user_id',$this->authService->user()->id)->first();
-        $payments = Payment::with(['student.user','academicSession','semester','paymentType','paymentMethod','receipt'])->where('student_id',$student->id)->get();
+        // $payments = Payment::with(['student.user','academicSession','semester','paymentType','paymentMethod','receipt'])->where('student_id',$student->id)->get();
         // dd($payments);
+
+        $payments = Payment::with([
+            'paymentType',
+            'academicSession',
+            'semester',
+            'receipt',
+            'invoice'
+        ])
+        ->where('student_id', $student->id)
+        ->orderBy('created_at', 'desc')
+        ->paginate(2);
         return view('student.payments.index',compact('payments'));
     }
 }

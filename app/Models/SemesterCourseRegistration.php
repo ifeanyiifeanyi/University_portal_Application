@@ -13,7 +13,8 @@ class SemesterCourseRegistration extends Model
         'academic_session_id',
         'student_id',
         'status',
-        'total_credit_hours'
+        'total_credit_hours',
+        'level'
     ];
 
     

@@ -1,6 +1,6 @@
 @extends('student.layouts.student')
 
-@section('title', 'Teacher Dashboard')
+@section('title', 'Course Registration (Student Dashboard)')
 @section('student')
 <div class="container-xxl mt-3">
     <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">

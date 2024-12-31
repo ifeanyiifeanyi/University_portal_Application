@@ -30,7 +30,7 @@ class StudentController extends Controller
             return redirect()->route('login.view');
         }
 
-        $student = Student::where('user_id',$this->authService->user()->id)->first();
+        $student = Student::with('user')->where('user_id',$this->authService->user()->id)->first();
         $totalfees = Payment::where('student_id',$student->id)->sum('amount');
     
         return view('student.dashboard',[
@@ -56,11 +56,11 @@ class StudentController extends Controller
     }
 
     public function virtualid(){
-        $getuser = User::where('id',$this->authService->user()->id)->first();
-        $profile = Student::with('department')->where('user_id',$this->authService->user()->id)->first();
+        // $getuser = User::where('id',$this->authService->user()->id)->first();
+        $profile = Student::with(['department','user'])->where('user_id',$this->authService->user()->id)->first();
         return view('student.profile.virtualid',[
             'student'=>$profile,
-            'getuser'=>$getuser
+            // 'getuser'=>$getuser
         ]);
     }
 

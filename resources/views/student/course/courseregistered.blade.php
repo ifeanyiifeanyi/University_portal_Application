@@ -1,6 +1,6 @@
 @extends('student.layouts.student')
 
-@section('title', 'Teacher Dashboard')
+@section('title', 'Course Registration (Student Dashboard)')
 @section('student')
     <div class="container-xxl mt-3">
         <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
@@ -23,31 +23,33 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table mb-0">
-                                <thead>
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Course code</th>
+                                    <th scope="col">Course title</th>
+                                    <th scope="col">Course unit</th> 
+                                    <th scope="col">Course type</th>
+                                    <th scope="col">Course status</th>                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($registered as $enrollment)
                                     <tr>
-                                        <th scope="col">Course code</th>
-                                        <th scope="col">Course title</th>
-                                        <th scope="col">Course unit</th>
-                                        <th scope="col">Course type</th>
-                                        <th scope="col">Course status</th>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $enrollment->course?->code }}</td>
+                                        <td>{{ $enrollment->course?->title }}</td>
+                                        <td>{{ $enrollment->course?->credit_hours }}</td>
+                                        <td>{{ $enrollment->course?->course_type }}</td>
+                                        <td>{{ $enrollment->semesterCourseRegistration?->status }}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($registered as $registered)
-                                        <tr>
-                                            <td>{{ $registered->course->code }}</td>
-                                            <td>{{ $registered->course->title }}</td>
-                                            <td>{{ $registered->course->credit_hours }}</td>
-                                            <td>Compulsory</td>
-                                            <td>{{ $registered->semesterCourseRegistration->status }}</td>
-                                        </tr>
-                                    @empty
-                                    @endforelse
-
-
-                                </tbody>
-                            </table>
-                        </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">No courses registered</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

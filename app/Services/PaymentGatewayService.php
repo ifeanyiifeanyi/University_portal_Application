@@ -287,7 +287,6 @@ class PaymentGatewayService
             ->orderBy('installment_number')
             ->first();
 
-            
         // Update payment record
         $payment->update([
             'base_amount' => $totalPaid,

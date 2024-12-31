@@ -1,117 +1,132 @@
 @extends('student.layouts.student')
 
 @section('title', 'Student Dashboard')
+<style>
+    :root {
+        --primary-color: #0d382e;
+        --secondary-color: #20c997;
+    }
+    body {
+        background-color: #f4f7f6;
+    }
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .dashboard-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+</style>
 @section('student')
 
-@php
-            // Create a collection from the teacher's attributes and check if any is empty
-            $incompleteProfile = collect($student->getAttributes())->except(['deleted_at','cgpa'])->contains(function ($value) {
-                return empty($value);
-            });
-        @endphp
-        @if($incompleteProfile)
-        <div class="alert alert-info mt-3">
-            Please complete your profile to continue.
-            <div class="mt-3">
-              <a href="{{route('student.view.profile')}}" style="background: #0d382e" class="btn text-white w-50">View profile</a>
+<div class="container-fluid">
+    @php
+    // Create a collection from the teacher's attributes and check if any is empty
+    $incompleteProfile = collect($student->getAttributes())->except(['deleted_at','cgpa'])->contains(function ($value) {
+        return empty($value);
+    });
+@endphp
+
+@if($incompleteProfile)
+<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+    <strong>Profile Incomplete!</strong> Please complete your profile to access all features.
+    <a href="{{route('student.view.profile')}}" class="btn btn-primary btn-sm ms-3">Complete Profile</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h2 class="mb-4 text-center">Welcome, {{ $student->user->fullName() }}!</h2>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-money-bill-wave dashboard-icon"></i>
+                <h5 class="card-title">Total Fees Paid</h5>
+                <p class="card-text fs-4 fw-bold">₦{{ number_format($totalfees, 2) }}</p>
+                <a href="{{ route('student.view.payments') }}" class="btn btn-primary w-100">
+                    View All Payments
+                </a>
             </div>
         </div>
+    </div>
 
-    @else
-        {{-- <div class="alert alert-success">
-            Your profile is complete!
-        </div> --}}
-    @endif
-                    <!-- Start Content-->
-                    <div class="container-xxl">
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-graduation-cap dashboard-icon"></i>
+                <h5 class="card-title">Academic Performance</h5>
+                <p class="card-text fs-4 fw-bold">CGPA: {{ $student->cgpa }}</p>
+                <a href="{{ route('student.view.result.select') }}" class="btn btn-primary w-100">
+                    View Results
+                </a>
+            </div>
+        </div>
+    </div>
 
-                        <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
-                            <div class="flex-grow-1">
-                                <h4 class="fs-18 fw-semibold m-0">Dashboard</h4>
-                            </div>
-                        </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-id-card dashboard-icon"></i>
+                <h5 class="card-title">Virtual ID Card</h5>
+                @if($incompleteProfile)
+                    <p class="text-warning">Complete profile to view</p>
+                @else
+                    <p class="card-text">Your digital student ID</p>
+                    <a href="{{route('student.view.virtualid')}}" class="btn btn-primary w-100">
+                        View ID Card
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
 
-                        <div class="row">
-                            <div class="col-md-6 col-xl-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-8">
-                                                <p class="text-muted mb-3 fw-semibold">Total fees paid</p>
-                                                <h4 class="m-0 mb-3 fs-18">N {{$totalfees}}</h4>
+    <div class="col-md-3 col-sm-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-edit dashboard-icon"></i>
+                <h5 class="card-title">Profile Management</h5>
+                <p class="card-text">Update your personal details</p>
+                <a href="{{route('student.view.profile')}}" class="btn btn-primary w-100">
+                    Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-xl-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-8">
-                                                <p class="text-muted mb-3 fw-semibold">Total Cgpa</p>
-                                                <h4 class="m-0 mb-3 fs-18">{{$student->cgpa}}</h4>
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-
-
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 col-xl-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-8">
-                                                <p class="text-muted mb-3 fw-semibold">Profile</p>
-                                                <div class="mt-3">
-                                                    <a href="{{route('student.view.profile')}}" class="btn text-white w-100" style="background-color: #0d382e; color:#fff">View profile</a>
-                                                  </div>
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-xl-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-8">
-                                                <p class="text-muted mb-3 fw-semibold">Virtual Id Card</p>
-                                                @if($incompleteProfile)
-                                                Complete your profile to view your Id card
-                                                @else
-                                                <div class="mt-3">
-                                                    <a href="{{route('student.view.virtualid')}}" style="background:#0d382e !important;color:#fff" class="btn text-white w-100">View student id</a>
-                                                  </div>
-                                                @endif
-
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
+<!-- Quick Actions Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h4 class="mb-3">Quick Actions</h4>
+        <div class="d-flex gap-3">
+            <a href="{{ route('student.view.courseregistration') }}" class="btn btn-outline-primary">
+                <i class="fas fa-book me-2"></i>My Courses
+            </a>
+            <a href="#" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-alt me-2"></i>Class Schedule
+            </a>
+            <a href="#" class="btn btn-outline-primary">
+                <i class="fas fa-clipboard-list me-2"></i>Exam Schedule
+            </a>
+        </div>
+    </div>
+</div>
 
                     </div> <!-- container-fluid -->
 @endsection

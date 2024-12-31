@@ -16,6 +16,7 @@ use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\StudentFailedCourse;
 use Illuminate\Support\Facades\Validator;
 
 class TeacherCoursesController extends Controller
@@ -143,7 +144,7 @@ class TeacherCoursesController extends Controller
                 $gradePoint = $this->calculateGradePoint($grade);
                 // dd($gradePoint);
 
-                StudentScore::updateOrCreate(
+                $studentScore = StudentScore::updateOrCreate(
                     [
                         'student_id' => $student->id,
                         'course_id' => $assignment->course_id,
@@ -161,7 +162,22 @@ class TeacherCoursesController extends Controller
                         'grade_point' => (float) $gradePoint
                     ]
                 );
-                // cgpa
+                 // cgpa
+                 if ($isFailed) {
+                    StudentFailedCourse::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'course_id' => $assignment->course_id,
+                            'academic_session_id' => $assignment->academic_session_id,
+                            'semester_id' => $assignment->semester_id,
+                            'department_id' => $student->department_id,
+                        ],
+                        [
+                            'student_score_id' => $studentScore->id,
+                            'is_retaken' => false
+                        ]
+                    );
+                }
 
                 $this->updateGpaRecord($student->id, $assignment->academic_session_id, $assignment->semester_id);
             }
@@ -215,7 +231,7 @@ class TeacherCoursesController extends Controller
                 }
 
 
-                StudentScore::updateOrCreate(
+                $studentScore = StudentScore::updateOrCreate(
                     [
                         'student_id' => $enrollment->student_id,
                         'course_id' => $assignment->course_id,
@@ -227,12 +243,28 @@ class TeacherCoursesController extends Controller
                         'department_id' => $enrollment->student->department_id,
                         'assessment_score' => (int) $scoreData['assessment'],  // Force integer
                         'exam_score' => (int) $scoreData['exam'],               // Force integer
-                        'total_score' => (int) $totalScore,
+                        'total_score' => (int) $totalScore,  
                         'grade' => $grade,
                         'is_failed' => $isFailed,
                         'grade_point' => (float) $gradePoint
                     ]
                 );
+// If the student failed the course, store in failed courses table
+if ($isFailed) {
+    StudentFailedCourse::updateOrCreate(
+        [
+            'student_id' => $enrollment->student_id,
+            'course_id' => $assignment->course_id,
+            'academic_session_id' => $assignment->academic_session_id,
+            'semester_id' => $assignment->semester_id,
+            'department_id' => $enrollment->student->department_id,
+        ],
+        [
+            'student_score_id' => $studentScore->id,
+            'is_retaken' => false
+        ]
+    );
+}
 
                 // cgpa
                 $this->updateGpaRecord($enrollment->student_id, $assignment->academic_session_id, $assignment->semester_id);

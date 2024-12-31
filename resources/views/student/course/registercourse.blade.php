@@ -1,6 +1,6 @@
 @extends('student.layouts.student')
 
-@section('title', 'Teacher Dashboard')
+@section('title', 'Course Registration (Student Dashboard)')
 @section('student')
 <div class="container">
     {{-- <div class="row mt-5">
@@ -26,9 +26,9 @@
                     
                         @csrf
                         <input type="hidden" name="session" value="{{ $session }}">
-                        <input type="hidden" name="semester" value="{{ $semester }}">
+                        <input type="hidden" name="semester" value="{{ $semester }}" id="semester">
                         <input type="hidden" name="level" value="{{ $level }}">
-                        <input type="hidden" name="semesterregid" value="{{$semesterregid}}">
+                        <input type="hidden" name="semesterregid" value="{{$semesterregid}}" >
                         <input type="hidden" name="TotalCreditLoadCount" id="TotalCreditLoadCount">
                     <table class="table mb-0">
                         <thead>
@@ -55,6 +55,24 @@
                              
                             </tr>
                             @endforeach
+                            @if($failedCourses->count() > 0)
+                            @foreach ($failedCourses as $failedCourse)
+                <tr>
+                    <td>{{$failedCourse->course->code}}</td>
+                    <td>{{$failedCourse->course->title}}</td>
+                    <td>
+                        {{$failedCourse->course->credit_hours}} 
+                        <input type="hidden" name="carry_over_credit_load" value="{{$failedCourse->course->credit_hours}}">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="carry_over_course_id[]" 
+                               value="{{$failedCourse->course->id}}" 
+                               data-credit-hours="{{ $failedCourse->course->credit_hours }}" 
+                               onchange="updateCreditLoad()">
+                    </td>
+                </tr>
+                @endforeach
+                            @endif
                             
                            
                         </tbody>
@@ -137,41 +155,63 @@
 <script>
     function updateCreditLoad() {
         let totalCreditLoad = 0;
+        const semester = document.getElementById('semester').value;
         document.querySelectorAll('input[name="course_id[]"]:checked').forEach((checkbox) => {
             totalCreditLoad += parseInt(checkbox.dataset.creditHours);
         });
         document.getElementById('totalCreditLoad').innerText = totalCreditLoad;
         document.getElementById('TotalCreditLoadCount').value = totalCreditLoad;
+        $.ajax({
+            url: '{{ route("check.credit.load") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                totalCreditLoad:totalCreditLoad,
+                semester:semester
+            },
+            success: function(response) {
+                // console.log(response);
+                if (response.exceedsLimit) {
+                    alert('Total credit load exceeds the maximum allowed limit of ' + response.maxCreditLoad + ' credit load.');
+                }
+            }
+        })
+
     }
     window.addEventListener('DOMContentLoaded', updateCreditLoad);   
 </script>
 
 <script>
+
     // Maximum allowed credit load
     // const maxCreditLoad = 18;
 
     // function updateCreditLoad() {
+    //     const semester = document.getElementById('semester').value;
     //     let selectedCourses = [];
     //     document.querySelectorAll('input[name="course_id[]"]:checked').forEach((checkbox) => {
     //         selectedCourses.push(checkbox.value);
     //     });
+    
 
-    //     $.ajax({
-    //         url: '{{ route("check.credit.load") }}',
-    //         method: 'POST',
-    //         data: {
-    //             _token: '{{ csrf_token() }}',
-    //             course_ids: selectedCourses
-    //         },
-    //         success: function(response) {
-    //             document.getElementById('totalCreditLoad').innerText = response.totalCreditLoad;
-    //             if (response.exceedsLimit) {
-    //                 alert('Total credit load exceeds the maximum allowed limit of ' + maxCreditLoad + ' credit hours.');
-    //             }
-    //         }
-    //     });
+        // $.ajax({
+        //     url: '{{ route("check.credit.load") }}',
+        //     method: 'POST',
+        //     data: {
+        //         _token: '{{ csrf_token() }}',
+        //         course_ids: selectedCourses,
+        //         semester:semester
+        //     },
+        //     success: function(response) {
+        //         // console.log(semester);
+        //         document.getElementById('totalCreditLoad').innerText = response.totalCreditLoad;
+        //         if (response.exceedsLimit) {
+        //             alert('Total credit load exceeds the maximum allowed limit of ' + maxCreditLoad + ' credit hours.');
+        //         }
+        //     }
+        // });
     // }
 
-    // window.addEventListener('DOMContentLoaded', updateCreditLoad);
+    // window.addEventListener('DOMContentLoaded', popupexceedlimit);
 </script>
 @endsection

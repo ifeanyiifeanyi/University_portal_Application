@@ -78,4 +78,58 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Payment Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentMessage"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{route('student.view.payments')}}" class="btn btn-primary" id="paymentButton">Go to Payment</a>
+            </div>
+        </div>
+    </div>
+</div>
+@section('javascript')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        checkPaymentStatus();
+        function checkPaymentStatus() {
+            fetch('{{route('student.fees.checkpaymentstatus')}}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.shouldShowModal && data.message) {
+                        // Set the message and show modal
+                        document.getElementById('paymentMessage').textContent = data.message;
+                        
+                        // Set modal color based on status
+                        const modalHeader = document.querySelector('.modal-header');
+                        modalHeader.className = 'modal-header';
+                        if (data.status === 'error') {
+                            modalHeader.classList.add('bg-danger', 'text-white');
+                        } else if (data.status === 'warning') {
+                            modalHeader.classList.add('bg-warning');
+                        }
+                        
+                        // Initialize and show the modal
+                        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+                        paymentModal.show();
+                        
+                        // Store in localStorage
+                        localStorage.setItem('paymentNotificationShown', 'true');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking payment status:', error);
+                });
+        }
+    });
+    </script>
+@endsection
 @endsection

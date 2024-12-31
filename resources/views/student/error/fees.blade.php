@@ -10,7 +10,7 @@
 
         <div class="card-body">
             <div class="text-center mt-2">
-                Our records indicate that your school fees for the current session and semester have not yet been paid. Kindly proceed with the necessary payments to avoid any disruptions to your academic activities
+                {{$message}}
             </div>
             <div class="mt-5"><a href="{{route('student.view.fees.all')}}" class="btn w-100 text-white btn-success">Go to fees</a></div>
         </div>

@@ -29,7 +29,7 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    
+                                    <th scope="col">#</th>
                                     <th scope="col">Session</th>
                                     <th scope="col">Level</th>
                                     <th scope="col">Semester</th>
@@ -41,6 +41,7 @@
                             <tbody>
                                 @foreach($availableResults as $result)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $result['session'] }}</td>
                         <td>100</td>
                         <td>{{ $result['semester'] }}</td>

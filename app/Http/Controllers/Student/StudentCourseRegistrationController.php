@@ -18,7 +18,8 @@ use App\Models\SemesterRegistration;
 use App\Models\SemesterCourseRegistration;
 use App\Http\Requests\ProceedSessionRequest;
 use App\Http\Requests\CourseRegistrationRequest;
-
+use App\Models\StudentFailedCourse;
+use Illuminate\Support\Facades\Log;
 class StudentCourseRegistrationController extends Controller
 {
     protected $authService;
@@ -81,12 +82,15 @@ class StudentCourseRegistrationController extends Controller
             ->firstOrFail()
             ->pivot
             ->max_credit_hours;
+
+
             
         $createsemesterreggistration = SemesterCourseRegistration::create([
             'semester_id'=>$proceedsession->semester,
             'academic_session_id'=>$proceedsession->session,
             'student_id'=>$proceedsession->student_id,
-            'total_credit_hours'=>$maxCreditHours
+            'total_credit_hours'=>$maxCreditHours,
+            'level'=>$proceedsession->level
         ]);
         if($createsemesterreggistration){
             // redirect user to the main course registration page
@@ -101,8 +105,15 @@ class StudentCourseRegistrationController extends Controller
 
         // get all the courses for that actual section
         $getsemestercourses = CourseAssignment::with(['course'])->where('semester_id',$semester)->get();
+
+         // Retrieve failed courses for the student that haven't been retaken
+    $failedCourses = StudentFailedCourse::with(['course'])
+    ->where('student_id', $student->id)
+    ->where('is_retaken', false)
+    ->get();
         return view('student.course.registercourse',[
             'courses'=>$selectcoursesassigned,
+            'failedCourses' => $failedCourses,
             'semester'=>$semester,
             'session'=>$session,
             'semesterregid'=>$semesterregid,
@@ -142,28 +153,85 @@ class StudentCourseRegistrationController extends Controller
                 // 'semester_regid'=>$courseregister->semesterregid
             ]);
         }
+
+         // Register carry-over courses
+    if ($courseregister->has('carry_over_course_id')) {
+        foreach ($courseregister->carry_over_course_id as $carryOverCourseId) {
+            // Find the failed course record
+            $failedCourse = StudentFailedCourse::where('student_id', $student->id)
+                ->where('course_id', $carryOverCourseId)
+                ->where('is_retaken', false)
+                ->first();
+
+            if ($failedCourse) {
+                // Create course enrollment for carry-over course
+                CourseEnrollment::create([
+                    'student_id' => $student->id,
+                    'course_id' => $carryOverCourseId,
+                    'department_id' => $student->department_id,
+                    'level' => $courseregister->level,
+                    'semester_course_registration_id' => $courseregister->semesterregid,
+                    'academic_session_id' => $courseregister->session,
+                    'is_carryover' => true, // Add this field to your course_enrollments table
+                ]);
+
+                // Mark the failed course as retaken
+                $failedCourse->is_retaken = true;
+                $failedCourse->save();
+            }
+        }
+    }
         return redirect(route('student.view.courseregistration'))->with('success','Courses created successfully and awaiting approval');
     }
 
-    public function checkCreditLoad(Request $request)
+//     public function checkCreditLoad(Request $request)
+// {
+//     $validatedData = $request->validate([
+//         'course_id' => 'array|required',
+//         'course_id.*' => 'exists:courses,id'
+//     ]);
+
+//     $totalCreditLoad = 0;
+
+//     foreach ($validatedData['course_id'] as $courseId) {
+//         $course = Course::find($courseId);
+//         $totalCreditLoad += $course->credit_hours;
+//     }
+//     $student = Student::where('user_id',$this->authService->user()->id)->first();
+//     $student = Student::findOrFail($student->id);
+//     $maxCreditLoad = $student->department->semesters()
+//         ->where('semester_id', $request->semester)
+//         ->firstOrFail()
+//         ->pivot
+//         ->max_credit_hours;
+//     // Define the maximum allowed credit load
+//     // $maxCreditLoad = 3;
+
+//     return response()->json([
+//         'totalCreditLoad' => $totalCreditLoad,
+//         'exceedsLimit' => $totalCreditLoad > $maxCreditLoad
+//     ]);
+// }
+
+public function checkCreditLoad(Request $request)
 {
-    $validatedData = $request->validate([
-        'course_id' => 'array|required',
-        'course_id.*' => 'exists:courses,id'
-    ]);
+    
 
-    $totalCreditLoad = 0;
+ 
 
-    foreach ($validatedData['course_id'] as $courseId) {
-        $course = Course::find($courseId);
-        $totalCreditLoad += $course->credit_hours;
-    }
+    $totalCreditLoad = $request->totalCreditLoad;
 
-    // Define the maximum allowed credit load
-    $maxCreditLoad = 3;
+    // return $totalCreditLoad;
+    $student = Student::where('user_id', $this->authService->user()->id)->first();
+    $maxCreditLoad = $student->department->semesters()
+        ->where('semester_id', $request->semester)
+        ->firstOrFail()
+        ->pivot
+        ->max_credit_hours;
 
     return response()->json([
         'totalCreditLoad' => $totalCreditLoad,
+        'maxCreditLoad'=> $maxCreditLoad,
         'exceedsLimit' => $totalCreditLoad > $maxCreditLoad
     ]);
 }

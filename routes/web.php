@@ -715,16 +715,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('installment-config', 'index')->name('admin.installment-config.index');
         Route::post('installment-config/store', 'store')->name('admin.installment-config.store');
 
-        Route::get('/installment-config/{config}/edit','edit')->name('admin.installment-config.edit');
+        Route::get('/installment-config/{config}/edit', 'edit')->name('admin.installment-config.edit');
         Route::put('/installment-config/{config}/update', 'update')->name('admin.installment-config.update');
         Route::delete('/installment-config/{config}/delete', 'destroy')->name('admin.installment-config.destroy');
     });
-
-
-
-
-
-
 });
 
 
@@ -773,15 +767,23 @@ Route::prefix('student')->middleware('student')->group(function () {
             Route::get('/', 'index')->name('student.view.fees.all');
             Route::get('/view', 'view')->name('student.view.fees');
             Route::get('/pay', 'pay')->name('student.view.fees.pay');
-            Route::post('/process', 'process')->name('student.view.fees.process');
+            Route::get('/get-payment-details', 'getPaymentDetails')->name('student.fees.getpaymentdetails');
+            Route::post('/process', 'submitPaymentForm')->name('student.view.fees.process');
             Route::get('/invoice/{id}', 'invoice')->name('student.view.fees.invoice');
             Route::get('departments/{department}/levels', 'levels');
 
-            Route::post('/payments/process', 'processPayment')->name('student.view.fees.processPayment');
+            Route::post('/payments/process', 'processPayment')->name('student.fees.processPayment');
 
             Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
 
             Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
+            Route::get('/payments/{payment}/installments', 'processInstallmentPayment')->name('student.fees.payments.installment');
+            Route::get('/check-payment-status', 'checkPaymentStatus')->name('student.fees.checkpaymentstatus');
+
+
+
+
+
 
 
             // Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('student.fees.payments.showConfirmation');
@@ -833,6 +835,8 @@ Route::prefix('teacher')->middleware('teacher')->group(function () {
         // post requests
         Route::post('createprofile', 'createprofile')->name('teacher.create.profile');
         Route::post('updateprofile', 'updateprofile')->name('teacher.update.profile');
+
+        Route::post('logout', 'logout')->name('teacher.logout');
     });
     Route::controller(TeacherDepartmentController::class)->group(function () {
         Route::get('departments', 'departments')->name('teacher.view.departments');

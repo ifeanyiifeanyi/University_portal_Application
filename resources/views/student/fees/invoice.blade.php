@@ -1,7 +1,41 @@
 @extends('student.layouts.invoice_layout')
+@php
+    function getStatusColor($status)
+    {
+        return match ($status) {
+            'paid' => 'success',
+            'partial' => 'info',
+            'pending' => 'warning',
+            'processing' => 'primary',
+            'failed' => 'danger',
+            'rejected' => 'danger',
+            'cancelled' => 'secondary',
+            'refunded' => 'dark',
+            default => 'secondary',
+        };
+    }
+@endphp
 
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+
+    .payment-method-name {
+        display: none;
+    }
+
+    @media print {
+        .payment-method-name {
+            display: block;
+        }
+    }
+</style>
 @section('invoice')
 <div class="tm_container">
+    @include('admin.alert')
     <div class="tm_invoice_wrap">
         <div class="tm_invoice tm_style1" id="tm_download_section">
             <div class="tm_invoice_in">
@@ -61,6 +95,8 @@
                                 <p class="tm_m0">Session:</p>
                                 <b class="tm_primary_color">{{ $invoice->academicSession->name }}</b>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -100,8 +136,10 @@
                                 Amount: ₦{{ number_format($invoice->amount, 2) }}
                             </p>
                             <p>
-                                <button class="btn btn-sm btn-warning">{{ $invoice->status }}</button>
+                                <button class="btn btn-sm btn-{{ getStatusColor($invoice->status) }}">
+                                    {{ Str::title($invoice->status) }}</button>
                             </p>
+                           
                         </div>
                         <div class="tm_right_footer">
                             <table>
@@ -128,27 +166,43 @@
                                         <td
                                             class="tm_width_3 tm_border_top_0 tm_bold tm_f16 tm_primary_color"colspan='2'>
 
-                                            <form action="{{ route('student.view.fees.processPayment') }}" method="POST"
+                                            <form action="{{ route('student.fees.processPayment') }}" method="POST"
                                                 class="d-inline">
                                                 @csrf
+
+                                                <input type="hidden" name="invoice_number"
+                                                    value="{{ $invoice->invoice_number }}">
+
+                                                    <input type="hidden" name="is_installment"
+                                                    value="{{ $invoice->is_installment }}">
+
+
                                                 <input type="hidden" name="payment_type_id"
                                                     value="{{ $invoice->payment_type_id }}">
+
+
                                                 <input type="hidden" name="department_id"
                                                     value="{{ $invoice->department_id }}">
-                                                <input type="hidden" name="level"
-                                                    value="{{ $invoice->level }}">
-                                                <input type="hidden" name="student_id" value="{{ $invoice->student_id }}">
+
+                                                <input type="hidden" name="level" value="{{ $invoice->level }}">
+
+                                                <input type="hidden" name="student_id"
+                                                    value="{{ $invoice->student_id }}">
+
                                                 <input type="hidden" name="academic_session_id"
                                                     value="{{ $invoice->academic_session_id }}">
-                                                <input type="hidden" name="semester_id" value="{{ $invoice->semester_id }}">
-                                                <input type="hidden" name="amount"
-                                                    value="{{ $invoice->amount }}">
+
+                                                <input type="hidden" name="semester_id"
+                                                    value="{{ $invoice->semester_id }}">
+
+                                                <input type="hidden" name="amount" value="{{ $invoice->amount }}">
+
                                                 <input type="hidden" name="payment_method_id"
                                                     value="{{ $invoice->payment_method_id }}">
                                                 &nbsp;
                                                 <button
                                                     onclick="return confirm('Are you sure you want to proceed with the payment?')"
-                                                    type="submit" class="btn btn-sm ml-3"
+                                                    type="submit" class="btn btn-sm ml-3 no-print"
                                                     style="background:blueviolet;color:white">
                                                     <i class="fas fa-credit-card mr-2"></i>Pay now
                                                 </button>

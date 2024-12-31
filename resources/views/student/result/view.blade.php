@@ -28,7 +28,7 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    
+                                    <th scope="col">#</th>
                                     <th scope="col">Course Code</th>
                                     <th scope="col">Course Title</th>
                                     <th scope="col">Course Unit</th>
@@ -42,6 +42,7 @@
                             <tbody>
                                 @forelse ($studentresults as $studentresult)
                                 <tr>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{$studentresult->course->title}}</td>
                                     <td>{{$studentresult->course->code}}</td>
                                     <td>{{$studentresult->course->credit_hours}}</td>

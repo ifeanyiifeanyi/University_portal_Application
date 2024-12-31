@@ -44,5 +44,11 @@ return [
         'secret_key' => env('REMITA_SECRET_KEY', '23093b2bda801eece94fc6e8363c05fad90a4ba3e12045005141b0bab41704b3a148904529239afd1c9a3880d51b4018d13fd626b2cef77a6f858fe854834e54'),
         'mode' => env('REMITA_MODE', 'test'), // 'test' or 'live'
     ],
+    'paystack' => [
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+        'base_url' => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
+        'timeout' => 30, // Optional timeout configuration
+    ],
 
 ];

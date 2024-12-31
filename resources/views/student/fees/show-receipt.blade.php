@@ -1,10 +1,10 @@
-@extends('student.layouts.receipt_layout')
+@extends('admin.layouts.receipt_layout')
 
 @section('title', 'Payment Receipt')
 
 @section('receipt')
     <div class="tm_container">
-        <div class="tm_pos_invoice_wrap" id="tm_download_section">
+        <div class="tm_pos_invoice_wrap" id="tm_download_section" style="max-width: 600px !important">
             <div class="tm_pos_invoice_top">
                 <div class="tm_pos_company_logo">
                     <img src="{{ asset('nursinglogo.webp') }}" alt="logo" style="width:45px; height:45px" class="logo">
@@ -24,11 +24,11 @@
                         <div class="tm_list_desc">{{ $receipt->payment->student->user->full_name }}</div>
                     </li>
                     <li class="text-right">
-                        <div class="tm_list_title">Receipt No:</div> <br>
+                        <div class="tm_list_title">Receipt:</div> <br>
                         <div class="tm_list_desc">{{ $receipt->receipt_number }}</div>
                     </li>
                     <li>
-                        <div class="tm_list_title">Student Id:</div> <br>
+                        <div class="tm_list_title">Id:</div> <br>
                         <div class="tm_list_desc">{{ $receipt->payment->student->matric_number }}</div>
                     </li>
                     <li class="text-right">
@@ -40,20 +40,68 @@
                     <thead>
                         <tr>
                             <th>Description</th>
-                            <th>Amount</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>{{ $receipt->payment->paymentType->name }}</td>
-                            <td>{{ number_format($receipt->amount, 2) }}</td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="tm_bill_list">
                     <div class="tm_bill_list_in">
+                        <div class="tm_bill_title">Base Amount:</div>
+                        <div class="tm_bill_value">₦{{ number_format($receipt->payment->base_amount, 2) }}</div>
+                    </div>
+                    @if ($receipt->payment->late_fee > 0)
+                        <div class="tm_bill_list_in">
+                            <div class="tm_bill_title">Late Fee:</div>
+                            <div class="tm_bill_value">₦{{ number_format($receipt->payment->late_fee, 2) }}</div>
+                        </div>
+                    @endif
+                    <div class="tm_bill_list_in">
                         <div class="tm_bill_title tm_bill_focus">Total Amount:</div>
-                        <div class="tm_bill_value tm_bill_focus">{{ number_format($receipt->amount, 2) }}</div>
+                        <div class="tm_bill_value tm_bill_focus">₦{{ number_format($receipt->payment->amount, 2) }}</div>
+                    </div>
+                </div>
+                @if ($receipt->payment->is_installment)
+                    <div class="tm_bill_list mt-3">
+                        <div class="tm_section_heading">Installment Details</div>
+                        <div class="tm_bill_list_in">
+                            <div class="tm_bill_title">Next Payment:</div>
+                            <div class="tm_bill_value">
+                                ₦{{ number_format($receipt->payment->next_transaction_amount, 2) }}</div>
+                        </div>
+                        <div class="tm_bill_list_in">
+                            <div class="tm_bill_title" style="color: red">Remaining Amount:</div>
+                            <div class="tm_bill_value" style="color: red">
+                                ₦{{ number_format($receipt->payment->remaining_amount, 2) }}</div>
+                        </div>
+                        @if ($receipt->payment->next_installment_date)
+                            <div class="tm_bill_list_in">
+                                <div class="tm_bill_title">Next Payment Due:</div>
+                                <div class="tm_bill_value">{{ $receipt->payment->next_installment_date->format('d.m.Y') }}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                <div class="tm_bill_list">
+                    <div class="tm_bill_list_in">
+                        <div class="tm_bill_title tm_bill_focus">Total Amount:</div>
+                        <div class="tm_bill_value tm_bill_focus">₦{{ number_format($receipt->payment->amount, 2) }}</div>
+                    </div>
+                    <div class="tm_bill_list_in">
+                        <div class="tm_bill_title tm_bill_focus" style="color: green">Paid Amount:</div>
+                        <div class="tm_bill_value tm_bill_focus" style="color: green">
+                            ₦{{ number_format($receipt->payment->base_amount, 2) }}</div>
+                    </div>
+                    <div class="tm_bill_list_in">
+                        <div class="tm_bill_title tm_bill_focus" style="color: red">Remaining Amount:</div>
+                        <div class="tm_bill_value tm_bill_focus" style="color: red">
+                            ₦{{ number_format($receipt->payment->remaining_amount, 2) }}</div>
                     </div>
                 </div>
                 <div class="tm_pos_sample_text">Thank you for your payment. This receipt is proof of payment for the
@@ -88,12 +136,15 @@
                 </span>
                 <span class="tm_btn_text">Download</span>
             </button>
-
-            <a href="{{route('student.view.dashboard')}}" class="tm_invoice_btn tm_color1">
+            <a href="#!" onclick="history.back()" class="tm_invoice_btn tm_color1">
                 <span class="tm_btn_icon">
-                    <i class="fas fa-home"></i>
+                    <!-- SVG for Return to Previous Page (Left Arrow) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                        <path d="M244 400L100 256l144-144M120 256h292" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="48" />
+                    </svg>
                 </span>
-                <span class="tm_btn_text">Home</span>
+                <span class="tm_btn_text">Exit</span>
             </a>
         </div>
     </div>
