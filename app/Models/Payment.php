@@ -59,7 +59,6 @@ class Payment extends Model
         'late_fee' => 'decimal:2',
         'next_installment_date' => 'date',
         'remaining_amount' => 'decimal:2',
-        'installment_status' => 'boolean',
         'next_transaction_amount' => 'decimal:2',
 
     ];

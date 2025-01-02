@@ -35,7 +35,7 @@ return new class extends Migration
             ])->default('pending');
             $table->string('payment_proof')->nullable();
             $table->string('invoice_number')->nullable();
-            $table->foreignId('admin_id')->constrained()->nullable();
+            $table->bigInteger('admin_id')->nullable();
             $table->text('admin_comment')->nullable();
             $table->boolean('is_manual')->default(false);
             $table->foreignId('invoice_id')->nullable()->constrained()->onDelete('cascade');
