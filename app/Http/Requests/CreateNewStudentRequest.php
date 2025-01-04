@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Department;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateNewStudentRequest extends FormRequest
@@ -48,7 +49,12 @@ class CreateNewStudentRequest extends FormRequest
             'jamb_registration_number' => 'nullable|string|max:255',
             'year_of_admission' => 'required|digits:4',
             'mode_of_entry' => 'required|in:UTME,Direct Entry,Transfer',
-            'current_level' => 'required|string|max:255',
+            'current_level' => ['required', function ($attribute, $value, $fail) {
+                $department = Department::find($this->current_level);
+                if ($department && !$department->isValidLevel($value)) {
+                    $fail('The selected level is invalid for this department.');
+                }
+            }],
             'profile_photo' => 'nullable|image|max:2048',
         ];
     }

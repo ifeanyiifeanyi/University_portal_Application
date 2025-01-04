@@ -86,7 +86,7 @@
 
                             </div>
                         </div>
-
+                        {{-- getDisplayLevel --}}
                         <hr>
                         <div class="table-responsive">
                             <table id="example" class="table table-striped">
@@ -109,7 +109,7 @@
 
                                                 {{ $student->user->fullName() ?? '' }}
                                                 <br>
-                                              <b>  added at {{ $student->created_at->format('jS F Y, g:ia') }}</b>
+                                               Added at {{ $student->created_at->format('jS F Y, g:ia') }}
 
                                             </td>
                                             <td class="text-center">
@@ -130,7 +130,7 @@
                                             <td>
                                                 <div class="float-end">
                                                     <i class="bx bx-user me-0"></i>
-                                                    {{ $student->current_level }}
+                                                    {{ $student->department->getDisplayLevel($student->current_level) }}
                                                 </div>
                                             </td>
                                             <td scope="row">

@@ -71,9 +71,10 @@
                                         data-academic-session="{{ $paymentType->academicSession->name }}"
                                         data-semester="{{ $paymentType->semester->name }}"
                                         data-description="{{ $paymentType->description }}"
-                                        data-departments="@foreach ($paymentType->departments as $department){{ $department->name }} (Level: {{ $department->pivot->level }})@if (!$loop->last)&#13;@endif @endforeach"
+                                        data-departments="@foreach ($paymentType->departments as $department){{ $department->name }} (Level: {{ $department->getDisplayLevel($department->pivot->level) }})@if (!$loop->last)&#13;@endif @endforeach"
                                         data-edit-url="{{ route('admin.payment_type.edit', $paymentType->id) }}"
                                         class="text-info view-details" title="View Details">
+
                                         <x-view-icon />
                                     </a>
                                     <a href="{{ route('admin.payment_type.edit', $paymentType->id) }}" title="Edit"

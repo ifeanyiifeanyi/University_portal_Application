@@ -17,7 +17,8 @@ class Department extends Model
         'phone',
         'email',
         'program_id',
-        'department_head_id'
+        'department_head_id',
+        'level_format'
     ];
 
     public function program()
@@ -59,9 +60,94 @@ class Department extends Model
         return $this->hasMany(Student::class);
     }
 
+
+    // Retrieve level in display format
+    public function getCurrentLevelAttribute($value)
+    {
+        return $this->getDisplayLevel($value);
+    }
+
     public function getLevelsAttribute()
     {
-        return range(100, $this->duration * 100, 100);
+        // Always return display format for consistency
+        if (!$this->level_format) {
+            return range(100, $this->duration * 100, 100);
+        }
+
+        switch ($this->level_format) {
+            case 'nd_hnd':
+                return ['ND1', 'ND2', 'HND1', 'HND2'];
+            case 'nursing':
+                return ['RN1', 'RN2', 'RN3'];
+            default:
+                return range(100, $this->duration * 100, 100);
+        }
+    }
+
+
+    public function getLevelNumber($levelString)
+    {
+        $levelMappings = [
+            // ND/HND mappings
+            'ND1' => 100,
+            'ND2' => 200,
+            'HND1' => 300,
+            'HND2' => 400,
+            // Nursing mappings
+            'RN1' => 100,
+            'RN2' => 200,
+            'RN3' => 300
+        ];
+
+        // If it's already numeric, return as integer
+        if (is_numeric($levelString)) {
+            return (int)$levelString;
+        }
+
+        // Return mapped value or null if not found
+        return $levelMappings[$levelString] ?? null;
+    }
+
+    // Helper method to get display format for a numeric level
+    // Convert numeric to display format
+    public function getDisplayLevel($numericLevel)
+    {
+        if (!$this->level_format) {
+            return $numericLevel;
+        }
+
+        $reverseMappings = [
+            'nd_hnd' => [
+                100 => 'ND1',
+                200 => 'ND2',
+                300 => 'HND1',
+                400 => 'HND2'
+            ],
+            'nursing' => [
+                100 => 'RN1',
+                200 => 'RN2',
+                300 => 'RN3'
+            ]
+        ];
+
+        return $reverseMappings[$this->level_format][$numericLevel] ?? $numericLevel;
+    }
+
+
+    public function isValidLevel($level)
+    {
+        return in_array($level, $this->levels);
+    }
+
+    public function isValidNumericLevel($numericLevel)
+    {
+        return in_array($this->getDisplayLevel($numericLevel), $this->levels);
+    }
+
+    // Store level in numeric format
+    public function setCurrentLevelAttribute($value)
+    {
+        $this->attributes['current_level'] = $this->getLevelNumber($value);
     }
 
     public function courseAssignments()
@@ -69,7 +155,7 @@ class Department extends Model
         return $this->hasMany(CourseAssignment::class);
     }
 
-    
+
 
     public function courses()
     {

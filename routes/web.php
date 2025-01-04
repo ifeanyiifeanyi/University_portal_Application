@@ -259,6 +259,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             // unique route that helps separate the levels of study for a department
             Route::get('departments/{department}/levels', 'levels');
+
         });
     });
 
@@ -414,6 +415,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             // * view student idcard
             Route::get('student/{student}/idcard', 'generateIdCard')->name('admin.student.idcard');
+
+
+            Route::get('departments/{department}', 'getDepartment');
+
         });
     });
 

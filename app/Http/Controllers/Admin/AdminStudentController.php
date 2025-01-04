@@ -36,7 +36,8 @@ class AdminStudentController extends Controller
     protected $studentBatchService;
     protected $studentService;
 
-    public function __construct(StudentBatchService $studentBatchService, StudentService $studentService) {
+    public function __construct(StudentBatchService $studentBatchService, StudentService $studentService)
+    {
         $this->studentBatchService = $studentBatchService;
         $this->studentService = $studentService;
     }
@@ -45,7 +46,7 @@ class AdminStudentController extends Controller
      */
     public function index()
     {
-        $studentsWithUsers = Student::with('user')->latest()->get();
+        $studentsWithUsers = Student::with(['user', 'department'])->latest()->get();
 
         // Filter out students with null users
         $students = $studentsWithUsers->filter(function ($student) {
@@ -71,8 +72,10 @@ class AdminStudentController extends Controller
     }
 
     // fetch the department academic levels
+
     public function levels(Department $department)
     {
+        // Return levels in display format
         return response()->json($department->levels);
     }
 
@@ -98,8 +101,6 @@ class AdminStudentController extends Controller
             ];
             return back()->with($notification);
         }
-
-
     }
     /**
      * Display the specified resource.
@@ -109,18 +110,43 @@ class AdminStudentController extends Controller
         return view('admin.student.details', compact('student'));
     }
 
+
+
     /**
      * Show the form for editing the specified resource.
      */
+
+     public function getDepartment(Department $department)
+     {
+         $levels = $department->levels;
+         $levelMap = [];
+
+         foreach ($levels as $level) {
+             $levelMap[$level] = $department->getLevelNumber($level);
+         }
+
+         return response()->json([
+             'levels' => $levels,
+             'levelMap' => $levelMap,
+             'level_format' => $department->level_format,
+             'duration' => $department->duration
+         ]);
+     }
     public function edit(Student $student)
     {
         $countries = Country::all();
+        $departments = Department::all();
+        $currentDepartment = Department::find($student->department_id);
+        $levels = $currentDepartment ? $currentDepartment->levels : [];
 
-        $departments = Department::all(); // Assuming you have a Department model
-        return view('admin.student.edit', compact('student', 'departments','countries'));
+        return view('admin.student.edit', compact(
+            'student',
+            'departments',
+            'countries',
+            'levels',
+            'currentDepartment'
+        ));
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -249,7 +275,7 @@ class AdminStudentController extends Controller
      * @return BinaryFileResponse
      */
 
-     // Params: $format = 'excel' || 'pdf'
+    // Params: $format = 'excel' || 'pdf'
     public function downloadTemplate($format = 'excel')
     {
         if ($format === 'pdf') {
@@ -295,45 +321,45 @@ class AdminStudentController extends Controller
 
 
     public function importProcess(Request $request)
-{
-    try {
-        $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'students' => 'required|array'
-        ]);
+    {
+        try {
+            $request->validate([
+                'department_id' => 'required|exists:departments,id',
+                'students' => 'required|array'
+            ]);
 
-        // Log the initial request
-        Log::info('Starting student import process', [
-            'total_records' => count($request->students),
-            'department_id' => $request->department_id
-        ]);
+            // Log the initial request
+            Log::info('Starting student import process', [
+                'total_records' => count($request->students),
+                'department_id' => $request->department_id
+            ]);
 
-        // Generate a unique batch ID
-        $batchId = uniqid('batch_', true);
+            // Generate a unique batch ID
+            $batchId = uniqid('batch_', true);
 
-        // Dispatch the job with a smaller chunk size
-        $chunks = array_chunk($request->students, 25); // Process 25 students at a time
+            // Dispatch the job with a smaller chunk size
+            $chunks = array_chunk($request->students, 25); // Process 25 students at a time
 
-        foreach ($chunks as $index => $chunk) {
-            ProcessStudentImport::dispatch($chunk, $request->department_id, $batchId)
-                ->delay(now()->addSeconds($index * 30)); // Add delay between chunks
+            foreach ($chunks as $index => $chunk) {
+                ProcessStudentImport::dispatch($chunk, $request->department_id, $batchId)
+                    ->delay(now()->addSeconds($index * 30)); // Add delay between chunks
+            }
+
+            return redirect()
+                ->route('admin.student.import-status')
+                ->with('message', 'Student import has been queued for processing. You can check the status on this page.');
+        } catch (Exception $e) {
+            Log::error('Failed to queue student import', [
+                'error' => $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Failed to queue student import: ' . $e->getMessage()])
+                ->withInput();
         }
-
-        return redirect()
-            ->route('admin.student.import-status')
-            ->with('message', 'Student import has been queued for processing. You can check the status on this page.');
-    } catch (Exception $e) {
-        Log::error('Failed to queue student import', [
-            'error' => $e->getMessage(),
-            'stack_trace' => $e->getTraceAsString()
-        ]);
-
-        return redirect()
-            ->back()
-            ->withErrors(['error' => 'Failed to queue student import: ' . $e->getMessage()])
-            ->withInput();
     }
-}
 
     // New method to check import status
     public function importStatus()

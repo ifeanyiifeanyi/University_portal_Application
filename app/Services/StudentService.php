@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\Department;
 use Illuminate\Support\Str;
 use App\Services\AuthService;
 use App\Jobs\SendWelcomeEmail;
@@ -15,9 +17,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Profilerequest;
 use App\Services\StudentBatchService;
 use App\Http\Requests\StudentprofileRequest;
-use App\Http\Requests\UpdateStudentDataRequest;
-use Exception;
 use Illuminate\Contracts\Auth\StatefulGuard;
+use App\Http\Requests\UpdateStudentDataRequest;
 
 class StudentService
 {
@@ -155,6 +156,11 @@ class StudentService
 
         try {
             $matNumber = $this->studentBatchService->generateMatricNumber();
+
+            $department = Department::findOrFail($data['department_id']);
+
+            // Convert level to numeric before saving
+            $validated['current_level'] = $department->getLevelNumber($data['current_level']);
 
             // Create user
             $user = User::create([

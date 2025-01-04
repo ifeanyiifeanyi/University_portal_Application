@@ -85,7 +85,7 @@
                                                     {{ $student->department->name }}</p>
                                                 <hr>
                                                 <p class="mb-0"><strong>Current Level:</strong> <br>
-                                                    {{ $student->current_level }}</p>
+                                                    {{  $student->department->getDisplayLevel($student->current_level) }}</p>
                                                 <hr>
                                                 <p class="mb-0"><strong>Year of Admission:</strong>
                                                     {{ $student->year_of_admission }}</p>

@@ -61,7 +61,7 @@ class AdminPaymentTypeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'department_id' => 'required|exists:departments,id',
             'levels' => 'required|array',
-            'levels.*' => 'integer|min:100|max:600',
+            'levels.*' => 'required|string',
             'is_active' => 'required|boolean',
             'amount' => 'required|numeric',
             'description' => 'required|string',
@@ -87,14 +87,17 @@ class AdminPaymentTypeController extends Controller
         ]);
 
 
+
         $departmentId = $validated['department_id'];
+        $department = Department::findOrFail($departmentId);
         $levels = $validated['levels'];
 
-        foreach ($levels as $level) {
+
+        foreach ($levels as $levelDisplay) {
             DB::table('department_payment_type')->insert([
                 'department_id' => $departmentId,
                 'payment_type_id' => $paymentType->id,
-                'level' => $level,
+                'level' => $department->getLevelNumber($levelDisplay), // Convert to numeric
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -146,7 +149,7 @@ class AdminPaymentTypeController extends Controller
             'payment_period' => 'required|string',
 
             'levels' => 'required|array',
-            'levels.*' => 'integer|min:100|max:600',
+            'levels.*' => 'required|string',
             'is_active' => 'required|boolean',
             'amount' => 'required|numeric',
             'description' => 'required|string',
@@ -171,21 +174,25 @@ class AdminPaymentTypeController extends Controller
             'semester_id' => $validated['semester_id'],
         ]);
 
+        // $departmentId = $validated['department_id'];
+        // $levels = $validated['levels'];
+
         $departmentId = $validated['department_id'];
+        $department = Department::findOrFail($departmentId);
         $levels = $validated['levels'];
 
-        // Remove existing relationships for this payment type and department
+        // Remove existing relationships
         DB::table('department_payment_type')
             ->where('payment_type_id', $paymentType->id)
             ->where('department_id', $departmentId)
             ->delete();
 
-        // Insert new relationships
-        foreach ($levels as $level) {
+        // Insert new relationships with converted level numbers
+        foreach ($levels as $levelDisplay) {
             DB::table('department_payment_type')->insert([
                 'department_id' => $departmentId,
                 'payment_type_id' => $paymentType->id,
-                'level' => $level,
+                'level' => $department->getLevelNumber($levelDisplay),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

@@ -115,7 +115,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                            name="password" required>
+                            name="password" required value="password">
                         @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -123,7 +123,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="password_confirmation" class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" id="password_confirmation" name="password_confirmation"
-                            required>
+                            required value="password">
                     </div>
                 </div>
 
@@ -133,11 +133,11 @@
                         <select class="form-select @error('department_id') is-invalid @enderror" id="department_id"
                             name="department_id" required>
                             <option value="">Select Department</option>
-                            <!-- Add department options here -->
                             @forelse ($departments as $department)
-                                <option {{ old('department_id') == 'department_id' ? 'selected' : '' }}
-                                    value="{{ $department->id }}"> {{ $department->code }} :
-                                    {{ Str::title($department->name) }} </option>
+                                <option {{ old('department_id') == $department->id ? 'selected' : '' }}
+                                    value="{{ $department->id }}">
+                                    {{ $department->code }} : {{ Str::title($department->name) }}
+                                </option>
                             @empty
                                 <option value=""> ------ -------</option>
                             @endforelse
@@ -147,35 +147,17 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        {{-- <div class="col-md-6 mb-3">
-                            <label for="current_level" class="form-label">Current Academic Level</label>
-                            <input type="text" class="form-control @error('current_level') is-invalid @enderror"
-                                id="current_level" name="current_level" value="{{ old('current_level') }}" required>
-                            @error('current_level')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
-                        <div class="form-group mb-3">
-                            <label for="level">Academic Level</label>
-                            <select class="form-control @error('current_level') is-invalid @enderror" id="level"
+                        <div class="form-group">
+                            <label for="current_level">Academic Level</label>
+                            <select class="form-select @error('current_level') is-invalid @enderror" id="current_level"
                                 name="current_level" required>
-
+                                <option value="">Select Department First</option>
                             </select>
                             @error('current_level')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                     </div>
-                    {{-- <div class="col-md-6 mb-3">
-                        <label for="religion" class="form-label">Religion</label>
-                        <input type="text" class="form-control @error('religion') is-invalid @enderror" id="religion"
-                            name="religion" value="{{ old('religion') }}" required>
-                        @error('religion')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
                 </div>
 
                 <div class="row">
@@ -444,27 +426,139 @@
     </script>
 
     <script>
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const departmentSelect = document.getElementById('department_id');
+        //     const levelSelect = document.getElementById('current_level');
+
+        //     // Define level mappings
+        //     const levelMappings = {
+        //         'ND1': 100,
+        //         'ND2': 200,
+        //         'HND1': 300,
+        //         'HND2': 400,
+        //         'RN1': 100,
+        //         'RN2': 200,
+        //         'RN3': 300
+        //     };
+
+        //     function updateLevels() {
+        //         const departmentId = departmentSelect.value;
+        //         if (!departmentId) {
+        //             levelSelect.innerHTML = '<option value="">Select Department First</option>';
+        //             levelSelect.disabled = true;
+        //             return;
+        //         }
+
+        //         levelSelect.innerHTML = '<option value="">Loading levels...</option>';
+        //         levelSelect.disabled = true;
+
+        //         fetch(`/admin/departments/${departmentId}/levels`)
+        //             .then(response => response.json())
+        //             .then(levels => {
+        //                 levelSelect.innerHTML = '<option value="">Select Level</option>';
+        //                 levels.forEach(level => {
+        //                     const option = document.createElement('option');
+        //                     // Use mapping for numeric value, fallback to level itself if numeric
+        //                     option.value = levelMappings[level] || level;
+        //                     option.textContent = level;
+        //                     if (option.value == "{{ old('current_level') }}") {
+        //                         option.selected = true;
+        //                     }
+        //                     levelSelect.appendChild(option);
+        //                 });
+        //                 levelSelect.disabled = false;
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error fetching levels:', error);
+        //                 levelSelect.innerHTML = '<option value="">Error loading levels</option>';
+        //                 levelSelect.disabled = true;
+        //             });
+        //     }
+
+        //     departmentSelect.addEventListener('change', updateLevels);
+        //     if (departmentSelect.value) {
+        //         updateLevels();
+        //     }
+        // });
+
         document.addEventListener('DOMContentLoaded', function() {
             const departmentSelect = document.getElementById('department_id');
-            const levelSelect = document.getElementById('level');
+            const levelSelect = document.getElementById('current_level');
 
             function updateLevels() {
                 const departmentId = departmentSelect.value;
+                if (!departmentId) {
+                    levelSelect.innerHTML = '<option value="">Select Department First</option>';
+                    levelSelect.disabled = true;
+                    return;
+                }
+
+                levelSelect.innerHTML = '<option value="">Loading levels...</option>';
+                levelSelect.disabled = true;
+
+                // First, fetch the department's levels
                 fetch(`/admin/departments/${departmentId}/levels`)
                     .then(response => response.json())
                     .then(levels => {
-                        levelSelect.innerHTML = '';
+                        levelSelect.innerHTML = '<option value="">Select Level</option>';
+
+                        // For each level, create an option with the correct display text and numeric value
                         levels.forEach(level => {
                             const option = document.createElement('option');
-                            option.value = level;
+
+                            // Set the display text to the format-specific level (RN1, ND1, etc.)
                             option.textContent = level;
+
+                            // Use the department's getLevelNumber method to get the correct numeric value
+                            // This will convert RN1 to 100, RN2 to 200, etc.
+                            if (typeof level === 'string' && (level.startsWith('RN') || level
+                                    .startsWith('ND') || level.startsWith('HND'))) {
+                                switch (level) {
+                                    case 'RN1':
+                                    case 'ND1':
+                                        option.value = '100';
+                                        break;
+                                    case 'RN2':
+                                    case 'ND2':
+                                        option.value = '200';
+                                        break;
+                                    case 'RN3':
+                                        option.value = '300';
+                                        break;
+                                    case 'HND1':
+                                        option.value = '300';
+                                        break;
+                                    case 'HND2':
+                                        option.value = '400';
+                                        break;
+                                    default:
+                                        option.value = level;
+                                }
+                            } else {
+                                // For numeric levels, use the level as is
+                                option.value = level;
+                            }
+
+                            // Set selected option based on old input if it exists
+                            if (option.value == "{{ old('current_level') }}") {
+                                option.selected = true;
+                            }
+
                             levelSelect.appendChild(option);
                         });
+                        levelSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading levels:', error);
+                        levelSelect.innerHTML = '<option value="">Error loading levels</option>';
+                        levelSelect.disabled = true;
                     });
             }
 
             departmentSelect.addEventListener('change', updateLevels);
-            updateLevels(); // Initial population
+            if (departmentSelect.value) {
+                updateLevels();
+            }
         });
     </script>
 @endsection

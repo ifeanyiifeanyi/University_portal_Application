@@ -131,7 +131,8 @@
                         <option value="">Select Department</option>
                         <!-- Add department options here -->
                         @forelse ($departments as $department)
-                            <option {{ old('department_id', $student->department_id) == $department->id  ? 'selected' : '' }}
+                            <option
+                                {{ old('department_id', $student->department_id) == $department->id ? 'selected' : '' }}
                                 value="{{ $department->id }}"> {{ $department->code }} :
                                 {{ Str::title($department->name) }} </option>
                         @empty
@@ -202,11 +203,16 @@
                     @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <div class="form-group mb-3">
+                    <div class="form-group">
                         <label for="level">Academic Level</label>
                         <select class="form-control @error('current_level') is-invalid @enderror" id="level"
                             name="current_level" required>
-
+                            @foreach ($levels as $level)
+                                <option value="{{ $currentDepartment->getLevelNumber($level) }}"
+                                    {{ old('current_level', $student->current_level) == $currentDepartment->getLevelNumber($level) ? 'selected' : '' }}>
+                                    {{ $level }}
+                                </option>
+                            @endforeach
                         </select>
                         @error('current_level')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -450,30 +456,32 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const departmentSelect = document.getElementById('department_id');
-            const levelSelect = document.getElementById('level');
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const departmentSelect = document.getElementById('department_id');
+        //     const levelSelect = document.getElementById('level');
 
-            function updateLevels() {
-                const departmentId = departmentSelect.value;
-                fetch(`/admin/departments/${departmentId}/levels`)
-                    .then(response => response.json())
-                    .then(levels => {
-                        levelSelect.innerHTML = '';
-                        levels.forEach(level => {
-                            const option = document.createElement('option');
-                            option.value = level;
-                            option.textContent = level;
-                            if (level === '{{ old('current_level', $student->current_level) }}') {
-                                option.selected = true;
-                            }
-                            levelSelect.appendChild(option);
-                        });
-                    });
-            }
+        //     function updateLevels() {
+        //         const departmentId = departmentSelect.value;
+        //         fetch(`/admin/departments/${departmentId}/levels`)
+        //             .then(response => response.json())
+        //             .then(levels => {
+        //                 console.log("level: ",level);
 
-            departmentSelect.addEventListener('change', updateLevels);
-            updateLevels(); // Initial population
-        });
+        //                 levelSelect.innerHTML = '';
+        //                 levels.forEach(level => {
+        //                     const option = document.createElement('option');
+        //                     option.value = level;
+        //                     option.textContent = level;
+        //                     if (level === '{{ old('current_level', $student->current_level) }}') {
+        //                         option.selected = true;
+        //                     }
+        //                     levelSelect.appendChild(option);
+        //                 });
+        //             });
+        //     }
+
+        //     departmentSelect.addEventListener('change', updateLevels);
+        //     updateLevels(); // Initial population
+        // });
     </script>
 @endsection

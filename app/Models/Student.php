@@ -13,9 +13,23 @@ class Student extends Model
     use SoftDeletes;
     protected $guarded = [];
 
+    protected $casts = [
+        'current_level' => 'integer'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getCurrentLevelAttribute($value)
+    {
+        return $this->department->getDisplayLevel($value);
+    }
+
+    public function setCurrentLevelAttribute($value)
+    {
+        $this->attributes['current_level'] = $this->department->getLevelNumber($value);
     }
 
     public function teacher()
@@ -76,7 +90,6 @@ class Student extends Model
             ->orderBy('semesters.name', 'asc')
             ->get()
             ->groupBy(['session_name', 'semester_name']);
-
     }
 
 

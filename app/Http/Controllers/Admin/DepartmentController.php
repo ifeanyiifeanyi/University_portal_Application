@@ -19,6 +19,12 @@ use Symfony\Component\ErrorHandler\Debug;
 
 class DepartmentController extends Controller
 {
+    public function numericLevels(Department $department)
+    {
+        return response()->json(array_map(function ($level) use ($department) {
+            return $department->getLevelNumber($level);
+        }, $department->levels->toArray()));
+    }
     public function index()
     {
         $faculties = Faculty::query()->latest()->get();
@@ -32,6 +38,7 @@ class DepartmentController extends Controller
 
     public function store(DepartmentRequest $request)
     {
+        // dd($request->all());
         try {
             $validatedData = $request->validated();
             // Available alpha characters

@@ -28,7 +28,7 @@ class AdminDepartmentCreditForSemester extends FormRequest
             'semester_id'  => 'required|exists:semesters,id',
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'max_credit_hours' => 'required|numeric|min:1',
-            'level' => 'required|multiple_of:100'
+            'level' => 'required|string'
         ];
     }
 

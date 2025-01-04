@@ -35,7 +35,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="col-sm-6 col-xl-3">
                             <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
                                 <div class="card-body">
@@ -255,21 +255,21 @@
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="text" class="form-control" id="name" name="name"
-                                        placeholder="Department Name" required>
+                                        placeholder="" required>
                                     <label>Department Name</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="tel" class="form-control" id="phone" name="phone"
-                                        placeholder="Phone Number">
+                                        placeholder="">
                                     <label>Phone Number</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="email" class="form-control" id="email" name="email"
-                                        placeholder="Email">
+                                        placeholder="">
                                     <label>Email</label>
                                 </div>
                             </div>
@@ -286,8 +286,19 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
+                                    <select id="level_format" name="level_format" class="form-select"
+                                        onchange="handleLevelFormatChange()">
+                                        <option value="">Standard Levels (100, 200, etc)</option>
+                                        <option value="nd_hnd">ND/HND Format</option>
+                                        <option value="nursing">Nursing Format (NS1-NS3)</option>
+                                    </select>
+                                    <label>Level Format</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="durationField">
+                                <div class="form-floating">
                                     <input type="number" class="form-control" id="duration" name="duration"
-                                        min="1" max="8" placeholder="Duration" required>
+                                        min="1" max="8" placeholder="" required>
                                     <label>Program Duration (Years)</label>
                                 </div>
                             </div>
@@ -387,6 +398,42 @@
 
 
 @section('javascript')
+    <script>
+        function handleLevelFormatChange() {
+            const levelFormat = document.getElementById('level_format').value;
+            const durationField = document.getElementById('durationField');
+            const durationInput = document.getElementById('duration');
+
+            switch (levelFormat) {
+                case 'nd_hnd':
+                    durationInput.value = 4;
+                    durationInput.readOnly = true;
+                    durationField.style.display = 'block';
+                    break;
+                case 'nursing':
+                    durationInput.value = 3;
+                    durationInput.readOnly = true;
+                    durationField.style.display = 'block';
+                    break;
+                default:
+                    durationInput.value = '';
+                    durationInput.readOnly = false;
+                    durationField.style.display = 'block';
+            }
+        }
+
+
+        // Add this to your DepartmentModalManager.resetForm method
+        DepartmentModalManager.resetForm = function() {
+            this.formElement.reset();
+            this.formElement.querySelector('#formMethod').value = 'POST';
+            this.formElement.querySelector('#departmentId').value = '';
+            document.getElementById('departmentModalLabel').textContent = 'Create Department';
+            this.submitButton.textContent = 'Create Department';
+            document.getElementById('duration').readOnly = false;
+            handleLevelFormatChange();
+        }
+    </script>
     <script>
         // Modal State Management
         const DepartmentModalManager = {

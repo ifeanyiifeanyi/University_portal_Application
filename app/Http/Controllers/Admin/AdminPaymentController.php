@@ -57,69 +57,118 @@ class AdminPaymentController extends Controller
         return view('admin.payments.index', compact('paymentTypes', 'paymentMethods', 'academicSessions', 'semesters'));
     }
 
+    // public function getDepartmentsAndLevels(Request $request)
+    // {
+    //     $paymentType = PaymentType::findOrFail($request->payment_type_id);
 
-    //get department level for api(payment resquest)
+    //     $currentDate = now();
+    //     $lateFee = $paymentType->calculateLateFee($currentDate);
+
+    //     $departmentsAndLevels = $paymentType->departments()
+    //         ->with(['paymentTypes' => function ($query) use ($paymentType) {
+    //             $query->where('payment_types.id', $paymentType->id);
+    //         }])
+    //         ->get()
+    //         ->map(function ($department) {
+    //             // Get the numeric levels from the pivot table
+    //             $numericLevels = $department->paymentTypes->pluck('pivot.level')
+    //                 ->unique()
+    //                 ->values();
+
+    //             // Convert numeric levels to display format based on department's level_format
+    //             $displayLevels = $numericLevels->map(function ($level) use ($department) {
+    //                 return $department->getDisplayLevel($level);
+    //             });
+
+    //             return [
+    //                 'id' => $department->id,
+    //                 'name' => $department->name,
+    //                 'levels' => $displayLevels->toArray(),
+    //                 'level_format' => $department->level_format
+    //             ];
+    //         });
+
+    //     return response()->json([
+    //         'departments' => $departmentsAndLevels,
+    //         'amount' => $paymentType->amount + $lateFee,
+    //         'late_fee' => $lateFee,
+    //         'due_date' => $paymentType->due_date,
+    //         'supports_installments' => $paymentType->supportsInstallments(),
+    //         'installment_config' => $paymentType->supportsInstallments() ?
+    //             $paymentType->installmentConfig :
+    //             null
+    //     ]);
+    // }
+
     public function getDepartmentsAndLevels(Request $request)
     {
         $paymentType = PaymentType::findOrFail($request->payment_type_id);
 
-
         $currentDate = now();
         $lateFee = $paymentType->calculateLateFee($currentDate);
 
+        $departmentsAndLevels = $paymentType->departments()
+            ->with(['paymentTypes' => function ($query) use ($paymentType) {
+                $query->where('payment_types.id', $paymentType->id);
+            }])
+            ->get()
+            ->map(function ($department) {
+                // Get the numeric levels from the pivot table
+                $numericLevels = $department->paymentTypes->pluck('pivot.level')
+                    ->unique()
+                    ->values();
 
-        $departmentsAndLevels = $paymentType->departments()->with(['paymentTypes' => function ($query) use ($paymentType) {
-            $query->where('payment_types.id', $paymentType->id);
-        }])->get()->map(function ($department) {
-            $levels = $department->paymentTypes->pluck('pivot.level')->unique()->values();
-            return [
-                'id' => $department->id,
-                'name' => $department->name,
-                'levels' => $levels->toArray(),
-            ];
-        });
+                // Create an array of level objects containing both numeric and display values
+                $levels = $numericLevels->map(function ($numericLevel) use ($department) {
+                    return [
+                        'numeric' => $numericLevel,
+                        'display' => $department->getDisplayLevel($numericLevel)
+                    ];
+                });
+
+                return [
+                    'id' => $department->id,
+                    'name' => $department->name,
+                    'levels' => $levels->toArray(),
+                    'level_format' => $department->level_format
+                ];
+            });
 
         return response()->json([
             'departments' => $departmentsAndLevels,
-            'amount' => $paymentType->amount + $lateFee, // Include the penalty in the amount
+            'amount' => $paymentType->amount + $lateFee,
             'late_fee' => $lateFee,
             'due_date' => $paymentType->due_date,
             'supports_installments' => $paymentType->supportsInstallments(),
-            'installment_config' => $paymentType->supportsInstallments() ? $paymentType->installmentConfig : null
+            'installment_config' => $paymentType->supportsInstallments() ?
+                $paymentType->installmentConfig :
+                null
         ]);
     }
 
-
     public function getStudents(Request $request)
     {
-        $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'level' => 'required|integer|min:100|max:600',
-            'payment_type_id' => 'required|exists:payment_types,id',
-            'academic_session_id' => 'required|exists:academic_sessions,id',
-            'semester_id' => 'required|exists:semesters,id',
-        ]);
+        $department = Department::findOrFail($request->department_id);
 
-        $paidStudentIds = Payment::where('payment_type_id', $request->payment_type_id)
-            ->where('academic_session_id', $request->academic_session_id)
-            ->where('semester_id', $request->semester_id)
-            ->pluck('student_id');
+        // Convert display level back to numeric if needed
+        $numericLevel = $department->getLevelNumber($request->level);
 
         $students = Student::where('department_id', $request->department_id)
-            ->where('current_level', $request->level)
-            ->whereNotIn('id', $paidStudentIds)
+            ->where('current_level', $numericLevel)
+            // Add any other conditions needed for payment eligibility
             ->with('user')
             ->get()
             ->map(function ($student) {
                 return [
                     'id' => $student->id,
-                    'full_name' => $student->user->first_name . ' ' . $student->user->last_name . ' ' . $student->user->other_name,
+                    'full_name' => $student->user->fullName(),
                     'matric_number' => $student->matric_number
                 ];
             });
 
         return response()->json($students);
     }
+
 
     public function getAmount(Request $request)
     {
@@ -459,11 +508,7 @@ class AdminPaymentController extends Controller
 
 
             if ($result['success']) {
-                // if ($payment->is_installment) {
-                //     $this->handleInstallmentVerification($payment, $result['amount']);
-                // } else {
-                //     $this->handleFullPaymentVerification($payment, $admin);
-                // }
+
 
                 // Generate receipt and send notifications
                 $receipt = $this->generateReceipt($payment);

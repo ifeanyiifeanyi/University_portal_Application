@@ -410,6 +410,70 @@
                     $('#amount').val('');
                 }
             });
+            // $('#department_id').change(function() {
+            //     var levelsData = $(this).find(':selected').data('levels');
+            //     var levels = [];
+
+            //     if (typeof levelsData === 'string') {
+            //         try {
+            //             levels = JSON.parse(levelsData);
+            //         } catch (e) {
+            //             console.error("Error parsing levels JSON:", e);
+            //         }
+            //     } else if (Array.isArray(levelsData)) {
+            //         levels = levelsData;
+            //     }
+
+            //     $('#level').empty().append('<option value="">Select Level</option>').prop('disabled',
+            //         false);
+            //     $.each(levels, function(key, value) {
+            //         $('#level').append('<option value="' + value + '">' + value + '</option>');
+            //     });
+            //     $('#student-table').empty();
+            // });
+
+            // $('#level').change(function() {
+            //     var departmentId = $('#department_id').val();
+            //     var level = $(this).val();
+            //     var paymentTypeId = $('#payment_type_id').val();
+            //     var academicSessionId = $('#academic_session_id').val();
+            //     var semesterId = $('#semester_id').val();
+
+            //     if (departmentId && level && paymentTypeId && academicSessionId && semesterId) {
+            //         $.ajax({
+            //             url: '{{ route('payments.getStudents') }}',
+            //             type: 'GET',
+            //             data: {
+            //                 department_id: departmentId,
+            //                 level: level,
+            //                 payment_type_id: paymentTypeId,
+            //                 academic_session_id: academicSessionId,
+            //                 semester_id: semesterId
+            //             },
+            //             success: function(data) {
+            //                 $('#student-table').empty();
+            //                 $.each(data, function(key, value) {
+            //                     $('#student-table').append(
+            //                         '<tr>' +
+            //                         '<td><input type="radio" name="student_id" value="' +
+            //                         value.id + '"></td>' +
+            //                         '<td>' + value.full_name + '</td>' +
+            //                         '<td>' + value.matric_number + '</td>' +
+            //                         '</tr>'
+            //                     );
+            //                 });
+            //                 if (data.length === 0) {
+            //                     $('#student-table').append(
+            //                         '<tr><td colspan="3" class="text-center">No eligible students found</td></tr>'
+            //                     );
+            //                 }
+            //             }
+            //         });
+            //     } else {
+            //         $('#student-table').empty();
+            //     }
+            // });
+
             $('#department_id').change(function() {
                 var levelsData = $(this).find(':selected').data('levels');
                 var levels = [];
@@ -424,14 +488,27 @@
                     levels = levelsData;
                 }
 
-                $('#level').empty().append('<option value="">Select Level</option>').prop('disabled',
-                    false);
-                $.each(levels, function(key, value) {
-                    $('#level').append('<option value="' + value + '">' + value + '</option>');
+                $('#level').empty()
+                    .append('<option value="">Select Level</option>')
+                    .prop('disabled', false);
+
+                // Add levels to select options
+                $.each(levels, function(key, levelInfo) {
+                    $('#level').append(
+                        $('<option>', {
+                            value: levelInfo
+                                .numeric, // Use the numeric value (100, 200, etc.)
+                            text: levelInfo
+                                .display // Show the display value (ND1, ND2, etc.)
+                        })
+                    );
                 });
+
                 $('#student-table').empty();
             });
 
+
+            // Level change handler - no changes needed here as it's already using the numeric value
             $('#level').change(function() {
                 var departmentId = $('#department_id').val();
                 var level = $(this).val();
@@ -473,6 +550,9 @@
                     $('#student-table').empty();
                 }
             });
+
+
+
 
             // Add change event listeners to ensure student list is updated when these fields change
             $('#academic_session_id, #semester_id').change(function() {

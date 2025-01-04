@@ -28,6 +28,18 @@ class PaymentType extends Model
         'subaccount_percentage'
     ];
 
+    // In PaymentType model
+    public function getFormattedDepartmentsAndLevels()
+    {
+        return $this->departments->map(function ($department) {
+            return sprintf(
+                '%s (Level: %s)',
+                $department->name,
+                $department->getDisplayLevel($department->pivot->level)
+            );
+        })->implode('&#13;');
+    }
+
     public function departments()
     {
         return $this->belongsToMany(Department::class)->withPivot('level');
