@@ -36,6 +36,7 @@ class AdminPaymentNotification extends Notification
      * Get the mail representation of the notification.
      */
 
+
     public function toMail($notifiable)
     {
         return (new MailMessage)
@@ -43,20 +44,19 @@ class AdminPaymentNotification extends Notification
             ->line('A new payment has been processed.')
             ->line('Payment Details:')
             ->line('Student: ' . $this->payment->student->user->full_name)
-            ->line('Amount: ' . $this->payment->amount)
+            ->line('Amount: ₦' . number_format($this->payment->base_amount, 2))
             ->line('Payment Type: ' . $this->payment->paymentType->name)
             ->line('Transaction Reference: ' . $this->payment->transaction_reference)
             ->line('Payment Status: ' . $this->payment->status)
             ->line('Invoice Status: ' . ($this->payment->invoice ? $this->payment->invoice->status : 'N/A'))
-            ->action('View Payment Details', route('admin.payments.show', $this->payment->id));
+            ->action('View Payment Details',route('admin.payments.showReceipt', $this->payment->receipt->id));
     }
-
     public function toDatabase($notifiable)
     {
         return [
             'payment_id' => $this->payment->id,
             'student_name' => $this->payment->student->user->full_name,
-            'amount' => $this->payment->amount,
+            'amount' => '₦' . number_format($this->payment->base_amount, 2),
             'payment_type' => $this->payment->paymentType->name,
             'transaction_reference' => $this->payment->transaction_reference,
             'payment_status' => $this->payment->status,

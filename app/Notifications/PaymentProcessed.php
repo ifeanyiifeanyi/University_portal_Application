@@ -40,7 +40,7 @@ class PaymentProcessed extends Notification
             ->subject('Payment Processed')
             ->line('Your payment has been processed successfully.')
             ->line('Payment Details:')
-            ->line('Amount: ' . $this->payment->amount)
+            ->line('Amount: ₦' . number_format($this->payment->base_amount, 2))
             ->line('Payment Type: ' . $this->payment->paymentType->name)
             ->line('Transaction Reference: ' . $this->payment->transaction_reference)
             ->action('View Receipt', route('admin.payments.showReceipt', $this->payment->receipt->id))
@@ -50,7 +50,7 @@ class PaymentProcessed extends Notification
     {
         return [
             'payment_id' => $this->payment->id,
-            'amount' => $this->payment->amount,
+            'amount' => '₦' . number_format($this->payment->base_amount, 2),
             'payment_type' => $this->payment->paymentType->name,
             'transaction_reference' => $this->payment->transaction_reference,
             'payment_status' => $this->payment->status,
