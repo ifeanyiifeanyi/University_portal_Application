@@ -222,7 +222,6 @@ class StudentService
 
             // Dispatch the welcome email job
             SendWelcomeEmail::dispatch($user, $student)->delay(now()->addMinutes(5));
-
             return $student;
         } catch (\Exception $e) {
             DB::rollback();

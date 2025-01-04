@@ -82,7 +82,7 @@
 
 @section('admin')
     <div class="container">
-        @include('admin.alert')
+    @include('admin.alert')
         <div class="row">
             <div class="col-md-11 mx-auto">
                 <div class="">

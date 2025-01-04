@@ -1,6 +1,10 @@
 <?php
 
 return [
+
+    'notify_on_new_device' => env('NOTIFY_ON_NEW_DEVICE', true),
+    'notification_cache_duration' => env('NOTIFICATION_CACHE_DURATION', 60),
+    
     // How many days to keep login activity records
     'activity_retention_days' => env('LOGIN_ACTIVITY_RETENTION_DAYS', 90),
 

@@ -57,49 +57,6 @@ class AdminPaymentController extends Controller
         return view('admin.payments.index', compact('paymentTypes', 'paymentMethods', 'academicSessions', 'semesters'));
     }
 
-    // public function getDepartmentsAndLevels(Request $request)
-    // {
-    //     $paymentType = PaymentType::findOrFail($request->payment_type_id);
-
-    //     $currentDate = now();
-    //     $lateFee = $paymentType->calculateLateFee($currentDate);
-
-    //     $departmentsAndLevels = $paymentType->departments()
-    //         ->with(['paymentTypes' => function ($query) use ($paymentType) {
-    //             $query->where('payment_types.id', $paymentType->id);
-    //         }])
-    //         ->get()
-    //         ->map(function ($department) {
-    //             // Get the numeric levels from the pivot table
-    //             $numericLevels = $department->paymentTypes->pluck('pivot.level')
-    //                 ->unique()
-    //                 ->values();
-
-    //             // Convert numeric levels to display format based on department's level_format
-    //             $displayLevels = $numericLevels->map(function ($level) use ($department) {
-    //                 return $department->getDisplayLevel($level);
-    //             });
-
-    //             return [
-    //                 'id' => $department->id,
-    //                 'name' => $department->name,
-    //                 'levels' => $displayLevels->toArray(),
-    //                 'level_format' => $department->level_format
-    //             ];
-    //         });
-
-    //     return response()->json([
-    //         'departments' => $departmentsAndLevels,
-    //         'amount' => $paymentType->amount + $lateFee,
-    //         'late_fee' => $lateFee,
-    //         'due_date' => $paymentType->due_date,
-    //         'supports_installments' => $paymentType->supportsInstallments(),
-    //         'installment_config' => $paymentType->supportsInstallments() ?
-    //             $paymentType->installmentConfig :
-    //             null
-    //     ]);
-    // }
-
     public function getDepartmentsAndLevels(Request $request)
     {
         $paymentType = PaymentType::findOrFail($request->payment_type_id);
@@ -301,6 +258,7 @@ class AdminPaymentController extends Controller
         return view('admin.payments.printable-invoice', compact('paymentType', 'student', 'academicSession', 'semester'));
     }
 
+
     public function processPayment(ProcessPaymentRequest $request)
     {
         $validated = $request->validated();
@@ -317,8 +275,10 @@ class AdminPaymentController extends Controller
 
         $totalAmountDue = $baseAmount + $lateFee;
 
-        // Determine if this is an installment payment
-        $isInstallment = $request->has('is_installment') && $paymentType->supportsInstallments();
+        // Only treat as installment if checkbox was checked AND payment type supports it
+        $isInstallment = $request->has('is_installment') &&
+            $request->input('is_installment') == 1 &&
+            $paymentType->supportsInstallments();
 
         DB::beginTransaction();
 
@@ -339,13 +299,19 @@ class AdminPaymentController extends Controller
                 $installmentConfig = PaymentInstallmentConfig::where('payment_type_id', $paymentType->id)
                     ->where('is_active', true)
                     ->first();
+
                 if (!$installmentConfig) {
                     throw new \Exception('No active installment configuration found for this payment type');
                 }
 
-                // Calculate first installment amount based on minimum percentage
-                $firstInstallmentPercentage = $installmentConfig->minimum_first_payment_percentage;
-                $paymentAmountForGateway = ($totalAmountDue * $firstInstallmentPercentage) / 100;
+                // Use the amount from the form instead of recalculating
+                $paymentAmountForGateway = $request->input('amount');
+
+                // Validate that the amount matches expected first installment
+                $expectedFirstPayment = ($totalAmountDue * $installmentConfig->minimum_first_payment_percentage) / 100;
+                if (abs($paymentAmountForGateway - $expectedFirstPayment) > 0.01) { // Allow for small floating point differences
+                    throw new \Exception('Invalid installment amount provided');
+                }
             }
 
             // Create or update payment record
@@ -390,6 +356,8 @@ class AdminPaymentController extends Controller
             return redirect()->back()->with('error', 'Failed to initialize payment. Please try again.');
         }
     }
+
+
 
     protected function createInstallmentRecords(Payment $payment, PaymentInstallmentConfig $config, $totalAmount)
     {
