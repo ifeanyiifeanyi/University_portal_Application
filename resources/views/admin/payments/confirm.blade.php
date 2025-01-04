@@ -162,6 +162,7 @@
                                                 ₦{{ number_format($invoice->amount, 2) }}</td>
                                         </tr>
 
+                                        
                                         <tr>
                                             <td colspan="2" class="tm_width_3 tm_text_right tm_border_none tm_pt0 tm_ternary_color">
                                                 Please note: Additional transfer and processing charges may apply and will be reflected in the final payment amount.
