@@ -38,6 +38,135 @@ class PaymentGatewayService
         }
     }
 
+
+    // private function initializePaystackPayment(Payment $payment, $amount = null)
+    // {
+    //     try {
+    //         if (empty($this->paystackSecretKey)) {
+    //             throw new \Exception('Paystack configuration is missing');
+    //         }
+
+
+    //         $paymentType = $payment->paymentType;
+
+    //         // Get base amount that should go to the school
+    //         $baseAmount = ($amount ?? $payment->next_transaction_amount ?? $payment->amount);
+
+    //         // Our platform fee that should go to main account
+    //         $platformFee = 500;
+
+    //         // Calculate Paystack fee
+    //         $subtotalBeforePaystackFee = $baseAmount + $platformFee;
+    //         $paystackFeePercentage = 0.015; // 1.5%
+    //         $paystackFixedFee = 100; // NGN 100
+
+    //         // Calculate potential Paystack fee
+    //         $potentialPaystackFee = ($amountToCharge + $platformFee) * $paystackFeePercentage + $paystackFixedFee;
+
+    //         // Apply fee cap of 2000 NGN
+    //         $actualPaystackFee = min($potentialPaystackFee, 2000);
+
+    //         // Calculate final amount
+    //         $finalAmount = $amountToCharge + $platformFee + $actualPaystackFee;
+
+    //         // Convert to kobo for Paystack
+    //         $amountInKobo = $finalAmount * 100;
+
+    //         // Calculate subaccount percentage to ensure school gets exact amount
+    //         $subaccountPercentage = ($amountToCharge / $finalAmount) * 100;
+
+    //         Log::info('Payment Calculation Details', [
+    //             'base_amount' => $amountToCharge,
+    //             'platform_fee' => $platformFee,
+    //             'potential_paystack_fee' => $potentialPaystackFee,
+    //             'actual_paystack_fee' => $actualPaystackFee,
+    //             'final_amount' => $finalAmount,
+    //             'amount_in_kobo' => $amountInKobo,
+    //             'subaccount_percentage' => $subaccountPercentage,
+    //             'verification' => [
+    //                 'school_will_receive' => $amountToCharge,
+    //                 'platform_will_receive' => $platformFee,
+    //                 'paystack_will_receive' => $actualPaystackFee,
+    //                 'customer_will_pay' => $finalAmount
+    //             ]
+    //         ]);
+
+    //         $paymentData = [
+    //             'amount' => $amountInKobo,
+    //             'first_name' => $payment->student->user->first_name,
+    //             'last_name' => $payment->student->user->last_name,
+    //             'email' => $payment->student->user->email,
+    //             'phone' => $payment->student->user->phone,
+    //             'reference' => $payment->transaction_reference,
+    //             'callback_url' => route('payment.verify', ['gateway' => 'paystack']),
+    //             'metadata' => [
+    //                 'payment_id' => $payment->id,
+    //                 'student_id' => $payment->student_id,
+    //                 'payment_type' => $paymentType->name,
+    //                 'is_installment' => $payment->is_installment,
+    //                 'installment_number' => $payment->is_installment ? 1 : null,
+    //                 'base_amount' => $amountToCharge,
+    //                 'platform_fee' => $platformFee,
+    //                 'paystack_fee' => $actualPaystackFee,
+    //                 'total_amount' => $finalAmount
+    //             ]
+    //         ];
+
+    //         // Handle subaccount configuration
+    //         if ($paymentType->paystack_subaccount_code) {
+    //             $paymentData['split'] = [
+    //                 'type' => 'percentage',
+    //                 'bearer_type' => 'account',
+    //                 'subaccounts' => [
+    //                     [
+    //                         'subaccount' => $paymentType->paystack_subaccount_code,
+    //                         'share' => floor($subaccountPercentage)
+    //                     ]
+    //                 ]
+    //             ];
+
+    //             Log::info('Split Payment Configuration', [
+    //                 'total_amount' => $finalAmount,
+    //                 'base_amount' => $amountToCharge,
+    //                 'platform_fee' => $platformFee,
+    //                 'paystack_fee' => $actualPaystackFee,
+    //                 'subaccount_percentage' => floor($subaccountPercentage)
+    //             ]);
+    //         }
+
+    //         // Store calculation details for verification during callback
+    //         cache()->put(
+    //             "payment_breakdown_{$payment->transaction_reference}",
+    //             [
+    //                 'base_amount' => $amountToCharge,
+    //                 'platform_fee' => $platformFee,
+    //                 'paystack_fee' => $actualPaystackFee,
+    //                 'final_amount' => $finalAmount
+    //             ],
+    //             now()->addHours(24)
+    //         );
+
+    //         // Make the API request
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
+    //             'Content-Type' => 'application/json',
+    //         ])->post('https://api.paystack.co/transaction/initialize', $paymentData);
+
+    //         if ($response->successful()) {
+    //             $responseData = $response->json();
+    //             if ($responseData['status']) {
+    //                 return $responseData['data']['authorization_url'];
+    //             }
+    //         }
+
+    //         throw new \Exception('Failed to initialize payment: ' . ($response->json()['message'] ?? 'Unknown error'));
+    //     } catch (\Exception $e) {
+    //         Log::error('Paystack payment initialization error: ' . $e->getMessage());
+    //         throw new \Exception('Failed to initialize Paystack payment: ' . $e->getMessage());
+    //     }
+    // }
+
+
     private function initializePaystackPayment(Payment $payment, $amount = null)
     {
         try {
@@ -47,16 +176,55 @@ class PaymentGatewayService
 
             $paymentType = $payment->paymentType;
 
-            // Use the explicitly passed amount or fall back to the payment's current transaction amount
-            $amountToCharge = ($amount ?? $payment->next_transaction_amount ?? $payment->amount) * 100; // Convert to kobo
+            // Get base amount that should go to the school
+            $baseAmount = ($amount ?? $payment->next_transaction_amount ?? $payment->amount);
 
-            // Calculate the minimum amount needed for Paystack fees
-            // Paystack charges 1.5% + NGN 100 for transactions
+            // Our platform fee that should go to main account
+            $platformFee = 500;
+
+            // Calculate Paystack fee
+            $subtotalBeforePaystackFee = $baseAmount + $platformFee;
             $paystackFeePercentage = 0.015; // 1.5%
             $paystackFixedFee = 100; // NGN 100
 
+            // Calculate actual Paystack fee
+            $calculatedPaystackFee = ($subtotalBeforePaystackFee * $paystackFeePercentage) + $paystackFixedFee;
+
+            // Only apply 2000 cap for transactions where calculated fee would exceed 2000
+            $actualPaystackFee = $calculatedPaystackFee > 2000 ? 2000 : $calculatedPaystackFee;
+
+            // Calculate final amount student will pay
+            $finalAmount = $baseAmount + $platformFee + $actualPaystackFee;
+
+            // Convert to kobo for Paystack
+            $amountInKobo = ceil($finalAmount * 100);
+
+            // Calculate split percentages
+            // The school should get their exact amount as a percentage of the total
+            $schoolPercentage = ($baseAmount / $finalAmount) * 100;
+            // Platform fee as percentage of total
+            $platformPercentage = ($platformFee / $finalAmount) * 100;
+
+            Log::info('Payment Calculation Details', [
+                'base_amount' => $baseAmount,
+                'platform_fee' => $platformFee,
+                'calculated_paystack_fee' => $calculatedPaystackFee,
+                'actual_paystack_fee' => $actualPaystackFee,
+                'is_capped' => $calculatedPaystackFee > 2000,
+                'final_amount' => $finalAmount,
+                'amount_in_kobo' => $amountInKobo,
+                'school_percentage' => $schoolPercentage,
+                'platform_percentage' => $platformPercentage,
+                'verification' => [
+                    'school_will_receive' => $baseAmount,
+                    'platform_will_receive' => $platformFee,
+                    'paystack_will_receive' => $actualPaystackFee,
+                    'customer_will_pay' => $finalAmount
+                ]
+            ]);
+
             $paymentData = [
-                'amount' => $amountToCharge,
+                'amount' => $amountInKobo,
                 'first_name' => $payment->student->user->first_name,
                 'last_name' => $payment->student->user->last_name,
                 'email' => $payment->student->user->email,
@@ -66,52 +234,57 @@ class PaymentGatewayService
                 'metadata' => [
                     'payment_id' => $payment->id,
                     'student_id' => $payment->student_id,
-                    'payment_type' => $payment->paymentType->name,
+                    'payment_type' => $paymentType->name,
                     'is_installment' => $payment->is_installment,
                     'installment_number' => $payment->is_installment ? 1 : null,
+                    'base_amount' => $baseAmount,
+                    'platform_fee' => $platformFee,
+                    'paystack_fee' => $actualPaystackFee,
+                    'total_amount' => $finalAmount
                 ]
             ];
 
-            // Handle subaccount configuration
+            // Handle split payment configuration
             if ($paymentType->paystack_subaccount_code) {
-                // Calculate the maximum safe subaccount percentage
-                $amount = $amountToCharge / 100; // Convert back to main currency for calculation
-                $paystackFee = ($amount * $paystackFeePercentage) + $paystackFixedFee;
-                $maxSubaccountPercentage = (($amount - $paystackFee) / $amount) * 100;
-
-                // Use either the configured percentage or the maximum safe percentage, whichever is lower
-                $subaccountPercentage = min(
-                    (float)$paymentType->subaccount_percentage,
-                    floor($maxSubaccountPercentage)
-                );
-
-                Log::info('Setting up subaccount configuration', [
-                    'subaccount_code' => $paymentType->paystack_subaccount_code,
-                    'original_percentage' => $paymentType->subaccount_percentage,
-                    'adjusted_percentage' => $subaccountPercentage,
-                    'max_safe_percentage' => $maxSubaccountPercentage
-                ]);
-
-                // Set up split payment structure with adjusted percentage
                 $paymentData['split'] = [
                     'type' => 'percentage',
-                    'bearer_type' => 'account',
+                    'bearer_type' => 'account', // Specifies that the main account bears the transaction charge
                     'subaccounts' => [
                         [
                             'subaccount' => $paymentType->paystack_subaccount_code,
-                            'share' => $subaccountPercentage
+                            'share' => floor($schoolPercentage)
                         ]
                     ]
                 ];
+
+                Log::info('Split Payment Configuration', [
+                    'total_amount' => $finalAmount,
+                    'school_amount' => $baseAmount,
+                    'platform_fee' => $platformFee,
+                    'paystack_fee' => $actualPaystackFee,
+                    'school_percentage' => floor($schoolPercentage),
+                    'platform_percentage' => floor($platformPercentage)
+                ]);
             }
+
+            // Store calculation details for verification during callback
+            cache()->put(
+                "payment_breakdown_{$payment->transaction_reference}",
+                [
+                    'base_amount' => $baseAmount,
+                    'platform_fee' => $platformFee,
+                    'paystack_fee' => $actualPaystackFee,
+                    'final_amount' => $finalAmount,
+                    'amount_in_kobo' => $amountInKobo
+                ],
+                now()->addHours(24)
+            );
 
             // Make the API request
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
                 'Content-Type' => 'application/json',
             ])->post('https://api.paystack.co/transaction/initialize', $paymentData);
-
-
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -120,13 +293,14 @@ class PaymentGatewayService
                 }
             }
 
-
             throw new \Exception('Failed to initialize payment: ' . ($response->json()['message'] ?? 'Unknown error'));
         } catch (\Exception $e) {
             Log::error('Paystack payment initialization error: ' . $e->getMessage());
             throw new \Exception('Failed to initialize Paystack payment: ' . $e->getMessage());
         }
     }
+
+
 
 
 
@@ -168,6 +342,126 @@ class PaymentGatewayService
         }
     }
 
+
+
+
+    // private function verifyPaystackPayment($reference)
+    // {
+    //     try {
+    //         Log::info('Initiating Paystack payment verification', [
+    //             'reference' => $reference
+    //         ]);
+
+    //         if (empty($this->paystackSecretKey)) {
+    //             throw new \Exception('Paystack secret key is missing');
+    //         }
+
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
+    //             'Content-Type' => 'application/json',
+    //         ])->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+    //         if (!$response->successful()) {
+    //             throw new \Exception('Paystack API request failed: ' . ($response->json()['message'] ?? 'Unknown error'));
+    //         }
+
+    //         $responseData = $response->json();
+
+    //         // Validate response structure
+    //         if (!isset($responseData['data']) || !isset($responseData['data']['status'])) {
+    //             throw new \Exception('Invalid response structure from Paystack');
+    //         }
+
+    //         $successStatuses = ['success', 'completed'];
+    //         if (!$responseData['status'] || !in_array(strtolower($responseData['data']['status']), $successStatuses)) {
+    //             throw new \Exception('Payment not successful. Status: ' . ($responseData['data']['status'] ?? 'unknown'));
+    //         }
+
+    //         // Find the payment record
+    //         $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
+
+    //         // Get the cached payment breakdown
+    //         $paymentBreakdown = cache()->get("payment_breakdown_{$reference}");
+
+    //         if (!$paymentBreakdown) {
+    //             Log::warning('Payment breakdown not found in cache', ['reference' => $reference]);
+    //         }
+
+    //         // Convert amount from kobo to Naira
+    //         $paidAmount = $responseData['data']['amount'] / 100;
+
+    //         // Get the expected base amount (without fees)
+    //         $expectedBaseAmount = $payment->is_installment
+    //             ? $payment->next_transaction_amount
+    //             : $payment->amount;
+
+    //         if ($paymentBreakdown) {
+    //             // If we have the breakdown, verify the total amount matches
+    //             $expectedTotalAmount = $paymentBreakdown['final_amount'];
+
+    //             // Allow for a small difference in amount (e.g., 1 Naira)
+    //             $difference = abs($paidAmount - $expectedTotalAmount);
+    //             $allowedDifference = 1;
+
+    //             if ($difference > $allowedDifference) {
+    //                 throw new \Exception(sprintf(
+    //                     'Total payment amount mismatch. Expected: %s, Received: %s',
+    //                     $expectedTotalAmount,
+    //                     $paidAmount
+    //                 ));
+    //             }
+
+    //             // Log the successful verification
+    //             Log::info('Payment verification successful', [
+    //                 'reference' => $reference,
+    //                 'expected_base_amount' => $expectedBaseAmount,
+    //                 'expected_total_amount' => $expectedTotalAmount,
+    //                 'received_amount' => $paidAmount,
+    //                 'platform_fee' => $paymentBreakdown['platform_fee'],
+    //                 'paystack_fee' => $paymentBreakdown['paystack_fee']
+    //             ]);
+    //         } else {
+    //             // Fallback verification if breakdown is not available
+    //             // Calculate the minimum expected total (base amount + minimum fees)
+    //             $minimumExpectedTotal = $expectedBaseAmount + 500; // base + platform fee
+    //             if ($paidAmount < $minimumExpectedTotal) {
+    //                 throw new \Exception(sprintf(
+    //                     'Payment amount too low. Minimum expected: %s, Received: %s',
+    //                     $minimumExpectedTotal,
+    //                     $paidAmount
+    //                 ));
+    //             }
+    //         }
+
+    //         // Handle installment payment updates
+    //         if ($payment->is_installment) {
+    //             $this->handleInstallmentPayment($payment, $expectedBaseAmount, $responseData);
+    //         } else {
+    //             $this->handleFullPayment($payment, $expectedBaseAmount, $responseData);
+    //         }
+
+    //         return [
+    //             'success' => true,
+    //             'reference' => $reference,
+    //             'amount' => $expectedBaseAmount, // Return the base amount without fees
+    //             'total_paid' => $paidAmount, // Include the total amount paid including fees
+    //             'is_installment' => $payment->is_installment,
+    //             'remaining_amount' => $payment->is_installment ? $payment->remaining_amount : 0,
+    //             'metadata' => [
+    //                 'channel' => $responseData['data']['channel'] ?? 'unknown',
+    //                 'card_type' => $responseData['data']['authorization']['card_type'] ?? null,
+    //                 'bank' => $responseData['data']['authorization']['bank'] ?? null,
+    //             ]
+    //         ];
+    //     } catch (\Exception $e) {
+    //         Log::error('Payment verification failed', [
+    //             'reference' => $reference,
+    //             'error' => $e->getMessage()
+    //         ]);
+    //         throw $e;
+    //     }
+    // }
+
     private function verifyPaystackPayment($reference)
     {
         try {
@@ -203,37 +497,71 @@ class PaymentGatewayService
             // Find the payment record
             $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
 
-            // Convert amount from kobo
+            // Get the cached payment breakdown
+            $paymentBreakdown = cache()->get("payment_breakdown_{$reference}");
+
+            if (!$paymentBreakdown) {
+                Log::warning('Payment breakdown not found in cache', ['reference' => $reference]);
+            }
+
+            // Convert amount from kobo to Naira
             $paidAmount = $responseData['data']['amount'] / 100;
 
-            // Determine expected amount based on installment status
-            $expectedAmount = $payment->is_installment
+            // Get the expected base amount (without fees)
+            $expectedBaseAmount = $payment->is_installment
                 ? $payment->next_transaction_amount
                 : $payment->amount;
 
-            // Allow for a small difference in amount
-            $difference = abs($paidAmount - $expectedAmount);
-            $allowedDifference = 1; // Allow 1 unit difference
+            if ($paymentBreakdown) {
+                // If we have the breakdown, verify the total amount matches
+                $expectedTotalAmount = $paymentBreakdown['final_amount'];
 
-            if ($difference > $allowedDifference) {
-                throw new \Exception(sprintf(
-                    'Payment amount mismatch. Expected: %s, Received: %s',
-                    $expectedAmount,
-                    $paidAmount
-                ));
+                // Allow for a small difference in amount (e.g., 1 Naira)
+                $difference = abs($paidAmount - $expectedTotalAmount);
+                $allowedDifference = 1;
+
+                if ($difference > $allowedDifference) {
+                    throw new \Exception(sprintf(
+                        'Total payment amount mismatch. Expected: %s, Received: %s',
+                        $expectedTotalAmount,
+                        $paidAmount
+                    ));
+                }
+
+                // Log the successful verification
+                Log::info('Payment verification successful', [
+                    'reference' => $reference,
+                    'expected_base_amount' => $expectedBaseAmount,
+                    'expected_total_amount' => $expectedTotalAmount,
+                    'received_amount' => $paidAmount,
+                    'platform_fee' => $paymentBreakdown['platform_fee'],
+                    'paystack_fee' => $paymentBreakdown['paystack_fee']
+                ]);
+            } else {
+                // Fallback verification if breakdown is not available
+                // Calculate the minimum expected total (base amount + minimum fees)
+                $minimumExpectedTotal = $expectedBaseAmount + 500; // base + platform fee
+                if ($paidAmount < $minimumExpectedTotal) {
+                    throw new \Exception(sprintf(
+                        'Payment amount too low. Minimum expected: %s, Received: %s',
+                        $minimumExpectedTotal,
+                        $paidAmount
+                    ));
+                }
             }
 
             // Handle installment payment updates
             if ($payment->is_installment) {
-                $this->handleInstallmentPayment($payment, $paidAmount, $responseData);
+                $this->handleInstallmentPayment($payment, $expectedBaseAmount, $responseData);
             } else {
-                $this->handleFullPayment($payment, $paidAmount, $responseData);
+                $this->handleFullPayment($payment, $expectedBaseAmount, $responseData);
             }
 
             return [
                 'success' => true,
                 'reference' => $reference,
-                'amount' => $paidAmount,
+                'amount' => $expectedBaseAmount, // Return the base amount without fees
+                'total_paid' => $paidAmount, // Include the total amount paid including fees
                 'is_installment' => $payment->is_installment,
                 'remaining_amount' => $payment->is_installment ? $payment->remaining_amount : 0,
                 'metadata' => [
@@ -250,6 +578,9 @@ class PaymentGatewayService
             throw $e;
         }
     }
+
+
+
 
     private function handleInstallmentPayment(Payment $payment, $paidAmount, $responseData)
     {
