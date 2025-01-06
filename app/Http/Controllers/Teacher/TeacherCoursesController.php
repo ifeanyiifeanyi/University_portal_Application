@@ -177,6 +177,14 @@ class TeacherCoursesController extends Controller
                             'is_retaken' => false
                         ]
                     );
+                }else {
+                    // If passed, delete any existing failed course record
+                    StudentFailedCourse::where([
+                        'student_id' => $student->id,
+                        'course_id' => $assignment->course_id,
+                        'academic_session_id' => $assignment->academic_session_id,
+                        'semester_id' => $assignment->semester_id,
+                    ])->delete();
                 }
 
                 $this->updateGpaRecord($student->id, $assignment->academic_session_id, $assignment->semester_id);
@@ -264,6 +272,14 @@ if ($isFailed) {
             'is_retaken' => false
         ]
     );
+}else {
+    // If passed, delete any existing failed course record
+    StudentFailedCourse::where([
+        'student_id' => $enrollment->student_id,
+        'course_id' => $assignment->course_id,
+        'academic_session_id' => $assignment->academic_session_id,
+        'semester_id' => $assignment->semester_id,
+    ])->delete();
 }
 
                 // cgpa

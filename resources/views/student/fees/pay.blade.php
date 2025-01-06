@@ -64,7 +64,12 @@
                     <div class="col-md-8 col-lg-9">
                         <select id="level" name="level" class="form-control">
                             <option value="" disabled selected>Select level</option>
-                           
+                            @foreach ($levels as $level)
+                            <option value="{{ $currentDepartment->getLevelNumber($level) }}"
+                                {{ old('level', $student->current_level) == $currentDepartment->getLevelNumber($level) ? 'selected' : '' }}>
+                                {{ $level }}
+                            </option>
+                        @endforeach
                            
                         </select>
                         @if ($errors->has('level'))
@@ -162,29 +167,29 @@
     @section('javascript')
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const departmentSelect = document.getElementById('department_id');
-        const levelSelect = document.getElementById('level');
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const departmentSelect = document.getElementById('department_id');
+    //     const levelSelect = document.getElementById('level');
   
-        function updateLevels() {
-            const departmentId = departmentSelect.value;
-            fetch(`/student/fees/departments/${departmentId}/levels`)
-                .then(response => response.json())
-                .then(levels => {
-                  console.log(levels);
-                    levelSelect.innerHTML = '';
-                    levels.forEach(level => {
-                        const option = document.createElement('option');
-                        option.value = level;
-                        option.textContent = level;
-                        levelSelect.appendChild(option);
-                    });
-                });
-        }
+    //     function updateLevels() {
+    //         const departmentId = departmentSelect.value;
+    //         fetch(`/student/fees/departments/${departmentId}/levels`)
+    //             .then(response => response.json())
+    //             .then(levels => {
+    //               console.log(levels);
+    //                 levelSelect.innerHTML = '';
+    //                 levels.forEach(level => {
+    //                     const option = document.createElement('option');
+    //                     option.value = level;
+    //                     option.textContent = level;
+    //                     levelSelect.appendChild(option);
+    //                 });
+    //             });
+    //     }
   
-        departmentSelect.addEventListener('change', updateLevels);
-        updateLevels(); // Initial population
-    });
+    //     departmentSelect.addEventListener('change', updateLevels);
+    //     updateLevels(); // Initial population
+    // });
 
 
 

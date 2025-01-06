@@ -45,6 +45,17 @@
                 body:not(.loading) #preloader {
                     display: none;
                 }
+                .nav-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.nav-active {
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+}
         </style>
 
     </head>
@@ -114,6 +125,8 @@
 
         <!-- Widgets Init Js -->
         <script src="{{asset('student/assets/js/pages/dashboard.init.js')}}"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
         <!-- App js-->
         <script src="{{asset('student/assets/js/app.js')}}"></script>

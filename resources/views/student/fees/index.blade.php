@@ -77,6 +77,52 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        @include('messages')
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Awaiting Fees</h5>
+                </div><!-- end card header -->
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    
+                                    <th scope="col">Payment Name</th>
+                                    <th scope="col">Amount ₦</th>
+                                    <th scope="col">Due Date</th>
+                                    <th scope="col">Late Fee Amount</th>
+                                 
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($paymentTypes as $paymentType)
+                                <tr>
+                                    <td>{{$paymentType->paymentType->name}}</td>
+                                    <td>₦{{ number_format($paymentType->paymentType->amount, 2) }}</td>
+                                    <td>{{$paymentType->paymentType->due_date->format('d.m.Y')}}</td>
+                                    <td>{{$paymentType->paymentType->late_fee_amount}}</td>
+                                    
+                                   
+                                @empty
+                                    
+                                @endforelse
+                               
+                         
+                               
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">

@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckFeesInstallmentMiddleware;
 use App\Http\Middleware\CheckFeesMiddleware;
 use App\Http\Middleware\CheckInvoiceStatus;
 use App\Http\Middleware\CheckPendingInvoiceMiddleware;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verify.receipt' => VerifyReceiptAccess::class,
             'permission' => PermissionMiddleware::class,
             'security.headers' => SecurityHeaders::class, //not used yet
+            'check.installment.fees'=>CheckFeesInstallmentMiddleware::class
 
         ]);
     })

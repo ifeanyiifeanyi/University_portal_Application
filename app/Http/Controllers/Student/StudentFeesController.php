@@ -46,7 +46,27 @@ class StudentFeesController extends Controller
         ->with(['academicSession', 'semester', 'paymentType', 'department', 'paymentMethod']) // Load relationships
         ->orderBy('created_at') // Optional: order by academic session
         ->get();
-        return view('student.fees.index',compact('invoices'));
+
+        $numericLevel = $student->department->getLevelNumber($student->current_level);
+
+    $paymentTypes = DepartmentPaymentType::with(['paymentType' => function($query) {
+            $query->where('is_active', true);
+        }])
+        ->where('department_id', $student->department_id)
+        ->where('level', $numericLevel)  // Using the converted numeric level
+        ->whereHas('paymentType', function($query) {
+            $query->where('is_active', true);
+        })
+        ->whereNotExists(function ($query) use ($student) {
+            $query->select('payments.id')
+                ->from('payments')
+                ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
+                ->where('payments.student_id', $student->id)
+                ->where('payments.status', 'completed');
+        })
+        ->get();
+
+        return view('student.fees.index',compact('invoices','paymentTypes'));
     }
     public function view(){
         return view('student.fees.view');
@@ -86,6 +106,8 @@ class StudentFeesController extends Controller
          $academicsessions = AcademicSession::all();
          // load the studentprofile
          $student = Student::where('user_id',$this->authService->user()->id)->first();
+         $currentDepartment = Department::find($student->department_id);
+         $levels = $currentDepartment ? $currentDepartment->levels : [];
 
   
          
@@ -100,10 +122,13 @@ class StudentFeesController extends Controller
     //     return redirect()->back()->with('error', 'Payment type not found for your department/level (Contact ICT Center)');
     // }
         //  $paymentTypes = PaymentType::get();
+        
         //  $paymentTypes = DepartmentPaymentType::with('paymentType')->where('department_id',$student->department_id)->where('level',$student->current_level)->get();
+
+        $numericLevel = $student->department->getLevelNumber($student->current_level);
         $paymentTypes = DepartmentPaymentType::with(['paymentType'])
     ->where('department_id', $student->department_id)
-    ->where('level',$student->current_level)
+    ->where('level',$numericLevel)
     ->whereNotExists(function ($query) use ($student) {
         $query->select('payments.id')
             ->from('payments')
@@ -111,6 +136,37 @@ class StudentFeesController extends Controller
             ->where('payments.student_id', $student->id);
     })
     ->get();
+
+    // $paymentTypes = PaymentType::select('payment_types.*')
+    //         ->distinct()
+    //         ->with(['departments' => function ($query) {
+    //             $query->select('departments.id', 'departments.name')
+    //                 ->distinct();
+    //         }])
+    //         ->active()
+    //         ->get();
+
+    // $numericLevel = $student->department->getLevelNumber($student->current_level);
+
+    // $paymentTypes = DepartmentPaymentType::with(['paymentType' => function($query) {
+    //         $query->where('is_active', true);
+    //     }])
+    //     ->where('department_id', $student->department_id)
+    //     ->where('level', $numericLevel)  // Using the converted numeric level
+    //     ->whereHas('paymentType', function($query) {
+    //         $query->where('is_active', true);
+    //     })
+    //     ->whereNotExists(function ($query) use ($student) {
+    //         $query->select('payments.id')
+    //             ->from('payments')
+    //             ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
+    //             ->where('payments.student_id', $student->id)
+    //             ->where('payments.status', 'completed');
+    //     })
+    //     ->get();
+   
+    
+  
          $paymentMethods = PaymentMethod::where('is_active', 1)->get();
     
        return view('student.fees.pay',[
@@ -118,7 +174,9 @@ class StudentFeesController extends Controller
            'academicsessions'=>$academicsessions,
            'student'=>$student,
            'paymentMethods'=>$paymentMethods,
-           'paymentTypes'=>$paymentTypes
+           'paymentTypes'=>$paymentTypes,
+           'levels'=>$levels,
+           'currentDepartment'=>$currentDepartment
        ]);
     }
 
@@ -427,7 +485,7 @@ public function processPayment(ProcessPaymentRequest $request)
             'late_fee' => $lateFee,
             'department_id' => $validated['department_id'],
             'level' => $validated['level'],
-            'admin_id' => 1,
+            'admin_id' => 0,
             'transaction_reference' => 'PAY' . uniqid(),
             'payment_date' => now(),
             'is_installment' => $isInstallment,
@@ -739,7 +797,7 @@ public function processPayment(ProcessPaymentRequest $request)
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Our records indicate that your fees for the current session and semester have not yet been paid. Kindly proceed with the necessary payments to avoid any disruptions to your academic activities',
-                    'shouldShowModal' => true
+                    // 'shouldShowModal' => true
                 ]);
             }
 

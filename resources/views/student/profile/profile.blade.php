@@ -156,6 +156,7 @@
 
                         <h5>Academic Information</h5>
                         <p><strong>Department:</strong> {{ $student->department->name }}</p>
+                        <p><strong>Department level:</strong> {{ $student->department->getDisplayLevel($student->current_level) }}</p>
                         <p><strong>Year of Admission:</strong> {{ $student->year_of_admission }}</p>
                         <p><strong>Mode of Entry:</strong> {{ $student->mode_of_entry }}</p>
                         <p><strong>Current Level:</strong> {{ $student->current_level }}</p>

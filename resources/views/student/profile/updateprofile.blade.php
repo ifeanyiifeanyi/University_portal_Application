@@ -1,4 +1,4 @@
-<form action="{{route('student.update.profile')}}" method="POST" id="requestForm">
+<form action="{{route('student.update.profile')}}" method="POST" id="requestForm" enctype="multipart/form-data">
   @csrf
 <div class="row mb-3">
   <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Matric number</label>
@@ -39,6 +39,15 @@
     @if ($errors->has('othernames'))
 <span class="text-danger">{{$errors->first('othernames')}}</span>
 @endif
+  </div>
+</div>
+<div class="row mb-3">
+  <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Profile photo</label>
+  <div class="col-md-8 col-lg-9">
+    <input type="file" class="form-control" name="profile_photo">
+    @if ($errors->has('profile_photo'))
+    <span class="text-danger">{{$errors->first('profile_photo')}}</span>
+    @endif
   </div>
 </div>
 <div class="row mb-3">
@@ -233,7 +242,12 @@
     <select id="level" name="current_level" class="form-control">
       <option value="" disabled selected>Select level</option>
 
-
+      @foreach ($levels as $level)
+      <option value="{{ $currentDepartment->getLevelNumber($level) }}"
+          {{ old('current_level', $student->current_level) == $currentDepartment->getLevelNumber($level) ? 'selected' : '' }}>
+          {{ $level }}
+      </option>
+  @endforeach
   </select>
     {{-- <input type="text" class="form-control" name="current_level" value="{{$student->current_level}}"> --}}
   </div>
@@ -244,7 +258,7 @@
 </div>
 </form>
 <input type="hidden" name="" id="department_id" value="{{ $student->department_id }}">
-<script>
+{{-- <script>
   document.addEventListener('DOMContentLoaded', function() {
       const departmentSelect = document.getElementById('department_id');
       const levelSelect = document.getElementById('level');
@@ -268,4 +282,4 @@
       departmentSelect.addEventListener('change', updateLevels);
       updateLevels(); // Initial population
   });
-</script>
+</script> --}}

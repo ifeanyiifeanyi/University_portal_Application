@@ -165,9 +165,14 @@
                         </div>
 
                         <!-- item-->
-                        <a href="{{route('student.view.profile')}}" class="dropdown-item notify-item">
+                        <a href="{{route('student.view.profile')}}" class="dropdown-item notify-item nav-link {{ request()->routeIs('student.view.profile') ? 'nav-active' : '' }}">
                             <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
                             <span>My Account</span>
+                        </a>
+
+                        <a href="{{route('student.change.password')}}" class="dropdown-item notify-item nav-link {{ request()->routeIs('student.change.password') ? 'nav-active' : '' }}">
+                            <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
+                            <span>Change password</span>
                         </a>
                         
                       

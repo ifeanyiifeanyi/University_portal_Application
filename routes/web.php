@@ -172,6 +172,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminInstallmentPaidController::class)->group(function () {
         Route::get('installment-paid', 'index')->name('admin.installment_paid.index');
+
+        // Export installments data
+        Route::get('/installment-paid/export', 'export')->name('admin.installment_paid.export');
+
+        // Show invoice for payment
+        Route::get('/installment-paid/{installment}/invoice', 'showInvoice')->name('admin.installment_paid.invoice');
+
+        // View receipt
+        Route::get('/payments/receipt/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
     });
 
 
@@ -259,7 +268,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             // unique route that helps separate the levels of study for a department
             Route::get('departments/{department}/levels', 'levels');
-
         });
     });
 
@@ -418,7 +426,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
 
             Route::get('departments/{department}', 'getDepartment');
-
         });
     });
 
@@ -734,13 +741,17 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
         Route::get('profile', 'profile')->name('student.view.profile');
         Route::get('virtualid', 'virtualid')->name('student.view.virtualid');
+        Route::get('/student/payments/dashboard/{student_id}', 'getStudentPaymentDashboard')->name('student.getpayment.data');
+        Route::get('changepassword', 'changepassword')->name('student.change.password');
+        // Route::get('', [PaymentController::class, 'getStudentPaymentDashboard']);
 
 
         // post requests
-        Route::post('createprofile', 'createprofile')->name('student.create.profile');
+
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
+        Route::post('changepassword', 'updatepassword')->name('student.update.password');
     });
-    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees')->group(function () {
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees','check.installment.fees')->group(function () {
         Route::prefix('course_registration')->group(function () {
             Route::get('/', 'courseregistration')->name('student.view.courseregistration');
             Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
