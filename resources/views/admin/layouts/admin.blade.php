@@ -52,11 +52,51 @@
 
     {{-- ckeditor  --}}
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/42.0.1/ckeditor5.css">
+    <style>
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            text-align: center;
+        }
+
+        .loading-text {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
 
 </head>
 
 
 <body>
+
+    <!-- Add this right after opening <body> tag -->
+    <div id="loader-wrapper" style="display: none;">
+        <div class="loader-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="loading-text mt-2">Please wait...</div>
+        </div>
+    </div>
+
+    <!-- Your existing layout content -->
     <!--wrapper-->
     <div class="wrapper">
         <!--sidebar wrapper -->
@@ -77,7 +117,11 @@
                     <div class="breadcrumb-title pe-3">
                         <h3> @yield('title')</h3>
                     </div>
-
+                    <div class="px-3">
+                        <button onclick="goBack()" class="btn btn-primary d-flex align-items-center">
+                            <i class="bx bx-left-arrow-alt me-1"></i>Back
+                        </button>
+                    </div>
                     <div class="ms-auto">
 
                         <div class="btn-group">
@@ -115,7 +159,7 @@
 
 
     <!--start switcher-->
-    @include('admin.layouts.partials.switcher')
+    {{-- @include('admin.layouts.partials.switcher') --}}
     <!--end switcher-->
 
     <script src="{{ asset('') }}assets/js/jquery.min.js"></script>
@@ -139,6 +183,17 @@
         $(function() {
             $(".knob").knob();
         });
+    </script>
+    <script>
+        function goBack() {
+            if (document.referrer) {
+                // If there's a previous page in history
+                window.history.back();
+            } else {
+                // If no previous page, redirect to dashboard or default page
+                window.location.href = "{{ route('admin.view.dashboard') }}";
+            }
+        }
     </script>
 
     <script src="{{ asset('') }}assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
@@ -273,7 +328,47 @@
         })
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show loader on form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                });
+            });
 
+            // Show loader on all AJAX requests
+            let originalXHR = window.XMLHttpRequest;
+
+            function newXHR() {
+                let xhr = new originalXHR();
+                xhr.addEventListener('loadstart', function() {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                });
+                xhr.addEventListener('loadend', function() {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                });
+                return xhr;
+            }
+            window.XMLHttpRequest = newXHR;
+
+            // If you're using axios or fetch, add these handlers
+            if (window.axios) {
+                axios.interceptors.request.use(function(config) {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                    return config;
+                });
+
+                axios.interceptors.response.use(function(response) {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                    return response;
+                }, function(error) {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                    return Promise.reject(error);
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Students Manager | Create New Student')
+@section('title', 'Create Student Account')
 
 @section('css')
     <style>
@@ -34,9 +34,10 @@
 @endsection
 
 @section('admin')
-    <div class="container mt-5 shadow">
-        <div class="">
-            <h2 class="mb-4">Create New Student Account</h2>
+    <div class="container mt-5">
+        @include('admin.alert')
+        <div class="card shadow py-3 px-3">
+            <h2 class="mb-4 text-center">Create New Student Account</h2>
             <form action="{{ route('admin.student.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
@@ -394,7 +395,7 @@
 
                 <div class="m-3 pb-5 text-center">
 
-                    <button type="submit" class="btn btn-primary">Create Student Account</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-users-cog"></i> Create Student Account</button>
                 </div>
             </form>
         </div>

@@ -45,7 +45,8 @@ class StudentprofileRequest extends FormRequest
             'jamb_registration_number' => 'nullable|string',
             'year_of_admission' => 'required|integer',
             'mode_of_entry' => 'required|in:UTME,Direct Entry,Transfer',
-            'current_level' => 'required|string',
+            // 'current_level' => 'required|string',
+            'profile_photo' => 'nullable|image|max:2048',
         ];
     }
 }

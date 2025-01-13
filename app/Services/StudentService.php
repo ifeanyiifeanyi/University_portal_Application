@@ -39,7 +39,27 @@ class StudentService
 
     public function updateprofile(StudentprofileRequest $updatestudentprofile)
     {
-        $updatestudent = Student::where('user_id', $this->authService->user()->id)->update([
+        $student = Student::with('user')->where('user_id',$this->authService->user()->id)->first();
+
+        if ($updatestudentprofile->hasFile('profile_photo')) {
+            // Get the old image path
+            $old_image = $student->user->profile_photo;
+
+            // Delete the old image if it exists
+            if (!empty($old_image) && file_exists(public_path($old_image))) {
+                unlink(public_path($old_image));
+            }
+
+            // Handle the new image upload
+            $thumb = $updatestudentprofile->file('profile_photo');
+            $extension = $thumb->getClientOriginalExtension();
+            $profilePhoto = time() . "." . $extension;
+            $thumb->move('admin/students/profile/', $profilePhoto);
+            $student->user->profile_photo = 'admin/students/profile/' . $profilePhoto;
+            $student->user->save();
+        }
+
+        Student::where('user_id', $this->authService->user()->id)->update([
             'date_of_birth' => $updatestudentprofile['date_of_birth'],
             'gender' => $updatestudentprofile['gender'],
             'state_of_origin' => $updatestudentprofile['state_of_origin'],
@@ -59,20 +79,18 @@ class StudentService
             'jamb_registration_number' => $updatestudentprofile['jamb_registration_number'],
             'year_of_admission' => $updatestudentprofile['year_of_admission'],
             'mode_of_entry' => $updatestudentprofile['mode_of_entry'],
-            'current_level' => $updatestudentprofile['current_level']
+            // 'current_level' => $updatestudentprofile['current_level']
         ]);
         // update for user tables
 
-        $updateuser = User::where('id', $this->authService->user()->id)->update([
+        User::where('id', $this->authService->user()->id)->update([
             'first_name' => $updatestudentprofile->firstname,
             'last_name' => $updatestudentprofile->lastname,
             'other_name' => $updatestudentprofile->othernames,
             'phone' => $updatestudentprofile->phonenumber,
         ]);
+            return redirect(route('student.view.profile'))->with('success','Profile details updated successfully');
 
-        if ($updatestudent && $updateuser) {
-            return redirect(route('student.view.profile'));
-        }
     }
 
 
@@ -222,6 +240,7 @@ class StudentService
 
             // Dispatch the welcome email job
             SendWelcomeEmail::dispatch($user, $student)->delay(now()->addMinutes(5));
+
             return $student;
         } catch (\Exception $e) {
             DB::rollback();

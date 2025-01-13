@@ -94,6 +94,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
+                                        <th scope="col">Phone/Email</th>
                                         <th scope="col">Matr No.</th>
                                         <th scope="col">Department</th>
                                         <th scope="col">Admission</th>
@@ -106,12 +107,23 @@
                                         <tr>
                                             <th>{{ $loop->iteration }}</th>
                                             <td>
+                                                <div class="d-flex align-items-center">
 
-                                                {{ $student->user->fullName() ?? '' }}
-                                                <br>
-                                                Added at {{ $student->created_at->format('jS F Y, g:ia') }}
+                                                    <img src="{{ $student->user->profile_image }}" alt="{{ $student->full_name }}"
+                                                        class="rounded-circle me-2" width="40" height="40">
+                                                    <div>
+                                                        {{ $student->user->fullName() ?? '' }}
+                                                        <br>
+                                                        Added at {{ $student->created_at->format('jS F Y, g:ia') }}
+                                                    </div>
+                                                </div>
 
                                             </td>
+                                            <td>
+                                                {{ $student->user->phone }} <br>
+                                                {{ $student->user->email }}
+                                            </td>
+
                                             <td class="text-center">
                                                 <code>{{ $student->matric_number }}</code> <br>
                                                 <a href="{{ route('admin.student.idcard', $student) }}"

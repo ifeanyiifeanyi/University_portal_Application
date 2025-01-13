@@ -487,6 +487,48 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show loader on form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                });
+            });
+
+            // Show loader on all AJAX requests
+            let originalXHR = window.XMLHttpRequest;
+
+            function newXHR() {
+                let xhr = new originalXHR();
+                xhr.addEventListener('loadstart', function() {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                });
+                xhr.addEventListener('loadend', function() {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                });
+                return xhr;
+            }
+            window.XMLHttpRequest = newXHR;
+
+            // If you're using axios or fetch, add these handlers
+            if (window.axios) {
+                axios.interceptors.request.use(function(config) {
+                    document.getElementById('loader-wrapper').style.display = 'flex';
+                    return config;
+                });
+
+                axios.interceptors.response.use(function(response) {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                    return response;
+                }, function(error) {
+                    document.getElementById('loader-wrapper').style.display = 'none';
+                    return Promise.reject(error);
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

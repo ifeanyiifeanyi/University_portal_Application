@@ -71,6 +71,11 @@ class User extends Authenticatable
         return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);
     }
 
+    public function getProfileImageAttribute()
+    {
+        return empty($this->profile_photo) ? asset('no_image.jpg') : asset($this->profile_photo);
+    }
+
     public function fullName()
     {
         return Str::title($this->first_name . ' ' . $this->last_name . ' ' . $this->other_name ?? '');
