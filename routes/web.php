@@ -55,6 +55,7 @@ use App\Http\Controllers\Admin\AdminInstallmentPaidController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
+use App\Http\Controllers\Admin\InstallmentPaymentController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 use App\Http\Controllers\Student\StudentSupportTicketController;
 
@@ -95,8 +96,8 @@ Route::controller(AuthController::class)->group(function () {
 
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');
-
     Route::get('logout', 'logout')->name('logout');
+
 });
 
 
@@ -181,6 +182,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         // View receipt
         Route::get('/payments/receipt/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
+    });
+
+    Route::controller(InstallmentPaymentController::class)->group(function(){
+        Route::get('installment-detail/{installment}', 'showNextInstallmentDetails')->name('admin.payments.installments.details');
+        Route::post('/{installment}/process','processNextInstallment')->name('admin.payments.installments.process');
+
     });
 
 
@@ -401,7 +408,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             // view score history
             Route::get('/student/{student}/approved-score-history',  'viewApprovedScoreHistory')->name('admin.student.approved-score-history');
 
-            //assessment score audit history
+            // todo assessment score audit history(to be removed)
             Route::get('/student/{student}/audits', 'viewAudits')->name('admin.student.audits');
 
             // TODO: student registration through excel format
@@ -599,7 +606,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/payments/get-students',  'getStudents')->name('payments.getStudents');
 
             Route::post('/payments/submit', 'submitPaymentForm')->name('admin.payments.submit');
-            Route::post('/payments/process', 'processPayment')->name('admin.payments.processPayment');
+            Route::post('/payments/pay', 'processPayment')->name('admin.payments.processPayment');
 
             Route::get('payments/verify/{gateway}', 'verifyPayment')->name('payment.verify');
             Route::get('payments/{payment}/receipt', 'generateReceipt')->name('payments.receipt');

@@ -82,6 +82,8 @@ class PasswordRecoveryController extends Controller
         ]);
     }
 
+
+
     public function reset(Request $request)
     {
         $request->validate([
@@ -102,7 +104,7 @@ class PasswordRecoveryController extends Controller
         $user->recovery_link_expires_at = null;
         $user->save();
 
-        return redirect()->route('login')
+        return redirect()->route('login.view')
             ->with('status', 'Your password has been reset successfully. You can now log in with your new password.');
     }
 }

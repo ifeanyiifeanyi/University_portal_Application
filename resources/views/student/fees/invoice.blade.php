@@ -139,7 +139,7 @@
                                 <button class="btn btn-sm btn-{{ getStatusColor($invoice->status) }}">
                                     {{ Str::title($invoice->status) }}</button>
                             </p>
-                           
+
                         </div>
                         <div class="tm_right_footer">
                             <table>
@@ -150,10 +150,9 @@
                                             ₦{{ number_format($invoice->amount, 2) }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="tm_width_3 tm_primary_color tm_border_none tm_pt0">Tax <span
-                                                class="tm_ternary_color">(0%)</span></td>
-                                        <td class="tm_width_3 tm_primary_color tm_text_right tm_border_none tm_pt0">
-                                            ₦0.00</td>
+                                        <td colspan="2" class="tm_width_3 tm_text_right tm_border_none tm_pt0 tm_ternary_color">
+                                            Please note: Additional transfer and processing charges may apply and will be reflected in the final payment amount.
+                                        </td>
                                     </tr>
                                     <tr class="tm_border_top">
                                         <td class="tm_width_3 tm_border_top_0 tm_bold tm_f16 tm_primary_color">Grand

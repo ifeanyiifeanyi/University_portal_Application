@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LoginActivity;
 use App\Services\AuthService;
 use App\Http\Requests\LoginRequest;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -14,6 +15,7 @@ use App\Mail\SuspiciousLoginDetected;
 use Illuminate\Http\RedirectResponse;
 use App\Services\LoginTrackingService;
 use Illuminate\Support\Facades\RateLimiter;
+use Exception;
 
 class AuthController extends Controller
 {
@@ -30,7 +32,13 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
         $this->loginTrackingService = $loginTrackingService;
+
     }
+
+
+
+
+
     /**
      * GET
      * Display the login page

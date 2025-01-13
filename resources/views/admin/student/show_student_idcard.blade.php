@@ -2,7 +2,7 @@
 
 {{ $student->matric_number }}
 
-{{ $student->current_level }}
+{{ $student->department->getDisplayLevel($student->current_level) }}
 
 {{ $student->jamb_registration_number }}
 

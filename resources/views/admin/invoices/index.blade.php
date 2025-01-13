@@ -154,7 +154,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            
+
                             <table class="table table-striped" id="example">
                                 <thead>
                                     <tr>
@@ -193,7 +193,7 @@
                                                     {{ $statusConfig[$invoice->status][2] }}
                                                 </span>
                                             </td>
-                                            <td>
+                                            {{-- <td>
                                                 <a href="{{ route('admin.invoice.show', $invoice->id) }}"
                                                     class="btn btn-info btn-sm" title="View Invoice">
                                                     <i class="fas fa-eye fa-fw"></i>
@@ -208,6 +208,31 @@
                                                 @endif
 
                                                 @if ($invoice->status !== 'pending')
+                                                    <button class="btn btn-warning btn-sm archive-invoice"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Archive Invoice">
+                                                        <i class="fas fa-archive fa-fw"></i>
+                                                    </button>
+                                                @endif
+                                            </td> --}}
+                                            <td>
+                                                <a href="{{ route('admin.invoice.show', $invoice->id) }}"
+                                                    class="btn btn-info btn-sm" title="View Invoice">
+                                                    <i class="fas fa-eye fa-fw"></i>
+                                                </a>
+
+                                                @if ($invoice->status === 'pending')
+                                                    <button class="btn btn-primary btn-sm process-payment-btn"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Process Payment">
+                                                        <i class="fas fa-money-bill-wave fa-fw"></i>
+                                                    </button>
+
+                                                    <button class="btn btn-danger btn-sm delete-invoice"
+                                                        data-invoice-id="{{ $invoice->id }}" title="Delete Invoice">
+                                                        <i class="fas fa-trash-alt fa-fw"></i>
+                                                    </button>
+                                                @endif
+
+                                                @if ($invoice->status === 'paid')
                                                     <button class="btn btn-warning btn-sm archive-invoice"
                                                         data-invoice-id="{{ $invoice->id }}" title="Archive Invoice">
                                                         <i class="fas fa-archive fa-fw"></i>

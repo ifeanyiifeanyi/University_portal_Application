@@ -19,9 +19,10 @@ class PaymentGatewayService
     public function __construct(RemitaService $remitaService)
     {
         $this->remitaService = $remitaService;
-        // $this->paystackSecretKey = config('services.paystack.secret_key');
         $this->paystackSecretKey = env("PAYSTACK_SECRET_KEY");
+
     }
+
 
 
     public function initializePayment(Payment $payment, $amount = null)
@@ -32,12 +33,11 @@ class PaymentGatewayService
             case 'paystack':
                 return $this->initializePaystackPayment($payment, $amount);
             case 'remita':
-                // return $this->initializeRemitaPayment($payment, $amount);
+                return ;
             default:
                 throw new \Exception("Unsupported payment gateway: {$gateway}");
         }
     }
-
 
 
 
@@ -187,7 +187,7 @@ class PaymentGatewayService
             case 'paystack':
                 return $this->verifyPaystackPayment($reference);
             case 'remita':
-                // return $this->verifyRemitaPayment($reference);
+                return;
             default:
                 throw new \Exception("Unsupported payment gateway: {$gateway}");
         }
@@ -272,6 +272,7 @@ class PaymentGatewayService
                     'paystack_fee' => $paymentBreakdown['paystack_fee']
                 ]);
             } else {
+
                 // Fallback verification if breakdown is not available
                 // Calculate the minimum expected total (base amount + minimum fees)
                 $minimumExpectedTotal = $expectedBaseAmount + 500; // base + platform fee
@@ -324,6 +325,7 @@ class PaymentGatewayService
             ->orderBy('installment_number')
             ->first();
 
+
         if (!$currentInstallment) {
             throw new \Exception('No pending installment found');
         }
@@ -356,7 +358,7 @@ class PaymentGatewayService
         $payment->update([
             'base_amount' => $totalPaid,
             'remaining_amount' => $remainingAmount,
-            'next_transaction_amount' => $nextInstallment ? $nextInstallment->amount : null,
+            'next_transaction_amount' => $nextInstallment ? $nextInstallment->amount : 0,
             'installment_status' => $nextInstallment ? 'partial' : 'completed',
             'next_installment_date' => $nextInstallment ? $nextInstallment->due_date : null,
             'payment_reference' => $responseData['data']['reference'],

@@ -109,19 +109,21 @@
 
                                                 {{ $student->user->fullName() ?? '' }}
                                                 <br>
-                                               Added at {{ $student->created_at->format('jS F Y, g:ia') }}
+                                                Added at {{ $student->created_at->format('jS F Y, g:ia') }}
 
                                             </td>
                                             <td class="text-center">
                                                 <code>{{ $student->matric_number }}</code> <br>
-                                                <a href="{{ route('admin.student.idcard', $student) }}" class="badge bg-secondary"><i class="fas fa-id-card"></i></a>
+                                                <a href="{{ route('admin.student.idcard', $student) }}"
+                                                    class="badge bg-secondary"><i class="fas fa-id-card"></i></a>
                                             </td>
                                             <td>
                                                 {{ $student->department->name }} <br>
-                                                <small class="text-muted">({{ $student->department->faculty->name }})</small>
+                                                <small
+                                                    class="text-muted">({{ $student->department->faculty->name }})</small>
                                             </td>
                                             <td>
-                                                <p  class="float-end">
+                                                <p class="float-end">
                                                     <i class="bx bx-calendar me-0"></i>
                                                     {{ $student->year_of_admission }}
                                                 </p>
@@ -189,9 +191,10 @@
 
                                                             <li class="dropdown-divider mb-2"> </li>
 
+
                                                             <li>
                                                                 <form
-                                                                    action="{{ route('admin.student.delete', $student) }}"
+                                                                    action="{{ route('admin.student.delete', $student->user->id) }}"
                                                                     method="post" class="delete-student-form">
                                                                     @csrf
                                                                     @method('DELETE')

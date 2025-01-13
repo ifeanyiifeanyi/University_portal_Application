@@ -26,18 +26,23 @@
                                     <label class="form-label">Payment Status</label>
                                     <select class="form-select" name="status">
                                         <option value="">All Status</option>
-                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                        <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                            Pending</option>
+                                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid
+                                        </option>
+                                        <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>
+                                            Overdue</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Date From</label>
-                                    <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                                    <input type="date" class="form-control" name="date_from"
+                                        value="{{ request('date_from') }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Date To</label>
-                                    <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+                                    <input type="date" class="form-control" name="date_to"
+                                        value="{{ request('date_to') }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Academic Session</label>
@@ -157,27 +162,35 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         <strong>{{ $installment->payment->student->user->full_name ?? 'N/A' }}</strong>
-                                        <small class="text-muted">{{ $installment->payment->student->matric_number ?? 'N/A' }}</small>
-                                        <small class="text-muted">{{ $installment->payment->student->department->name ?? 'N/A' }}</small>
+                                        <small
+                                            class="text-muted">{{ $installment->payment->student->matric_number ?? 'N/A' }}</small>
+                                        <small
+                                            class="text-muted">{{ $installment->payment->student->department->name ?? 'N/A' }}</small>
                                     </div>
                                 </td>
 
                                 <!-- Payment Details -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <span><strong>Type:</strong> {{ $installment->payment->paymentType->name ?? 'N/A' }}</span>
-                                        <span><strong>Method:</strong> {{ $installment->payment->paymentMethod->name ?? 'N/A' }}</span>
-                                        <small class="text-muted">Ref: {{ $installment->payment->transaction_reference ?? 'N/A' }}</small>
+                                        <span><strong>Type:</strong>
+                                            {{ $installment->payment->paymentType->name ?? 'N/A' }}</span>
+                                        <span><strong>Method:</strong>
+                                            {{ $installment->payment->paymentMethod->name ?? 'N/A' }}</span>
+                                        <small class="text-muted">Ref:
+                                            {{ $installment->payment->transaction_reference ?? 'N/A' }}</small>
                                     </div>
                                 </td>
 
                                 <!-- Installment Information -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <span><strong>Installment:</strong> {{ $installment->installment_number }} of {{ $installment->payment->installments->count() }}</span>
-                                        <span><strong>Due Date:</strong> {{ $installment->due_date->format('d M, Y') }}</span>
+                                        <span><strong>Installment:</strong> {{ $installment->installment_number }} of
+                                            {{ $installment->payment->installments->count() }}</span>
+                                        <span><strong>Due Date:</strong>
+                                            {{ $installment->due_date->format('d M, Y') }}</span>
                                         @if ($installment->paid_at)
-                                            <small class="text-success">Paid on: {{ $installment->paid_at->format('d M, Y') }}</small>
+                                            <small class="text-success">Paid on:
+                                                {{ $installment->paid_at->format('d M, Y') }}</small>
                                         @endif
                                     </div>
                                 </td>
@@ -196,12 +209,15 @@
                                         <span class="badge bg-{{ $statusClass }}">
                                             {{ ucfirst($installment->status) }}
                                         </span>
-
-                                        @if (in_array($installment->status, ['pending', 'overdue']))
-                                            <a href="{{ route('admin.installment_paid.invoice', $installment->id) }}"
-                                               class="btn btn-sm btn-primary">
-                                                <i class="fas fa-money-bill-wave me-1"></i> Pay Now
+                                        @if (
+                                            ($installment->status === 'pending' || $installment->status === 'overdue') &&
+                                                $installment->payment->installment_status !== 'completed')
+                                            <a href="{{ route('admin.payments.installments.details', $installment) }}"
+                                                class="btn btn-primary btn-sm">
+                                                Process Next Payment
                                             </a>
+                                        @elseif ($installment->payment->installment_status === 'completed')
+                                            <small class="text-success">All Installments Completed</small>
                                         @endif
                                     </div>
                                 </td>
@@ -217,7 +233,8 @@
                                         @endif
                                         @if ($installment->status === 'pending' || $installment->status === 'overdue')
                                             <span class="text-danger">
-                                                <strong>Due:</strong> ₦{{ number_format($installment->amount - ($installment->paid_amount ?? 0), 2) }}
+                                                <strong>Due:</strong>
+                                                ₦{{ number_format($installment->amount - ($installment->paid_amount ?? 0), 2) }}
                                             </span>
                                         @endif
                                     </div>
@@ -230,12 +247,12 @@
                                             data-bs-toggle="modal" data-bs-target="#detailsModal{{ $installment->id }}">
                                             <i class="fas fa-eye me-1"></i> Details
                                         </button>
-                                        {{-- @if ($installment->payment) --}}
-                                            <a href="{{ route('admin.payments.showReceipt', $installment->payment->receipt->id) }}"
-                                               class="btn btn-sm btn-outline-success">
-                                                <i class="fas fa-file-alt me-1"></i> Receipt
-                                            </a>
-                                        {{-- @endif --}}
+                                        @if (optional($installment->payment)->receipt)
+                                        <a href="{{ route('admin.payments.showReceipt', $installment->payment->receipt->id) }}"
+                                            class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-file-alt me-1"></i> Receipt
+                                        </a>
+                                        @endif
                                     </div>
 
                                 </td>

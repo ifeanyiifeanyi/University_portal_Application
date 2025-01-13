@@ -51,6 +51,13 @@
                         <div class="col-md-6 text-end"> <a href="{{ route('password.recovery.form') }}">Forgot Password
                                 ?</a>
                         </div>
+                         <!-- Add Turnstile widget here -->
+                         <div class="col-12">
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                            @error('turnstile')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
                         <div class="col-12">
                             <div class="d-grid">
                                 <button type="submit" class="btn" style="background: #204939;color:#fff"><i
@@ -66,5 +73,6 @@
 
     @endsection
     @section('js')
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     @endsection
