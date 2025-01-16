@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckFeesInstallmentMiddleware
 {
     protected $authService;
- 
+
     /**
      * CLASS
      * instance of our auth service class
@@ -33,15 +33,6 @@ class CheckFeesInstallmentMiddleware
         // check for student
         // check for session
         // check for semester
-
-    //     $student = Student::where('user_id',$this->authService->user()->id)->first();
-    //     $semester = Semester::where('is_current',1)->first();
-    //     $session = AcademicSession::where('is_current',1)->first();
-
-    //     $checkpayment = Payment::where('department_id',$student->department_id)->where('student_id',$student->id)->where('academic_session_id',$session->id)->where('semester_id',$semester->id)->where('level',$student->current_level)->where('status','paid')->first();
-    //     if (!$checkpayment) {
-    //         return response()->view('student.error.fees');
-    //    }
 
     // Get the authenticated student
     $student = Student::where('user_id', $this->authService->user()->id)->first();
@@ -66,11 +57,7 @@ class CheckFeesInstallmentMiddleware
             ->first();
 
         if ($nextInstallment) {
-            // if ($nextInstallment->due_date->isFuture()) {
-            //     $message = 'Your next installment is due on ' . $nextInstallment->due_date->format('Y-m-d') . '';
-            //     return response()->view('student.error.fees',['message'=>$message]);
-            //     // return redirect('/dashboard')->with('message', 'Your next installment is due on ' . $nextInstallment->due_date->format('Y-m-d') . '.');
-            // }
+
 
             if ($nextInstallment->due_date->isPast()) {
                 $message = 'You have an overdue payment of ' . number_format($nextInstallment->amount, 2) . '. Please complete it to continue.';
@@ -78,9 +65,6 @@ class CheckFeesInstallmentMiddleware
                 // return redirect('/payment')->with('message', 'You have an overdue payment of ' . number_format($nextInstallment->amount, 2) . '. Please complete it to continue.');
             }
         }
-    }else{
-        $message = 'Our records indicate that your fees for the current session and semester have not yet been paid. Kindly proceed with the necessary payments to avoid any disruptions to your academic activities';
-        return response()->view('student.error.fees',['message'=>$message]);
     }
         return $next($request);
     }

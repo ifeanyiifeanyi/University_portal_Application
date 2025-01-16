@@ -17,11 +17,19 @@ class Admin extends Model
 
     protected $guarded = [];
 
-    public function courses(){
+    public function courses()
+    {
         return $this->belongsToMany(Course::class);
     }
 
-    public function getAdminUserRoleAttribute(){
+    public function sentEmails()
+    {
+        return $this->hasMany(StudentEmail::class);
+    }
+
+
+    public function getAdminUserRoleAttribute()
+    {
         return Str::upper($this->role);
     }
     public function user()
@@ -44,7 +52,8 @@ class Admin extends Model
         return $this->role === 'staff';
     }
 
-    public function ticketResponse(){
+    public function ticketResponse()
+    {
         return $this->hasMany(TicketResponse::class, 'admin_id');
     }
 }

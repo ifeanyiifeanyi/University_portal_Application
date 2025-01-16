@@ -3,6 +3,11 @@
 @section('title', 'Invoice Manager')
 
 @section('css')
+<style>
+    .fas {
+        font-size: 15px !important;
+    }
+</style>
 @endsection
 @php
     $statusConfig = [
@@ -217,7 +222,7 @@
                                             <td>
                                                 <a href="{{ route('admin.invoice.show', $invoice->id) }}"
                                                     class="btn btn-info btn-sm" title="View Invoice">
-                                                    <i class="fas fa-eye fa-fw"></i>
+                                                    <i class="fas fa-eye fa-fw text-white"></i>
                                                 </a>
 
                                                 @if ($invoice->status === 'pending')
@@ -235,7 +240,7 @@
                                                 @if ($invoice->status === 'paid')
                                                     <button class="btn btn-warning btn-sm archive-invoice"
                                                         data-invoice-id="{{ $invoice->id }}" title="Archive Invoice">
-                                                        <i class="fas fa-archive fa-fw"></i>
+                                                        <i class="fas fa-archive fa-fw text-white"></i>
                                                     </button>
                                                 @endif
                                             </td>
@@ -261,13 +266,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="d-grid gap-3">
-                        <button type="button" class="btn btn-primary btn-lg" id="creditCardBtn">
+                        <button type="button" class="btn btn-primary btn-sm" id="creditCardBtn">
                             <i class="fas fa-credit-card fa-fw"></i> Credit Card (Online Payment)
                         </button>
-                        <button type="button" class="btn btn-secondary btn-lg" id="bankTransferBtn">
+                        <button type="button" class="btn btn-secondary btn-sm" id="bankTransferBtn">
                             <i class="fas fa-university fa-fw"></i> Bank Transfer
                         </button>
-                        <button type="button" class="btn btn-info btn-lg" id="cashBtn">
+                        <button type="button" class="btn btn-info btn-sm" id="cashBtn">
                             <i class="fas fa-money-bill-wave fa-fw"></i> Cash Payment
                         </button>
                     </div>

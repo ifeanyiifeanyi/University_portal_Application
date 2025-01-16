@@ -5,8 +5,8 @@
 <div class="container-xxl mt-3">
     <div class="row">
         <div class="col-xl-12">
-            
-      
+
+
             <div class="card">
               <div class="card-header">
                 <h2>Select Session of school fees</h2>
@@ -33,7 +33,7 @@
               </option>
           @endif
           @endforeach
-             
+
           </select>
           @if ($errors->has('payment_type_id'))
 <span class="text-danger">{{$errors->first('payment_type_id')}}</span>
@@ -52,7 +52,7 @@
                                 {{ $academicsession->name }} {{ $academicsession->is_current ? '(Current Session)' : '' }}
                             </option>
                         @endforeach
-                           
+
                         </select>
                         @if ($errors->has('academic_session_id'))
     <span class="text-danger">{{$errors->first('academic_session_id')}}</span>
@@ -60,6 +60,13 @@
                     </div>
                   </div>
                   <div class="row mb-3">
+                    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Current level</label>
+                    <div class="col-md-8 col-lg-9">
+                    <output class="form-control">{{$student->current_level}}</output>
+                    <input type="hidden" name="level" id="" value="{{$student->department->getLevelNumber($student->current_level)}}">
+                    </div>
+                  </div>
+                  {{-- <div class="row mb-3">
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select level</label>
                     <div class="col-md-8 col-lg-9">
                         <select id="level" name="level" class="form-control">
@@ -70,13 +77,13 @@
                                 {{ $level }}
                             </option>
                         @endforeach
-                           
+
                         </select>
                         @if ($errors->has('level'))
     <span class="text-danger">{{$errors->first('level')}}</span>
     @endif
                     </div>
-                  </div>
+                  </div> --}}
                   <div class="row mb-3">
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select semester</label>
                     <div class="col-md-8 col-lg-9">
@@ -87,7 +94,7 @@
                                             {{ $semester->name }} {{ $semester->is_current ? '(Current Semester)' : '' }}
                                         </option>
                                     @endforeach
-                           
+
                         </select>
                         @if ($errors->has('semester_id'))
     <span class="text-danger">{{$errors->first('semester_id')}}</span>
@@ -151,15 +158,15 @@
   </div>
 </div>
 
-                 
-    
+
+
                   <div>
                     <button class="btn w-50 text-white btn-success" style="">Submit</button>
                   </div>
                 </form>
               </div>
             </div>
-    
+
           </div>
     </div>
     </div>
@@ -170,7 +177,7 @@
     // document.addEventListener('DOMContentLoaded', function() {
     //     const departmentSelect = document.getElementById('department_id');
     //     const levelSelect = document.getElementById('level');
-  
+
     //     function updateLevels() {
     //         const departmentId = departmentSelect.value;
     //         fetch(`/student/fees/departments/${departmentId}/levels`)
@@ -186,7 +193,7 @@
     //                 });
     //             });
     //     }
-  
+
     //     departmentSelect.addEventListener('change', updateLevels);
     //     updateLevels(); // Initial population
     // });
@@ -235,7 +242,7 @@
                     // Handle installment options
                     if (data.supports_installments) {
                         $('#installment-options').slideDown();
-                        
+
                         if (data.installment_config) {
                             const config = data.installment_config;
                             const totalAmount = data.amount;
@@ -248,7 +255,7 @@
                                 <p><strong>Remaining ${config.number_of_installments - 1} Installments:</strong> ₦${regularInstallmentAmount.toLocaleString('en-NG', {minimumFractionDigits: 2})} each</p>
                                 <p><strong>Payment Interval:</strong> ${config.interval_days} days</p>
                             `;
-                            
+
                             $('#installment-breakdown').html(breakdownHtml);
                             $('#installment-info').show();
                         }

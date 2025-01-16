@@ -5,12 +5,9 @@
 
 @endsection
 
-
-
 @section('admin')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
+    <div class="container-fluid">
+
                 <div class="card shadow">
                     <div class="card-body">
                         <div class="card-title d-flex align-items-center gap-5">
@@ -18,6 +15,10 @@
                                 <a href="{{ route('admin.student.create') }}"
                                     class="btn btn-sm bg-secondary text-white float-right" style="text-align: right"><i
                                         class="fas fa-user-plus"></i> Create</a>
+
+                                <a href="{{ route('admin.student.email.bulk') }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-envelope"></i> Bulk Email
+                                </a>
                                 <!-- Download Template Buttons -->
                                 <div class="dropdown d-inline">
                                     <button class="btn btn-sm btn-info dropdown-toggle" type="button"
@@ -125,7 +126,7 @@
                                             </td>
 
                                             <td class="text-center">
-                                                <code>{{ $student->matric_number }}</code> <br>
+                                                <code style="font-weight: 900">{{ $student->matric_number }}</code> <br>
                                                 <a href="{{ route('admin.student.idcard', $student) }}"
                                                     class="badge bg-secondary"><i class="fas fa-id-card"></i></a>
                                             </td>
@@ -156,6 +157,11 @@
                                                         </span>
                                                         <ul class="dropdown-menu custom-dropdown-menu"
                                                             style="text-align: justify">
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ route('admin.student.email.single', $student) }}">
+                                                                    <i class="bx bx-envelope me-0"></i> Send Email
+                                                                </a>
+                                                            </li>
 
                                                             <li>
                                                                 <a class="dropdown-item"
@@ -228,8 +234,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            <
     </div>
 
 @endsection

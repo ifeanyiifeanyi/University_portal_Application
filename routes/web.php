@@ -52,6 +52,7 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminInstallmentConfigController;
 use App\Http\Controllers\Admin\AdminInstallmentPaidController;
+use App\Http\Controllers\Admin\AdminSendStudentEmailController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -97,7 +98,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');
     Route::get('logout', 'logout')->name('logout');
-
 });
 
 
@@ -184,11 +184,22 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/payments/receipt/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
     });
 
-    Route::controller(InstallmentPaymentController::class)->group(function(){
+    Route::controller(InstallmentPaymentController::class)->group(function () {
         Route::get('installment-detail/{installment}', 'showNextInstallmentDetails')->name('admin.payments.installments.details');
-        Route::post('/{installment}/process','processNextInstallment')->name('admin.payments.installments.process');
-
+        Route::post('/{installment}/process', 'processNextInstallment')->name('admin.payments.installments.process');
     });
+
+    Route::controller(AdminSendStudentEmailController::class)->group(function () {
+        Route::get('send-email/{student}', 'showSingleEmailForm')->name('admin.student.email.single');
+        Route::post('send-email/{student}/send', 'sendSingleEmail')->name('admin.student.email.send-single');
+
+        Route::get('send-email-bulk', 'showBulkEmailForm')->name('admin.student.email.bulk');
+        Route::get('students/filter', 'getFilteredStudents')->name('admin.student.email.filter');
+        Route::post('send-email/bulk', 'sendBulkEmail')->name('admin.student.email.send-bulk');
+
+        Route::get('departments/{department}/levels', 'getDepartmentLevels')->name('admin.department.levels');
+    });
+
 
 
     // Dashboard Routes
@@ -758,7 +769,7 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
         Route::post('changepassword', 'updatepassword')->name('student.update.password');
     });
-    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees','check.installment.fees')->group(function () {
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees', 'check.installment.fees')->group(function () {
         Route::prefix('course_registration')->group(function () {
             Route::get('/', 'courseregistration')->name('student.view.courseregistration');
             Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');

@@ -33,161 +33,114 @@ class StudentFeesController extends Controller
      * CLASS
      * instance of our auth service class
      */
-    public function __construct(AuthService $authService, StudentPaymentGatewayService $StudentpaymentGatewayService)
-    {
+    public function __construct(AuthService $authService,StudentPaymentGatewayService $StudentpaymentGatewayService){
 
         $this->authService = $authService;
         $this->StudentpaymentGatewayService = $StudentpaymentGatewayService;
     }
-    public function index()
-    {
-        $student = Student::where('user_id', $this->authService->user()->id)->first();
+    public function index(){
+        $student = Student::where('user_id',$this->authService->user()->id)->first();
 
-        // Fetch the student's invoices, grouping by academic session and semester
-        $invoices = Invoice::where('student_id', $student->id)
-            ->with(['academicSession', 'semester', 'paymentType', 'department', 'paymentMethod']) // Load relationships
-            ->orderBy('created_at') // Optional: order by academic session
-            ->get();
+    // Fetch the student's invoices, grouping by academic session and semester
+    $invoices = Invoice::where('student_id', $student->id)
+        ->with(['academicSession', 'semester', 'paymentType', 'department', 'paymentMethod']) // Load relationships
+        ->orderBy('created_at') // Optional: order by academic session
+        ->get();
 
         $numericLevel = $student->department->getLevelNumber($student->current_level);
 
-        $paymentTypes = DepartmentPaymentType::with(['paymentType' => function ($query) {
+    $paymentTypes = DepartmentPaymentType::with(['paymentType' => function($query) {
             $query->where('is_active', true);
         }])
-            ->where('department_id', $student->department_id)
-            ->where('level', $numericLevel)  // Using the converted numeric level
-            ->whereHas('paymentType', function ($query) {
-                $query->where('is_active', true);
-            })
-            ->whereNotExists(function ($query) use ($student) {
-                $query->select('payments.id')
-                    ->from('payments')
-                    ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
-                    ->where('payments.student_id', $student->id)
-                    ->where('payments.status', 'completed');
-            })
-            ->get();
+        ->where('department_id', $student->department_id)
+        ->where('level', $numericLevel)  // Using the converted numeric level
+        ->whereHas('paymentType', function($query) {
+            $query->where('is_active', true);
+        })
+        ->whereNotExists(function ($query) use ($student) {
+            $query->select('payments.id')
+                ->from('payments')
+                ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
+                ->where('payments.student_id', $student->id);
+        })
+        ->get();
 
-        return view('student.fees.index', compact('invoices', 'paymentTypes'));
+        return view('student.fees.index',compact('invoices','paymentTypes'));
     }
-    public function view()
-    {
+    public function view(){
         return view('student.fees.view');
     }
 
     public function getPaymentDetails(Request $request)
-    {
-        $paymentType = PaymentType::findOrFail($request->payment_type_id);
+{
+    $paymentType = PaymentType::findOrFail($request->payment_type_id);
 
-        $currentDate = now();
-        $lateFee = $paymentType->calculateLateFee($currentDate);
+    $currentDate = now();
+    $lateFee = $paymentType->calculateLateFee($currentDate);
 
-        // Check if student's department matches the payment type
-        $departmentPaymentType = $paymentType->departments()
-            ->where('department_id', $request->department_id)
-            ->first();
+    // Check if student's department matches the payment type
+    $departmentPaymentType = $paymentType->departments()
+        ->where('department_id', $request->department_id)
+        ->first();
 
-        if (!$departmentPaymentType) {
-            return response()->json([
-                'error' => 'This payment type is not available for your department'
-            ], 422);
-        }
-
+    if (!$departmentPaymentType) {
         return response()->json([
-            'amount' => $paymentType->amount + $lateFee,
-            'late_fee' => $lateFee,
-            'due_date' => $paymentType->due_date,
-            'supports_installments' => $paymentType->supportsInstallments(),
-            'installment_config' => $paymentType->supportsInstallments() ? $paymentType->installmentConfig : null
-        ]);
+            'error' => 'This payment type is not available for your department'
+        ], 422);
     }
 
-    public function pay()
-    {
-        // load the semester
-        $semesters = Semester::get();
-        // load the academic sessions
-        $academicsessions = AcademicSession::all();
-        // load the studentprofile
-        $student = Student::where('user_id', $this->authService->user()->id)->first();
-        $currentDepartment = Department::find($student->department_id);
-        $levels = $currentDepartment ? $currentDepartment->levels : [];
+    return response()->json([
+        'amount' => $paymentType->amount + $lateFee,
+        'late_fee' => $lateFee,
+        'due_date' => $paymentType->due_date,
+        'supports_installments' => $paymentType->supportsInstallments(),
+        'installment_config' => $paymentType->supportsInstallments() ? $paymentType->installmentConfig : null
+    ]);
+}
 
-
-
-
-        // $paymentType = PaymentType::where('slug', 'school-fees-computer-science-100-level')
-        // ->whereHas('departments', function ($query) use ($student) {
-        //     $query->where('departments.id', $student->department_id)
-        //           ->where('department_payment_type.level', $student->current_level); // Correct pivot reference
-        // })
-        // ->first();
-        // if (!$paymentType) {
-        //     return redirect()->back()->with('error', 'Payment type not found for your department/level (Contact ICT Center)');
-        // }
-        //  $paymentTypes = PaymentType::get();
-
-        //  $paymentTypes = DepartmentPaymentType::with('paymentType')->where('department_id',$student->department_id)->where('level',$student->current_level)->get();
+    public function pay(){
+         // load the semester
+         $semesters = Semester::get();
+         // load the academic sessions
+         $academicsessions = AcademicSession::all();
+         // load the studentprofile
+         $student = Student::where('user_id',$this->authService->user()->id)->first();
+         $currentDepartment = Department::find($student->department_id);
+         $levels = $currentDepartment ? $currentDepartment->levels : [];
 
         $numericLevel = $student->department->getLevelNumber($student->current_level);
         $paymentTypes = DepartmentPaymentType::with(['paymentType'])
-            ->where('department_id', $student->department_id)
-            ->where('level', $numericLevel)
-            ->whereNotExists(function ($query) use ($student) {
-                $query->select('payments.id')
-                    ->from('payments')
-                    ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
-                    ->where('payments.student_id', $student->id);
-            })
-            ->get();
-
-        // $paymentTypes = PaymentType::select('payment_types.*')
-        //         ->distinct()
-        //         ->with(['departments' => function ($query) {
-        //             $query->select('departments.id', 'departments.name')
-        //                 ->distinct();
-        //         }])
-        //         ->active()
-        //         ->get();
-
-        // $numericLevel = $student->department->getLevelNumber($student->current_level);
-
-        // $paymentTypes = DepartmentPaymentType::with(['paymentType' => function($query) {
-        //         $query->where('is_active', true);
-        //     }])
-        //     ->where('department_id', $student->department_id)
-        //     ->where('level', $numericLevel)  // Using the converted numeric level
-        //     ->whereHas('paymentType', function($query) {
-        //         $query->where('is_active', true);
-        //     })
-        //     ->whereNotExists(function ($query) use ($student) {
-        //         $query->select('payments.id')
-        //             ->from('payments')
-        //             ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
-        //             ->where('payments.student_id', $student->id)
-        //             ->where('payments.status', 'completed');
-        //     })
-        //     ->get();
+    ->where('department_id', $student->department_id)
+    ->where('level',$numericLevel)
+    ->whereNotExists(function ($query) use ($student) {
+        $query->select('payments.id')
+            ->from('payments')
+            ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
+            ->where('payments.student_id', $student->id);
+    })
+    ->get();
 
 
 
-        $paymentMethods = PaymentMethod::where('is_active', 1)->get();
 
-        return view('student.fees.pay', [
-            'semesters' => $semesters,
-            'academicsessions' => $academicsessions,
-            'student' => $student,
-            'paymentMethods' => $paymentMethods,
-            'paymentTypes' => $paymentTypes,
-            'levels' => $levels,
-            'currentDepartment' => $currentDepartment
-        ]);
+
+         $paymentMethods = PaymentMethod::where('is_active', 1)->get();
+
+       return view('student.fees.pay',[
+           'semesters'=>$semesters,
+           'academicsessions'=>$academicsessions,
+           'student'=>$student,
+           'paymentMethods'=>$paymentMethods,
+           'paymentTypes'=>$paymentTypes,
+           'levels'=>$levels,
+           'currentDepartment'=>$currentDepartment
+       ]);
     }
 
 
 
 
-    public function submitPaymentForm(SubmitPaymentFormRequest $request)
+public function submitPaymentForm(SubmitPaymentFormRequest $request)
     {
         $validated = $request->validated();
 
@@ -240,38 +193,38 @@ class StudentFeesController extends Controller
         }
     }
 
-    //ths is what we see before actual payment is done
-    public function invoice($invoiceId = null)
-    {
-        // Check if the invoiceId is missing or empty
-        if (empty($invoiceId)) {
-            // Redirect back to the form if no parameter is present
-            return redirect()->back()->with('error', 'Invoice not found. Please try again.');
-        }
+      //ths is what we see before actual payment is done
+      public function invoice($invoiceId = null)
+      {
+          // Check if the invoiceId is missing or empty
+          if (empty($invoiceId)) {
+              // Redirect back to the form if no parameter is present
+              return redirect()->back()->with('error', 'Invoice not found. Please try again.');
+          }
 
-        // Attempt to retrieve the invoice with related data
-        $invoice = Invoice::with([
-            'student.user',
-            'student.department',
-            'paymentType',
-            'paymentMethod',
-            'academicSession',
-            'semester'
-        ])->find($invoiceId);
+          // Attempt to retrieve the invoice with related data
+          $invoice = Invoice::with([
+              'student.user',
+              'student.department',
+              'paymentType',
+              'paymentMethod',
+              'academicSession',
+              'semester'
+          ])->find($invoiceId);
 
-        // Check if the invoice was not found
-        if (is_null($invoice)) {
-            // Redirect back to the form if no invoice was found
-            return redirect()->back()->with('error', 'Invoice not found. Please try again.');
-        }
+          // Check if the invoice was not found
+          if (is_null($invoice)) {
+              // Redirect back to the form if no invoice was found
+              return redirect()->back()->with('error', 'Invoice not found. Please try again.');
+          }
 
-        // Get all active payment methods
-        $paymentMethods = PaymentMethod::active()->get();
+          // Get all active payment methods
+          $paymentMethods = PaymentMethod::active()->get();
 
-        // Return the view with the found invoice
+          // Return the view with the found invoice
 
-        return view('student.fees.invoice', compact('invoice', 'paymentMethods'));
-    }
+          return view('student.fees.invoice', compact('invoice', 'paymentMethods'));
+      }
 
 
 
@@ -290,127 +243,127 @@ class StudentFeesController extends Controller
 
 
 
-    public function processPayment(ProcessPaymentRequest $request)
-    {
-        $validated = $request->validated();
-        $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
+public function processPayment(ProcessPaymentRequest $request)
+{
+    $validated = $request->validated();
+    $paymentType = PaymentType::findOrFail($validated['payment_type_id']);
 
-        // Calculate amounts including late fee
-        $currentDate = now();
-        $lateFee = $paymentType->calculateLateFee($currentDate);
-        $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
+    // Calculate amounts including late fee
+    $currentDate = now();
+    $lateFee = $paymentType->calculateLateFee($currentDate);
+    $baseAmount = $paymentType->getAmount($validated['department_id'], $validated['level']);
 
-        if (!$baseAmount) {
-            return redirect()->back()->with('error', 'Payment amount could not be determined.');
-        }
+    if (!$baseAmount) {
+        return redirect()->back()->with('error', 'Payment amount could not be determined.');
+    }
 
-        $totalAmountDue = $baseAmount + $lateFee;
+    $totalAmountDue = $baseAmount + $lateFee;
 
-        // Determine if this is an installment payment
-        $isInstallment = $request->has('is_installment') && $request->is_installment && $paymentType->supportsInstallments();
+    // Determine if this is an installment payment
+    $isInstallment = $request->has('is_installment') && $request->is_installment && $paymentType->supportsInstallments();
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
-            // Check for existing payment
-            $existingPayment = $this->findExistingPayment($validated);
+    try {
+        // Check for existing payment
+        $existingPayment = $this->findExistingPayment($validated);
 
-            // Handle existing installment payments
-            if ($existingPayment && $existingPayment->is_installment) {
-                // If it's a pending installment payment, process next installment
-                $pendingInstallment = $existingPayment->installments()
-                    ->where('status', 'pending')
-                    ->orderBy('installment_number')
-                    ->first();
+        // Handle existing installment payments
+        if ($existingPayment && $existingPayment->is_installment) {
+            // If it's a pending installment payment, process next installment
+            $pendingInstallment = $existingPayment->installments()
+                ->where('status', 'pending')
+                ->orderBy('installment_number')
+                ->first();
 
-                if ($pendingInstallment) {
-                    $paymentAmountForGateway = $pendingInstallment->amount;
+            if ($pendingInstallment) {
+                $paymentAmountForGateway = $pendingInstallment->amount;
 
-                    // Generate new unique transaction reference for this installment
-                    $newTransactionRef = 'PAY' . uniqid() . '-INST' . $pendingInstallment->installment_number;
+                // Generate new unique transaction reference for this installment
+                $newTransactionRef = 'PAY' . uniqid() . '-INST' . $pendingInstallment->installment_number;
 
-                    $existingPayment->update([
-                        'status' => 'pending',
-                        'next_transaction_amount' => $paymentAmountForGateway,
-                        'transaction_reference' => $newTransactionRef // Update with new reference
-                    ]);
-
-                    $paymentUrl = $this->StudentpaymentGatewayService->initializePayment(
-                        $existingPayment,
-                        $paymentAmountForGateway
-                    );
-
-                    DB::commit();
-                    return redirect()->away($paymentUrl);
-                }
-            }
-
-            // Block if payment exists and is not a pending installment
-            if ($existingPayment && $existingPayment->status !== 'pending') {
-                DB::rollBack();
-                return redirect()->back()->withError('Payment already exists for this student.');
-            }
-
-            // For full payments, use total amount directly
-            $paymentAmountForGateway = $totalAmountDue;
-            $installmentConfig = null;
-
-            // Only process installment logic if explicitly requested
-            if ($isInstallment) {
-                $installmentConfig = PaymentInstallmentConfig::where('payment_type_id', $paymentType->id)
-                    ->where('is_active', true)
-                    ->first();
-
-                if (!$installmentConfig) {
-                    throw new \Exception('No active installment configuration found for this payment type');
-                }
-
-                // Calculate first installment amount only for installment payments
-                $firstInstallmentPercentage = $installmentConfig->minimum_first_payment_percentage;
-                $paymentAmountForGateway = ($totalAmountDue * $firstInstallmentPercentage) / 100;
-            }
-
-            // Create or update payment record with a new transaction reference
-            $payment = $this->createOrUpdatePayment(
-                $existingPayment,
-                $validated,
-                $totalAmountDue,
-                $baseAmount,
-                $lateFee,
-                $isInstallment
-            );
-
-            // Only create installment records if installment payment is requested
-            if ($isInstallment && $installmentConfig) {
-                $payment->update([
+                $existingPayment->update([
+                    'status' => 'pending',
                     'next_transaction_amount' => $paymentAmountForGateway,
-                    'remaining_amount' => $totalAmountDue - $paymentAmountForGateway,
-                    'next_installment_date' => now()->addDays($installmentConfig->interval_days),
-                    'payment_installment_configs_id' => $installmentConfig->id
+                    'transaction_reference' => $newTransactionRef // Update with new reference
                 ]);
 
-                $this->createInstallmentRecords($payment, $installmentConfig, $totalAmountDue);
+                $paymentUrl = $this->StudentpaymentGatewayService->initializePayment(
+                    $existingPayment,
+                    $paymentAmountForGateway
+                );
+
+                DB::commit();
+                return redirect()->away($paymentUrl);
+            }
+        }
+
+        // Block if payment exists and is not a pending installment
+        if ($existingPayment && $existingPayment->status !== 'pending') {
+            DB::rollBack();
+            return redirect()->back()->withError('Payment already exists for this student.');
+        }
+
+        // For full payments, use total amount directly
+        $paymentAmountForGateway = $totalAmountDue;
+        $installmentConfig = null;
+
+        // Only process installment logic if explicitly requested
+        if ($isInstallment) {
+            $installmentConfig = PaymentInstallmentConfig::where('payment_type_id', $paymentType->id)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$installmentConfig) {
+                throw new \Exception('No active installment configuration found for this payment type');
             }
 
-            // Initialize payment with the gateway
-            $paymentUrl = $this->StudentpaymentGatewayService->initializePayment(
-                $payment,
-                $paymentAmountForGateway
-            );
-
-            DB::commit();
-            return redirect()->away($paymentUrl);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment initialization failed: ' . $e->getMessage(), [
-                'error' => $e->getMessage(),
-                'payment_type_id' => $validated['payment_type_id'],
-                'is_installment' => $isInstallment,
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'Failed to initialize payment. Please try again.');
+            // Calculate first installment amount only for installment payments
+            $firstInstallmentPercentage = $installmentConfig->minimum_first_payment_percentage;
+            $paymentAmountForGateway = ($totalAmountDue * $firstInstallmentPercentage) / 100;
         }
+
+        // Create or update payment record with a new transaction reference
+        $payment = $this->createOrUpdatePayment(
+            $existingPayment,
+            $validated,
+            $totalAmountDue,
+            $baseAmount,
+            $lateFee,
+            $isInstallment
+        );
+
+        // Only create installment records if installment payment is requested
+        if ($isInstallment && $installmentConfig) {
+            $payment->update([
+                'next_transaction_amount' => $paymentAmountForGateway,
+                'remaining_amount' => $totalAmountDue - $paymentAmountForGateway,
+                'next_installment_date' => now()->addDays($installmentConfig->interval_days),
+                'payment_installment_configs_id' => $installmentConfig->id
+            ]);
+
+            $this->createInstallmentRecords($payment, $installmentConfig, $totalAmountDue);
+        }
+
+        // Initialize payment with the gateway
+        $paymentUrl = $this->StudentpaymentGatewayService->initializePayment(
+            $payment,
+            $paymentAmountForGateway
+        );
+
+        DB::commit();
+        return redirect()->away($paymentUrl);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Payment initialization failed: ' . $e->getMessage(), [
+            'error' => $e->getMessage(),
+            'payment_type_id' => $validated['payment_type_id'],
+            'is_installment' => $isInstallment,
+            'trace' => $e->getTraceAsString()
+        ]);
+        return redirect()->back()->with('error', 'Failed to initialize payment. Please try again.');
     }
+}
 
     protected function createInstallmentRecords(Payment $payment, PaymentInstallmentConfig $config, $totalAmount)
     {
@@ -744,6 +697,7 @@ class StudentFeesController extends Controller
 
             DB::commit();
             return redirect()->away($paymentUrl);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Installment payment processing failed', [
@@ -809,6 +763,7 @@ class StudentFeesController extends Controller
                 'message' => null,
                 'shouldShowModal' => false
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

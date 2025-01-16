@@ -17,6 +17,13 @@ class Student extends Model
         'current_level' => 'integer'
     ];
 
+    // Add relationship to Student model
+    public function emails()
+    {
+        return $this->hasMany(StudentEmail::class);
+    }
+
+
     public function user()
     {
         return $this->belongsTo(User::class);

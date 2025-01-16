@@ -287,15 +287,24 @@
             Paragraph,
             Bold,
             Italic,
-            Font
+            Font,
+            Link,
+            BlockQuote,
+            List,
+            MediaEmbed,
+            Autoformat,
+
         } from 'ckeditor5';
 
         ClassicEditor
             .create(document.querySelector('#editor'), {
-                plugins: [Essentials, Paragraph, Bold, Italic, Font],
+                plugins: [Essentials, Paragraph, Bold, Italic, Font, Link, BlockQuote, List, MediaEmbed, Autoformat],
                 toolbar: [
-                    'undo', 'redo', '|', 'bold', 'italic', '|',
-                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor'
+                    'undo', 'redo', '|', 'bold', 'italic', '|', 'blockQuote', 'link', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
+                    'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
+                    '|', 'bulletedList', 'numberedList', 'todoList', '|', 'outdent', 'indent',
+                    '|', 'insertTable', 'mediaEmbed', 'imageUpload', 'blockQuote', 'codeBlock',
                 ]
             })
             .then(editor => {
