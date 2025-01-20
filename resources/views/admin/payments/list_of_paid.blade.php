@@ -268,7 +268,19 @@
                                                 <small class="text-muted">{{ $payment->student->matric_number }}</small>
                                             </td>
                                             <td>
-                                                {{ Str::upper($payment->payment_channel ?? 'NA')  }}
+                                                @if($payment->payment_channel)
+                                                    {{ Str::upper($payment->payment_channel) }}
+                                                   @if($payment->is_manual)
+                                                        <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
+                                                    @endif
+                                                @elseif($payment->is_manual)
+                                                    {{ Str::upper('MANUAL') }}
+                                                    <br>
+                                                    <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
+                                                @elseif($payment->is_manual && $payment->payment_channel == "MANUAL")
+                                                    {{ Str::upper($payment->payment_channel) }} <br>
+                                                    <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
+                                                @endif
                                             </td>
                                             <td>{{ $payment->academicSession->name }} <br> {{ $payment->semester->name }}
                                             </td>

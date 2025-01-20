@@ -31,7 +31,7 @@
                                         </tr>
                                         <tr>
                                             <th>Level:</th>
-                                            <td>{{ $payment->level }}</td>
+                                            <td>{{ $payment->student->department->getDisplayLevel($payment->level) }}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -209,13 +209,14 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Receipt Details</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        @if ($payment->receipt)
+
+                            @if ($payment->receipt)
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">Receipt Details</h6>
+                                        </div>
+                                        <div class="card-body">
                                             <div class="table-responsive">
                                                 <table class="table table-borderless">
                                                     <tr>
@@ -232,12 +233,11 @@
                                                     </tr>
                                                 </table>
                                             </div>
-                                        @else
-                                            <p class="text-muted">No receipt information available</p>
-                                        @endif
+
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

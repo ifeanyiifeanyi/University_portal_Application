@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Receipt;
 use App\Models\PaymentProof;
 use App\Models\ProveOfPayment;
+use App\Models\PaymentInstallment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Notification;
@@ -17,9 +18,8 @@ use App\Notifications\PaymentVerificationResult;
 
 class ManualPaymentService
 {
-    /**
-     * Process a manual payment submission
-     */
+
+
     public function processManualPayment(array $data, $proofFile)
     {
         DB::beginTransaction();
@@ -27,31 +27,45 @@ class ManualPaymentService
             // Check for existing payment
             $this->validateNoExistingPayment($data['invoice']);
 
-            // Create or update payment record
-            $payment = $this->createPaymentRecord($data['invoice']);
+            // Create payment record
+            $payment = $this->createPaymentRecord($data['invoice'], $data);
 
             // Handle proof file upload
             $proofPath = $this->handleFileUpload($proofFile);
 
+            // Update payment with proof
+            $payment->payment_proof = $proofPath;
+            $payment->save();
+
             // Create payment proof record
-            $paymentProof = $this->createPaymentProof($payment, $data, $proofPath);
+            $this->createPaymentProof($payment, $data, $proofPath);
+
+            // Create installments if this is an installment payment
+            if (isset($data['is_installment']) && $data['is_installment']) {
+                $this->createInstallments($payment, $data);
+            }
+
+
+            // Generate receipt
+            $receipt = $this->generateReceipt($payment);
+
+            // Update invoice status
+            $this->updateInvoiceStatus($data['invoice'], $payment->status);
+
+            $this->sendVerificationNotifications($payment, $payment->status);
 
             // Log the activity
-            activity()
-                ->performedOn($payment)
-                ->causedBy(auth()->user())
-                ->withProperties([
-                    'invoice_number' => $data['invoice']->invoice_number,
-                    'amount' => $data['invoice']->amount,
-                    'payment_proof_id' => $paymentProof->id
-                ])
-                ->log('Manual payment proof submitted');
+            $this->logPaymentActivity($payment);
 
-            // Send notifications
-            $this->sendSubmissionNotifications($payment);
+            // Send notification
+            $this->sendPaymentNotification($payment);
 
             DB::commit();
-            return $payment;
+
+            return [
+                'payment' => $payment,
+                'receipt' => $receipt
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -68,7 +82,7 @@ class ManualPaymentService
             'payment_type_id' => $invoice->payment_type_id,
             'academic_session_id' => $invoice->academic_session_id,
             'semester_id' => $invoice->semester_id,
-        ])->where('status', 'paid')->first();
+        ])->whereIn('status', ['paid', 'partial'])->first();
 
         if ($existingPayment) {
             throw new \Exception('Payment already exists for this student and payment type.');
@@ -78,25 +92,89 @@ class ManualPaymentService
     /**
      * Create the payment record
      */
-    private function createPaymentRecord($invoice)
+
+    private function createPaymentRecord($invoice, $data)
     {
-        return Payment::create([
+        $isInstallment = $data['is_installment'] ?? false;
+        $baseAmount = $data['base_amount'] ?? $invoice->amount;
+
+        $paymentData = [
             'invoice_number' => $invoice->invoice_number,
             'student_id' => $invoice->student_id,
             'payment_type_id' => $invoice->payment_type_id,
             'payment_method_id' => $invoice->payment_method_id,
             'academic_session_id' => $invoice->academic_session_id,
             'semester_id' => $invoice->semester_id,
-            'amount' => $invoice->amount,
             'department_id' => $invoice->department_id,
             'level' => $invoice->level,
-            'status' => 'paid',
+            'payment_channel' => 'MANUAL',
             'admin_id' => auth()->id(),
             'is_manual' => true,
+            'invoice_id' => $invoice->id,
             'payment_date' => now(),
             'transaction_reference' => 'PAY' . uniqid() . 'MANUAL',
+            'payment_reference' => $data['transaction_reference'] ?? null,
+            'base_amount' => $baseAmount,
+            'amount' => $invoice->amount,
+            'late_fee' => $data['late_fee'] ?? 0,
+            'is_installment' => $isInstallment,
+            'installment_config_id' => $data['installment_config_id'] ?? null,
+        ];
+
+        if ($isInstallment) {
+            $paymentData['status'] = 'partial';
+            $paymentData['installment_status'] = 'partial';
+            $paymentData['remaining_amount'] = $invoice->amount - $baseAmount;
+            $paymentData['next_transaction_amount'] = $data['next_transaction_amount'] ?? $paymentData['remaining_amount'];
+            $paymentData['next_installment_date'] = $data['next_installment_date'] ?? now()->addDays(30);
+        } else {
+            $paymentData['status'] = 'paid';
+            $paymentData['installment_status'] = 'completed';
+            $paymentData['remaining_amount'] = 0;
+            $paymentData['next_transaction_amount'] = 0;
+        }
+
+        return Payment::create($paymentData);
+    }
+
+
+    private function generateReceipt(Payment $payment)
+    {
+        return Receipt::create([
+            'payment_id' => $payment->id,
+            'receipt_number' => 'REC' . uniqid(),
+            'amount' => $payment->base_amount,
+            'date' => now(),
+            'is_installment' => $payment->is_installment,
+            'installment_number' => $payment->is_installment ? 1 : null,
+            'total_amount' => $payment->amount,
+            'remaining_amount' => $payment->remaining_amount,
         ]);
     }
+
+    private function handleVerifiedPayment($payment, $adminComment)
+    {
+        if ($payment->is_installment) {
+            $payment->status = 'partial';
+            // Update the current installment status
+            $payment->installments()
+                ->where('installment_number', 1)
+                ->update(['status' => 'paid', 'paid_at' => now()]);
+        } else {
+            $payment->status = 'paid';
+        }
+
+        $payment->admin_comment = $adminComment;
+        $payment->save();
+
+        // Update invoice status
+        $invoice = Invoice::where('invoice_number', $payment->invoice_number)->first();
+        if ($invoice) {
+            $invoice->status = $payment->status;
+            $invoice->save();
+        }
+    }
+
 
     /**
      * Handle file upload
@@ -106,13 +184,14 @@ class ManualPaymentService
         return $file->store('payment_proofs', 'public');
     }
 
+
     private function createPaymentProof($payment, $data, $proofPath)
     {
         return ProveOfPayment::create([
             'invoice_id' => $data['invoice']->id,
             'payment_type_id' => $data['invoice']->payment_type_id,
             'payment_method_id' => $data['invoice']->payment_method_id,
-            'amount' => $data['invoice']->amount,
+            'amount' => $payment->base_amount,
             'transaction_reference' => $data['transaction_reference'],
             'bank_name' => $data['bank_name'],
             'proof_file' => $proofPath,
@@ -122,26 +201,51 @@ class ManualPaymentService
         ]);
     }
 
+
+    private function createInstallments(Payment $payment, array $data)
+    {
+        // Create first installment for the amount being paid now
+        PaymentInstallment::create([
+            'payment_id' => $payment->id,
+            'amount' => $data['amount_paid'],
+            'paid_amount' => $data['amount_paid'],
+            'installment_number' => 1,
+            'due_date' => now(),
+            'paid_at' => now(),
+            'status' => 'paid'
+        ]);
+
+        // Create second installment for the remaining amount
+        $remainingAmount = $payment->amount - $data['amount_paid'];
+        PaymentInstallment::create([
+            'payment_id' => $payment->id,
+            'amount' => $remainingAmount,
+            'paid_amount' => 0,
+            'installment_number' => 2,
+            'due_date' => now()->addDays($data['installment_due_days'] ?? 30),
+            'status' => 'pending'
+        ]);
+    }
     /**
      * Send notifications for payment submission
      */
-    private function sendSubmissionNotifications($payment)
-    {
-        // Notify student
-        $payment->student->user->notify(new ManualPaymentSubmitted($payment));
+    // private function sendSubmissionNotifications($payment)
+    // {
+    //     // Notify student
+    //     $payment->student->user->notify(new ManualPaymentSubmitted($payment));
 
-        // Notify admins
-        $admins = User::whereHas('admin', function ($query) {
-            $query->whereIn('role', [Admin::TYPE_SUPER_ADMIN, Admin::TYPE_STAFF]);
-        })->get();
+    //     // Notify admins
+    //     $admins = User::whereHas('admin', function ($query) {
+    //         $query->whereIn('role', [Admin::TYPE_SUPER_ADMIN, Admin::TYPE_STAFF]);
+    //     })->get();
 
-        Notification::send($admins, new ManualPaymentSubmitted($payment));
-    }
+    //     Notification::send($admins, new ManualPaymentSubmitted($payment));
+    // }
 
     /**
      * Verify a manual payment
      */
-
+    // TODO to be removed ***
     public function verifyPayment($payment, array $data)
     {
         DB::beginTransaction();
@@ -186,35 +290,39 @@ class ManualPaymentService
     }
 
     /**
-     * Generate receipt for verified payment
+     * Update invoice status
      */
-    protected function generateReceipt(Payment $payment)
+    private function updateInvoiceStatus($invoice, $status)
     {
-        return Receipt::create([
-            'payment_id' => $payment->id,
-            'receipt_number' => 'REC' . uniqid(),
-            'amount' => $payment->amount,
-            'date' => now(),
-        ]);
+        $invoice->status = $status;
+        $invoice->save();
     }
-
+    /**
+     * Log payment activity
+     */
+    private function logPaymentActivity($payment)
+    {
+        activity()
+            ->performedOn($payment)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'invoice_number' => $payment->invoice_number,
+                'amount' => $payment->amount_paid,
+                'is_installment' => $payment->is_installment
+            ])
+            ->log('Manual payment processed');
+    }
 
     /**
-     * Handle verified payment updates
+     * Send payment notification
      */
-    private function handleVerifiedPayment($payment, $adminComment)
+    private function sendPaymentNotification($payment)
     {
-        $payment->status = 'paid';
-        $payment->admin_comment = $adminComment;
-        $payment->save();
-
-        // Update invoice status
-        $invoice = Invoice::where('invoice_number', $payment->invoice_number)->first();
-        if ($invoice) {
-            $invoice->status = 'paid';
-            $invoice->save();
-        }
+        $payment->student->user->notify(new ManualPaymentSubmitted($payment));
     }
+
+
+
 
 
     /**

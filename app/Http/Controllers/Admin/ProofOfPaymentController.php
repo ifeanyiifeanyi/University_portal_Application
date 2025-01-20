@@ -27,10 +27,13 @@ class ProofOfPaymentController extends Controller
 
         try {
             $invoice = Invoice::findOrFail($validated['invoice_id']);
-            $payment = $this->manualPaymentService->processManualPayment(
+            $result = $this->manualPaymentService->processManualPayment(
                 array_merge($validated, ['invoice' => $invoice]),
                 $request->file('proof_file')
             );
+
+            $payment = $result['payment'];
+
 
             return redirect()
                 ->route('admin.payments.showConfirmation_prove', $payment->id)
