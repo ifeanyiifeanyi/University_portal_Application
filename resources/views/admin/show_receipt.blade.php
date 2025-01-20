@@ -14,7 +14,7 @@
                         {!! QrCode::size(100)->generate(route('receipts.show', $receipt->id)) !!}
                     </div>
                     <div class="tm_pos_qrcode">
-                        <img src="{{ asset($receipt->payment->student->user->profile_photo) }}" alt="profile pic" width="100" height="100">
+                        <img src="{{ $receipt->payment->student->user->profile_image }}" alt="profile pic" width="100" height="100">
                     </div>
                 </div>
 

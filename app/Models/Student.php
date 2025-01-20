@@ -14,13 +14,19 @@ class Student extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'current_level' => 'integer'
+        'current_level' => 'integer',
+        'date_of_birth' => 'date',
     ];
 
     // Add relationship to Student model
     public function emails()
     {
         return $this->hasMany(StudentEmail::class);
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
     }
 
 

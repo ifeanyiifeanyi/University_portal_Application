@@ -90,7 +90,7 @@ class ManualPaymentService
             'amount' => $invoice->amount,
             'department_id' => $invoice->department_id,
             'level' => $invoice->level,
-            'status' => 'pending',
+            'status' => 'paid',
             'admin_id' => auth()->id(),
             'is_manual' => true,
             'payment_date' => now(),
@@ -118,7 +118,7 @@ class ManualPaymentService
             'proof_file' => $proofPath,
             'additional_notes' => $data['additional_notes'] ?? null,
             'metadata' => $data['metadata'] ?? null,
-            'status' => 'pending'
+            'status' => 'paid'
         ]);
     }
 

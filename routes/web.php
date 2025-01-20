@@ -134,6 +134,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::controller(LogActivityController::class)->group(function () {
         Route::get('/activities',  'index')->name('activities.index');
         Route::delete('/activities/{id}',  'destroy')->name('activities.destroy');
+
+        Route::get('archived-logs', 'archivedLogs')->name('activites_log.archived');
+        Route::get('/activity-archives/{filename}', 'download')->name('activity-archives.download');
     });
 
     Route::controller(BackupSettingController::class)->group(function () {

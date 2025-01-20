@@ -1,6 +1,6 @@
 @php
-      $recentActivities = \Spatie\Activitylog\Models\Activity::latest()->take(10)->get();
-      $totalActivities = \Spatie\Activitylog\Models\Activity::count();
+    $recentActivities = \Spatie\Activitylog\Models\Activity::latest()->take(10)->get();
+    $totalActivities = \Spatie\Activitylog\Models\Activity::count();
 @endphp
 <header>
     <div class="topbar d-flex align-items-center">
@@ -108,13 +108,13 @@
                             </a>
                             <div class="header-message-list">
                                 @foreach ($recentActivities as $activity)
-                                    <a class="dropdown-item" href="javascript:;">
+                                    <a class="dropdown-item" href="{{ route('activities.index') }}">
                                         <div class="d-flex align-items-center">
                                             <div class="user-online">
                                                 <i class="fas fa-bell fa-2x fa-fw text-muted"></i>
                                             </div>
                                             <div class="flex-grow-1">
-                                                <h6 class="msg-name">{{ $activity->causer->name }} <span
+                                                <h6 class="msg-name">{{ $activity->causer?->name }} <span
                                                         class="msg-time float-end">{{ $activity->created_at->diffForHumans() }}</span>
                                                 </h6>
                                                 <p class="msg-info">{{ $activity->description }}</p>
@@ -147,9 +147,13 @@
                     <li><a class="dropdown-item" href="{{ route('admin.backups.index') }}"><i
                                 class="bx bx-cog"></i><span>Settings</span></a>
                     </li>
+                    <li><a class="dropdown-item" href="{{ route('activites_log.archived') }}"><i
+                                class="fas fa-bell"></i><span>Log-activity Archive</span></a>
+                    </li>
+
                     <li><a class="dropdown-item" href="{{ route('admin.support_tickets.index') }}"><i
-                        class="bx bx-cog"></i><span>Student Support Tickets</span></a>
-            </li>
+                                class="bx bx-cog"></i><span>Student Support Tickets</span></a>
+                    </li>
                     <li>
                         <div class="dropdown-divider mb-0"></div>
                     </li>
