@@ -6,11 +6,15 @@ use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Receipt;
+use App\Models\Semester;
+use App\Models\PaymentType;
 use Illuminate\Http\Request;
+use App\Models\AcademicSession;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AdminInvoiceFilterService;
 use App\Notifications\PaymentApprovedNotification;
 use App\Notifications\AdminInvoicePaymentApprovedNotification;
 use App\Notifications\SuperAdminInvoicePaymentApprovedNotification;
@@ -20,22 +24,39 @@ class AdminInvoiceManagerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+   
+    public function index(Request $request, AdminInvoiceFilterService $filterService)
     {
-        $invoices = Invoice::with([
-            'academicSession',
-            'semester',
-            'student',
-            'department',
-            'paymentMethod',
-            'paymentType',
-            'payment',
-            'student'
-        ])
-            ->whereNull('archived_at')
-            ->latest()
-            ->get();
-        return view('admin.invoices.index', compact('invoices'));
+        // Get filter data for dropdowns
+        $sessions = AcademicSession::orderBy('start_date', 'desc')->get();
+        $semesters = Semester::all();
+        $paymentTypes = PaymentType::all();
+
+        // Get current session and semester
+        $currentSession = AcademicSession::where('is_current', true)->first();
+        $currentSemester = $currentSession?->semesters()->where('is_current', true)->first();
+
+        // If no filters are applied, use current session and semester
+        $filters = $request->all();
+        if (!$request->has('session_id') && $currentSession) {
+            $filters['session_id'] = $currentSession->id;
+        }
+        if (!$request->has('semester_id') && $currentSemester) {
+            $filters['semester_id'] = $currentSemester->id;
+        }
+
+        // Get filtered invoices
+        $invoices = $filterService->filters($filters);
+        $sumPaidAmount = $invoices->whereIn('status', ['paid', 'partial'])->sum('amount');
+        return view('admin.invoices.index', compact(
+            'invoices',
+            'sessions',
+            'semesters',
+            'paymentTypes',
+            'currentSession',
+            'currentSemester',
+            'sumPaidAmount'
+        ));
     }
 
 

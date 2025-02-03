@@ -3,11 +3,11 @@
 @section('title', 'Invoice Manager')
 
 @section('css')
-<style>
-    .fas {
-        font-size: 15px !important;
-    }
-</style>
+    <style>
+        .fas {
+            font-size: 15px !important;
+        }
+    </style>
 @endsection
 @php
     $statusConfig = [
@@ -23,6 +23,17 @@
 @endphp
 @section('admin')
     <div class="container">
+        @if (!$currentSession || !$currentSemester)
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                @if (!$currentSession)
+                    No active academic session found. Please set a current academic session.
+                @else
+                    No active semester found for the current academic session. Please set a current semester.
+                @endif
+            </div>
+        @endif
+        {{-- @dd($invoices) --}}
         <div class="row mb-4">
             <!-- Total Invoices Card -->
             <div class="col-xl-3 col-md-6 mb-4">
@@ -91,7 +102,7 @@
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Total Amount</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₦{{ number_format($invoices->sum('amount'), 0, 2) }}
+                                    ₦{{ number_format($sumPaidAmount, 0, 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -155,6 +166,109 @@
                                     &nbsp;
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Filter Invoices</h6>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" action="{{ route('admin.invoice.view') }}" id="filter-form">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="session_id">Academic Session</label>
+                                        <select name="session_id" id="session_id" class="form-control">
+                                            <option value="">All Sessions</option>
+                                            @foreach ($sessions as $session)
+                                                <option value="{{ $session->id }}"
+                                                    {{ request('session_id') == $session->id ? 'selected' : '' }}
+                                                    {{ !request('session_id') && $session->is_current ? 'selected' : '' }}>
+                                                    {{ $session->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="semester_id">Semester</label>
+                                        <select name="semester_id" id="semester_id" class="form-control">
+                                            <option value="">All Semesters</option>
+                                            @foreach ($semesters as $semester)
+                                                <option value="{{ $semester->id }}"
+                                                    {{ request('semester_id') == $semester->id ? 'selected' : '' }}>
+                                                    {{ $semester->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="student_name">Student Name</label>
+                                        <input type="text" name="student_name" id="student_name" class="form-control"
+                                            value="{{ request('student_name') }}" placeholder="Search by name...">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="status">Status</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="">All Statuses</option>
+                                            @foreach (['paid', 'pending', 'processing', 'partial', 'rejected', 'failed', 'cancelled', 'refunded'] as $status)
+                                                <option value="{{ $status }}"
+                                                    {{ request('status') == $status ? 'selected' : '' }}>
+                                                    {{ ucfirst($status) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="payment_type_id">Payment Type</label>
+                                        <select name="payment_type_id" id="payment_type_id" class="form-control">
+                                            <option value="">All Payment Types</option>
+                                            @foreach ($paymentTypes as $type)
+                                                <option value="{{ $type->id }}"
+                                                    {{ request('payment_type_id') == $type->id ? 'selected' : '' }}>
+                                                    {{ $type->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="start_date">Start Date</label>
+                                        <input type="date" name="start_date" id="start_date" class="form-control"
+                                            value="{{ request('start_date') }}">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="end_date">End Date</label>
+                                        <input type="date" name="end_date" id="end_date" class="form-control"
+                                            value="{{ request('end_date') }}">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="show_archived">Show Archived</label>
+                                        <div class="custom-control custom-switch mt-2">
+                                            <input type="checkbox" class="custom-control-input" id="show_archived"
+                                                name="show_archived" value="1"
+                                                {{ request('show_archived') ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="show_archived">Include archived
+                                                invoices</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-filter fa-fw"></i> Apply Filters
+                                        </button>
+                                        <a href="{{ route('admin.invoice.view') }}" class="btn btn-secondary">
+                                            <i class="fas fa-undo fa-fw"></i> Reset Filters
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <div class="card-body">
