@@ -162,7 +162,7 @@
                                                 ₦{{ number_format($invoice->amount, 2) }}</td>
                                         </tr>
 
-                                        
+
                                         <tr>
                                             <td colspan="2" class="tm_width_3 tm_text_right tm_border_none tm_pt0 tm_ternary_color">
                                                 Please note: Additional transfer and processing charges may apply and will be reflected in the final payment amount.
@@ -214,12 +214,15 @@
                                                     <input type="hidden" name="payment_method_id"
                                                         value="{{ $invoice->payment_method_id }}">
                                                     &nbsp;
-                                                    <button
-                                                        onclick="return confirm('Are you sure you want to proceed with the payment?')"
-                                                        type="submit" class="btn btn-sm ml-3 no-print"
-                                                        style="background:blueviolet;color:white">
-                                                        <i class="fas fa-credit-card mr-2"></i>Pay now
-                                                    </button>
+                                                    @if ($invoice->status !== 'paid')
+                                                        <button
+                                                            onclick="return confirm('Are you sure you want to proceed with the payment?')"
+                                                            type="submit" class="btn btn-sm ml-3 no-print"
+                                                            style="background:blueviolet;color:white">
+                                                            <i class="fas fa-credit-card mr-2"></i>Pay now
+                                                        </button>
+                                                    @endif
+
                                                 </form>
                                             </td>
 

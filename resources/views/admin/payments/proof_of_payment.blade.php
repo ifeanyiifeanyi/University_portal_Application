@@ -76,7 +76,7 @@
                                     </tr>
                                     <tr>
                                         <td class="pl-0 text-muted">Amount:</td>
-                                        <td><strong>{{ number_format($payment->amount, 2) }}</strong></td>
+                                        <td><strong>₦{{ number_format($payment->base_amount, 2) }}</strong></td>
                                     </tr>
                                     <tr>
                                         <td class="pl-0 text-muted">Payment Type:</td>
@@ -164,7 +164,7 @@
                         @endif
 
                         <!-- Admin Actions -->
-                        @if ($payment->status !== 'paid')
+                        {{-- @if ($payment->status !== 'paid')
                             <div class="row">
                                 <div class="col-12">
                                     <hr>
@@ -180,7 +180,7 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                        @endif --}}
                     </div>
                 </div>
             </div>

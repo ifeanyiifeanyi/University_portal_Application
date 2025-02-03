@@ -123,41 +123,41 @@
                             @forelse($receipts as $receipt)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $receipt->receipt_number }}</td>
-                                    <td>{{ $receipt->payment->student->user->full_name }}</td>
+                                    <td>{{ $receipt?->receipt_number }}</td>
+                                    <td>{{ $receipt->payment?->student?->user?->full_name }}</td>
                                     <td>
-                                        {{ $receipt->payment->is_installment ? 'Installment' : 'Full Payment' }}
-                                        @if ($receipt->payment->is_installment)
+                                        {{ $receipt->payment?->is_installment ? 'Installment' : 'Full Payment' }}
+                                        @if ($receipt->payment?->is_installment)
                                             <br>
                                             <small class="badge bg-info">
-                                                {{ ucfirst($receipt->payment->installment_status) }}
+                                                {{ ucfirst($receipt->payment?->installment_status) }}
                                             </small>
                                         @endif
                                     </td>
                                     <td>
-                                        <div>₦{{ number_format($receipt->payment->amount, 2) }}</div>
+                                        <div>₦{{ number_format($receipt->payment?->amount, 2) }}</div>
 
                                     </td>
                                     <td>
-                                        <div>₦{{ number_format($receipt->payment->base_amount, 2) }}</div>
-                                        @if ($receipt->payment->late_fee > 0)
+                                        <div>₦{{ number_format($receipt->payment?->base_amount, 2) }}</div>
+                                        @if ($receipt->payment?->late_fee > 0)
                                             <small class="badge bg-warning">
-                                                +₦{{ number_format($receipt->payment->late_fee, 2) }} Late Fee
+                                                +₦{{ number_format($receipt->payment?->late_fee, 2) }} Late Fee
                                             </small>
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($receipt->payment->remaining_amount > 0)
+                                        @if ($receipt->payment?->remaining_amount > 0)
                                             <span class="text-danger">
-                                                ₦{{ number_format($receipt->payment->remaining_amount, 2) }}
+                                                ₦{{ number_format($receipt->payment?->remaining_amount, 2) }}
                                             </span>
                                         @else
                                             <span class="badge bg-success">Fully Paid</span>
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ getStatusColor($receipt->payment->status) }}">
-                                            {{ ucfirst($receipt->payment->status) }}
+                                        <span class="badge bg-{{ getStatusColor($receipt->payment?->status) }}">
+                                            {{ ucfirst($receipt->payment?->status) }}
                                         </span>
                                     </td>
                                     <td>{{ $receipt->date->format('d M, Y') }}</td>

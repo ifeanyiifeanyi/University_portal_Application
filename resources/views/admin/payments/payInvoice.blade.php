@@ -53,7 +53,8 @@
                                 <label for="bank_name" class="form-label">Bank Name <span
                                         class="text-danger">*</span></label>
                                 <input type="text" name="bank_name" id="bank_name"
-                                    class="form-control @error('bank_name') is-invalid @enderror" required value="{{ old('bank_name') }}">
+                                    class="form-control @error('bank_name') is-invalid @enderror" required
+                                    value="{{ old('bank_name') }}">
                                 @error('bank_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -65,7 +66,8 @@
                                 <label for="transaction_reference" class="form-label">Transaction Reference <span
                                         class="text-danger">*</span></label>
                                 <input type="text" name="transaction_reference" id="transaction_reference"
-                                    class="form-control @error('transaction_reference') is-invalid @enderror" required  value="{{ old('transaction_reference') }}">
+                                    class="form-control @error('transaction_reference') is-invalid @enderror" required
+                                    value="{{ old('transaction_reference') }}">
                                 @error('transaction_reference')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -92,6 +94,53 @@
                                 <textarea name="additional_notes" id="additional_notes" rows="3"
                                     class="form-control @error('additional_notes') is-invalid @enderror">{{ old('additional_notes') }}</textarea>
                                 @error('additional_notes')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add this after the Additional Notes textarea, before the Dynamic Metadata Fields Section -->
+                    <div class="col-md-12">
+                        <div class="form-group mb-4">
+                            <h5 class="border-bottom pb-2">Payment Type</h5>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="is_installment" id="fullPayment"
+                                    value="0" checked>
+                                <label class="form-check-label" for="fullPayment">Full Payment</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="is_installment" id="installmentPayment"
+                                    value="1">
+                                <label class="form-check-label" for="installmentPayment">Installment Payment</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="installmentFields" style="display: none;" class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="base_amount" class="form-label">First Payment Amount <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" name="base_amount" id="base_amount" step="0.01"
+                                    class="form-control @error('base_amount') is-invalid @enderror"
+                                    max="{{ $invoice->amount }}" value="{{ old('base_amount', $invoice->amount) }}">
+                                <small class="form-text text-muted">Maximum amount:
+                                    ₦{{ number_format($invoice->amount, 2) }}</small>
+                                @error('base_amount')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="next_installment_date" class="form-label">Next Payment Date <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" name="next_installment_date" id="next_installment_date"
+                                    class="form-control @error('next_installment_date') is-invalid @enderror"
+                                    min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                    value="{{ old('next_installment_date') }}">
+                                @error('next_installment_date')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -183,16 +232,16 @@
 @endsection
 
 @section('javascript')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const metadataFields = document.getElementById('metadata-fields');
-        const addButton = document.getElementById('addMetadataField');
-        let fieldCount = document.querySelectorAll('#metadata-fields .row').length;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const metadataFields = document.getElementById('metadata-fields');
+            const addButton = document.getElementById('addMetadataField');
+            let fieldCount = document.querySelectorAll('#metadata-fields .row').length;
 
-        addButton.addEventListener('click', function() {
-            const newFieldRow = document.createElement('div');
-            newFieldRow.className = 'row mb-3 metadata-field-row';
-            newFieldRow.innerHTML = `
+            addButton.addEventListener('click', function() {
+                const newFieldRow = document.createElement('div');
+                newFieldRow.className = 'row mb-3 metadata-field-row';
+                newFieldRow.innerHTML = `
                 <div class="col-md-5">
                     <div class="form-group">
                         <input type="text" class="form-control" placeholder="Field Name"
@@ -212,21 +261,67 @@
                 </div>
             `;
 
-            metadataFields.appendChild(newFieldRow);
-            fieldCount++;
+                metadataFields.appendChild(newFieldRow);
+                fieldCount++;
 
-            // Add remove functionality to the new row
-            newFieldRow.querySelector('.remove-field').addEventListener('click', function() {
-                newFieldRow.remove();
+                // Add remove functionality to the new row
+                newFieldRow.querySelector('.remove-field').addEventListener('click', function() {
+                    newFieldRow.remove();
+                });
             });
-        });
 
-        // Handle existing remove buttons
-        document.querySelectorAll('.remove-field').forEach(button => {
-            button.addEventListener('click', function() {
-                this.closest('.metadata-field-row').remove();
+            // Handle existing remove buttons
+            document.querySelectorAll('.remove-field').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.metadata-field-row').remove();
+                });
             });
+
+            // installment ----
+            // Add installment payment handling
+            const fullPaymentRadio = document.getElementById('fullPayment');
+            const installmentPaymentRadio = document.getElementById('installmentPayment');
+            const installmentFields = document.getElementById('installmentFields');
+            const baseAmountInput = document.getElementById('base_amount');
+            const nextInstallmentDateInput = document.getElementById('next_installment_date');
+
+            function toggleInstallmentFields() {
+                const isInstallment = installmentPaymentRadio.checked;
+                installmentFields.style.display = isInstallment ? 'flex' : 'none';
+
+                if (isInstallment) {
+                    baseAmountInput.required = true;
+                    nextInstallmentDateInput.required = true;
+                } else {
+                    baseAmountInput.required = false;
+                    nextInstallmentDateInput.required = false;
+                    baseAmountInput.value = '';
+                    nextInstallmentDateInput.value = '';
+                }
+            }
+
+            fullPaymentRadio.addEventListener('change', toggleInstallmentFields);
+            installmentPaymentRadio.addEventListener('change', toggleInstallmentFields);
+
+            // Add validation for base_amount
+            if (baseAmountInput) {
+                baseAmountInput.addEventListener('input', function() {
+                    const totalAmount = parseFloat('{{ $invoice->amount }}');
+                    const inputAmount = parseFloat(this.value);
+
+                    if (inputAmount >= totalAmount) {
+                        this.value = totalAmount;
+                    }
+
+                    if (inputAmount <= 0) {
+                        this.value = '';
+                    }
+                });
+            }
+
+            // Initialize the form state
+            toggleInstallmentFields();
+
         });
-    });
-</script>
+    </script>
 @endsection

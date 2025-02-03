@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Semester;
+use App\Models\AcademicSession;
+use App\Trait\StudentDebtTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Student extends Model
 {
     use HasFactory;
+    use StudentDebtTrait;
     use SoftDeletes;
     protected $guarded = [];
 
@@ -24,9 +28,21 @@ class Student extends Model
         return $this->hasMany(StudentEmail::class);
     }
 
+    public function getDebtDetailsAttribute()
+    {
+        $currentSession = AcademicSession::where('is_current', true)->first();
+        $currentSemester = Semester::where('is_current', true)->first();
+
+        return $this->calculateDebt($currentSession, $currentSemester);
+    }
+
     public function faculty()
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    public function payments(){
+        return $this->hasMany(Payment::class);
     }
 
 

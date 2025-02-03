@@ -170,6 +170,14 @@
                                 Payment Types</a>
                         </li>
                     @endcan
+                    <li>
+                        <a href="{{ route('admin.manual_proof_of_payment.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                            Proof of Payments</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.payments.owingStudent.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                            Unpaid Fees</a>
+                    </li>
                     @can('installment payment config')
                         <li> <a href="{{ route('admin.installment-config.index') }}"><i
                                     class="bx bx-right-arrow-alt"></i>Installment

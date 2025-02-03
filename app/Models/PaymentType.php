@@ -54,7 +54,7 @@ class PaymentType extends Model
     {
         return $this->hasMany(ProveOfPayment::class);
     }
-
+   
     public function semester()
     {
         return $this->belongsTo(Semester::class);

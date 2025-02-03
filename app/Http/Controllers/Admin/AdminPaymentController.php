@@ -703,76 +703,387 @@ class AdminPaymentController extends Controller
 
 
 
+    // ProcessedPayments Controller Method
+
+    // public function ProcessedPayments(Request $request)
+    // {
+    //     // Base query excluding pending payments
+    //     $query = Payment::where('status', '!=', 'pending')
+    //         ->with([
+    //             'student.user',
+    //             'student.department',
+    //             'paymentType',
+    //             'academicSession',
+    //             'semester'
+    //         ]);
+
+    //     // Apply filters with precise conditions
+    //     if ($request->filled('department')) {
+    //         $query->whereHas('student', function ($q) use ($request) {
+    //             $q->where('department_id', $request->department);
+    //         });
+    //     }
+
+    //     if ($request->filled('level')) {
+    //         $query->whereHas('student', function ($q) use ($request) {
+    //             $q->where('current_level', $request->level);
+    //         });
+    //     }
+
+    //     if ($request->filled('academic_session')) {
+    //         $query->where('academic_session_id', $request->academic_session);
+    //     }
+
+    //     if ($request->filled('payment_type')) {
+    //         $query->where('payment_type_id', $request->payment_type);
+    //     }
+
+    //     // Fetch filtered non-pending payments for calculations
+    //     $filteredPayments = $query->get();
+
+    //     // Comprehensive statistics calculation
+    //     $totalStats = [
+    //         'total_amount' => $filteredPayments->sum('amount'),
+    //         'total_base_amount' => $filteredPayments->sum('base_amount'),
+    //         'total_late_fee' => $filteredPayments->sum('late_fee'),
+    //         'payments_count' => $filteredPayments->count()
+    //     ];
+
+    //     // Department-level statistics with precise filtering
+    //     $departmentStats = Department::all()->flatMap(function ($department) use ($filteredPayments) {
+    //         $departmentPayments = $filteredPayments->filter(function ($payment) use ($department) {
+    //             return $payment->student && $payment->student->department_id === $department->id;
+    //         });
+
+    //         $stats = [
+    //             // Department total
+    //             [
+    //                 'department_name' => $department->name,
+    //                 'level' => 'All Levels',
+    //                 'total_amount' => $departmentPayments->sum('amount'),
+    //                 'base_amount' => $departmentPayments->sum('base_amount'),
+    //                 'late_fee' => $departmentPayments->sum('late_fee'),
+    //                 'count' => $departmentPayments->count()
+    //             ]
+    //         ];
+
+    //         // Level-wise breakdown
+    //         foreach ($department->levels as $level) {
+    //             $numericLevel = $department->getLevelNumber($level);
+    //             $levelPayments = $departmentPayments->filter(function ($payment) use ($numericLevel) {
+    //                 return $payment->student && $payment->student->current_level == $numericLevel;
+    //             });
+
+    //             if ($levelPayments->isNotEmpty()) {
+    //                 $stats[] = [
+    //                     'department_name' => $department->name,
+    //                     'level' => $level,
+    //                     'total_amount' => $levelPayments->sum('amount'),
+    //                     'base_amount' => $levelPayments->sum('base_amount'),
+    //                     'late_fee' => $levelPayments->sum('late_fee'),
+    //                     'count' => $levelPayments->count()
+    //                 ];
+    //             }
+    //         }
+
+    //         return $stats;
+    //     });
+
+    //     // Payment type statistics
+    //     $paymentTypeStats = PaymentType::all()->map(function ($paymentType) use ($filteredPayments) {
+    //         $typePayments = $filteredPayments->where('payment_type_id', $paymentType->id)->whereN;
+
+    //         return [
+    //             'name' => $paymentType->name,
+    //             'total_amount' => $typePayments->sum('amount'),
+    //             'base_amount' => $typePayments->sum('base_amount'),
+    //             'late_fee' => $typePayments->sum('late_fee'),
+    //             'count' => $typePayments->count()
+    //         ];
+    //     })->filter(function ($stat) {
+    //         return $stat['count'] > 0;
+    //     })->values();
+
+    //     // Paginated payments for table display
+    //     $payments = $query->latest()->get();
+
+    //     // Prepare additional data for filtering
+    //     $departments = Department::all();
+    //     $academicSessions = AcademicSession::all();
+    //     $semesters = Semester::all();
+    //     $paymentTypes = PaymentType::all();
+    //     $levels = [];
+
+    //     if ($request->filled('department')) {
+    //         $department = Department::find($request->department);
+    //         $levels = $department ? $department->levels : [];
+    //     }
+
+    //     return view('admin.payments.list_of_paid', compact(
+    //         'payments',
+    //         'totalStats',
+    //         'departmentStats',
+    //         'paymentTypeStats',
+    //         'departments',
+    //         'academicSessions',
+    //         'semesters',
+    //         'levels',
+    //         'paymentTypes'
+    //     ));
+    // }
     public function ProcessedPayments(Request $request)
     {
-        $query = Payment::with([
-            'student.user',
-            'student.department',
-            'paymentType',
-            'paymentMethod',
-            'academicSession',
-            'semester'
-        ])->where('status', 'paid');
+        // Base query excluding pending payments
+        $query = Payment::where('status', '!=', 'pending')
+            ->with([
+                'student.user',
+                'student.department',
+                'paymentType',
+                'academicSession',
+                'semester'
+            ]);
 
-        // Academic Session Filter
-        if ($request->filled('academic_session')) {
-            $query->where('academic_session_id', $request->academic_session);
-        }
-
-        // Semester Filter
-        if ($request->filled('semester')) {
-            $query->where('semester_id', $request->semester);
-        }
-
-        // Department Filter
+        // Apply filters with precise conditions
         if ($request->filled('department')) {
             $query->whereHas('student', function ($q) use ($request) {
                 $q->where('department_id', $request->department);
             });
         }
 
-        // Date Range Filter
-        if ($request->filled('date_range')) {
-            switch ($request->date_range) {
-                case 'today':
-                    $query->whereDate('created_at', today());
-                    break;
-                case 'week':
-                    $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-                    break;
-                case 'month':
-                    $query->whereMonth('created_at', now()->month);
-                    break;
-                case 'year':
-                    $query->whereYear('created_at', now()->year);
-                    break;
-            }
-        }
-
-        // Search Filter
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->whereHas('student', function ($q) use ($search) {
-                $q->where('matric_number', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('full_name', 'like', "%{$search}%");
-                    });
+        if ($request->filled('level')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('current_level', $request->level);
             });
         }
 
-        $payments = $query->latest()->paginate(15);
+        if ($request->filled('academic_session')) {
+            $query->where('academic_session_id', $request->academic_session);
+        }
+
+        if ($request->filled('payment_type')) {
+            $query->where('payment_type_id', $request->payment_type);
+        }
+
+        // Fetch filtered non-pending payments for calculations
+        $filteredPayments = $query->get();
+
+        // Comprehensive statistics calculation
+        $totalStats = [
+            'total_amount' => $filteredPayments->sum('amount'),
+            'total_base_amount' => $filteredPayments->sum('base_amount'),
+            'total_late_fee' => $filteredPayments->sum('late_fee'),
+            'payments_count' => $filteredPayments->count()
+        ];
+
+        // Department-level statistics with precise filtering
+        $departmentStats = Department::all()->flatMap(function ($department) use ($filteredPayments) {
+            $departmentPayments = $filteredPayments->filter(function ($payment) use ($department) {
+                return $payment->student && $payment->student->department_id === $department->id;
+            });
+
+            $stats = [
+                [
+                    'department_name' => $department->name,
+                    'level' => 'All Levels',
+                    'total_amount' => $departmentPayments->sum('amount'),
+                    'base_amount' => $departmentPayments->sum('base_amount'),
+                    'late_fee' => $departmentPayments->sum('late_fee'),
+                    'count' => $departmentPayments->count()
+                ]
+            ];
+
+            foreach ($department->levels as $level) {
+                $numericLevel = $department->getLevelNumber($level);
+                $levelPayments = $departmentPayments->filter(function ($payment) use ($numericLevel) {
+                    return $payment->student && $payment->student->current_level == $numericLevel;
+                });
+
+                if ($levelPayments->isNotEmpty()) {
+                    $stats[] = [
+                        'department_name' => $department->name,
+                        'level' => $level,
+                        'total_amount' => $levelPayments->sum('amount'),
+                        'base_amount' => $levelPayments->sum('base_amount'),
+                        'late_fee' => $levelPayments->sum('late_fee'),
+                        'count' => $levelPayments->count()
+                    ];
+                }
+            }
+
+            return $stats;
+        });
+
+        // Updated Payment type statistics with additional validations
+        $paymentTypeStats = PaymentType::with(['payments' => function ($query) {
+            $query->where('status', '!=', 'pending');
+        }])->get()->map(function ($paymentType) use ($filteredPayments) {
+            // Enhanced filtering with additional validation checks
+            $typePayments = $filteredPayments->filter(function ($payment) use ($paymentType) {
+                return $payment->payment_type_id === $paymentType->id
+                    && $payment->status !== 'pending'
+                    && !empty($payment->amount)
+                    && !empty($payment->student_id)
+                    && !empty($payment->academic_session_id)
+                    && !empty($payment->payment_date)
+                    && $payment->student !== null
+                    && $payment->academicSession !== null;
+            });
+
+            return [
+                'name' => $paymentType->name,
+                'total_amount' => $typePayments->sum('amount'),
+                'base_amount' => $typePayments->sum('base_amount'),
+                'late_fee' => $typePayments->sum('late_fee'),
+                'count' => $typePayments->count()
+            ];
+        })->filter(function ($stat) {
+            return $stat['count'] > 0;
+        })->values();
+
+        // Paginated payments for table display
+        $payments = $query->latest()->get();
+
+        // Prepare additional data for filtering
         $departments = Department::all();
         $academicSessions = AcademicSession::all();
         $semesters = Semester::all();
+        $paymentTypes = PaymentType::all();
+        $levels = [];
+
+        if ($request->filled('department')) {
+            $department = Department::find($request->department);
+            $levels = $department ? $department->levels : [];
+        }
 
         return view('admin.payments.list_of_paid', compact(
             'payments',
+            'totalStats',
+            'departmentStats',
+            'paymentTypeStats',
             'departments',
             'academicSessions',
-            'semesters'
+            'semesters',
+            'levels',
+            'paymentTypes'
         ));
     }
 
+    public function exportProcessedPayments(Request $request)
+    {
+        // Reuse the same filtering logic from ProcessedPayments method
+        $query = Payment::where('status', '!=', 'pending')
+            ->with([
+                'student.user',
+                'student.department',
+                'paymentType',
+                'academicSession',
+                'semester'
+            ]);
+
+        // Apply the same filters as in ProcessedPayments
+        if ($request->filled('department')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('department_id', $request->department);
+            });
+        }
+
+        if ($request->filled('level')) {
+            $query->whereHas('student', function ($q) use ($request) {
+                $q->where('current_level', $request->level);
+            });
+        }
+
+        if ($request->filled('academic_session')) {
+            $query->where('academic_session_id', $request->academic_session);
+        }
+
+        if ($request->filled('payment_type')) {
+            $query->where('payment_type_id', $request->payment_type);
+        }
+
+        // Fetch payments with full details
+        $payments = $query->get();
+
+        // Generate filename with timestamp
+        $filename = 'processed_payments_' . now()->format('YmdHis') . '.csv';
+
+        // Return CSV download
+        return response()->streamDownload(function () use ($payments) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'Payment ID',
+                'Student Name',
+                'Department',
+                'Level',
+                'Payment Type',
+                'Academic Session',
+                'Semester',
+                'Fee Amount',
+                'Paid Amount',
+                'Late Fee',
+                'Status',
+                'Payment Date'
+            ]);
+
+            // Populate CSV rows
+            foreach ($payments as $payment) {
+                fputcsv($file, [
+                    $payment->id,
+                    $payment->student?->user->full_name ?? 'N/A',
+                    $payment?->student?->department->name ?? 'N/A',
+                    $payment?->student->current_level ?? 'N/A',
+                    $payment->paymentType->name ?? 'N/A',
+                    $payment?->academicSession->name ?? 'N/A',
+                    $payment->semester->name ?? 'N/A',
+                    $payment->amount,
+                    $payment->base_amount,
+                    $payment->late_fee,
+                    $payment->status,
+                    $payment->updated_at
+                ]);
+            }
+
+            fclose($file);
+        }, $filename);
+    }
+
+    public function printProcessedPayments(Request $request)
+    {
+        // Reuse the same logic as ProcessedPayments method
+        $query = Payment::where('status', '!=', 'pending')
+            ->with([
+                'student.user',
+                'student.department',
+                'paymentType',
+                'academicSession',
+                'semester'
+            ]);
+
+        // Apply the same filters as in ProcessedPayments method
+        // ... (same filtering logic as in ProcessedPayments method)
+
+        $payments = $query->latest()->get();
+
+        // Prepare the same stats and additional data
+        $totalStats = [
+            'total_amount' => $payments->sum('amount'),
+            'total_base_amount' => $payments->sum('base_amount'),
+            'total_late_fee' => $payments->sum('late_fee'),
+            'payments_count' => $payments->count()
+        ];
+
+        return view('admin.payments.print_list_of_paid', compact(
+            'payments',
+            'totalStats'
+        ));
+    }
+
+    public function getDepartmentLevels(Department $department)
+    {
+        return response()->json($department->levels);
+    }
     public function ProcessedPaymentDetails(Payment $payment)
     {
         $payment->load([

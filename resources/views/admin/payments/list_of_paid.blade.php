@@ -2,13 +2,13 @@
 
 @section('title', 'Success Payments')
 
-
 @section('admin')
     @include('admin.alert')
     <!-- Analytics Section -->
     <div class="container-fluid mb-4">
+        <!-- Summary Cards Row -->
         <div class="row">
-            <!-- Total Amount Card -->
+            {{-- Total Amount Card --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
@@ -17,7 +17,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Total Amount</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₦{{ number_format($payments->sum('amount')) }}
+                                    ₦{{ number_format($totalStats['total_amount'], 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -28,56 +28,16 @@
                 </div>
             </div>
 
-            <!-- Total Payments Count -->
+            {{-- Base Amount Card --}}
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Total Payments</div>
+                                    Base Amount</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ $payments->count() }}
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-receipt fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Late Fees -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Late Fees</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₦{{ number_format($payments->sum('late_fee')) }}
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clock fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Average Payment -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Average Payment</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₦{{ number_format($payments->avg('amount'), 2) }}
+                                    ₦{{ number_format($totalStats['total_base_amount'], 2) }}
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -87,15 +47,56 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Late Fees Card --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    Total Late Fees</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    ₦{{ number_format($totalStats['total_late_fee'], 2) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Payment Count Card --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Total Payments</div>
+                                <div class="h5 mb-0 font-weight-bold text-muted">
+                                    {{ number_format($totalStats['payments_count']) }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Additional Analysis Row -->
+        <!-- Department Analysis Row -->
+        {{-- Detailed Statistics Tables --}}
         <div class="row">
-            <!-- Department Analysis -->
-            <div class="col-xl-6 col-lg-6 mb-4">
+            {{-- Department Statistics --}}
+            <div class="col-xl-8 col-lg-7 mb-4">
                 <div class="card shadow">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Payments by Department</h6>
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Department Payment Analysis</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -103,19 +104,23 @@
                                 <thead>
                                     <tr>
                                         <th>Department</th>
-                                        <th>Count</th>
+                                        <th>Level</th>
                                         <th>Total Amount</th>
+                                        <th>Base Amount</th>
+                                        <th>Late Fees</th>
+                                        <th>Count</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
-                                        $deptStats = $payments->groupBy('student.department.name');
-                                    @endphp
-                                    @foreach ($deptStats as $dept => $deptPayments)
-                                        <tr>
-                                            <td>{{ $dept }}</td>
-                                            <td>{{ $deptPayments->count() }}</td>
-                                            <td>₦{{ number_format($deptPayments->sum('amount')) }}</td>
+                                    @foreach ($departmentStats as $stat)
+                                        <tr
+                                            @if ($stat['level'] === 'All Levels') class="table-secondary font-weight-bold" @endif>
+                                            <td>{{ $stat['department_name'] }}</td>
+                                            <td>{{ $stat['level'] }}</td>
+                                            <td>₦{{ number_format($stat['total_amount'], 2) }}</td>
+                                            <td>₦{{ number_format($stat['base_amount'], 2) }}</td>
+                                            <td>₦{{ number_format($stat['late_fee'], 2) }}</td>
+                                            <td>{{ number_format($stat['count']) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -125,185 +130,28 @@
                 </div>
             </div>
 
-            <!-- Payment Timeline -->
-            <div class="col-xl-6 col-lg-6 mb-4">
+            {{-- Payment Type Statistics --}}
+            <div class="col-xl-4 col-lg-5 mb-4">
                 <div class="card shadow">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Recent Payment Timeline</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline-small">
-                            @foreach ($payments->take(5) as $payment)
-                                <div class="timeline-item">
-                                    <div class="row">
-                                        <div class="col-auto text-center">
-                                            <div class="timeline-date">
-                                                {{ $payment->created_at->format('M d') }}
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="timeline-content">
-                                                <strong>{{ $payment->student->user->full_name }}</strong>
-                                                <p class="mb-0">
-                                                    Paid ₦{{ number_format($payment->amount) }} for
-                                                    {{ $payment->paymentType->name ?? 'Payment' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0 float-start">Successful Payment Management</h5>
-
-                        <div class="float-end">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse"
-                                data-bs-target="#filterSection">
-                                <i class="bi bi-funnel"></i> Filters
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="collapse" id="filterSection">
-                        <div class="card-body border-bottom">
-                            <form action="{{ route('admin.payments.ProcessedPayments') }}" method="GET" class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Academic Session</label>
-                                    <select name="status" class="form-select">
-                                        <option value="">Select Academic Session</option>
-                                        @foreach ($academicSessions as $session)
-                                            <option value="{{ $session->name }}"
-                                                {{ $session->is_current ? 'selected' : '' }}>
-                                                {{ $session->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Semester</label>
-                                    <select name="priority" class="form-select">
-                                        <option value="">Select semester</option>
-                                        @foreach ($semesters as $semester)
-                                            <option value="{{ $semester->name }}"
-                                                {{ $semester->is_current ? 'selected' : '' }}>
-                                                {{ $semester->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Department</label>
-                                    <select name="department" class="form-select">
-                                        <option value="">All Departments</option>
-                                        @foreach ($departments as $department)
-                                            <option value="{{ $department->id }}"
-                                                {{ request('department') == $department->id ? 'selected' : '' }}>
-                                                {{ $department->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Date Range</label>
-                                    <select name="date_range" class="form-select">
-                                        <option value="">All Time</option>
-                                        <option value="today" {{ request('date_range') === 'today' ? 'selected' : '' }}>
-                                            Today</option>
-                                        <option value="week" {{ request('date_range') === 'week' ? 'selected' : '' }}>
-                                            This Week</option>
-                                        <option value="month" {{ request('date_range') === 'month' ? 'selected' : '' }}>
-                                            This Month</option>
-                                        <option value="year" {{ request('date_range') === 'year' ? 'selected' : '' }}>
-                                            This Year</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Search</label>
-                                    <input type="text" name="search" class="form-control"
-                                        value="{{ request('search') }}"
-                                        placeholder="Search by department name, matric number, or student name...">
-                                </div>
-
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                    <a href="{{ route('admin.payments.ProcessedPayments') }}"
-                                        class="btn btn-secondary">Reset</a>
-                                </div>
-                            </form>
-                        </div>
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Payment Types Summary</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped" id="example">
+                            <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>S/N</th>
-                                        <th>Student Name</th>
-                                        <th>Payment Channel</th>
-                                        <th>Session/Semester</th>
-                                        <th>Amount</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
+                                        <th>Payment Type</th>
+                                        <th>Total Amount</th>
+                                       
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($payments as $payment)
+                                    @foreach ($paymentTypeStats as $stat)
                                         <tr>
-                                            <td>{{ $loop->index + 1 }}</td>
-                                            <td>
-                                                {{ $payment->student->user->full_name }} <br>
-                                                <small class="text-muted">{{ $payment->student->matric_number }}</small>
-                                            </td>
-                                            <td>
-                                                @if($payment->payment_channel)
-                                                    {{ Str::upper($payment->payment_channel) }}
-                                                   @if($payment->is_manual)
-                                                        <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
-                                                    @endif
-                                                @elseif($payment->is_manual)
-                                                    {{ Str::upper('MANUAL') }}
-                                                    <br>
-                                                    <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
-                                                @elseif($payment->is_manual && $payment->payment_channel == "MANUAL")
-                                                    {{ Str::upper($payment->payment_channel) }} <br>
-                                                    <a href="{{ route('admin.payments.showConfirmation_prove', $payment) }}" class="badge bg-primary">Proof of payment</a>
-                                                @endif
-                                            </td>
-                                            <td>{{ $payment->academicSession->name }} <br> {{ $payment->semester->name }}
-                                            </td>
-                                            <td>
-                                                <small class="text-success"><b>Paid:
-                                                    </b>₦{{ number_format($payment->amount) }}</small> <br>
-                                                <small class="text-primary"><b>Base:
-                                                    </b>₦{{ number_format($payment->base_amount) }}</small> <br>
-                                                <small class="text-danger"><b>Pen:
-                                                    </b>₦{{ number_format($payment->late_fee) }}</small> <br>
-                                            </td>
-                                            <td>
-                                                {{ $payment->created_at->format('M d, Y h:i A') }} <br>
-                                                <small
-                                                    class="text-muted">{{ $payment->created_at->diffForHumans() }}</small>
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('admin.payments.ProcessedPayment_details', $payment) }}"
-                                                    class="badge bg-primary">
-                                                    <i class="fas fa-file-invoice-dollar"></i>
-                                                    view Detail
-                                                </a>
-                                            </td>
+                                            <td>{{ $stat['name'] }}</td>
+                                            <td>₦{{ number_format($stat['total_amount'], 2) }}</td>
+
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -313,68 +161,191 @@
                 </div>
             </div>
         </div>
-    </div>
 
-@endsection
+        <!-- Filters Section -->
+        <div class="container-fluid">
+            <div class="card">
 
+                <div class="card-header">
+                    <a href="{{ route('processed.payments.export', request()->query()) }}" class="btn btn-success">
+                        <i class="fas fa-file-export"></i> Export to CSV
+                    </a>
+                    <a href="{{ route('processed.payments.print', request()->query()) }}" class="btn btn-info">
+                        <i class="fas fa-print"></i> Print
+                    </a>
+                    <div class="float-end">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse"
+                            data-bs-target="#filterSection">
+                            <i class="bi bi-funnel"></i> Filters
+                        </button>
+                    </div> <br>
 
+                </div>
 
-@section('css')
-    <style>
-        .border-left-primary {
-            border-left: 4px solid #4e73df !important;
-        }
+                <div class="collapse show" id="filterSection">
+                    <div class="card-body border-bottom">
+                        <form action="{{ route('admin.payments.ProcessedPayments') }}" method="GET" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Department</label>
+                                <select name="department" id="department" class="form-select">
+                                    <option value="">Select Department</option>
+                                    @foreach ($departments as $department)
+                                        <option value="{{ $department->id }}"
+                                            {{ request('department') == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-        .border-left-success {
-            border-left: 4px solid #1cc88a !important;
-        }
+                            <div class="col-md-3">
+                                <label class="form-label">Level</label>
+                                <select name="level" id="level" class="form-select">
+                                    <option value="">Select Level</option>
+                                    @foreach ($levels as $level)
+                                        <option value="{{ $level }}"
+                                            {{ request('level') == $level ? 'selected' : '' }}>
+                                            {{ ((($level == 100
+                                                            ? 'ND1/RN1'
+                                                            : $level == 200)
+                                                        ? 'ND2/RN2'
+                                                        : $level == 300)
+                                                    ? 'HND1/RN3'
+                                                    : $level == 400)
+                                                ? 'HND2'
+                                                : $level }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-        .border-left-warning {
-            border-left: 4px solid #f6c23e !important;
-        }
+                            <div class="col-md-3">
+                                <label class="form-label">Academic Session</label>
+                                <select name="academic_session" class="form-select">
+                                    <option value="">Select Session</option>
+                                    @foreach ($academicSessions as $session)
+                                        <option value="{{ $session->id }}"
+                                            {{ request('academic_session') == $session->id ? 'selected' : '' }}>
+                                            {{ $session->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-        .border-left-info {
-            border-left: 4px solid #36b9cc !important;
-        }
+                            <div class="col-md-3">
+                                <label class="form-label">Payment Type</label>
+                                <select name="payment_type" class="form-select">
+                                    <option value="">All Types</option>
+                                    @foreach ($paymentTypes as $type)
+                                        <option value="{{ $type->id }}"
+                                            {{ request('payment_type') == $type->id ? 'selected' : '' }}>
+                                            {{ $type->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-        .timeline-small {
-            padding: 20px;
-        }
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <a href="{{ route('admin.payments.ProcessedPayments') }}"
+                                    class="btn btn-secondary">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
-        .timeline-item {
-            padding-bottom: 1rem;
-            position: relative;
-        }
+                <!-- Payments Table -->
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="paymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>Student Details</th>
+                                    <th>Payment Type</th>
+                                    <th>Session/Semester</th>
+                                    <th>Amount Details</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($payments as $payment)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            {{ $payment->student?->user?->full_name }}<br>
+                                            <small class="text-muted">{{ $payment->student?->matric_number }}</small><br>
+                                            <small class="text-muted">
+                                                {{ $payment->student->department->name }}
+                                                (Level
+                                                {{ $payment->student->department->getDisplayLevel($payment->student->current_level) }})
+                                            </small>
+                                        </td>
+                                        <td>{{ $payment->paymentType->name }}</td>
+                                        <td>
+                                            {{ $payment->academicSession->name }}<br>
+                                            {{ $payment->semester->name }}
+                                        </td>
+                                        <td>
+                                            <span class="text-success">₦{{ number_format($payment->amount) }}</span><br>
+                                            <small class="text-muted">Base:
+                                                ₦{{ number_format($payment->base_amount) }}</small><br>
+                                            <small class="text-danger">Late Fee:
+                                                ₦{{ number_format($payment->late_fee) }}</small>
+                                        </td>
+                                        <td>{{ $payment->created_at->format('M d, Y h:i A') }}</td>
+                                        <td>
+                                            <a href="{{ route('admin.payments.ProcessedPayment_details', $payment) }}"
+                                                class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
-        .timeline-item:not(:last-child):before {
-            content: '';
-            position: absolute;
-            left: 14px;
-            top: 24px;
-            height: 100%;
-            width: 2px;
-            background: #e9ecef;
-        }
+                    <div class="mt-3">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        .timeline-date {
-            width: 30px;
-            height: 30px;
-            background: #f8f9fa;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #4e73df;
-        }
+        <script>
+            // JavaScript for dynamic level population
+            document.addEventListener('DOMContentLoaded', function() {
+                const departmentSelect = document.querySelector('#department');
+                const levelSelect = document.querySelector('#level');
 
-        .timeline-content {
-            padding-left: 1rem;
-            border-left: 2px solid #e9ecef;
-        }
-    </style>
-@endsection
-@section('javascript')
+                departmentSelect.addEventListener('change', function() {
+                    const departmentId = this.value;
+                    levelSelect.innerHTML = '<option value="">Select Level</option>';
 
-@endsection
+                    if (departmentId) {
+                        fetch(`/admin/departments/${departmentId}/levels`)
+                            .then(response => response.json())
+                            .then(levels => {
+                                levels.forEach(level => {
+                                    const option = document.createElement('option');
+                                    const numericLevelMap = {
+                                        'ND1': 100,
+                                        'ND2': 200,
+                                        'HND1': 300,
+                                        'HND2': 400,
+                                        'RN1': 100,
+                                        'RN2': 200,
+                                        'RN3': 300
+                                    };
+
+                                    option.value = numericLevelMap[level] || level;
+                                    option.textContent = level;
+                                    levelSelect.appendChild(option);
+                                });
+                            });
+                    }
+                });
+            });
+        </script>
+    @endsection

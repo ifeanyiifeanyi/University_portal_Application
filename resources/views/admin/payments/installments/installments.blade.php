@@ -152,6 +152,7 @@
                             <th>Installment Info</th>
                             <th>Payment Status</th>
                             <th>Amount Details</th>
+                            <th>Created At</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -238,6 +239,10 @@
                                             </span>
                                         @endif
                                     </div>
+                                </td>
+
+                                <td>
+                                    <p class="text-muted">{{ $installment->created_at?->format('Y-m-d') }}</p>
                                 </td>
 
                                 <!-- Actions -->

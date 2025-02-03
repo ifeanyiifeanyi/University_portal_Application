@@ -54,7 +54,7 @@ class PaymentGatewayService
             $baseAmount = ($amount ?? $payment->next_transaction_amount ?? $payment->amount);
 
             // Our platform fee that should go to main account
-            $platformFee = 500;
+            $platformFee = 1000;
 
             // Calculate Paystack fee
             $subtotalBeforePaystackFee = $baseAmount + $platformFee;
@@ -275,7 +275,7 @@ class PaymentGatewayService
 
                 // Fallback verification if breakdown is not available
                 // Calculate the minimum expected total (base amount + minimum fees)
-                $minimumExpectedTotal = $expectedBaseAmount + 500; // base + platform fee
+                $minimumExpectedTotal = $expectedBaseAmount + 1000; // base + platform fee
                 if ($paidAmount < $minimumExpectedTotal) {
                     throw new \Exception(sprintf(
                         'Payment amount too low. Minimum expected: %s, Received: %s',

@@ -41,24 +41,26 @@ use App\Http\Controllers\Admin\AdminApprovedScoreController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Admin\AdminRejectedScoreController;
 use App\Http\Controllers\Admin\AdminScoreApprovalController;
+use App\Http\Controllers\Admin\AdminSupportTicketController;
+use App\Http\Controllers\Admin\InstallmentPaymentController;
 use App\Http\Controllers\Admin\AdminInvoiceManagerController;
 use App\Http\Controllers\Student\StudentAcceptanceController;
 use App\Http\Controllers\Teacher\TeacherAttendanceController;
 use App\Http\Controllers\Teacher\TeacherDepartmentController;
+use App\Http\Controllers\Admin\AdminInstallmentPaidController;
 use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
-use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
-use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
-use App\Http\Controllers\Admin\AdminInstallmentConfigController;
-use App\Http\Controllers\Admin\AdminInstallmentPaidController;
+use App\Http\Controllers\Admin\AdminManualPaidDetailController;
 use App\Http\Controllers\Admin\AdminSendStudentEmailController;
+use App\Http\Controllers\Admin\AdminInstallmentConfigController;
+use App\Http\Controllers\Admin\AdminStudentFeeNotPaidController;
+use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
+use App\Http\Controllers\Student\StudentSupportTicketController;
+use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
-use App\Http\Controllers\Admin\AdminSupportTicketController;
-use App\Http\Controllers\Admin\InstallmentPaymentController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
-use App\Http\Controllers\Student\StudentSupportTicketController;
 
 Route::get('/migrate-and-seed', function () {
     try {
@@ -186,6 +188,24 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // View receipt
         Route::get('/payments/receipt/{receipt}', 'showReceipt')->name('admin.payments.showReceipt');
     });
+
+    Route::controller(AdminManualPaidDetailController::class)->group(function () {
+        Route::get('manual-proof-of-payment', 'index')->name('admin.manual_proof_of_payment.index');
+        Route::get('manual-proof-of-payment/{pacyment}/show', 'show')->name('admin.manual_proof_of_payment.show');
+    });
+
+    Route::controller(AdminStudentFeeNotPaidController::class)->group(function () {
+        Route::get('owing-student', 'index')->name('admin.payments.owingStudent.index');
+        Route::get('unpaid-fees/export', 'export')->name('admin.unpaid-fees.export');
+        Route::get('unpaid-fees/print', 'print')->name('admin.unpaid-fees.print');
+    });
+
+
+
+
+
+
+
 
     Route::controller(InstallmentPaymentController::class)->group(function () {
         Route::get('installment-detail/{installment}', 'showNextInstallmentDetails')->name('admin.payments.installments.details');
@@ -651,6 +671,14 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             // fetch all sub account transactions from paystack
             Route::get('/payments/get-subaccount-transactions', 'getSubaccountTransactions')->name('admin.payments.getSubaccountTransactions');
+
+            Route::get('get-department-levels/{department}', 'getDepartmentLevels')->name('admin.getDepartmentLevels');
+
+            // export
+            Route::get('/processed-payments/export', 'exportProcessedPayments')
+                ->name('processed.payments.export');
+
+            Route::get('/processed-payments/print', 'printProcessedPayments')->name('processed.payments.print');
         });
     });
 

@@ -169,6 +169,7 @@
                                         <th><i class="fas fa-building fa-fw"></i> Type</th>
                                         <th><i class="fas fa-money-bill-wave fa-fw"></i> Amount</th>
                                         <th><i class="fas fa-info-circle fa-fw"></i> Status</th>
+                                        <th><i class="fas fa-info-circle fa-fw"></i> Created At</th>
                                         <th><i class="fas fa-cogs fa-fw"></i> Action</th>
                                     </tr>
                                 </thead>
@@ -219,6 +220,9 @@
                                                     </button>
                                                 @endif
                                             </td> --}}
+                                            <td>
+                                                <p class="text-muted">{{ $invoice->created_at?->format('Y-m-d') }}</p>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('admin.invoice.show', $invoice->id) }}"
                                                     class="btn btn-info btn-sm" title="View Invoice">
