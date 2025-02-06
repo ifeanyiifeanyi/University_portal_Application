@@ -12,6 +12,7 @@
         </div>
     </div>
 
+
     <div class="row g-4">
         <div class="col-12">
             <div class="card shadow-sm">
@@ -70,7 +71,7 @@
                                         <td>{{ $student->user->full_name }}</td>
                                         <td>{{ $student->matric_number }}</td>
                                         <td>{{ $student->department->name }}</td>
-                                        <td>Level {{ $student->current_level }}</td>
+                                        <td>Level {{ $student->department->getDisplayLevel($student->current_level) }}</td>
                                         <td>
                                             @php
                                                 $registration = $student->semesterRegistrations->first();

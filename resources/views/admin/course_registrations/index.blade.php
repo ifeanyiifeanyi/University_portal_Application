@@ -7,7 +7,7 @@
         <div class="card p-3">
             <h4>Register Courses for <u>{{ $student->user->fullName() }}</u></h4>
             <p>Department: {{ $student->department->name }}</p>
-            <p>Current Level: {{ $student->current_level }}</p>
+            <p>Current Level: {{ $student->department->getDisplayLevel($student->current_level) }}</p>
             <p>Maximum Credit Hours: {{ $maxCreditHours }}</p>
         </div>
         <div class="card p-3">
@@ -26,12 +26,13 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @dump($courseAssignments)
                             @foreach ($courseAssignments as $assignment)
                                 <tr>
                                     <td>{{ $assignment->course->code }}</td>
                                     <td>{{ $assignment->course->title }}</td>
                                     <td>{{ $assignment->course->credit_hours }}</td>
-                                    <td>{{ $assignment->level }}</td>
+                                    <td>{{ $assignment->department->getDisplayLevel($assignment->level) }}</td>
                                     <td>
                                         <input type="checkbox" name="courses[]" value="{{ $assignment->course_id }}"
                                             {{ in_array($assignment->course_id, $enrolledCourses) ? 'checked disabled' : '' }}

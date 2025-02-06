@@ -17,7 +17,7 @@ class SemesterCourseRegistration extends Model
         'level'
     ];
 
-    
+
     protected $casts = [
         'total_credit_hours' => 'integer',
         'registered_at' => 'date'
@@ -27,6 +27,13 @@ class SemesterCourseRegistration extends Model
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
     const STATUS_REJECTED = 'rejected';
+
+    public function getFormattedLevelAttribute()
+    {
+        // Get the student's department and use it to format the level
+        return $this->student->department->getDisplayLevel($this->level);
+    }
+    
     public function semester()
     {
         return $this->belongsTo(Semester::class);
