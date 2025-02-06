@@ -1,80 +1,131 @@
 @extends('admin.layouts.admin')
-@section('title', 'Time Table Manager')
+
+@section('title', 'Time Table Management')
+
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core/main.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid/main.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid/main.css" rel="stylesheet" />
+
+    <style>
+        .timetable-action-btn {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.125rem;
+        }
+
+        .table th {
+            background-color: #f8f9fc;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        .status-badge {
+            padding: 0.35em 0.65em;
+            border-radius: 0.25rem;
+        }
+
+        .status-draft {
+            background-color: #ffeeba;
+        }
+
+        .status-pending {
+            background-color: #b8daff;
+        }
+
+        .status-approved {
+            background-color: #c3e6cb;
+        }
+
+        .status-archived {
+            background-color: #e2e3e5;
+        }
+    </style>
 @endsection
+
 @section('admin')
     <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">Timetables</h6>
-                <div>
-                    <a href="{{ route('admin.timetable.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Add New
-                    </a>
-                    <a href="" class="btn btn-info btn-sm">
-                        <i class="fas fa-check"></i> Pending Approvals
-                    </a>
-                </div>
+            <div class="btn-group">
+                <a href="{{ route('admin.timetable.create') }}" class="btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-plus fa-sm text-white-50"></i> New Entry
+                </a>
+                <a href="{{ route('admin.timetable.draftIndex') }}" class="btn btn-sm btn-info shadow-sm">
+                    <i class="fas fa-clock fa-sm text-white-50"></i> Draft Entries
+                </a>
             </div>
-            <div class="card-body">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="table-tab" data-toggle="tab" href="#table" role="tab"
-                            aria-controls="table" aria-selected="false">Table View</a>
+        </div>
+
+        <!-- Main Content Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="table-tab" data-toggle="tab" href="#table">Table View</a>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="calendar-tab" data-toggle="tab" href="#calendar" role="tab"
-                            aria-controls="calendar" aria-selected="true">Calendar View</a>
+                    <li class="nav-item">
+                        <a class="nav-link" id="calendar-tab" data-toggle="tab" href="#calendar">Calendar View</a>
                     </li>
                 </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="table" role="tabpanel" aria-labelledby="table-tab">
-                        <div class="table-responsive mt-3">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Table View -->
+                    <div class="tab-pane fade show active" id="table">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="timetableTable">
                                 <thead>
                                     <tr>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Course</th>
-                                        <th>Teacher</th>
-                                        <th>Room</th>
-                                        <th>Department</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th class="text-center" style="width: 1%">S/N</th>
+                                        <th style="width: 10%">Day</th>
+                                        <th style="width: 15%">Schedule</th>
+                                        <th style="width: 20%">Course</th>
+                                        <th style="width: 15%">Lecturer</th>
+                                        <th style="width: 15%">Department</th>
+                                        <th style="width: 10%">Status</th>
+                                        <th style="width: 10%">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($timetables as $timetable)
+                                    @foreach ($timetables as $index => $timetable)
                                         <tr>
-                                            <td>{{ $timetable->day_of_week }}</td>
-                                            <td>{{ $timetable->start_time }} - {{ $timetable->end_time }}</td>
-                                            <td>{{ $timetable->course->code }} - {{ $timetable->course->name }}</td>
-                                            <td>{{ $timetable->teacher->user->name }}</td>
-                                            <td>{{ $timetable->room }}</td>
-                                            <td>{{ $timetable->department->name }}</td>
-                                            <td>{{ $timetable->status }}</td>
+                                            <td class="text-center">{{ $index + 1 }}</td>
+                                            <td>{{ $timetable::getDayName($timetable->day_of_week) }}</td>
                                             <td>
-                                                <a href="{{ route('admin.timetable.show', $timetable->id) }}"
-                                                    class="btn btn-info btn-sm">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.timetable.edit', $timetable->id) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('admin.timetable.delete', $timetable->id) }}"
-                                                    method="POST" style="display: inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Are you sure you want to delete this timetable?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
+                                                <div>{{ $timetable->class_date }}</div>
+                                                <small class="text-muted">
+                                                    {{ \Carbon\Carbon::parse($timetable->start_time)->format('h:i A') }} -
+                                                    {{ \Carbon\Carbon::parse($timetable->end_time)->format('h:i A') }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div>{{ $timetable->course->code }}</div>
+                                                <small class="text-muted">{{ $timetable->course->title }}</small>
+                                            </td>
+                                            <td>{{ $timetable->teacher->title_and_full_name }}</td>
+                                            <td>{{ Str::title($timetable->department->name) }}</td>
+                                            <td>
+                                                <span class="status-badge status-{{ strtolower($timetable->status) }}">
+                                                    {{ Str::title(Str::replace('_', ' ', $timetable->status)) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ route('admin.timetable.show', $timetable->id) }}"
+                                                        class="btn btn-sm btn-info timetable-action-btn" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    @if ($timetable->isEditable())
+                                                        <a href="{{ route('admin.timetable.edit', $timetable->id) }}"
+                                                            class="btn btn-sm btn-primary timetable-action-btn"
+                                                            title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-danger timetable-action-btn"
+                                                            onclick="confirmDelete({{ $timetable->id }})" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -82,14 +133,17 @@
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
-                        <div class="form-group mt-3">
-                            <label for="semester_select">Select Semester:</label>
-                            <select id="semester_select" class="form-control">
-                                @foreach ($semesters as $semester)
-                                    <option value="{{ $semester->id }}">{{ $semester->name }}</option>
-                                @endforeach
-                            </select>
+
+                    <!-- Calendar View -->
+                    <div class="tab-pane fade" id="calendar">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <select id="semester_select" class="form-control">
+                                    @foreach ($semesters as $semester)
+                                        <option value="{{ $semester->id }}">{{ $semester->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                         <div id="calendar"></div>
                     </div>
@@ -97,120 +151,81 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this timetable entry?
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
-
-
-
 @section('javascript')
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.15/index.global.min.js"></script>
     <script>
-        $(document).ready(function() {
-
-            // var calendar = $('#calendar').fullCalendar({
-            //     header: {
-            //         left: 'prev,next today',
-            //         center: 'title',
-            //         right: 'month,agendaWeek,agendaDay'
-            //     },
-            //     eventColor: function(event) {
-            //         return event.color;
-            //     },
-
-
-
-            //     events: function(start, end, timezone, callback) {
-            //         var selectedSemester = $('#semester_select').val();
-            //         $.ajax({
-            //             url: '{{ route('admin.timetable.calendar-data') }}',
-            //             data: {
-            //                 semester_id: selectedSemester,
-            //                 start: start.format(),
-            //                 end: end.format()
-            //             },
-            //             success: function(response) {
-            //                 console.log(response)
-            //                 var events = response.map(function(event) {
-            //                     return {
-            //                         id: event.id,
-            //                         title: event.title,
-            //                         start: event.start,
-            //                         end: event.end,
-            //                         color: event.color,
-            //                         textColor: event.textColor,
-            //                         extendedProps: event.extendedProps,
-            //                         rrule: event
-            //                             .rrule // This will now come from the server
-            //                     };
-            //                 });
-            //                 callback(events);
-            //             }
-            //         });
-            //     },
-
-
-            //     eventRender: function(event, element) {
-            //         element.find('.fc-title').append("<br/>" + event.extendedProps.room);
-            //     }
-            // });
-
-            var calendar = $('#calendar').fullCalendar({
-                header: {
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                events: function(start, end, timezone, callback) {
-                    console.log("Fetching events...");
-                    var selectedSemester = $('#semester_select').val();
-                    $.ajax({
-                        url: '{{ route('admin.timetable.calendar-data') }}',
-                        data: {
-                            semester_id: selectedSemester,
-                            start: start.format(),
-                            end: end.format()
-                        },
-                        success: function(response) {
-                            console.log("Received response:", response);
-                            var events = response.map(function(event) {
-                                console.log("Processing event:", event);
-                                return {
-                                    id: event.id,
-                                    title: event.title,
-                                    startTime: event.startTime,
-                                    endTime: event.endTime,
-                                    startRecur: event.startRecur,
-                                    endRecur: event.endRecur,
-                                    daysOfWeek: event.daysOfWeek,
-                                    textColor: event.textColor,
-                                    color: "red",
-                                    extendedProps: event.extendedProps
-                                };
-                            });
-                            console.log("Processed events:", events);
-                            callback(events);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Error fetching events:", error);
-                        }
-                    });
+                events: function(info, successCallback, failureCallback) {
+                    fetch(
+                            `/admin/timetable/calendar-data?semester_id=${document.getElementById('semester_select').value}`
+                        )
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response failed');
+                            }
+                            return response.json();
+                        })
+                        .then(data => successCallback(data))
+                        .catch(error => {
+                            console.error('Error fetching calendar data:', error);
+                            failureCallback(error);
+                        });
                 },
-                eventRender: function(event, element) {
-                    console.log("Rendering event:", event);
-                    element.css('background-color', event.extendedProps.color);
-                    element.find('.fc-title').append("<br/>" + event.extendedProps.room);
-                },
-                eventAfterAllRender: function(view) {
-                    console.log("All events rendered");
-                }
-
-
+                height: 'auto',
+                slotMinTime: '07:00:00',
+                slotMaxTime: '21:00:00'
             });
-
-            $('#semester_select').change(function() {
-                calendar.fullCalendar('refetchEvents');
+            calendar.render();
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#table-tab, #calendar-tab').on('click', function(e) {
+                e.preventDefault();
+                $(this).tab('show');
             });
         });
+
+        function confirmDelete(id) {
+            $('#deleteForm').attr('action', `/admin/timetable/${id}`);
+            $('#deleteModal').modal('show');
+        }
     </script>
 @endsection

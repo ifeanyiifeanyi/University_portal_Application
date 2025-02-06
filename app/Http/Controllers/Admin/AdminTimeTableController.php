@@ -25,21 +25,7 @@ use App\Notifications\TimetableSubmittedForApproval;
 
 class AdminTimeTableController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
 
-
-    // public function index()
-    // {
-    //     $timetables = Timetable::with(['academicSession', 'semester', 'department', 'course', 'teacher'])
-    //         ->where('status', TimeTable::STATUS_APPROVED)
-    //         ->orderBy('day_of_week')
-    //         ->orderBy('start_time')
-    //         ->get();
-
-    //     return view('admin.timeTable.index', compact('timetables'));
-    // }
 
     public function index()
     {
@@ -194,8 +180,10 @@ class AdminTimeTableController extends Controller
             ->get();
     }
 
-    public function show(TimeTable $timetable)
+    public function show($timetable)
     {
+        $timetable = TimeTable::findOrFail($timetable);
+        
         return view('admin.timeTable.show', compact('timetable'));
     }
 
@@ -367,61 +355,9 @@ class AdminTimeTableController extends Controller
     }
 
 
-    // private function checkConflicts(TimeTable $newEntry)
-    // {
-    //     return TimeTable::where('semester_id', $newEntry->semester_id)
-    //         ->where('day_of_week', $newEntry->day_of_week)
-    //         ->where(function ($query) use ($newEntry) {
-    //             $query->whereBetween('start_date', [$newEntry->start_date, $newEntry->end_date])
-    //                 ->orWhereBetween('end_date', [$newEntry->start_date, $newEntry->end_date])
-    //                 ->orWhere(function ($q) use ($newEntry) {
-    //                     $q->where('start_date', '<=', $newEntry->start_date)
-    //                         ->where('end_date', '>=', $newEntry->end_date);
-    //                 });
-    //         })
-    //         ->get()
-    //         ->filter(function ($entry) use ($newEntry) {
-    //             return $newEntry->hasConflict($entry);
-    //         });
-    // }
 
 
 
-
-    // public function getCalendarData(Request $request)
-    // {
-    //     $semester = Semester::findOrFail($request->input('semester_id'));
-    //     $startDate = Carbon::parse($semester->start_date);
-    //     $endDate = Carbon::parse($semester->end_date);
-    //     $timetables = TimeTable::where('semester_id', $semester->id)
-    //         ->with(['course', 'teacher.user', 'department'])
-    //         ->get();
-
-    //     $events = $timetables->map(function ($timetable) use ($startDate, $endDate) {
-    //         $startTime = Carbon::parse($timetable->start_time)->format('H:i:s');
-    //         $endTime = Carbon::parse($timetable->end_time)->format('H:i:s');
-
-    //         return [
-    //             'id' => $timetable->id,
-    //             'title' => $timetable->course->code . ' - ' . $timetable->teacher->user->full_name,
-    //             'startTime' => $startTime,
-    //             'endTime' => $endTime,
-    //             'startRecur' => $startDate->format('Y-m-d'),
-    //             'endRecur' => $endDate->format('Y-m-d'),
-    //             'daysOfWeek' => [(int)$timetable->day_of_week - 1], // Assuming day_of_week is 1-7, convert to 0-6
-    //             'color' => $this->getColorForDepartment($timetable->department_id),
-    //             'textColor' => '#66e',
-    //             'extendedProps' => [
-    //                 'department' => $timetable->department->name,
-    //                 'room' => $timetable->room,
-    //                 'course_name' => $timetable->course->name ?? 'N/A',
-    //                 'teacher_name' => $timetable->teacher->user->full_name,
-    //             ],
-    //         ];
-    //     });
-
-    //     return response()->json($events);
-    // }
     public function getCalendarData(Request $request)
     {
         $semester = Semester::findOrFail($request->input('semester_id'));
