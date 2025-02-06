@@ -42,7 +42,8 @@
                                 <option value="">Select Academic Session</option>
                                 @foreach ($academicSessions as $session)
                                     <option value="{{ $session->id }}" {{ $session->is_current ? 'selected' : '' }}>
-                                        {{ $session->name }} {{ $session->is_current ? '(Current Academic Session)' : '' }}
+                                        {{ $session->name }}
+                                        {{ $session->is_current ? '(Current Academic Session)' : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -81,27 +82,113 @@
     </div>
 
     <script>
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const departmentSelect = document.getElementById('department_id');
+        //     const levelSelect = document.getElementById('level');
+
+        //     function updateLevels() {
+        //         const departmentId = departmentSelect.value;
+
+        //         if (!departmentId) {
+        //             levelSelect.innerHTML = '<option value="">Select Department First</option>';
+        //             levelSelect.disabled = true;
+        //             return;
+        //         }
+
+        //         levelSelect.innerHTML = '<option value="">Loading levels...</option>';
+        //         levelSelect.disabled = true;
+
+        //         fetch(`/admin/departments/${departmentId}/levels`)
+        //             .then(response => response.json())
+        //             .then(levels => {
+        //                 levelSelect.innerHTML = '';
+        //                 levels.forEach(level => {
+        //                     const option = document.createElement('option');
+        //                     option.value = level;
+        //                     option.textContent = level;
+        //                     levelSelect.appendChild(option);
+        //                 });
+        //             });
+        //     }
+
+        //     departmentSelect.addEventListener('change', updateLevels);
+        //     updateLevels(); // Initial population
+        // });
+
         document.addEventListener('DOMContentLoaded', function() {
             const departmentSelect = document.getElementById('department_id');
             const levelSelect = document.getElementById('level');
 
             function updateLevels() {
                 const departmentId = departmentSelect.value;
+                if (!departmentId) {
+                    levelSelect.innerHTML = '<option value="">Select Department First</option>';
+                    levelSelect.disabled = true;
+                    return;
+                }
+
+                levelSelect.innerHTML = '<option value="">Loading levels...</option>';
+                levelSelect.disabled = true;
+
                 fetch(`/admin/departments/${departmentId}/levels`)
                     .then(response => response.json())
                     .then(levels => {
-                        levelSelect.innerHTML = '';
+                        levelSelect.innerHTML = '<option value="">Select Level</option>';
+
                         levels.forEach(level => {
                             const option = document.createElement('option');
-                            option.value = level;
+
+                            // Set the display text to show the format-specific level
                             option.textContent = level;
+
+                            // Map the display format to numeric values
+                            if (typeof level === 'string' && (level.startsWith('RN') ||
+                                    level.startsWith('ND') || level.startsWith('HND') ||
+                                    level.startsWith('RMW'))) {
+                                switch (level) {
+                                    case 'RN1':
+                                    case 'ND1':
+                                    case 'RMW1':
+                                        option.value = '100';
+                                        break;
+                                    case 'RN2':
+                                    case 'ND2':
+                                    case 'RMW2':
+                                        option.value = '200';
+                                        break;
+                                    case 'RN3':
+                                    case 'RMW3':
+                                        option.value = '300';
+                                        break;
+                                    case 'HND1':
+                                        option.value = '300';
+                                        break;
+                                    case 'HND2':
+                                        option.value = '400';
+                                        break;
+                                    default:
+                                        option.value = level;
+                                }
+                            } else {
+                                // For numeric levels, use the level as is
+                                option.value = level;
+                            }
+
                             levelSelect.appendChild(option);
                         });
+                        levelSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading levels:', error);
+                        levelSelect.innerHTML = '<option value="">Error loading levels</option>';
+                        levelSelect.disabled = true;
                     });
             }
 
             departmentSelect.addEventListener('change', updateLevels);
-            updateLevels(); // Initial population
+            if (departmentSelect.value) {
+                updateLevels();
+            }
         });
     </script>
 @endsection

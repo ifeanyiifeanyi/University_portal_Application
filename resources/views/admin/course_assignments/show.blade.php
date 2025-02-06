@@ -45,7 +45,7 @@
 @endsection
 
 @section('admin')
-    
+
     <div class="sticky-header bg-light border-bottom shadow-sm p-4">
         <div class="text-center mb-4">
             <h3 class="mb-2">Course Assignments for</h3>
@@ -119,7 +119,13 @@
                             @forelse ($groupedAssignments[$department->id] as $level => $levelAssignments)
                                 <div class="card level-card mb-3">
                                     <div class="card-header card border-top border-0 border-4 border-secondary">
-                                        <h5 class="lead text-muted">Level {{ $level }}</h5>
+                                        <h5 class="lead text-muted">
+                                            @if ($department->level_format)
+                                                {{ $department->getDisplayLevel($level) }} ({{ $level }} Level)
+                                            @else
+                                                {{ $level }} Level
+                                            @endif
+                                        </h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
