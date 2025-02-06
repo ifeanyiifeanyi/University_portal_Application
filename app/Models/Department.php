@@ -79,11 +79,12 @@ class Department extends Model
                 return ['ND1', 'ND2', 'HND1', 'HND2'];
             case 'nursing':
                 return ['RN1', 'RN2', 'RN3'];
+            case 'midwifery':
+                return ['RMW1', 'RMW2', 'RMW3'];
             default:
                 return range(100, $this->duration * 100, 100);
         }
     }
-
 
     public function getLevelNumber($levelString)
     {
@@ -96,7 +97,11 @@ class Department extends Model
             // Nursing mappings
             'RN1' => 100,
             'RN2' => 200,
-            'RN3' => 300
+            'RN3' => 300,
+            // Midwifery mappings
+            'RMW1' => 100,
+            'RMW2' => 200,
+            'RMW3' => 300
         ];
 
         // If it's already numeric, return as integer
@@ -107,6 +112,7 @@ class Department extends Model
         // Return mapped value or null if not found
         return $levelMappings[$levelString] ?? null;
     }
+
 
     // Helper method to get display format for a numeric level
     // Convert numeric to display format
@@ -127,6 +133,11 @@ class Department extends Model
                 100 => 'RN1',
                 200 => 'RN2',
                 300 => 'RN3'
+            ],
+            'midwifery' => [
+                100 => 'RMW1',
+                200 => 'RMW2',
+                300 => 'RMW3'
             ]
         ];
 

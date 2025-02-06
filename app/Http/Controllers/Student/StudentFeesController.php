@@ -515,7 +515,6 @@ class StudentFeesController extends Controller
         }
     }
 
-
     protected function handleInstallmentVerification(Payment $payment, $paidAmount)
     {
         DB::beginTransaction();

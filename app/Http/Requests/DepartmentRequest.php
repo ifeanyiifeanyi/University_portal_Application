@@ -32,7 +32,7 @@ class DepartmentRequest extends FormRequest
             'program_id' => ['nullable', 'exists:programs,id'],
             'department_head_id' => ['nullable', 'exists:users,id'],
             'description' => ['nullable', 'string'],
-            'level_format' => 'nullable|string|in:nd_hnd,nursing',
+            'level_format' => 'nullable|string|in:nd_hnd,nursing,midwifery',
 
         ];
     }

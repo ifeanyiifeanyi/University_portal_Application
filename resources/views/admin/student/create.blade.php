@@ -395,7 +395,8 @@
 
                 <div class="m-3 pb-5 text-center">
 
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-users-cog"></i> Create Student Account</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-users-cog"></i> Create Student
+                        Account</button>
                 </div>
             </form>
         </div>
@@ -427,61 +428,6 @@
     </script>
 
     <script>
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const departmentSelect = document.getElementById('department_id');
-        //     const levelSelect = document.getElementById('current_level');
-
-        //     // Define level mappings
-        //     const levelMappings = {
-        //         'ND1': 100,
-        //         'ND2': 200,
-        //         'HND1': 300,
-        //         'HND2': 400,
-        //         'RN1': 100,
-        //         'RN2': 200,
-        //         'RN3': 300
-        //     };
-
-        //     function updateLevels() {
-        //         const departmentId = departmentSelect.value;
-        //         if (!departmentId) {
-        //             levelSelect.innerHTML = '<option value="">Select Department First</option>';
-        //             levelSelect.disabled = true;
-        //             return;
-        //         }
-
-        //         levelSelect.innerHTML = '<option value="">Loading levels...</option>';
-        //         levelSelect.disabled = true;
-
-        //         fetch(`/admin/departments/${departmentId}/levels`)
-        //             .then(response => response.json())
-        //             .then(levels => {
-        //                 levelSelect.innerHTML = '<option value="">Select Level</option>';
-        //                 levels.forEach(level => {
-        //                     const option = document.createElement('option');
-        //                     // Use mapping for numeric value, fallback to level itself if numeric
-        //                     option.value = levelMappings[level] || level;
-        //                     option.textContent = level;
-        //                     if (option.value == "{{ old('current_level') }}") {
-        //                         option.selected = true;
-        //                     }
-        //                     levelSelect.appendChild(option);
-        //                 });
-        //                 levelSelect.disabled = false;
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error fetching levels:', error);
-        //                 levelSelect.innerHTML = '<option value="">Error loading levels</option>';
-        //                 levelSelect.disabled = true;
-        //             });
-        //     }
-
-        //     departmentSelect.addEventListener('change', updateLevels);
-        //     if (departmentSelect.value) {
-        //         updateLevels();
-        //     }
-        // });
-
         document.addEventListener('DOMContentLoaded', function() {
             const departmentSelect = document.getElementById('department_id');
             const levelSelect = document.getElementById('current_level');
@@ -513,17 +459,21 @@
                             // Use the department's getLevelNumber method to get the correct numeric value
                             // This will convert RN1 to 100, RN2 to 200, etc.
                             if (typeof level === 'string' && (level.startsWith('RN') || level
-                                    .startsWith('ND') || level.startsWith('HND'))) {
+                                    .startsWith('ND') || level.startsWith('HND') || level.startsWith(
+                                        'RMW'))) {
                                 switch (level) {
                                     case 'RN1':
                                     case 'ND1':
+                                    case 'RMW1':
                                         option.value = '100';
                                         break;
                                     case 'RN2':
                                     case 'ND2':
+                                    case 'RMW2':
                                         option.value = '200';
                                         break;
                                     case 'RN3':
+                                    case 'RMW3':
                                         option.value = '300';
                                         break;
                                     case 'HND1':

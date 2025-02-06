@@ -290,7 +290,8 @@
                                         onchange="handleLevelFormatChange()">
                                         <option value="">Standard Levels (100, 200, etc)</option>
                                         <option value="nd_hnd">ND/HND Format</option>
-                                        <option value="nursing">Nursing Format (NS1-NS3)</option>
+                                        <option value="nursing">Nursing Format (RN1-RN3)</option>
+                                        <option value="midwifery">Midwifery Format (RMW1-RMW3)</option>
                                     </select>
                                     <label>Level Format</label>
                                 </div>
@@ -411,6 +412,11 @@
                     durationField.style.display = 'block';
                     break;
                 case 'nursing':
+                    durationInput.value = 3;
+                    durationInput.readOnly = true;
+                    durationField.style.display = 'block';
+                    break;
+                case 'midwifery':
                     durationInput.value = 3;
                     durationInput.readOnly = true;
                     durationField.style.display = 'block';
