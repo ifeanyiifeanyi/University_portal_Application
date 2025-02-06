@@ -128,16 +128,10 @@
                         <div class="info-value">
                             <div>Session: {{ $assignment->academicSession->name }}</div>
                             <div>Semester: {{ $assignment->semester->name }}</div>
-                            <div>Level:
-                                {{-- @dump($assignment) --}}
-                                {{-- @foreach ($assignment->course->courseAssignments as $courseAssignment)
-                                    @if (
-                                        $courseAssignment->department_id == $assignment->department_id &&
-                                            $courseAssignment->semester_id == $assignment->semester_id)
-                                        {{ $courseAssignment->level }}
-                                    @endif
-                                @endforeach --}}
-                                {{ $assignment->course->courseAssignments->first()->level}}
+                            <div>
+                                Level:
+                                {{ $assignment->formatted_level }}
+                               ({{ $assignment->course->courseAssignments->first()->level}})
 
                             </div>
                         </div>

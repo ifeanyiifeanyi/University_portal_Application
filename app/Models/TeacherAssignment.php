@@ -11,7 +11,20 @@ class TeacherAssignment extends Model
     // protected $fillable = ['teacher_id', 'course_assignment_id', 'academic_session_id', 'semester_id'];
     protected $fillable = ['teacher_id', 'department_id', 'academic_session_id', 'semester_id', 'course_id'];
 
+    // In TeacherAssignment model
+    public function getFormattedLevelAttribute()
+    {
+        $courseAssignment = $this->course->courseAssignments
+            ->where('department_id', $this->department_id)
+            ->where('semester_id', $this->semester_id)
+            ->first();
 
+        if ($courseAssignment) {
+            return $this->department->getDisplayLevel($courseAssignment->level);
+        }
+
+        return null;
+    }
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
