@@ -2,18 +2,19 @@
 
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\CheckFeesInstallmentMiddleware;
-use App\Http\Middleware\CheckFeesMiddleware;
-use App\Http\Middleware\CheckInvoiceStatus;
-use App\Http\Middleware\CheckPendingInvoiceMiddleware;
-use App\Http\Middleware\ParentMiddleware;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Support\Facades\Schedule;
+use App\Http\Middleware\ParentMiddleware;
 use App\Http\Middleware\StudentMiddleware;
 use App\Http\Middleware\TeacherMiddleware;
+use App\Http\Middleware\CheckInvoiceStatus;
+use App\Http\Middleware\CheckFeesMiddleware;
 use App\Http\Middleware\VerifyReceiptAccess;
+use App\Http\Middleware\PermissionMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\CheckPendingInvoiceMiddleware;
+use App\Http\Middleware\CheckFeesInstallmentMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,9 +35,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'security.headers' => SecurityHeaders::class, //not used yet
             'check.installment.fees'=>CheckFeesInstallmentMiddleware::class
-
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->withCommands([
+        'app:archive-logs' => 'weekly',
+    ])
+    ->create();
