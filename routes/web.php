@@ -144,16 +144,28 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/activity-log/truncate', 'truncateActivityLog')->name('activity-log.truncate');
     });
 
+    // Route::controller(BackupSettingController::class)->group(function () {
+    //     Route::get('backups', 'index')->name('admin.backups.index');
+
+    //     Route::get('backups/create', 'create')->name('admin.backups.create');
+    //     Route::get('backups/download/{file_name}', 'download')->name('admin.backups.download');
+    //     Route::get('backups/restore/{file_name}', 'restore')->name('admin.backups.restore');
+    //     Route::delete('backups/delete/{file_name}', 'delete')->name('admin.backups.delete');
+
+    //     Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
+    //     Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
+    // });
+
     Route::controller(BackupSettingController::class)->group(function () {
         Route::get('backups', 'index')->name('admin.backups.index');
-
         Route::get('backups/create', 'create')->name('admin.backups.create');
         Route::get('backups/download/{file_name}', 'download')->name('admin.backups.download');
         Route::get('backups/restore/{file_name}', 'restore')->name('admin.backups.restore');
         Route::delete('backups/delete/{file_name}', 'delete')->name('admin.backups.delete');
-
         Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
         Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
+        Route::get('backups/urgent/{type}', 'createUrgent')->name('admin.backups.urgent');
+        Route::get('backups/status/{backupId}', 'checkBackupStatus')->name('admin.backups.status');
     });
 
     Route::controller(AdminProgramsController::class)->group(function () {
@@ -736,6 +748,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
             //mark as paid
             Route::get('invoice/mark-paid/{id}', 'markAsPaid')->name('admin.invoice.mark-paid');
+
+            Route::post('/invoice/{invoice}/reset-installment', 'resetToFullPayment')->name('admin.invoice_payments.reset');
         });
     });
 

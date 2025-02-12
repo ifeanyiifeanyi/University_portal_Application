@@ -86,44 +86,6 @@ class BackupSettingController extends Controller
     }
 
 
-    // public function index()
-    // {
-    //     $files = $this->disk->files($this->backupDirectory);
-
-    //     $backups = [];
-    //     // Get the latest backup type from the session if it exists
-    //     $latestBackupType = session('latest_backup_type');
-    //     $latestBackupFile = session('latest_backup_file');
-    //     // dd($latestBackupType);
-
-    //     foreach ($files as $file) {
-    //         if (substr($file, -4) == '.zip') {
-    //             $fileName = basename($file);
-    //             $backupType = 'Full Backup'; // Default type
-
-    //             // If this is the latest backup file, use the type from session
-    //             if ($latestBackupFile === $fileName) {
-    //                 $backupType = $latestBackupType;
-    //             }
-
-    //             $backups[] = [
-    //                 'file_name' => $fileName,
-    //                 'file_size' => $this->formatFileSize($this->disk->size($file)),
-    //                 'created_at' => $this->disk->lastModified($file),
-    //                 'download_link' => route('admin.backups.download', ['file_name' => $fileName]),
-    //                 'backup_type' => $backupType
-    //             ];
-    //         }
-    //     }
-
-    //     // Sort backups by created_at in descending order
-    //     usort($backups, function ($a, $b) {
-    //         return $b['created_at'] - $a['created_at'];
-    //     });
-
-    //     return view('admin.backupmanager.index', compact('backups'));
-    // }
-
     public function index()
     {
         $files = $this->disk->files($this->backupDirectory);
@@ -156,18 +118,103 @@ class BackupSettingController extends Controller
             return $b['created_at'] - $a['created_at'];
         });
 
+        // dd($backups);
+
         return view('admin.backupmanager.index', compact('backups'));
+    }
+
+
+    // public function createUrgent($type)
+    // {
+    //     try {
+    //         CreateBackupJob::dispatch($type)->onQueue('urgent-backups');
+    //         return redirect()->route('admin.backups.index')
+    //             ->with('success', ucfirst($type) . ' backup initiated successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->route('admin.backups.index')
+    //             ->with('error', 'Backup failed: ' . $e->getMessage());
+    //     }
+    // }
+
+    public function createUrgent($type)
+    {
+        try {
+            // Validate backup type
+            if (!in_array($type, ['full', 'files', 'db'])) {
+                return $this->redirectWithError('Invalid backup type specified.');
+            }
+
+            // Create a unique identifier for this backup
+            $backupId = uniqid('backup_');
+
+            // Store in session that we're expecting this backup
+            session(['pending_backup_' . $backupId => [
+                'type' => $type,
+                'started_at' => now(),
+                'status' => 'pending'
+            ]]);
+
+            // Dispatch job to urgent queue
+            CreateBackupJob::dispatch($type, $backupId)
+                ->onQueue('urgent-backups');
+
+            // Log the initiation
+            $this->logBackupActivity(
+                'Urgent backup initiated',
+                date('Y-m-d-His') . '-' . $type . '.zip',
+                ucfirst($type),
+                ['backup_id' => $backupId]
+            );
+
+            return $this->redirectWithSuccess('Urgent ' . ucfirst($type) . ' backup initiated. You will receive an email when it\'s complete.');
+        } catch (\Exception $e) {
+            $this->logErrorActivity(
+                'Failed to initiate urgent backup',
+                $e,
+                ['backup_type' => $type]
+            );
+            return $this->redirectWithError('Failed to initiate backup: ' . $e->getMessage());
+        }
+    }
+
+     // Add this method to check backup status
+     public function checkBackupStatus($backupId)
+     {
+         $status = session('pending_backup_' . $backupId);
+         return response()->json($status);
+     }
+
+
+    public function download($fileName)
+    {
+        try {
+            $fileName = basename(strip_tags($fileName));
+            $backupPath = storage_path("app/{$this->backupDirectory}/" . $fileName);
+
+            if (!file_exists($backupPath)) {
+                return redirect()->route('admin.backups.index')
+                    ->with('error', 'Backup file not found.');
+            }
+
+            return response()->download($backupPath, $fileName, [
+                'Content-Type' => 'application/zip',
+                'Content-Length' => filesize($backupPath),
+                'Cache-Control' => 'no-cache'
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.backups.index')
+                ->with('error', 'Download failed: ' . $e->getMessage());
+        }
     }
 
     private function detectBackupType($fileName)
     {
-        if (strpos($fileName, '-db-') !== false) {
-            return 'Database Only';
-        } elseif (strpos($fileName, '-files-') !== false) {
-            return 'Files Only';
-        }
+        if (strpos($fileName, '-db-') !== false) return 'Database Only';
+        if (strpos($fileName, '-files-') !== false) return 'Files Only';
         return 'Full Backup';
     }
+
+
 
     private function storeBackupType($fileName, $type)
     {
@@ -181,33 +228,10 @@ class BackupSettingController extends Controller
         session(['backup_types' => $backupTypes]);
     }
 
-    // public function create()
-    // {
-    //     try {
-    //         CreateBackupJob::dispatch('full');
 
-    //         $filename = date('Y-m-d-His') . '.zip';
-    //         session(['latest_backup_type' => 'Full Backup']);
-    //         session(['latest_backup_file' => $filename]);
-
-    //         $this->logBackupActivity(
-    //             'Created a full backup with system and database files',
-    //             $filename,
-    //             'Full Backup'
-    //         );
-
-    //         return $this->redirectWithSuccess('Full backup created successfully!');
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to create full backup',
-    //             $e,
-    //             ['backup_type' => 'Full Backup']
-    //         );
-    //         return $this->redirectWithError('Backup failed: ' . $e->getMessage());
-    //     }
-    // }
     public function create()
     {
+        // dd("we got here");
         try {
             CreateBackupJob::dispatch('full');
 
@@ -230,31 +254,6 @@ class BackupSettingController extends Controller
             return $this->redirectWithError('Backup failed: ' . $e->getMessage());
         }
     }
-    // public function createFilesOnly()
-    // {
-    //     try {
-    //         CreateBackupJob::dispatch('files');
-
-    //         $filename = date('Y-m-d-His') . '.zip';
-    //         session(['latest_backup_type' => 'Files Only']);
-    //         session(['latest_backup_file' => $filename]);
-
-    //         $this->logBackupActivity(
-    //             'Created a files-only backup',
-    //             $filename,
-    //             'Files Only'
-    //         );
-
-    //         return $this->redirectWithSuccess('Files backup created successfully!');
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to create files backup',
-    //             $e,
-    //             ['backup_type' => 'Files Only']
-    //         );
-    //         return $this->redirectWithError('Files backup failed: ' . $e->getMessage());
-    //     }
-    // }
 
     public function createFilesOnly()
     {
@@ -282,32 +281,7 @@ class BackupSettingController extends Controller
     }
 
 
-    // public function createDatabaseOnly()
-    // {
-    //     try {
-    //         CreateBackupJob::dispatch('db');
 
-    //         $filename = date('Y-m-d-His') . '.zip';
-    //         session(['latest_backup_type' => 'Database Only']);
-    //         session(['latest_backup_file' => $filename]);
-
-    //         $this->logBackupActivity(
-    //             'Created a database-only backup',
-    //             $filename,
-    //             'Database Only',
-    //             ['database_name' => config('database.connections.mysql.database')]
-    //         );
-
-    //         return $this->redirectWithSuccess('Database backup created successfully!');
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to create database backup',
-    //             $e,
-    //             ['backup_type' => 'Database Only']
-    //         );
-    //         return $this->redirectWithError('Database backup failed: ' . $e->getMessage());
-    //     }
-    // }
     public function createDatabaseOnly()
     {
         try {
@@ -333,98 +307,8 @@ class BackupSettingController extends Controller
             return $this->redirectWithError('Database backup failed: ' . $e->getMessage());
         }
     }
-    // public function download($fileName)
-    // {
-    //     try {
-    //         $fileName = basename(strip_tags($fileName));
-    //         $backupPath = storage_path("app/{$this->backupDirectory}/" . $fileName);
-
-    //         if (!file_exists($backupPath)) {
-    //             $this->logBackupActivity(
-    //                 'Failed to download backup - file not found',
-    //                 $fileName,
-    //                 null,
-    //                 ['attempted_path' => $backupPath]
-    //             );
-    //             return $this->redirectWithError('Backup file not found.');
-    //         }
-
-    //         $this->logBackupActivity(
-    //             'Downloaded backup file',
-    //             $fileName
-    //         );
-
-    //         $fileSize = filesize($backupPath);
-    //         $headers = [
-    //             'Content-Type' => 'application/zip',
-    //             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-    //             'Content-Length' => $fileSize,
-    //             'Cache-Control' => 'no-cache, no-store, must-revalidate',
-    //             'Pragma' => 'no-cache',
-    //             'Expires' => '0'
-    //         ];
-
-    //         return response()->download($backupPath, $fileName, $headers);
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to download backup',
-    //             $e,
-    //             ['filename' => $fileName]
-    //         );
-    //         return $this->redirectWithError('Download failed: ' . $e->getMessage());
-    //     }
-    // }
 
 
-    public function download($fileName)
-    {
-        try {
-            $fileName = basename(strip_tags($fileName));
-            $backupPath = storage_path("app/{$this->backupDirectory}/" . $fileName);
-
-            if (!file_exists($backupPath)) {
-                $this->logBackupActivity(
-                    'Failed to download backup - file not found',
-                    $fileName,
-                    $this->getBackupTypeFromSession($fileName),
-                    ['attempted_path' => $backupPath]
-                );
-                return $this->redirectWithError('Backup file not found.');
-            }
-
-            // Get backup type before download
-            $backupType = $this->getBackupTypeFromSession($fileName);
-
-            $this->logBackupActivity(
-                'Downloaded backup file',
-                $fileName,
-                $backupType,
-                ['file_size' => $this->formatFileSize(filesize($backupPath))]
-            );
-
-            $fileSize = filesize($backupPath);
-            $headers = [
-                'Content-Type' => 'application/zip',
-                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                'Content-Length' => $fileSize,
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0'
-            ];
-
-            return response()->download($backupPath, $fileName, $headers);
-        } catch (\Exception $e) {
-            $this->logErrorActivity(
-                'Failed to download backup',
-                $e,
-                [
-                    'filename' => $fileName,
-                    'backup_type' => $this->getBackupTypeFromSession($fileName)
-                ]
-            );
-            return $this->redirectWithError('Download failed: ' . $e->getMessage());
-        }
-    }
 
     public function restore($fileName)
     {
@@ -610,98 +494,7 @@ class BackupSettingController extends Controller
             return false;
         }
     }
-    // public function restore($fileName)
-    // {
-    //     try {
-    //         $fileName = basename(strip_tags($fileName));
-    //         $backupPath = storage_path("app/{$this->backupDirectory}/" . $fileName);
 
-    //         if (!file_exists($backupPath)) {
-    //             $this->logBackupActivity(
-    //                 'Failed to restore backup - file not found',
-    //                 $fileName,
-    //                 null,
-    //                 ['attempted_path' => $backupPath]
-    //             );
-    //             return $this->redirectWithError('Backup file not found!');
-    //         }
-
-    //         $zip = new \ZipArchive;
-    //         if ($zip->open($backupPath) === TRUE) {
-    //             $zip->extractTo(storage_path('tmp/restore'));
-    //             $zip->close();
-
-    //             // Restore database
-    //             $sqlFile = storage_path('tmp/restore/db-dumps/mysql-*.sql');
-    //             $files = glob($sqlFile);
-
-    //             if (!empty($files)) {
-    //                 $sql = file_get_contents($files[0]);
-    //                 DB::unprepared($sql);
-    //             }
-
-    //             File::deleteDirectory(storage_path('tmp/restore'));
-
-    //             $this->logBackupActivity(
-    //                 'Successfully restored backup',
-    //                 $fileName,
-    //                 null,
-    //                 ['restore_path' => storage_path('tmp/restore')]
-    //             );
-
-    //             return $this->redirectWithSuccess('Backup restored successfully!');
-    //         }
-
-    //         $this->logBackupActivity(
-    //             'Failed to restore backup - could not open file',
-    //             $fileName
-    //         );
-    //         return $this->redirectWithError('Could not open backup file.');
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to restore backup',
-    //             $e,
-    //             ['filename' => $fileName]
-    //         );
-    //         return $this->redirectWithError('Restore failed: ' . $e->getMessage());
-    //     }
-    // }
-
-    // public function delete($fileName)
-    // {
-    //     try {
-    //         $fileName = basename(strip_tags($fileName));
-    //         $filePath = $this->backupDirectory . '/' . $fileName;
-
-    //         if (!$this->disk->exists($filePath)) {
-    //             $this->logBackupActivity(
-    //                 'Failed to delete backup - file not found',
-    //                 $fileName,
-    //                 null,
-    //                 ['attempted_path' => $filePath]
-    //             );
-    //             return $this->redirectWithError('Backup file not found!');
-    //         }
-
-    //         $this->disk->delete($filePath);
-
-    //         $this->logBackupActivity(
-    //             'Deleted backup file',
-    //             $fileName,
-    //             null,
-    //             ['file_path' => $filePath]
-    //         );
-
-    //         return $this->redirectWithSuccess('Backup deleted successfully!');
-    //     } catch (\Exception $e) {
-    //         $this->logErrorActivity(
-    //             'Failed to delete backup',
-    //             $e,
-    //             ['filename' => $fileName]
-    //         );
-    //         return $this->redirectWithError('Delete failed: ' . $e->getMessage());
-    //     }
-    // }
 
     public function delete($fileName)
     {
@@ -743,6 +536,8 @@ class BackupSettingController extends Controller
             return $this->redirectWithError('Delete failed: ' . $e->getMessage());
         }
     }
+
+
 
     private function formatFileSize($bytes)
     {

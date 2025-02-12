@@ -18,13 +18,26 @@ use App\Services\AdminInvoiceFilterService;
 use App\Notifications\PaymentApprovedNotification;
 use App\Notifications\AdminInvoicePaymentApprovedNotification;
 use App\Notifications\SuperAdminInvoicePaymentApprovedNotification;
+use App\Services\InstallmentResetService;
 
 class AdminInvoiceManagerController extends Controller
 {
+
+    public function resetToFullPayment(Invoice $invoice, InstallmentResetService $installmentResetService){
+        try {
+           $installmentResetService->resetInstallment($invoice);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::info(['reset error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+
     /**
      * Display a listing of the resource.
      */
-   
+
     public function index(Request $request, AdminInvoiceFilterService $filterService)
     {
         // Get filter data for dropdowns
@@ -266,6 +279,7 @@ class AdminInvoiceManagerController extends Controller
                 ->with('success', 'Invoice has been permanently deleted');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error(['invoice del force' => $e->getMessage()]);
             return redirect()->back()
                 ->with('error', 'An error occurred while permanently deleting the invoice');
         }

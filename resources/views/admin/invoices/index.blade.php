@@ -288,11 +288,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {{-- @dd($invoices) --}}
                                     @foreach ($invoices as $invoice)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $invoice->invoice_number }}</td>
-                                            <td>{{ $invoice->student->user->full_name }}</td>
+                                            <td>
+                                                <span
+                                                    class="text-muted">{{ $invoice->student->user->full_name }}</span><br>
+                                                <small class="text-muted">{{ $invoice->student->matric_number }}</small>
+
+                                            </td>
                                             <td>
                                                 @if ($invoice->is_installment)
                                                     <span class="badge bg-primary">
@@ -359,6 +365,15 @@
                                                     <button class="btn btn-warning btn-sm archive-invoice"
                                                         data-invoice-id="{{ $invoice->id }}" title="Archive Invoice">
                                                         <i class="fas fa-archive fa-fw text-white"></i>
+                                                    </button>
+                                                @endif
+
+                                                @if ($invoice->is_installment)
+                                                    <button style="background: palevioletred; color:white"
+                                                        class="btn btn-sm reset-invoice-btn"
+                                                        data-invoice-id="{{ $invoice->id }}"
+                                                        title="Reset Payment Method">
+                                                        <i class="fas fa-undo fa-fw"></i>
                                                     </button>
                                                 @endif
                                             </td>
@@ -578,6 +593,63 @@
                     }
                 }
             }
+        });
+    </script>
+
+
+    <script>
+        $('.reset-invoice-btn').click(function(e) {
+            e.preventDefault();
+            const invoiceId = $(this).data('invoice-id');
+
+            Swal.fire({
+                title: 'Delete Payment Records?',
+                html: `
+            <div class="text-danger">
+                <h4 class='text-danger'><i class="fas fa-exclamation-triangle fa-3x"></i> This will:</h4>
+                <div class='align-right'>
+                    <p>Delete all payment records</p>
+                    <p>Remove all installment records</p>
+                    <p>Reset invoice to pending status</p>
+                    <p>This action CANNOT be undone</p>
+                </div>
+            </div>
+        `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete Everything',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/invoice/${invoiceId}/reset-installment`,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'All Records Deleted',
+                                text: 'Payment records have been reset successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: xhr.responseJSON.error
+                            });
+                        }
+                    });
+                }
+            });
         });
     </script>
 @endsection

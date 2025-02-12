@@ -32,21 +32,7 @@ class PaymentVerificationResult extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        try {
-            // Check if mail configuration exists
-            if (!config('mail.default')) {
-                Log::warning('Mail configuration missing. Falling back to database only.');
-                return ['database'];
-            }
-
-            return ['mail', 'database'];
-        } catch (\Exception $e) {
-            Log::error('Error determining notification channels', [
-                'error' => $e->getMessage(),
-                'user_id' => $notifiable->id ?? 'unknown'
-            ]);
-            return ['database'];
-        }
+        return ['mail', 'database'];
     }
 
     /**
