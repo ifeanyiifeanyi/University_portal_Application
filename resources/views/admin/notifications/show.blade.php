@@ -9,7 +9,7 @@
         <div class="col-md-8 mx-auto">
             <!-- Notification Header -->
             <div class="notification-header mb-4">
-                <h5 class="mb-2">
+                <b class="mb-2">
                     @if ($notification->type === 'App\Notifications\AdminPaymentNotification')
                         <i class="fas fa-bell text-primary"></i> Admin Payment Notification
                     @elseif ($notification->type === 'App\Notifications\PaymentProcessed')
@@ -17,7 +17,7 @@
                     @else
                         <i class="fas fa-info-circle text-info"></i> {{ class_basename($notification->type) }}
                     @endif
-                </h5>
+                </b>
                 <small class="text-muted">
                     <i class="fas fa-calendar-alt"></i> {{ $notification->created_at->format('F j, Y, g:i a') }}
                 </small>

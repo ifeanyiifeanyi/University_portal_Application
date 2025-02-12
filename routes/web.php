@@ -750,6 +750,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('invoice/mark-paid/{id}', 'markAsPaid')->name('admin.invoice.mark-paid');
 
             Route::post('/invoice/{invoice}/reset-installment', 'resetToFullPayment')->name('admin.invoice_payments.reset');
+
+            Route::post('/invoice/{invoice}/reset-payment', 'resetForNormalPayment')->name('admin.main_payments.reset');
         });
     });
 

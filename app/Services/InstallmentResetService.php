@@ -18,48 +18,83 @@ class InstallmentResetService
      */
     public function resetInstallment(Invoice $invoice)
     {
+        if (!$invoice->is_installment) {
+            return false;
+        }
+
         return DB::transaction(function () use ($invoice) {
-            // Check if the invoice is an installment
-            if (!$invoice->is_installment) {
-                throw new \Exception('Not an installment invoice');
-            }
-
-            // Find the associated payment
-            $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
-
-            if (!$payment) {
-                throw new \Exception('No payment record found');
-            }
-
-            // Store data for audit log
             $originalData = [
                 'invoice_id' => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,
-                'amount' => $invoice->amount,
-                'payment_data' => $payment->toArray(),
-                'installments' => $payment->installments->toArray()
+                'amount' => $invoice->amount
             ];
 
-            // Delete payment installments
-            $payment->installments()->delete();
+            // Handle payment and installments deletion if exists
+            $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
+            if ($payment) {
+                $originalData['payment_data'] = $payment->toArray();
+                $originalData['installments'] = $payment->installments->toArray();
 
-            // Delete payment record
-            $payment->delete();
+                $payment->installments()->delete();
+                $payment->delete();
+            }
 
-            // Reset invoice
             $invoice->forceDelete();
 
-            // Log the activity using Spatie Activitylog
+            // Log the action
             activity()
-                ->causedBy(auth()->user()) // The user who performed the action
-                ->performedOn($invoice) // The subject (invoice) being acted upon
-                ->withProperties([ // Additional properties
+                ->causedBy(auth()->user())
+                ->performedOn($invoice)
+                ->withProperties([
                     'original_data' => $originalData,
                     'user_agent' => request()->userAgent(),
                     'ip_address' => request()->ip(),
                     'deleted_at' => now()
                 ])
-                ->log('Payment method reset - all records deleted'); // Description of the activity
+                ->log('Payment method reset - all records deleted');
+
+            return true;
+        });
+    }
+
+    public function resetPayment(Invoice $invoice)
+    {
+        if ($invoice->is_installment) {
+            throw new \Exception('Use InstallmentResetService for installment payments');
+        }
+
+        return DB::transaction(function () use ($invoice) {
+            // Store original data for logging
+            $originalData = [
+                'invoice_id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'amount' => $invoice->amount
+            ];
+
+            // Delete associated payment if exists
+            $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
+            if ($payment) {
+                $originalData['payment_data'] = $payment->toArray();
+                $payment->delete();
+            }
+
+            // Delete related records (e.g., proof of payments)
+            // $invoice->proveOfPayment()->delete();
+
+            // Delete the invoice
+            $invoice->forceDelete();
+
+            // Log the deletion
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($invoice)
+                ->withProperties([
+                    'original_data' => $originalData,
+                    'user_agent' => request()->userAgent(),
+                    'ip_address' => request()->ip(),
+                    'deleted_at' => now()
+                ])
+                ->log('Payment completely deleted');
 
             return true;
         });

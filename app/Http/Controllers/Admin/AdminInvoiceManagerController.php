@@ -23,9 +23,26 @@ use App\Services\InstallmentResetService;
 class AdminInvoiceManagerController extends Controller
 {
 
-    public function resetToFullPayment(Invoice $invoice, InstallmentResetService $installmentResetService){
+    public function __construct(
+        private InstallmentResetService $installmentResetService
+    ){
+
+    }
+
+    public function resetToFullPayment(Invoice $invoice){
         try {
-           $installmentResetService->resetInstallment($invoice);
+            $this->installmentResetService->resetInstallment($invoice);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::info(['reset error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function resetForNormalPayment(Invoice $invoice){
+        try {
+            $this->installmentResetService->resetPayment($invoice);
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             Log::info(['reset error' => $e->getMessage()]);
