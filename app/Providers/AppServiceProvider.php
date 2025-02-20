@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Ticket;
-use App\Policies\TicketPolicy;
 use App\Services\AuthService;
+use App\Policies\TicketPolicy;
+use App\Models\RecurringPaymentPlan;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Pagination\Paginator;
+use App\Observers\RecurringPaymentPlanObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,7 +32,13 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void {
+    public function boot(): void
+    {
         Paginator::useBootstrap();
+
+        Ticket::observe(TicketPolicy::class);
+
+        RecurringPaymentPlan::observe(RecurringPaymentPlanObserver::class);
+
     }
 }

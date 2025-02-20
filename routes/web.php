@@ -31,6 +31,7 @@ use App\Http\Controllers\Student\FeesPaymentsController;
 use App\Http\Controllers\Admin\AcademicSessionController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminScoreAuditController;
+use App\Http\Controllers\Admin\SuccessPayStackController;
 use App\Http\Controllers\Student\OnlineClassesController;
 use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
@@ -52,12 +53,14 @@ use App\Http\Controllers\Admin\AdminAccountsManagersController;
 use App\Http\Controllers\Admin\AdminCourseAssignmentController;
 use App\Http\Controllers\Admin\AdminDepartmentCreditController;
 use App\Http\Controllers\Admin\AdminManualPaidDetailController;
+use App\Http\Controllers\Admin\AdminRecurringPaymentController;
 use App\Http\Controllers\Admin\AdminSendStudentEmailController;
 use App\Http\Controllers\Admin\AdminInstallmentConfigController;
 use App\Http\Controllers\Admin\AdminStudentFeeNotPaidController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Student\StudentSupportTicketController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
@@ -133,6 +136,44 @@ Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'secu
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
+    Route::controller(AdminPayRecurringForStudentController::class)->group(function () {
+        Route::get('students/recurring-payment', 'index')->name('admin.recurring-payments.pay-for-student');
+
+            Route::post('recurring-payments', 'store')->name('admin.recurring-payments.store');
+            Route::get('payments/students', 'getStudents');
+            Route::get('payments/calculate', 'calculatePayment');
+
+            Route::get('student/recurring-payment/{subscription}', 'show')->name('admin.recurring-payments.show');
+
+            Route::get('get-department-levels/{department}', 'getDepartmentLevel');
+    });
+
+    Route::controller(AdminRecurringPaymentController::class)->group(function () {
+        Route::get('recurring-payments', 'index')->name('admin.recurring_payments.index');
+        Route::post('recurring-payments', 'store')->name('admin.recurring-payments.store');
+        Route::get('recurring-payments/{plan}/edit', 'edit')->name('admin.recurring-payments.edit');
+        Route::delete('recurring-payments/{plan}', 'destroy')->name('admin.recurring-payments.destroy');
+
+        Route::put('recurring-payments/{plan}', 'update')->name('admin.recurring-payments.update');
+
+
+        Route::get('recurring-payments/{plan}', 'detail')->name('admin.recurring-payments.subscriptions');
+
+
+        Route::get('recurring-payment/trash', 'trash')->name('admin.recurring_payments.trash');
+
+        Route::get('recurring-payments/force-delete/{plan}', 'forceDelete')->name('admin.recurring-payments.force-destroy');
+
+        Route::get('recurring-payments/{plan}/restore', 'restore')->name('admin.recurring-payments.restore');
+
+
+        // Route::get('pay-for-student/recurring-payment', 'payForStudent')->name('admin.recurring-payments.pay-for-student');
+    });
+
+    Route::get('/admin/paystack/transactions', [SuccessPayStackController::class, 'index'])
+        ->name('admin.paystack.transactions');
+
+
     Route::controller(LogActivityController::class)->group(function () {
         Route::get('/activities',  'index')->name('activities.index');
         Route::delete('/activities/{id}',  'destroy')->name('activities.destroy');
@@ -143,18 +184,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('/activity-archives/{filename}', 'deleteArchive')->name('activity-archives.delete');
         Route::post('/activity-log/truncate', 'truncateActivityLog')->name('activity-log.truncate');
     });
-
-    // Route::controller(BackupSettingController::class)->group(function () {
-    //     Route::get('backups', 'index')->name('admin.backups.index');
-
-    //     Route::get('backups/create', 'create')->name('admin.backups.create');
-    //     Route::get('backups/download/{file_name}', 'download')->name('admin.backups.download');
-    //     Route::get('backups/restore/{file_name}', 'restore')->name('admin.backups.restore');
-    //     Route::delete('backups/delete/{file_name}', 'delete')->name('admin.backups.delete');
-
-    //     Route::get('backups/files', 'createFilesOnly')->name('admin.backups.files');
-    //     Route::get('backups/database', 'createDatabaseOnly')->name('admin.backups.database');
-    // });
 
     Route::controller(BackupSettingController::class)->group(function () {
         Route::get('backups', 'index')->name('admin.backups.index');

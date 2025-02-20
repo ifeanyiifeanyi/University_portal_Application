@@ -174,13 +174,6 @@ class PaymentGatewayService
         }
     }
 
-
-
-
-
-
-
-
     public function verifyPayment($gateway, $reference)
     {
         switch ($gateway) {
@@ -192,9 +185,6 @@ class PaymentGatewayService
                 throw new \Exception("Unsupported payment gateway: {$gateway}");
         }
     }
-
-
-
 
     private function verifyPaystackPayment($reference)
     {
@@ -314,11 +304,17 @@ class PaymentGatewayService
         }
     }
 
-
-
-
-    private function handleInstallmentPayment(Payment $payment, $paidAmount, $responseData)
+    public function handleInstallmentPayment(Payment $payment, $paidAmount, $responseData)
     {
+        // Add detailed logging
+        Log::info('Starting installment payment handling', [
+            'payment_id' => $payment->id,
+            'transaction_reference' => $payment->transaction_reference,
+            'paid_amount' => $paidAmount,
+            'is_installment' => $payment->is_installment,
+            'total_installments' => $payment->installments()->count()
+        ]);
+
         // Get current installment
         $currentInstallment = $payment->installments()
             ->where('status', 'pending')
@@ -380,7 +376,7 @@ class PaymentGatewayService
         ])->update(['status' => $invoiceStatus]);
     }
 
-    private function handleFullPayment(Payment $payment, $paidAmount, $responseData)
+    public function handleFullPayment(Payment $payment, $paidAmount, $responseData)
     {
         $payment->update([
             'base_amount' => $paidAmount,
@@ -398,10 +394,6 @@ class PaymentGatewayService
             'semester_id' => $payment->semester_id,
         ])->update(['status' => 'paid']);
     }
-
-
-
-
 
     // TODO: This is incomplete Fetch subaccount transactions
     public function getSubaccountTransactionsPaystack($subaccountCode)

@@ -144,6 +144,9 @@
                         <li> <a href="{{ route('admin.payments.ProcessedPayments') }}"><i
                                     class="bx bx-right-arrow-alt"></i>Paid Fees Manager</a>
                         </li>
+                        <li> <a href="{{ route('admin.paystack.transactions') }}"><i class="bx bx-right-arrow-alt"></i>Paystack
+                                Manager</a>
+                        </li>
                     @endcan
 
                     @can('paid receipt manager')
@@ -171,11 +174,13 @@
                         </li>
                     @endcan
                     <li>
-                        <a href="{{ route('admin.manual_proof_of_payment.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        <a href="{{ route('admin.manual_proof_of_payment.index') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Manage
                             Proof of Payments</a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.payments.owingStudent.index') }}"><i class="bx bx-right-arrow-alt"></i>Manage
+                        <a href="{{ route('admin.payments.owingStudent.index') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Manage
                             Unpaid Fees</a>
                     </li>
                     @can('installment payment config')
@@ -201,6 +206,28 @@
                         <li> <a href="{{ route('admin.payment.pay') }}"><i class="bx bx-right-arrow-alt"></i>Pay Fees</a>
                         </li>
                     @endcan
+                </ul>
+            </li>
+
+
+
+
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='bx bx-repeat'></i>
+                    </div>
+                    <div class="menu-title">Recurring Payment</div>
+                </a>
+                <ul>
+                    <li> <a href="{{ route('admin.recurring_payments.index') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Recurring Payments</a>
+                    </li>
+                    <li> <a href="{{ route('admin.recurring-payments.pay-for-student') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Pay for Students</a>
+                    </li>
+                    <li> <a href="{{ route('admin.recurring_payments.trash') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Trash</a>
+                    </li>
                 </ul>
             </li>
         @endcanany
@@ -237,13 +264,15 @@
                 </a>
                 <ul>
                     @can('view scores')
-                        <li> <a href="{{ route('admin.score.approval.view') }}"><i class="bx bx-right-arrow-alt"></i>Submitted
+                        <li> <a href="{{ route('admin.score.approval.view') }}"><i
+                                    class="bx bx-right-arrow-alt"></i>Submitted
                                 Students Scores</a>
                         </li>
                     @endcan
 
                     @can('approve scores')
-                        <li> <a href="{{ route('admin.approved_scores.view') }}"><i class="bx bx-right-arrow-alt"></i>Approved
+                        <li> <a href="{{ route('admin.approved_scores.view') }}"><i
+                                    class="bx bx-right-arrow-alt"></i>Approved
                                 Students Assessment score</a>
                         </li>
                     @endcan

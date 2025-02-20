@@ -23,7 +23,12 @@ class ScheduleServiceProvider extends ServiceProvider
     {
         $schedule->command('app:archive-logs')->everyMinute();
 
-        // Monthly backups
+        // Payment reconciliation - run every hour
+        $schedule->command('payments:reconcile')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->runInBackground();
+
         // Monthly backups on specific days
         $schedule->job(new CreateBackupJob('db'))
             ->monthly()

@@ -126,4 +126,9 @@ class Student extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function recurringSubscriptions()
+    {
+        return $this->hasMany(StudentRecurringSubscription::class);
+    }
 }
