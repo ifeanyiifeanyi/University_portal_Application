@@ -9,7 +9,7 @@
                 <h5 class="card-title">Create Recurring Payment Subscription</h5>
             </div>
             <div class="card-body">
-                <form id="recurringPaymentForm" action="{{ route('admin.recurring-payments.store') }}" method="POST">
+                <form id="recurringPaymentForm" action="{{ route('admin.recurring-payments_for_student.store') }}" method="POST">
                     @csrf
 
                     <!-- Department & Level Selection -->
@@ -141,221 +141,6 @@
 @endsection
 
 @section('javascript')
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('recurringPaymentForm');
-            const departmentSelect = document.getElementById('department_id');
-            const levelSelect = document.getElementById('level');
-
-            function formatMoney(amount) {
-                return new Intl.NumberFormat('en-NG', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(amount);
-            }
-
-            // Format percentage
-            function formatPercentage(value) {
-                return new Intl.NumberFormat('en-NG', {
-                    minimumFractionDigits: 1,
-                    maximumFractionDigits: 1
-                }).format(value) + '%';
-            }
-
-            // Initialize date display
-            document.getElementById('startDate').textContent = new Date().toLocaleDateString();
-
-            // Handle department change
-            departmentSelect.addEventListener('change', async function() {
-                const departmentId = this.value;
-                levelSelect.disabled = !departmentId;
-
-                if (departmentId) {
-                    try {
-                        const response = await fetch(`/admin/get-department-levels/${departmentId}`);
-                        const department = await response.json();
-
-                        // Clear and populate level select
-                        levelSelect.innerHTML = '<option value="">Select Level</option>';
-
-                        const levels = getDepartmentLevels(department);
-                        levels.forEach(level => {
-                            const option = new Option(level, level);
-                            levelSelect.appendChild(option);
-                        });
-
-                        // Reset subsequent sections
-                        resetFormSections();
-                    } catch (error) {
-                        console.error('Error fetching department levels:', error);
-                    }
-                }
-            });
-
-            // Handle level change
-            levelSelect.addEventListener('change', async function() {
-                if (this.value && departmentSelect.value) {
-                    await loadStudents(departmentSelect.value, this.value);
-                }
-            });
-
-            // Handle payment plan and month count changes
-            document.getElementById('plan_id').addEventListener('change', calculatePayment);
-            document.getElementById('month_count').addEventListener('change', calculatePayment);
-
-            // Helper Functions
-            function getDepartmentLevels(department) {
-                switch (department.level_format) {
-                    case 'nd_hnd':
-                        return ['ND1', 'ND2', 'HND1', 'HND2'];
-                    case 'nursing':
-                        return ['RN1', 'RN2', 'RN3'];
-                    case 'midwifery':
-                        return ['RMW1', 'RMW2', 'RMW3'];
-                    default:
-                        return Array.from({
-                            length: department.duration
-                        }, (_, i) => (i + 1) * 100);
-                }
-            }
-
-            async function loadStudents(departmentId, level) {
-                try {
-                    const response = await fetch(
-                        `/admin/payments/students?department_id=${departmentId}&level=${level}`);
-                    const students = await response.json();
-
-                    const tbody = document.getElementById('studentsList');
-                    tbody.innerHTML = students.map(student => `
-                <tr>
-                    <td><input type="radio" name="student_id" value="${student.id}" required></td>
-                    <td>${student.student_id}</td>
-                    <td>${student.name}</td>
-                    <td>${formatSubscriptions(student.recurring_subscriptions)}</td>
-                    <td>₦${formatNumber(student.balance || 0)}</td>
-                </tr>
-            `).join('');
-
-                    // Show student section and payment section
-                    document.getElementById('studentSection').style.display = 'block';
-                    document.getElementById('paymentSection').style.display = 'block';
-                } catch (error) {
-                    console.error('Error loading students:', error);
-                }
-            }
-
-            // Render students table with subscription information
-            function renderStudents(students) {
-                const tbody = document.getElementById('studentsList');
-                tbody.innerHTML = students.map(student => {
-                    const activeSubscriptions = student.recurring_subscriptions
-                        .map(sub => `
-                    <div class="mb-2">
-                        <strong>${sub.plan_name}</strong><br>
-                        Balance: ₦${formatMoney(sub.balance)}<br>
-                        Status: <span class="badge ${getStatusBadgeClass(sub.status)}">${sub.status}</span><br>
-                        Progress: ${formatPercentage(sub.percentage_paid)}
-                    </div>
-                `).join('') || 'No active subscriptions';
-
-                    return `
-                <tr>
-                    <td><input type="radio" name="student_id" value="${student.id}" required></td>
-                    <td>${student.student_id}</td>
-                    <td>${student.name}</td>
-                    <td>${activeSubscriptions}</td>
-                </tr>
-            `;
-                }).join('');
-            }
-
-            // Get appropriate badge class based on status
-            function getStatusBadgeClass(status) {
-                switch (status.toLowerCase()) {
-                    case 'paid':
-                        return 'bg-success';
-                    case 'pending':
-                        return 'bg-warning';
-                    case 'inactive':
-                        return 'bg-danger';
-                    default:
-                        return 'bg-primary';
-                }
-            }
-
-            // async function calculatePayment() {
-            //     const planId = document.getElementById('plan_id').value;
-            //     const monthCount = document.getElementById('month_count').value;
-
-            //     if (planId && monthCount) {
-            //         try {
-            //             const response = await fetch(
-            //                 `/admin/payments/calculate?plan_id=${planId}&month_count=${monthCount}`);
-            //             const data = await response.json();
-
-            //             document.getElementById('monthlyAmount').textContent = formatNumber(data
-            //                 .monthly_amount);
-            //             document.getElementById('totalAmount').textContent = formatNumber(data.total_amount);
-            //             document.getElementById('duration').textContent = data.duration_months;
-
-            //             // Show summary and payment method sections
-            //             document.getElementById('summarySection').style.display = 'block';
-            //             document.getElementById('paymentMethodSection').style.display = 'block';
-            //             document.getElementById('submitBtn').style.display = 'block';
-            //         } catch (error) {
-            //             console.error('Error calculating payment:', error);
-            //         }
-            //     }
-            // }
-            async function calculatePayment() {
-                const planId = document.getElementById('plan_id').value;
-                const numberOfPayments = document.getElementById('number_of_payments').value;
-
-                if (planId && numberOfPayments) {
-                    try {
-                        const response = await fetch(
-                            `/admin/payments/calculate?plan_id=${planId}&number_of_payments=${numberOfPayments}`
-                        );
-                        const data = await response.json();
-
-                        document.getElementById('monthlyAmount').textContent = formatMoney(data
-                            .amount_per_month);
-                        document.getElementById('totalAmount').textContent = formatMoney(data.total_amount);
-                        document.getElementById('paymentCount').textContent = data.number_of_payments;
-                        document.getElementById('startDate').textContent = new Date(data.start_date)
-                            .toLocaleDateString();
-
-                        // Show payment sections
-                        ['summarySection', 'paymentMethodSection', 'submitBtn'].forEach(id => {
-                            document.getElementById(id).style.display = 'block';
-                        });
-                    } catch (error) {
-                        console.error('Error calculating payment:', error);
-                    }
-                }
-            }
-
-            function formatNumber(number) {
-                return new Intl.NumberFormat().format(number);
-            }
-
-            function formatSubscriptions(subscriptions) {
-                if (!subscriptions || !subscriptions.length) return 'None';
-                return subscriptions.map(sub =>
-                    `${sub.recurring_payment_plan.name} (₦${formatNumber(sub.balance)})`
-                ).join('<br>');
-            }
-
-            function resetFormSections() {
-                ['studentSection', 'paymentSection', 'summarySection',
-                    'paymentMethodSection', 'submitBtn'
-                ].forEach(id => {
-                    document.getElementById(id).style.display = 'none';
-                });
-            }
-        });
-    </script> --}}
-
 
 
     <script>
@@ -363,6 +148,46 @@
             const form = document.getElementById('recurringPaymentForm');
             const departmentSelect = document.getElementById('department_id');
             const levelSelect = document.getElementById('level');
+
+            // form.addEventListener('submit', function(e) {
+            //     // Prevent default submission to check what's happening
+            //     e.preventDefault();
+
+            //     console.log('Form submission intercepted for debugging');
+
+            //     // Log all form field values
+            //     const formData = new FormData(form);
+            //     const formValues = {};
+
+            //     for (let [key, value] of formData.entries()) {
+            //         formValues[key] = value;
+            //         console.log(`${key}: ${value}`);
+            //     }
+
+            //     // Verify all required fields have values
+            //     const requiredFields = [
+            //         'department_id',
+            //         'level',
+            //         'student_id',
+            //         'plan_id',
+            //         'number_of_payments',
+            //         'payment_method'
+            //     ];
+
+            //     const missingFields = requiredFields.filter(field =>
+            //         !formData.has(field) || !formData.get(field)
+            //     );
+
+            //     if (missingFields.length > 0) {
+            //         console.error('Missing required fields:', missingFields);
+            //         alert('Please fill in all required fields: ' + missingFields.join(', '));
+            //     } else {
+            //         console.log('All required fields present. Submitting form...');
+            //         // Continue with form submission
+            //         form.removeEventListener('submit', arguments.callee);
+            //         form.submit();
+            //     }
+            // });
 
             function formatMoney(amount) {
                 return new Intl.NumberFormat('en-NG', {
@@ -397,7 +222,7 @@
                         const levelsResponse = await fetch(
                             `/admin/get-department-levels/${departmentId}`);
                         const displayLevels = await levelsResponse.json();
-                     
+
 
                         // Clear and populate level select
                         levelSelect.innerHTML = '<option value="">Select Level</option>';
@@ -483,7 +308,8 @@
                     // First try to access through user relationship if loaded
                     let studentName = 'Unknown';
                     if (student.user) {
-                        studentName = student.user.first_name + ' ' + student.user.last_name + ' ' + student.user.other_name;
+                        studentName = student.user.first_name + ' ' + student.user.last_name + ' ' + student
+                            .user.other_name;
                     }
 
                     // Handle recurring subscriptions display

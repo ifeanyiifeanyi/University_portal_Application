@@ -209,9 +209,6 @@
                 </ul>
             </li>
 
-
-
-
             <li>
                 <a href="javascript:;" class="has-arrow">
                     <div class="parent-icon"><i class='bx bx-repeat'></i>
@@ -219,12 +216,17 @@
                     <div class="menu-title">Recurring Payment</div>
                 </a>
                 <ul>
+                    <li>
+                        <a class="text-primary" href="{{ route('admin.recurring_payments.get-recurring-payments') }}"><i
+                                class="bx bx-right-arrow-alt"></i>Paid Feeding Fees</a>
+                    </li>
                     <li> <a href="{{ route('admin.recurring_payments.index') }}"><i
                                 class="bx bx-right-arrow-alt"></i>Recurring Payments</a>
                     </li>
                     <li> <a href="{{ route('admin.recurring-payments.pay-for-student') }}"><i
                                 class="bx bx-right-arrow-alt"></i>Pay for Students</a>
                     </li>
+
                     <li> <a href="{{ route('admin.recurring_payments.trash') }}"><i
                                 class="bx bx-right-arrow-alt"></i>Trash</a>
                     </li>

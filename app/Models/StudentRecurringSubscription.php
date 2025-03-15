@@ -22,18 +22,45 @@ class StudentRecurringSubscription extends Model
         'amount_paid',       // Amount paid so far
         'balance',           // Remaining balance
         'start_date',        // When the subscription started
+        'end_date',          // When the subscription ends
         'is_active',
         'payment_history'    // Record of all payments made
     ];
 
+    public function getPercentagePaidAttribute()
+    {
+        if ($this->total_amount <= 0) {
+            return 0;
+        }
+
+        $percentage = ($this->amount_paid / $this->total_amount) * 100;
+        return round($percentage, 2);
+    }
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'amount_paid' => 'decimal:2',
-        'balance' => 'decimal:2',
         'start_date' => 'date',
-        'is_active' => 'boolean',
-        'payment_history' => 'array'
+        'end_date' => 'date',
+        'payment_history' => 'array',
+        'is_active' => 'boolean'
     ];
+
+    protected $appends = ['status', 'percentage_paid'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($subscription) {
+            // Set initial values if not already set
+            if (!isset($subscription->amount_paid)) {
+                $subscription->amount_paid = 0;
+            }
+
+            if (!isset($subscription->balance)) {
+                $subscription->balance = $subscription->total_amount;
+            }
+        });
+    }
+
 
     // Relationships
     public function student()
@@ -53,55 +80,119 @@ class StudentRecurringSubscription extends Model
     }
 
     // Payment handling
-    public function recordPayment($amount, $reference = null)
+    public function recordPayment($amount, $reference)
     {
-        // Update subscription payment details
-        $this->amount_paid += $amount;
-        $this->balance = $this->total_amount - $this->amount_paid;
+        // Get current values
+        $currentPaid = $this->amount_paid;
+        $newPaid = $currentPaid + $amount;
+        $newBalance = $this->total_amount - $newPaid;
 
-        // Add to payment history
-        $history = $this->payment_history ?? [];
-        $history[] = [
-            'date' => now()->toDateString(),
-            'amount' => $amount,
-            'reference' => $reference
-        ];
-        $this->payment_history = $history;
+        // Get payment history
+        $paymentHistory = $this->payment_history ?? [];
 
-        $this->save();
+        // Calculate how many months this payment covers
+        $amountPerMonth = $this->amount_per_month;
+        $monthsCovered = floor($amount / $amountPerMonth);
+        $remainingAmount = $amount;
+
+        // Update payment history for covered months
+        $updatedHistory = [];
+        $monthsMarkedPaid = 0;
+
+        foreach ($paymentHistory as $entry) {
+            // If we still have funds and entry is not paid yet
+            if ($remainingAmount >= $amountPerMonth && !$entry['paid'] && $monthsMarkedPaid < $monthsCovered) {
+                $entry['paid'] = true;
+                $entry['payment_date'] = Carbon::now()->format('Y-m-d');
+                $entry['payment_reference'] = $reference . '-' . ($monthsMarkedPaid + 1);
+                $remainingAmount -= $amountPerMonth;
+                $monthsMarkedPaid++;
+            }
+            $updatedHistory[] = $entry;
+        }
+
+        // Update the subscription
+        $this->update([
+            'amount_paid' => $newPaid,
+            'balance' => $newBalance,
+            'payment_history' => $updatedHistory
+        ]);
+
+        return true;
     }
 
     // Get payment status
+    // public function getStatusAttribute()
+    // {
+    //     if (!$this->is_active) return 'Inactive';
+    //     if ($this->isPaid()) return 'Paid';
+    //     if ($this->balance > 0) return 'Pending';
+    //     return 'Active';
+    // }
+
     public function getStatusAttribute()
     {
-        if (!$this->is_active) return 'Inactive';
-        if ($this->isPaid()) return 'Paid';
-        if ($this->balance > 0) return 'Pending';
-        return 'Active';
+        if ($this->balance <= 0) {
+            return 'completed';
+        }
+
+        if ($this->amount_paid > 0) {
+            return 'partial';
+        }
+
+        return 'pending';
     }
 
-    // Get percentage paid
-    public function getPercentagePaidAttribute()
+     /**
+     * Get the covered months as a formatted string.
+     */
+    public function getCoveredMonthsAttribute()
     {
-        return ($this->amount_paid / $this->total_amount) * 100;
+        $paymentHistory = $this->payment_history ?? [];
+        $paidMonths = [];
+
+        foreach ($paymentHistory as $entry) {
+            if ($entry['paid']) {
+                $paidMonths[] = $entry['period'];
+            }
+        }
+
+        return implode(', ', $paidMonths);
+    }
+
+    /**
+     * Get the remaining months as a formatted string.
+     */
+    public function getRemainingMonthsAttribute()
+    {
+        $paymentHistory = $this->payment_history ?? [];
+        $unpaidMonths = [];
+
+        foreach ($paymentHistory as $entry) {
+            if (!$entry['paid']) {
+                $unpaidMonths[] = $entry['period'];
+            }
+        }
+
+        return implode(', ', $unpaidMonths);
     }
 
     // Boot method for model events
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::creating(function ($subscription) {
-            // Set initial values if not set
-            if (!isset($subscription->amount_paid)) {
-                $subscription->amount_paid = 0;
-            }
-            if (!isset($subscription->balance)) {
-                $subscription->balance = $subscription->total_amount;
-            }
-            if (!isset($subscription->start_date)) {
-                $subscription->start_date = now();
-            }
-        });
-    }
+    //     static::creating(function ($subscription) {
+    //         // Set initial values if not set
+    //         if (!isset($subscription->amount_paid)) {
+    //             $subscription->amount_paid = 0;
+    //         }
+    //         if (!isset($subscription->balance)) {
+    //             $subscription->balance = $subscription->total_amount;
+    //         }
+    //         if (!isset($subscription->start_date)) {
+    //             $subscription->start_date = now();
+    //         }
+    //     });
+    // }
 }

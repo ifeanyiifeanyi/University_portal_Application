@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\Parent\ChildrenController;
+use App\Http\Controllers\PaystackWebhookController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Teacher\TeacherController;
 use App\Http\Controllers\Admin\AdminGradeController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Admin\AdminProgramsController;
 use App\Http\Controllers\Admin\AdminSemesterController;
 use App\Http\Controllers\Admin\AdminUserRoleController;
 use App\Http\Controllers\Admin\BackupSettingController;
+use App\Http\Controllers\PaymentVerificationController;
 use App\Http\Controllers\Student\StudentFeesController;
 use App\Http\Controllers\Admin\AdminTimeTableController;
 use App\Http\Controllers\Admin\ProofOfPaymentController;
@@ -64,6 +66,10 @@ use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
+
+use App\Http\Controllers\Admin\RecurringPaymentReportController;
+
+
 
 Route::get('/migrate-and-seed', function () {
     try {
@@ -134,18 +140,32 @@ Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'secu
     Route::post('password/reset',  'reset')->name('password.reset');
 });
 
+
+// routes/web.php or routes/api.php
+Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handleWebhook']);
+
+Route::get('/payment/verify', [PaymentVerificationController::class, 'verify'])->name('payment.verify');
+
 Route::prefix('admin')->middleware('admin')->group(function () {
+
+    Route::controller(RecurringPaymentReportController::class)->group(function () {
+        Route::get('get-recurring-payments', 'getRecurringPayments')->name('admin.recurring_payments.get-recurring-payments');
+        Route::get('student-recurring-payment/{subscription_id}', 'studentRecurPayment')->name('admin.recurring-payments.show');
+        Route::get('recurring-payments/export', 'exportYearlyPayments')->name('admin.recurring-payments.export');
+        Route::get('/admin/recurring-payments/export-csv', 'exportYearlyPaymentsCSV')->name('admin.recurring-payments.export-csv');
+    });
 
     Route::controller(AdminPayRecurringForStudentController::class)->group(function () {
         Route::get('students/recurring-payment', 'index')->name('admin.recurring-payments.pay-for-student');
 
-            Route::post('recurring-payments', 'store')->name('admin.recurring-payments.store');
-            Route::get('payments/students', 'getStudents');
-            Route::get('payments/calculate', 'calculatePayment');
+        Route::post('pay-recurring-payments/store', 'store')->name('admin.recurring-payments_for_student.store');
 
-            Route::get('student/recurring-payment/{subscription}', 'show')->name('admin.recurring-payments.show');
+        Route::get('payments/students', 'getStudents');
+        Route::get('payments/calculate', 'calculatePayment');
 
-            Route::get('get-department-levels/{department}', 'getDepartmentLevel');
+        Route::get('student/recurring-payment/{subscription}', 'show')->name('admin.recurring-payments.show');
+
+        Route::get('get-department-levels/{department}', 'getDepartmentLevel');
     });
 
     Route::controller(AdminRecurringPaymentController::class)->group(function () {

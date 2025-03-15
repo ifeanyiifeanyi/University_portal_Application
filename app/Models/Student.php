@@ -22,6 +22,63 @@ class Student extends Model
         'date_of_birth' => 'date',
     ];
 
+    public function getPaymentsByYear($year)
+    {
+        $monthlyFee = 35000; // Naira
+
+        return $this->recurringSubscriptions()
+            ->whereYear('created_at', $year)
+            ->where('amount_paid', '>', 0) // Only fetch payments greater than zero
+            ->get()
+            ->map(function ($subscription) use ($monthlyFee) {
+                $paymentDetails = $this->calculatePaidMonths($subscription, $monthlyFee);
+
+                return [
+                    'student_name' => $this->user->full_name,
+                    'student_level' => $this->current_level,
+                    'phone_number' => $this->user->phone ?? 'N/A',
+                    'email' => $this->user->email ?? 'N/A',
+                    'amount_paid' => $subscription->amount_paid,
+                    'total_amount' => $subscription->total_amount,
+                    'number_of_months' => $paymentDetails['months_count'],
+                    'months_list' => $paymentDetails['months'],
+                    'payment_date' => $subscription->created_at,
+                    'start_date' => $subscription->start_date,
+                    'end_date' => $subscription->end_date
+                ];
+            });
+    }
+
+    private function calculatePaidMonths($subscription, $monthlyFee)
+    {
+        // Use number_of_payments if available, otherwise calculate from amount_paid
+        $monthsCount = $subscription->number_of_payments ?? floor($subscription->amount_paid / $monthlyFee);
+
+        if ($monthsCount <= 0) {
+            return [
+                'months_count' => 0,
+                'months' => []
+            ];
+        }
+
+        $months = [];
+        $startDate = \Carbon\Carbon::parse($subscription->start_date);
+
+        // Generate month names based on start date
+        for ($i = 0; $i < $monthsCount; $i++) {
+            $monthDate = $startDate->copy()->addMonths($i);
+            $months[] = [
+                'name' => $monthDate->format('F'),
+                'year' => $monthDate->year
+            ];
+        }
+
+        return [
+            'months_count' => $monthsCount,
+            'months' => $months
+        ];
+    }
+
     // Add relationship to Student model
     public function emails()
     {

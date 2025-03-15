@@ -19,7 +19,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required',
-            'cf-turnstile-response' => 'required'
+            // 'cf-turnstile-response' => 'required'
         ];
     }
 
@@ -32,29 +32,29 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            if (!$this->validateTurnstile()) {
-                $validator->errors()->add('turnstile', 'Please complete the security check');
-            }
-        });
-    }
+    // public function withValidator($validator)
+    // {
+    //     $validator->after(function ($validator) {
+    //         if (!$this->validateTurnstile()) {
+    //             $validator->errors()->add('turnstile', 'Please complete the security check');
+    //         }
+    //     });
+    // }
 
-    protected function validateTurnstile()
-    {
-        try {
-            
-            $response = Http::post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                'secret' => config('services.turnstile.secret_key'),
-                'response' => $this->input('cf-turnstile-response'),
-                'remoteip' => $this->ip()
-            ]);
+    // protected function validateTurnstile()
+    // {
+    //     try {
 
-            return $response->json('success', false);
-        } catch (Exception $e) {
-            Log::info(['captcha ' => $e->getMessage()]);
-            return redirect()->back()->withErrors('Captcha failed to connect, try again later!');
-        }
-    }
+    //         $response = Http::post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+    //             'secret' => config('services.turnstile.secret_key'),
+    //             'response' => $this->input('cf-turnstile-response'),
+    //             'remoteip' => $this->ip()
+    //         ]);
+
+    //         return $response->json('success', false);
+    //     } catch (Exception $e) {
+    //         Log::info(['captcha ' => $e->getMessage()]);
+    //         return redirect()->back()->withErrors('Captcha failed to connect, try again later!');
+    //     }
+    // }
 }

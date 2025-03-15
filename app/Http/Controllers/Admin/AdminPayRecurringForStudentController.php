@@ -9,11 +9,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminPayRecurringForStudentRequest;
 use App\Models\RecurringPaymentPlan;
 use App\Models\StudentRecurringSubscription;
+use App\Services\PaystackRecurringService;
 use App\Services\RecurringPaymentAdminService;
 
 class AdminPayRecurringForStudentController extends Controller
 {
-    public function __construct(private RecurringPaymentAdminService $service) {}
+    public function __construct(
+        private RecurringPaymentAdminService $service,
+        private PaystackRecurringService $paystackService
+    ) {}
+
+    public function getRecurringPayments(){
+        $recurring_payments = StudentRecurringSubscription::all();
+        return view('admin.payments.recurring_payment.paid', compact('recurring_payments'));
+    }
 
     public function index()
     {
@@ -59,7 +68,7 @@ class AdminPayRecurringForStudentController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'plan_id' => 'required|exists:recurring_payment_plans,id',
@@ -76,6 +85,20 @@ class AdminPayRecurringForStudentController extends Controller
             $request->payment_method
         );
 
+         // For online payments, redirect to Paystack
+         if ($request->payment_method === 'online') {
+            $paymentResponse = $this->paystackService->initiatePayment(
+                $subscription,
+                $request->payment_method
+            );
+
+            if ($paymentResponse['status']) {
+                return redirect($paymentResponse['data']['authorization_url']);
+            }
+
+            return back()->with('error', 'Could not initialize payment');
+        }
+
         return redirect()->route('admin.recurring-payments.show', $subscription->id)
             ->with('success', 'Payment subscription created successfully');
     }
@@ -88,5 +111,5 @@ class AdminPayRecurringForStudentController extends Controller
             'level_format' => $department->level_format,
             'duration' => $department->duration
         ]);
-       }
+    }
 }
