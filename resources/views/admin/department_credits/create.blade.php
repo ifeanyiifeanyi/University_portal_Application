@@ -87,32 +87,62 @@
 
 @section('javascript')
     <script>
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const departmentSelect = document.getElementById('department_id');
+        //     const levelSelect = document.getElementById('level');
+
+        //     function updateLevels() {
+        //         const departmentId = departmentSelect.value;
+        //         if (departmentId) {
+        //             fetch(`/admin/departments/${departmentId}/levels`)
+        //                 .then(response => response.json())
+        //                 .then(levels => {
+        //                     levelSelect.innerHTML = '';
+        //                     levels.forEach(level => {
+        //                         const option = document.createElement('option');
+        //                         option.value = level;
+        //                         option.textContent = level;
+        //                         levelSelect.appendChild(option);
+        //                     });
+        //                 });
+        //         } else {
+        //             levelSelect.innerHTML = '<option value="">Select Department First</option>';
+        //         }
+        //     }
+
+
+        //     departmentSelect.addEventListener('change', updateLevels);
+        //     updateLevels(); // Initial population
+        // });
+
         document.addEventListener('DOMContentLoaded', function() {
-            const departmentSelect = document.getElementById('department_id');
-            const levelSelect = document.getElementById('level');
+    const departmentSelect = document.getElementById('department_id');
+    const levelSelect = document.getElementById('level');
 
-            function updateLevels() {
-                const departmentId = departmentSelect.value;
-                if (departmentId) {
-                    fetch(`/admin/departments/${departmentId}/levels`)
-                        .then(response => response.json())
-                        .then(levels => {
-                            levelSelect.innerHTML = '';
-                            levels.forEach(level => {
-                                const option = document.createElement('option');
-                                option.value = level;
-                                option.textContent = level;
-                                levelSelect.appendChild(option);
-                            });
-                        });
-                } else {
-                    levelSelect.innerHTML = '<option value="">Select Department First</option>';
-                }
-            }
+    function updateLevels() {
+        const departmentId = departmentSelect.value;
+        if (departmentId) {
+            fetch(`/admin/departments/${departmentId}/levels`)
+                .then(response => response.json())
+                .then(levels => {
+                    levelSelect.innerHTML = '';
+                    levels.forEach(level => {
+                        const option = document.createElement('option');
+                        // Store the numeric value as the option value
+                        option.value = level.numeric;
+                        // Show the display format as the text
+                        option.textContent = level.display;
+                        levelSelect.appendChild(option);
+                    });
+                });
+        } else {
+            levelSelect.innerHTML = '<option value="">Select Department First</option>';
+        }
+    }
 
-            departmentSelect.addEventListener('change', updateLevels);
-            updateLevels(); // Initial population
-        });
+    departmentSelect.addEventListener('change', updateLevels);
+    updateLevels(); // Initial population
+});
     </script>
 
 @endsection

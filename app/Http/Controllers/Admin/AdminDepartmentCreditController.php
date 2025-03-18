@@ -13,29 +13,76 @@ use App\Http\Requests\AdminDepartmentCreditForSemesterUpdate;
 
 class AdminDepartmentCreditController extends Controller
 {
+    // public function levels(Department $department)
+    // {
+    //     return response()->json($department->levels);
+    // }
+
     public function levels(Department $department)
     {
-        return response()->json($department->levels);
+        $displayLevels = $department->levels;
+        $result = [];
+
+        foreach ($displayLevels as $displayLevel) {
+            $numericLevel = $department->getLevelNumber($displayLevel);
+            $result[] = [
+                'display' => $displayLevel,
+                'numeric' => $numericLevel
+            ];
+        }
+
+        return response()->json($result);
     }
 
+
+
+    // public function index()
+    // {
+    //     $departments = Department::all();
+    //     $semesters = Semester::all();
+    //     $creditAssignments = DB::table('department_semester')
+    //         ->join('departments', 'department_semester.department_id', '=', 'departments.id')
+    //         ->join('semesters', 'department_semester.semester_id', '=', 'semesters.id')
+    //         ->join('academic_sessions', 'semesters.academic_session_id', '=', 'academic_sessions.id') // Join with academic_sessions
+    //         ->select(
+    //             'department_semester.*',
+    //             'departments.name as department_name',
+    //             'semesters.name as semester_name',
+    //             'academic_sessions.name as academic_session_name' // Select academic session name
+    //         )
+    //         ->orderByDesc('level')
+    //         ->get();
+    //         // dd($creditAssignments);
+
+    //     return view('admin.department_credits.index', compact('departments', 'semesters', 'creditAssignments'));
+    // }
 
     public function index()
     {
         $departments = Department::all();
         $semesters = Semester::all();
+
+        // Get the raw credit assignments with numeric levels
         $creditAssignments = DB::table('department_semester')
             ->join('departments', 'department_semester.department_id', '=', 'departments.id')
             ->join('semesters', 'department_semester.semester_id', '=', 'semesters.id')
-            ->join('academic_sessions', 'semesters.academic_session_id', '=', 'academic_sessions.id') // Join with academic_sessions
+            ->join('academic_sessions', 'department_semester.academic_session_id', '=', 'academic_sessions.id')
             ->select(
                 'department_semester.*',
                 'departments.name as department_name',
+                'departments.id as department_id', // Add department ID
+                'departments.level_format', // Add level_format
                 'semesters.name as semester_name',
-                'academic_sessions.name as academic_session_name' // Select academic session name
+                'academic_sessions.name as academic_session_name'
             )
             ->orderByDesc('level')
             ->get();
-            // dd($creditAssignments);
+
+        // Convert numeric levels to display format
+        foreach ($creditAssignments as $assignment) {
+            $department = Department::find($assignment->department_id);
+            $assignment->display_level = $department->getDisplayLevel($assignment->level);
+        }
 
         return view('admin.department_credits.index', compact('departments', 'semesters', 'creditAssignments'));
     }
@@ -62,7 +109,7 @@ class AdminDepartmentCreditController extends Controller
 
     public function edit($id)
     {
-        
+
 
         $creditAssignment = DB::table('department_semester')->where('id', $id)->first();
 

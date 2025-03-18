@@ -13,11 +13,14 @@ class AdminRecurringPaymentController extends Controller
 {
     public function index()
     {
-        $plans = RecurringPaymentPlan::withCount('subscriptions')->latest()->get();
+        $plans = RecurringPaymentPlan::withCount(['subscriptions' => function ($query) {
+            $query->where('amount_paid', '>', 0);
+        }])->latest()->get();
+
         return view('admin.payments.recurring_payment.index', compact('plans'));
     }
 
-    
+
 
 
     public function store(RecurringPaymentRequest $request)

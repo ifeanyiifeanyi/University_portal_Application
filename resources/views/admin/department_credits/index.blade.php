@@ -1,7 +1,9 @@
 @extends('admin.layouts.admin')
 
 @section('title', 'Department Credit Load Management')
-
+@php
+    $department = \App\Models\Department::get();
+@endphp
 @section('admin')
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -93,7 +95,7 @@
                                                         <!-- This converts 0 to A, 1 to B, etc. -->
                                                         <td>{{ $assignment->semester_name }}</td>
                                                         <td>{{ $assignment->academic_session_name }}</td>
-                                                        <td>Level {{ $assignment->level }}</td>
+                                                        <td>Level {{ $assignment->display_level }}</td>
                                                         <td>{{ $assignment->max_credit_hours }} credits</td>
                                                         <td class="text-end">
                                                             <div class="btn-group btn-group-sm">
