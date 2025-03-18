@@ -24,8 +24,6 @@ class AdminCourseAssignmentController extends Controller
     }
 
 
-
-
     public function create()
     {
         $courses = Course::all();

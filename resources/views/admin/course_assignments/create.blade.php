@@ -88,7 +88,6 @@
 
         //     function updateLevels() {
         //         const departmentId = departmentSelect.value;
-
         //         if (!departmentId) {
         //             levelSelect.innerHTML = '<option value="">Select Department First</option>';
         //             levelSelect.disabled = true;
@@ -101,19 +100,64 @@
         //         fetch(`/admin/departments/${departmentId}/levels`)
         //             .then(response => response.json())
         //             .then(levels => {
-        //                 levelSelect.innerHTML = '';
+        //                 levelSelect.innerHTML = '<option value="">Select Level</option>';
+
         //                 levels.forEach(level => {
         //                     const option = document.createElement('option');
-        //                     option.value = level;
+
+        //                     // Set the display text to show the format-specific level
         //                     option.textContent = level;
+
+        //                     // Map the display format to numeric values
+        //                     if (typeof level === 'string' && (level.startsWith('RN') ||
+        //                             level.startsWith('ND') || level.startsWith('HND') ||
+        //                             level.startsWith('RMW'))) {
+        //                         switch (level) {
+        //                             case 'RN1':
+        //                             case 'ND1':
+        //                             case 'RMW1':
+        //                                 option.value = '100';
+        //                                 break;
+        //                             case 'RN2':
+        //                             case 'ND2':
+        //                             case 'RMW2':
+        //                                 option.value = '200';
+        //                                 break;
+        //                             case 'RN3':
+        //                             case 'RMW3':
+        //                                 option.value = '300';
+        //                                 break;
+        //                             case 'HND1':
+        //                                 option.value = '300';
+        //                                 break;
+        //                             case 'HND2':
+        //                                 option.value = '400';
+        //                                 break;
+        //                             default:
+        //                                 option.value = level;
+        //                         }
+        //                     } else {
+        //                         // For numeric levels, use the level as is
+        //                         option.value = level;
+        //                     }
+
         //                     levelSelect.appendChild(option);
         //                 });
+        //                 levelSelect.disabled = false;
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error loading levels:', error);
+        //                 levelSelect.innerHTML = '<option value="">Error loading levels</option>';
+        //                 levelSelect.disabled = true;
         //             });
         //     }
 
         //     departmentSelect.addEventListener('change', updateLevels);
-        //     updateLevels(); // Initial population
+        //     if (departmentSelect.value) {
+        //         updateLevels();
+        //     }
         // });
+
 
         document.addEventListener('DOMContentLoaded', function() {
             const departmentSelect = document.getElementById('department_id');
@@ -138,39 +182,14 @@
                         levels.forEach(level => {
                             const option = document.createElement('option');
 
-                            // Set the display text to show the format-specific level
-                            option.textContent = level;
-
-                            // Map the display format to numeric values
-                            if (typeof level === 'string' && (level.startsWith('RN') ||
-                                    level.startsWith('ND') || level.startsWith('HND') ||
-                                    level.startsWith('RMW'))) {
-                                switch (level) {
-                                    case 'RN1':
-                                    case 'ND1':
-                                    case 'RMW1':
-                                        option.value = '100';
-                                        break;
-                                    case 'RN2':
-                                    case 'ND2':
-                                    case 'RMW2':
-                                        option.value = '200';
-                                        break;
-                                    case 'RN3':
-                                    case 'RMW3':
-                                        option.value = '300';
-                                        break;
-                                    case 'HND1':
-                                        option.value = '300';
-                                        break;
-                                    case 'HND2':
-                                        option.value = '400';
-                                        break;
-                                    default:
-                                        option.value = level;
-                                }
+                            if (typeof level === 'object' && level.display && level.numeric !==
+                                undefined) {
+                                // New format where each level is an object with display and numeric properties
+                                option.textContent = level.display;
+                                option.value = level.numeric;
                             } else {
-                                // For numeric levels, use the level as is
+                                // Fallback for any other format
+                                option.textContent = level;
                                 option.value = level;
                             }
 
