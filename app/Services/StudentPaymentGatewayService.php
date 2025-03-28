@@ -2,22 +2,24 @@
 
 namespace App\Services;
 
+use Exception;
+use Yabacon\Paystack;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\RemitaService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Unicodeveloper\Paystack\Facades\Paystack;
 use Illuminate\Support\Facades\Http;
-use App\Models\Invoice;
 
 class StudentPaymentGatewayService
 {
     protected $remitaService;
-    protected $paystackSecretKey;
+    protected $paystack;
 
     public function __construct(RemitaService $remitaService)
     {
         $this->remitaService = $remitaService;
-        $this->paystackSecretKey = env("PAYSTACK_SECRET_KEY");
+        $this->paystack = new Paystack(env("PAYSTACK_SECRET_KEY"));
     }
 
     public function initializePayment(Payment $payment, $amount = null)
@@ -33,15 +35,10 @@ class StudentPaymentGatewayService
         }
     }
 
+
     private function initializePaystackPayment(Payment $payment, $amount = null)
     {
         try {
-            if (empty($this->paystackSecretKey)) {
-                throw new \Exception('Paystack configuration is missing');
-            }
-
-            $paymentType = $payment->paymentType;
-
             // Get base amount that should go to the school
             $baseAmount = ($amount ?? $payment->next_transaction_amount ?? $payment->amount);
 
@@ -55,8 +52,6 @@ class StudentPaymentGatewayService
 
             // Calculate actual Paystack fee
             $calculatedPaystackFee = ($subtotalBeforePaystackFee * $paystackFeePercentage) + $paystackFixedFee;
-
-            // Only apply 2000 cap for transactions where calculated fee would exceed 2000
             $actualPaystackFee = $calculatedPaystackFee > 2000 ? 2000 : $calculatedPaystackFee;
 
             // Calculate final amount student will pay
@@ -65,193 +60,90 @@ class StudentPaymentGatewayService
             // Convert to kobo for Paystack
             $amountInKobo = ceil($finalAmount * 100);
 
-            // Calculate split percentages
-            $schoolPercentage = ($baseAmount / $finalAmount) * 100;
-            $platformPercentage = ($platformFee / $finalAmount) * 100;
-
-            // Create payment breakdown for caching
-            $paymentBreakdown = [
-                'base_amount' => $baseAmount,
-                'platform_fee' => $platformFee,
-                'paystack_fee' => $actualPaystackFee,
-                'final_amount' => $finalAmount,
-                'amount_in_kobo' => $amountInKobo,
-                'initialized_at' => now()->timestamp,
-                'payment_id' => $payment->id,
-                'student_id' => $payment->student_id,
-                'school_percentage' => $schoolPercentage,
-                'platform_percentage' => $platformPercentage,
-                'verification' => [
-                    'school_will_receive' => $baseAmount,
-                    'platform_will_receive' => $platformFee,
-                    'paystack_will_receive' => $actualPaystackFee,
-                    'customer_will_pay' => $finalAmount
-                ]
-            ];
-
-            Log::info('Payment Calculation Details', $paymentBreakdown);
-
-            // Store in primary cache
-            $cacheKey = "payment_breakdown_{$payment->transaction_reference}";
-            cache()->remember($cacheKey, now()->addHours(24), function () use ($paymentBreakdown) {
-                return $paymentBreakdown;
-            });
-
-            // Store in backup cache with longer duration
-            cache()->remember("backup_{$cacheKey}", now()->addHours(48), function () use ($paymentBreakdown) {
-                return $paymentBreakdown;
-            });
-
-            $paymentData = [
+            // Prepare transaction data
+            $transactionData = [
                 'amount' => $amountInKobo,
-                'first_name' => $payment->student->user->first_name,
-                'last_name' => $payment->student->user->last_name,
                 'email' => $payment->student->user->email,
-                'phone' => $payment->student->user->phone,
                 'reference' => $payment->transaction_reference,
-                'callback_url' => route('student.fees.payment.verify', ['gateway' => 'paystack']),
+                'callback_url' => route('student.fees.payment.verify'),
                 'metadata' => [
                     'payment_id' => $payment->id,
                     'student_id' => $payment->student_id,
-                    'payment_type' => $paymentType->name,
-                    'is_installment' => $payment->is_installment,
-                    'installment_number' => $payment->is_installment ? 1 : null,
                     'base_amount' => $baseAmount,
                     'platform_fee' => $platformFee,
                     'paystack_fee' => $actualPaystackFee,
-                    'total_amount' => $finalAmount
                 ]
             ];
 
+            // If payment type has a subaccount
+            $paymentType = $payment->paymentType;
             if ($paymentType->paystack_subaccount_code) {
-                $paymentData['split'] = [
-                    'type' => 'percentage',
-                    'bearer_type' => 'account',
-                    'subaccounts' => [
-                        [
-                            'subaccount' => $paymentType->paystack_subaccount_code,
-                            'share' => floor($schoolPercentage)
-                        ]
-                    ]
-                ];
-
-                Log::info('Split Payment Configuration', [
-                    'total_amount' => $finalAmount,
-                    'school_amount' => $baseAmount,
-                    'platform_fee' => $platformFee,
-                    'paystack_fee' => $actualPaystackFee,
-                    'school_percentage' => floor($schoolPercentage),
-                    'platform_percentage' => floor($platformPercentage)
-                ]);
+                $transactionData['subaccount'] = $paymentType->paystack_subaccount_code;
+                $transactionData['transaction_charge'] = floor(($platformFee / $finalAmount) * 100);
             }
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
-                'Content-Type' => 'application/json',
-            ])->post('https://api.paystack.co/transaction/initialize', $paymentData);
+            // Initialize transaction
+            $initializationResponse = $this->paystack->transaction->initialize($transactionData);
 
-            if ($response->successful()) {
-                $responseData = $response->json();
-                if ($responseData['status']) {
-                    return $responseData['data']['authorization_url'];
-                }
+            if ($initializationResponse->status) {
+                return $initializationResponse->data->authorization_url;
             }
 
-            // Clear caches if initialization fails
-            cache()->forget($cacheKey);
-            cache()->forget("backup_{$cacheKey}");
-
-            throw new \Exception('Failed to initialize payment: ' . ($response->json()['message'] ?? 'Unknown error'));
+            throw new \Exception('Failed to initialize payment: ' . $initializationResponse->message);
         } catch (\Exception $e) {
             Log::error('Paystack payment initialization error: ' . $e->getMessage());
             throw new \Exception('Failed to initialize Paystack payment: ' . $e->getMessage());
         }
     }
 
+
+
     private function verifyPaystackPayment($reference)
     {
         try {
-            Log::info('Initiating Paystack payment verification', ['reference' => $reference]);
+            // Verify transaction using Paystack package
+            $transactionResponse = $this->paystack->transaction->verify([
+                'reference' => $reference
+            ]);
 
+            // Check transaction status
+            if (!$transactionResponse->status) {
+                throw new \Exception('Transaction verification failed');
+            }
+
+            $data = $transactionResponse->data;
+            $paidAmount = $data->amount / 100; // Convert back from kobo
+
+            // Retrieve payment record
             $payment = Payment::where('transaction_reference', $reference)->firstOrFail();
 
-            // Try to get payment breakdown from primary cache
-            $cacheKey = "payment_breakdown_{$reference}";
-            $paymentBreakdown = cache()->get($cacheKey);
-
-            // If primary cache fails, try backup cache
-            if (!$paymentBreakdown) {
-                Log::warning('Primary cache miss, attempting backup cache', ['reference' => $reference]);
-                $paymentBreakdown = cache()->get("backup_{$cacheKey}");
-            }
-
-            // If both caches fail, reconstruct from payment record
-            if (!$paymentBreakdown) {
-                Log::warning('Cache miss for payment breakdown, reconstructing from payment record', [
-                    'reference' => $reference,
-                    'payment_id' => $payment->id
-                ]);
-
-                $baseAmount = $payment->is_installment ? $payment->next_transaction_amount : $payment->amount;
-                $platformFee = 500;
-                $paystackFee = $this->calculatePaystackFee($baseAmount + $platformFee);
-
-                $paymentBreakdown = [
-                    'base_amount' => $baseAmount,
-                    'platform_fee' => $platformFee,
-                    'paystack_fee' => $paystackFee,
-                    'final_amount' => $baseAmount + $platformFee + $paystackFee,
-                    'reconstructed' => true
-                ];
-            }
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . trim($this->paystackSecretKey),
-                'Content-Type' => 'application/json',
-            ])->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-            if (!$response->successful()) {
-                throw new \Exception('Paystack API request failed: ' . ($response->json()['message'] ?? 'Unknown error'));
-            }
-
-            $responseData = $response->json();
-            Log::info(['payment response' => $responseData]);
-
-            if (!isset($responseData['data']) || !isset($responseData['data']['status'])) {
-                throw new \Exception('Invalid response structure from Paystack');
-            }
-
+            // Basic validation
             $successStatuses = ['success', 'completed'];
-            if (!$responseData['status'] || !in_array(strtolower($responseData['data']['status']), $successStatuses)) {
-                throw new \Exception('Payment not successful. Status: ' . ($responseData['data']['status'] ?? 'unknown'));
+            if (!in_array(strtolower($data->status), $successStatuses)) {
+                throw new \Exception('Payment not successful. Status: ' . $data->status);
             }
 
-            $paidAmount = $responseData['data']['amount'] / 100;
+            // Retrieve payment breakdown or reconstruct if necessary
+            $paymentBreakdown = $this->getPaymentBreakdownFromCache($reference)
+                ?? $this->reconstructPaymentBreakdown($payment);
+
+            // Validate payment amount
             $expectedBaseAmount = $payment->is_installment ? $payment->next_transaction_amount : $payment->amount;
+            $expectedTotalAmount = $paymentBreakdown['final_amount'];
+            $allowedDifference = 1;
 
-            // Verify payment amount
-            if ($paymentBreakdown) {
-                $expectedTotalAmount = $paymentBreakdown['final_amount'];
-                $difference = abs($paidAmount - $expectedTotalAmount);
-                $allowedDifference = 1;
+            $this->validatePaymentAmount($expectedTotalAmount, $paidAmount, $allowedDifference);
 
-                if ($difference > $allowedDifference) {
-                    throw new \Exception(sprintf(
-                        'Payment amount mismatch. Expected: %s, Received: %s',
-                        $expectedTotalAmount,
-                        $paidAmount
-                    ));
-                }
-            } else {
-                $minimumExpectedTotal = $expectedBaseAmount + 500;
-                if ($paidAmount < $minimumExpectedTotal) {
-                    throw new \Exception(sprintf(
-                        'Payment amount too low. Minimum expected: %s, Received: %s',
-                        $minimumExpectedTotal,
-                        $paidAmount
-                    ));
-                }
-            }
+            // Prepare response data for logging and return
+            $responseData = [
+                'status' => true,
+                'data' => [
+                    'status' => $data->status,
+                    'reference' => $reference,
+                    'amount' => $data->amount,
+                    'channel' => $data->channel ?? 'unknown'
+                ]
+            ];
 
             // Process payment based on type
             if ($payment->is_installment) {
@@ -260,9 +152,8 @@ class StudentPaymentGatewayService
                 $this->handleFullPayment($payment, $expectedBaseAmount, $responseData);
             }
 
-            // Clear caches after successful verification
-            cache()->forget($cacheKey);
-            cache()->forget("backup_{$cacheKey}");
+            // Clear payment cache
+            $this->clearPaymentCache($reference);
 
             return [
                 'success' => true,
@@ -273,17 +164,16 @@ class StudentPaymentGatewayService
                 'remaining_amount' => $payment->is_installment ? $payment->remaining_amount : 0,
                 'cache_source' => $paymentBreakdown['reconstructed'] ?? false ? 'reconstructed' : 'cache',
                 'metadata' => [
-                    'channel' => $responseData['data']['channel'] ?? 'unknown',
-                    'card_type' => $responseData['data']['authorization']['card_type'] ?? null,
-                    'bank' => $responseData['data']['authorization']['bank'] ?? null,
+                    'channel' => $data->channel ?? 'unknown',
+                    'card_type' => $data->authorization->card_type ?? null,
+                    'bank' => $data->authorization->bank ?? null,
                 ]
             ];
+        } catch (\Yabacon\Paystack\Exception\ApiException $e) {
+            $this->logPaymentError($e, ['reference' => $reference]);
+            throw new \Exception('Paystack API verification failed: ' . $e->getMessage());
         } catch (\Exception $e) {
-            Log::error('Payment verification failed', [
-                'reference' => $reference,
-                'error' => $e->getMessage(),
-                'cache_status' => isset($paymentBreakdown) ? 'available' : 'missing'
-            ]);
+            $this->logPaymentError($e, ['reference' => $reference]);
             throw $e;
         }
     }
@@ -499,5 +389,277 @@ class StudentPaymentGatewayService
         ], $context);
 
         Log::error('Payment processing error', $logContext);
+    }
+
+
+
+
+    /**
+     * Handle Paystack Webhook
+     *
+     * @param array $payload Webhook payload
+     * @param string $sigHeader Signature header
+     * @return array
+     */
+    public function handlePaystackWebhook($payload, $sigHeader)
+    {
+        try {
+            // Ensure payload is a string
+            $payloadString = is_array($payload) ? json_encode($payload) : $payload;
+
+            // Verify webhook signature
+            $this->verifyWebhookSignature($payloadString, $sigHeader);
+
+            // Parse webhook payload
+            $event = json_decode($payloadString, true);
+
+            // Log the entire webhook for debugging
+            Log::info('Paystack Webhook Received', [
+                'event' => $event,
+                'type' => $event['event'] ?? 'unknown'
+            ]);
+
+            // Handle different webhook events
+            switch ($event['event'] ?? null) {
+                case 'charge.success':
+                    return $this->handleChargeSuccessWebhook($event);
+
+                case 'transfer.success':
+                    return $this->handleTransferSuccessWebhook($event);
+
+                case 'invoice.payment_succeeded':
+                    return $this->handleInvoicePaymentWebhook($event);
+
+                default:
+                    Log::warning('Unhandled Paystack Webhook Event', [
+                        'event' => $event['event'] ?? 'unknown'
+                    ]);
+                    return ['status' => 'ignored', 'message' => 'Unhandled event type'];
+            }
+        } catch (Exception $e) {
+            $this->logWebhookError($e, $payloadString);
+            throw $e;
+        }
+    }
+
+    /**
+     * Verify Webhook Signature
+     *
+     * @param string $payload Webhook payload
+     * @param string $sigHeader Signature header
+     * @throws Exception
+     */
+
+
+    private function verifyWebhookSignature($payload, $sigHeader)
+    {
+        try {
+            $verified = $this->paystack->webhook->verifySignature(
+                $payload,
+                $sigHeader,
+                env('PAYSTACK_SECRET_KEY')
+            );
+
+            if (!$verified) {
+                throw new Exception('Webhook signature verification failed');
+            }
+        } catch (Exception $e) {
+            Log::error('Webhook Signature Verification Failed', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle Charge Success Webhook
+     *
+     * @param array $event Webhook event data
+     * @return array
+     */
+    private function handleChargeSuccessWebhook($event)
+    {
+        try {
+            // Extract transaction details
+            $transactionData = $event['data'] ?? [];
+            $reference = $transactionData['reference'] ?? null;
+
+            if (!$reference) {
+                throw new Exception('No transaction reference found in webhook');
+            }
+
+            // Find the corresponding payment
+            $payment = Payment::where('transaction_reference', $reference)->first();
+
+            if (!$payment) {
+                Log::warning('Payment not found for webhook', [
+                    'reference' => $reference
+                ]);
+                return ['status' => 'ignored', 'message' => 'Payment not found'];
+            }
+
+            // Verify the payment amount and process
+            $paidAmount = $transactionData['amount'] / 100; // Convert from kobo
+            $expectedAmount = $payment->is_installment
+                ? $payment->next_transaction_amount
+                : $payment->amount;
+
+            // Process payment
+            $this->processWebhookPayment($payment, $paidAmount, $transactionData);
+
+            return [
+                'status' => 'success',
+                'message' => 'Payment processed via webhook',
+                'payment_id' => $payment->id
+            ];
+        } catch (Exception $e) {
+            Log::error('Charge Success Webhook Processing Failed', [
+                'error' => $e->getMessage(),
+                'event' => $event
+            ]);
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Process Payment from Webhook
+     *
+     * @param Payment $payment Payment model
+     * @param float $paidAmount Paid amount
+     * @param array $transactionData Transaction details
+     */
+    private function processWebhookPayment($payment, $paidAmount, $transactionData)
+    {
+        DB::beginTransaction();
+        try {
+            // Prepare response data structure similar to verification method
+            $responseData = [
+                'status' => true,
+                'data' => [
+                    'status' => $transactionData['status'] ?? 'success',
+                    'reference' => $transactionData['reference'],
+                    'amount' => $transactionData['amount'],
+                    'channel' => $transactionData['channel'] ?? 'unknown'
+                ]
+            ];
+
+            // Process based on payment type
+            if ($payment->is_installment) {
+                $this->handleInstallmentPayment($payment, $paidAmount, $responseData);
+            } else {
+                $this->handleFullPayment($payment, $paidAmount, $responseData);
+            }
+
+            // Clear payment cache
+            $this->clearPaymentCache($payment->transaction_reference);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Webhook Payment Processing Failed', [
+                'error' => $e->getMessage(),
+                'payment_id' => $payment->id
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle Transfer Success Webhook
+     *
+     * @param array $event Webhook event data
+     * @return array
+     */
+    private function handleTransferSuccessWebhook($event)
+    {
+        // Implement transfer-specific logic if needed
+        Log::info('Transfer Success Webhook Received', [
+            'transfer_data' => $event['data'] ?? []
+        ]);
+
+        return [
+            'status' => 'success',
+            'message' => 'Transfer webhook processed'
+        ];
+    }
+
+    /**
+     * Handle Invoice Payment Webhook
+     *
+     * @param array $event Webhook event data
+     * @return array
+     */
+    private function handleInvoicePaymentWebhook($event)
+    {
+        // Implement invoice-specific logic if needed
+        Log::info('Invoice Payment Webhook Received', [
+            'invoice_data' => $event['data'] ?? []
+        ]);
+
+        return [
+            'status' => 'success',
+            'message' => 'Invoice payment webhook processed'
+        ];
+    }
+
+    /**
+     * Log Webhook Error
+     *
+     * @param Exception $e Exception
+     * @param string $payload Webhook payload
+     */
+    private function logWebhookError(Exception $e, $payload)
+    {
+        Log::error('Paystack Webhook Error', [
+            'error_message' => $e->getMessage(),
+            'error_code' => $e->getCode(),
+            'payload' => $payload,
+            'timestamp' => now()->toDateTimeString()
+        ]);
+    }
+
+    /**
+     * Webhook Retry Mechanism
+     *
+     * @param string $reference Transaction reference
+     * @param int $maxRetries Maximum retry attempts
+     */
+    public function webhookPaymentRetry($reference, $maxRetries = 3)
+    {
+        $attempts = cache()->get("webhook_retry_{$reference}", 0);
+
+        if ($attempts >= $maxRetries) {
+            Log::error('Max webhook retry attempts reached', [
+                'reference' => $reference,
+                'max_attempts' => $maxRetries
+            ]);
+            return false;
+        }
+
+        try {
+            // Attempt to verify payment
+            $verificationResult = $this->verifyPaystackPayment($reference);
+
+            // Clear retry cache if successful
+            cache()->forget("webhook_retry_{$reference}");
+
+            return $verificationResult;
+        } catch (Exception $e) {
+            // Increment retry attempts
+            cache()->put(
+                "webhook_retry_{$reference}",
+                $attempts + 1,
+                now()->addHours(24)
+            );
+
+            Log::warning('Webhook retry attempt failed', [
+                'reference' => $reference,
+                'attempt' => $attempts + 1,
+                'error' => $e->getMessage()
+            ]);
+
+            return false;
+        }
     }
 }

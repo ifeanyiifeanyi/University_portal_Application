@@ -137,7 +137,7 @@
                                         <div class="text-center">
                                             <img src="{{ Storage::url($payment->invoice->proveOfPayment->first()->proof_file) }}"
                                                 alt="Payment Proof" class="img-fluid rounded proof-image"
-                                                data-toggle="modal" data-target="#imageModal">
+                                                data-toggle="modal" data-target="#imageModal" width="300" height="200">
                                         </div>
                                     @else
                                         <a href="{{ Storage::url($payment->invoice->proveOfPayment->first()->proof_file) }}"
@@ -198,7 +198,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <img src="{{ Storage::url($payment->invoice->proveOfPayment->first()->proof_file) }}"
-                        alt="Payment Proof" class="img-fluid">
+                        alt="Payment Proof" class="img-fluid" width="400" height="300">
                 </div>
             </div>
         </div>

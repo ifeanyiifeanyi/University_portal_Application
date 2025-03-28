@@ -39,6 +39,7 @@ use App\Http\Controllers\Student\StudentResultController;
 use App\Http\Controllers\Admin\AdminPaymentTypeController;
 use App\Http\Controllers\Admin\PasswordRecoveryController;
 use App\Http\Controllers\Teacher\TeacherCoursesController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminApprovedScoreController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
@@ -60,14 +61,14 @@ use App\Http\Controllers\Admin\AdminSendStudentEmailController;
 use App\Http\Controllers\Admin\AdminInstallmentConfigController;
 use App\Http\Controllers\Admin\AdminStudentFeeNotPaidController;
 use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
+use App\Http\Controllers\Admin\RecurringPaymentReportController;
 use App\Http\Controllers\Student\StudentSupportTicketController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
+
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
-
-use App\Http\Controllers\Admin\RecurringPaymentReportController;
 
 
 
@@ -141,8 +142,8 @@ Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'secu
 });
 
 
-// routes/web.php or routes/api.php
-Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handleWebhook']);
+// // routes/web.php or routes/api.php
+// Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handleWebhook']);
 
 Route::get('/payment/verify', [PaymentVerificationController::class, 'verify'])->name('payment.verify');
 
@@ -255,7 +256,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     Route::controller(AdminManualPaidDetailController::class)->group(function () {
         Route::get('manual-proof-of-payment', 'index')->name('admin.manual_proof_of_payment.index');
-        Route::get('manual-proof-of-payment/{pacyment}/show', 'show')->name('admin.manual_proof_of_payment.show');
+        Route::get('manual-proof-of-payment/{payment}/show', 'show')->name('admin.manual_proof_of_payment.show');
     });
 
     Route::controller(AdminStudentFeeNotPaidController::class)->group(function () {
@@ -907,20 +908,11 @@ Route::prefix('student')->middleware('student')->group(function () {
 
             Route::post('/payments/process', 'processPayment')->name('student.fees.processPayment');
 
-            Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
+            // Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
 
             Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
             Route::get('/payments/{payment}/installments', 'processInstallmentPayment')->name('student.fees.payments.installment');
             Route::get('/check-payment-status', 'checkPaymentStatus')->name('student.fees.checkpaymentstatus');
-
-
-
-
-
-
-
-            // Route::get('/payments/invoice-details/{invoiceId?}', 'showConfirmation')->name('student.fees.payments.showConfirmation');
-
         });
     });
     Route::controller(FeesPaymentsController::class)->group(function () {
@@ -942,6 +934,14 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::post('tickets/{ticket}/reply', 'reply')->name('student.tickets.reply');
     });
 });
+
+Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handle'])
+    ->name('paystack.webhook')
+    ->withoutMiddleware([VerifyCsrfToken::class]);
+
+Route::get('fees/payments/paystack/verify', [StudentFeesController::class, 'verifyPayment'])
+    ->name('student.fees.payment.verify');
+
 
 //! Student parent routes
 Route::prefix('parent')->middleware('parent')->group(function () {

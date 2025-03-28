@@ -470,8 +470,9 @@ class StudentFeesController extends Controller
 
 
 
-    public function verifyPayment(Request $request, $gateway)
+    public function verifyPayment(Request $request)
     {
+        $gateway = 'paystack';
         $reference = $request->query('reference');
         $admin = 1;
 

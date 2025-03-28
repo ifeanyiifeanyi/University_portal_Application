@@ -41,6 +41,7 @@
                     </div>
                 </div>
 
+                
                 <form action="{{ route('admin.payments.process-manual') }}" method="POST" enctype="multipart/form-data"
                     id="paymentProofForm">
                     @csrf
