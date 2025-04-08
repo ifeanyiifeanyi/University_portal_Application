@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 
 class PaymentReconciliationService
 {
+
     protected $paystackSecretKey;
     protected $paymentGatewayService;
 
@@ -51,7 +52,7 @@ class PaymentReconciliationService
 
             // Get all pending payments from our database
             $pendingPayments = Payment::where('status', 'pending')
-                ->where('created_at', '>=', now()->subDays(40))
+                ->where('created_at', '>=', now()->subDays(7))
                 ->where('transaction_reference', '!=', '')
                 ->get();
 
@@ -122,7 +123,7 @@ class PaymentReconciliationService
         }
     }
 
-    private function handleInstallmentReconciliation($payment, $paidAmount, $paystackTransaction)
+    public function handleInstallmentReconciliation($payment, $paidAmount, $paystackTransaction)
     {
         // Get current installment
         $currentInstallment = $payment->installments()
@@ -177,7 +178,7 @@ class PaymentReconciliationService
         $this->updateInvoiceStatus($payment, $nextInstallment ? 'partial' : 'paid');
     }
 
-    private function handleFullPaymentReconciliation($payment, $paidAmount, $paystackTransaction)
+    public function handleFullPaymentReconciliation($payment, $paidAmount, $paystackTransaction)
     {
         $pay = $payment->update([
             'base_amount' => $payment->amount,
@@ -192,7 +193,7 @@ class PaymentReconciliationService
         $this->updateInvoiceStatus($payment, 'paid');
     }
 
-    private function updateInvoiceStatus($payment, $status)
+    public function updateInvoiceStatus($payment, $status)
     {
         Invoice::where([
             'student_id' => $payment->student_id,
@@ -202,7 +203,7 @@ class PaymentReconciliationService
         ])->update(['status' => $status]);
     }
 
-    private function createReceipt($payment, $paidAmount)
+    public function createReceipt($payment, $paidAmount)
     {
         // Check if receipt already exists
         $existingReceipt = Receipt::where('payment_id', $payment->id)->first();

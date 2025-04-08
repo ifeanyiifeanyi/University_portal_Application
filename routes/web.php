@@ -275,6 +275,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::controller(InstallmentPaymentController::class)->group(function () {
         Route::get('installment-detail/{installment}', 'showNextInstallmentDetails')->name('admin.payments.installments.details');
         Route::post('/{installment}/process', 'processNextInstallment')->name('admin.payments.installments.process');
+
+        Route::post('generate-installment-invoice/{installment}', 'generateInstallmentInvoice')
+            ->name('admin.payments.installments.invoice');
     });
 
     Route::controller(AdminSendStudentEmailController::class)->group(function () {
@@ -911,6 +914,8 @@ Route::prefix('student')->middleware('student')->group(function () {
             // Route::get('payments/verify/{gateway}', 'verifyPayment')->name('student.fees.payment.verify');
 
             Route::get('receipts/{receipt}', 'showReceipt')->name('student.fees.payments.showReceipt');
+
+
             Route::get('/payments/{payment}/installments', 'processInstallmentPayment')->name('student.fees.payments.installment');
             Route::get('/check-payment-status', 'checkPaymentStatus')->name('student.fees.checkpaymentstatus');
         });
@@ -936,7 +941,7 @@ Route::prefix('student')->middleware('student')->group(function () {
 });
 
 Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handle'])
-    ->name('paystack.webhook')
+    ->name('webhook')
     ->withoutMiddleware([VerifyCsrfToken::class]);
 
 Route::get('fees/payments/paystack/verify', [StudentFeesController::class, 'verifyPayment'])

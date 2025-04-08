@@ -20,8 +20,8 @@
                     <!-- Payment Information -->
                     <div class="col-md-6 mb-3">
                         <h6 class="border-bottom pb-2">Payment Information</h6>
-                        <p><strong>Total Amount:</strong> ₦{{ number_format($installment->payment->amount, 2) }}</p>
-                        <p><strong>Remaining Amount:</strong> ₦{{ number_format($installment->payment->remaining_amount ?? 0, 2) }}</p>
+                        <p><strong>Total Amount:</strong> ₦{{ number_format($installment->payment?->amount, 2) }}</p>
+                        <p><strong>Remaining Amount:</strong> ₦{{ number_format($installment->payment?->remaining_amount ?? 0, 2) }}</p>
                         <p><strong>Payment Method:</strong> {{ $installment->payment->paymentMethod->name ?? 'N/A' }}</p>
                         <p><strong>Payment Type:</strong> {{ $installment->payment->paymentType->name ?? 'N/A' }}</p>
                     </div>
@@ -54,8 +54,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                @if($installment->payment->receipt)
-                    <a href="{{ route('admin.payments.showReceipt', $installment->payment->receipt->id) }}"
+                @if($installment->payment?->receipt)
+                    <a href="{{ route('admin.payments.showReceipt', $installment->payment?->receipt->id) }}"
                        class="btn btn-primary">
                         <i class="fas fa-file-alt me-1"></i> View Receipt
                     </a>

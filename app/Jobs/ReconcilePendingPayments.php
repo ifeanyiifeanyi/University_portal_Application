@@ -22,6 +22,7 @@ class ReconcilePendingPayments implements ShouldQueue
 
     protected $payment;
 
+    
     public function __construct(Payment $payment)
     {
         $this->payment = $payment;

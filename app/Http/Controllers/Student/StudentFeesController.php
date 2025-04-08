@@ -240,13 +240,6 @@ class StudentFeesController extends Controller
 
 
 
-
-
-
-
-
-
-
     public function processPayment(ProcessPaymentRequest $request)
     {
         $validated = $request->validated();
@@ -658,7 +651,7 @@ class StudentFeesController extends Controller
     {
         DB::beginTransaction();
         try {
-            $payment = Payment::with(['installments', 'paymentType'])
+            $payment = Payment::with(['installments', 'paymentType', 'student.user'])
                 ->findOrFail($paymentId);
 
             if (!$payment->is_installment) {
@@ -690,6 +683,45 @@ class StudentFeesController extends Controller
                 'next_installment_date' => $nextInstallment->due_date,
                 'transaction_reference' => $newReference // Update with new reference
             ]);
+
+            // Find or create an invoice for this installment payment
+            $invoice = Invoice::where([
+                'student_id' => $payment->student_id,
+                'payment_type_id' => $payment->payment_type_id,
+                'department_id' => $payment->department_id,
+                'level' => $payment->level,
+                'academic_session_id' => $payment->academic_session_id,
+                'semester_id' => $payment->semester_id,
+            ])->first();
+
+
+            // If no invoice exists or we need to update existing invoice
+            $invoiceData = [
+                'amount' => $installmentAmount,
+                'payment_method_id' => $payment->payment_method_id,
+                'status' => 'pending',
+                'is_installment' => true,
+                'next_transaction_amount' => $installmentAmount,
+                'updated_at' => now(),
+            ];
+
+            // If invoice doesn't exist, create a new one
+            if (!$invoice) {
+                $invoiceNumber = 'INV-INST-' . uniqid() . '-' . $nextInstallment->installment_number;
+                $invoiceDataCreate = array_merge($invoiceData, [
+                    'student_id' => $payment->student_id,
+                    'payment_type_id' => $payment->payment_type_id,
+                    'department_id' => $payment->department_id,
+                    'level' => $payment->level,
+                    'academic_session_id' => $payment->academic_session_id,
+                    'semester_id' => $payment->semester_id,
+                    'invoice_number' => $invoiceNumber,
+                ]);
+                $invoice = Invoice::create($invoiceDataCreate);
+            } else {
+                // Update existing invoice
+                $invoice->update($invoiceData);
+            }
 
             // Initialize payment with gateway
             $paymentUrl = $this->StudentpaymentGatewayService->initializePayment(

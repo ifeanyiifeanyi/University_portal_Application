@@ -162,7 +162,7 @@
                                 <!-- Student Information -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <strong>{{ $installment->payment->student->user->full_name ?? 'N/A' }}</strong>
+                                        <strong>{{ $installment->payment?->student?->user?->full_name ?? 'N/A' }}</strong>
                                         <small
                                             class="text-muted">{{ $installment->payment->student->matric_number ?? 'N/A' }}</small>
                                         <small
@@ -186,7 +186,7 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         <span><strong>Installment:</strong> {{ $installment->installment_number }} of
-                                            {{ $installment->payment->installments->count() }}</span>
+                                            {{ $installment->payment?->installments?->count() }}</span>
                                         <span><strong>Due Date:</strong>
                                             {{ $installment->due_date->format('d M, Y') }}</span>
                                         @if ($installment->paid_at)
@@ -212,12 +212,12 @@
                                         </span>
                                         @if (
                                             ($installment->status === 'pending' || $installment->status === 'overdue') &&
-                                                $installment->payment->installment_status !== 'completed')
+                                                $installment->payment?->installment_status !== 'completed')
                                             <a href="{{ route('admin.payments.installments.details', $installment) }}"
                                                 class="btn btn-primary btn-sm">
                                                 Process Next Payment
                                             </a>
-                                        @elseif ($installment->payment->installment_status === 'completed')
+                                        @elseif ($installment->payment?->installment_status === 'completed')
                                             <small class="text-success">All Installments Completed</small>
                                         @endif
                                     </div>

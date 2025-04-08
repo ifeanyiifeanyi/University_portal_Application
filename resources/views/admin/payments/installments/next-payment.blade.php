@@ -9,6 +9,9 @@
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title">Installment Payment Details</h4>
+                <a href="{{ route('admin.payments.installments.invoice', $installment) }}" class="btn btn-info btn-sm float-end">
+                    Generate Invoice
+                </a>
             </div>
             <div class="card-body">
                 <div class="row mb-4">
@@ -31,7 +34,7 @@
                                 <th>Academic Level:</th>
                                 <td>
                                     {{ $installment->payment->student->department
-                                    ->getDisplayLevel($installment->payment->student->current_level) }}
+                                    ->getDisplayLevel($installment->payment?->student->current_level) }}
                                 </td>
                             </tr>
                         </table>
@@ -53,7 +56,7 @@
                             </tr>
                             <tr>
                                 <th>Payment Method:</th>
-                                <td>{{ $installment->payment->paymentMethod->name }}</td>
+                                <td>{{ $installment->payment?->paymentMethod->name }}</td>
                             </tr>
                         </table>
                     </div>
@@ -107,7 +110,7 @@
                                     <form action="{{ route('admin.payments.installments.process', $installment) }}"
                                         method="POST">
                                         @csrf
-                                        <button type="submit" class="btn btn-primary btn-lg">
+                                        <button type="submit" class="btn btn-primary btn-sm">
                                             Process Payment (₦{{ number_format($totalAmount, 2) }})
                                         </button>
                                     </form>

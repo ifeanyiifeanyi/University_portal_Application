@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->timestamp('archived_at')->nullable()->after('invoice_number');
-            $table->softDeletes();
+            // $table->boolean('is_installment')->default(false)->after('status');
+            $table->decimal('next_transaction_amount', 10, 2)->nullable()->after('is_installment');
         });
-       
     }
 
     /**
@@ -24,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_installment');
+            $table->dropColumn('next_transaction_amount');
         });
     }
 };

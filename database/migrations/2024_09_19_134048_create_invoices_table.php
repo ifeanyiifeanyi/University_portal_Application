@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('invoice_number')->unique();
             $table->timestamps();
         });
+
+       
     }
 
     /**
