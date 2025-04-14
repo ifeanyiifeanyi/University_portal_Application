@@ -31,6 +31,7 @@ class ProcessPaymentRequest extends FormRequest
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'semester_id' => 'required|exists:semesters,id',
             'invoice_number' => 'required|exists:invoices,invoice_number',
+            'is_installment' => 'nullable',
         ];
     }
 }

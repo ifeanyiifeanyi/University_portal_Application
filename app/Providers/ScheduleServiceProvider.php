@@ -28,6 +28,7 @@ class ScheduleServiceProvider extends ServiceProvider
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground();
+            
 
         // Monthly backups on specific days
         $schedule->job(new CreateBackupJob('db'))

@@ -18,7 +18,6 @@ class Student extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'current_level' => 'integer',
         'date_of_birth' => 'date',
     ];
 

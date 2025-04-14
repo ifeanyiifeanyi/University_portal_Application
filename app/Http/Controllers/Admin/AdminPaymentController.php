@@ -647,17 +647,61 @@ class AdminPaymentController extends Controller
         return view('admin.payments.show-receipt', compact('receipt'));
     }
 
+    // public function payTransfer($invoice)
+    // {
+    //     // Check if the invoiceId is missing or empty
+    //     if (empty($invoice)) {
+    //         return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+    //     }
 
+    //     // Retrieve the invoice with related data
+    //     $invoice = Invoice::with([
+    //         'student.user',
+    //         'student.department',
+    //         'paymentType',
+    //         'paymentMethod',
+    //         'academicSession',
+    //         'semester'
+    //     ])->find($invoice);
 
+    //     // Check if the invoice was not found
+    //     if (is_null($invoice)) {
+    //         return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
+    //     }
+
+    //     // Find related payment if it exists
+    //     $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
+
+    //     $installments = null;
+    //     $pendingInstallment = null;
+
+    //     // If payment exists and is an installment type, load installments
+    //     if ($payment && $payment->is_installment) {
+    //         $installments = PaymentInstallment::where('payment_id', $payment->id)
+    //             ->orderBy('installment_number')
+    //             ->get();
+
+    //         // Find the first pending installment
+    //         $pendingInstallment = $installments->where('status', 'pending')->first();
+    //     }
+
+    //     return view('admin.payments.payInvoice', compact('invoice', 'payment', 'installments', 'pendingInstallment'));
+    // }
+
+     /**
+     * Display the payment verification page for an invoice
+     *
+     * @param int $invoice Invoice ID
+     * @return \Illuminate\Http\Response
+     */
     public function payTransfer($invoice)
     {
         // Check if the invoiceId is missing or empty
         if (empty($invoice)) {
-            // Redirect back to the form if no parameter is present
             return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
         }
-
-        // Attempt to retrieve the invoice with related data
+        
+        // Retrieve the invoice with related data
         $invoice = Invoice::with([
             'student.user',
             'student.department',
@@ -666,14 +710,63 @@ class AdminPaymentController extends Controller
             'academicSession',
             'semester'
         ])->find($invoice);
-
+        
         // Check if the invoice was not found
         if (is_null($invoice)) {
-            // Redirect back to the form if no invoice was found
             return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
         }
-
-        return view('admin.payments.payInvoice', compact('invoice'));
+        
+        // Find related payment if it exists
+        $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
+        
+        // Initialize variables
+        $installments = collect();
+        $pendingInstallments = collect();
+        $completedInstallments = collect();
+        $currentInstallmentStatus = null;
+        $nextInstallmentDue = null;
+        $totalPaid = 0;
+        $remainingAmount = 0;
+        $nextInstallment = null;
+        
+        // If payment exists and is an installment type, load installments with detailed information
+        if ($payment && $payment->is_installment) {
+            // Load all installments ordered by installment number
+            $installments = PaymentInstallment::where('payment_id', $payment->id)
+                ->orderBy('installment_number')
+                ->get();
+            
+            // Separate pending and completed installments
+            $completedInstallments = $installments->where('status', 'paid');
+            $pendingInstallments = $installments->whereIn('status', ['pending', 'overdue']);
+            
+            // Calculate total paid and remaining amounts
+            $totalPaid = $completedInstallments->sum('paid_amount');
+            $remainingAmount = $payment->amount - $totalPaid;
+            
+            // Determine the overall status of the installment process
+            if ($pendingInstallments->isEmpty()) {
+                $currentInstallmentStatus = 'completed';
+            } else {
+                $currentInstallmentStatus = 'partial';
+                // Get the next pending installment
+                $nextInstallment = $pendingInstallments->sortBy('installment_number')->first();
+                $nextInstallmentDue = $nextInstallment ? $nextInstallment->due_date : null;
+            }
+        }
+        
+        return view('admin.payments.payInvoice', compact(
+            'invoice', 
+            'payment', 
+            'installments', 
+            'pendingInstallments', 
+            'completedInstallments',
+            'totalPaid',
+            'remainingAmount',
+            'currentInstallmentStatus',
+            'nextInstallmentDue',
+            'nextInstallment'
+        ));
     }
 
 

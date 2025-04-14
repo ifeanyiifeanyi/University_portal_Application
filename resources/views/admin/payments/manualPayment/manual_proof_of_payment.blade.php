@@ -14,9 +14,10 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
+                            <table class="table table-striped" id="datatable">
                                 <thead>
                                     <tr>
+                                        <th>#</th>
                                         <th>Date</th>
                                         <th>Student</th>
                                         <th>Payment Type</th>
@@ -30,6 +31,7 @@
                                 <tbody>
                                     @forelse($manualProcessedPayments as $payment)
                                         <tr>
+                                            <td>{{ $loop-iteration }}</td>
                                             <td>{{ $payment->payment_date->format('d M, Y') }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">

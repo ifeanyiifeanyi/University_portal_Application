@@ -77,9 +77,13 @@ class StudentPaymentGatewayService
 
             // If payment type has a subaccount
             $paymentType = $payment->paymentType;
+            // if ($paymentType->paystack_subaccount_code) {
+            //     $transactionData['subaccount'] = $paymentType->paystack_subaccount_code;
+            //     $transactionData['transaction_charge'] = floor(($platformFee / $finalAmount) * 100);
+            // }
             if ($paymentType->paystack_subaccount_code) {
                 $transactionData['subaccount'] = $paymentType->paystack_subaccount_code;
-                $transactionData['transaction_charge'] = floor(($platformFee / $finalAmount) * 100);
+                $transactionData['transaction_charge'] = $platformFee * 100; // Convert to kobo
             }
 
             // Initialize transaction

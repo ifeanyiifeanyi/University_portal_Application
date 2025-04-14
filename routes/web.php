@@ -276,7 +276,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('installment-detail/{installment}', 'showNextInstallmentDetails')->name('admin.payments.installments.details');
         Route::post('/{installment}/process', 'processNextInstallment')->name('admin.payments.installments.process');
 
-        Route::post('generate-installment-invoice/{installment}', 'generateInstallmentInvoice')
+        Route::get('generate-installment-invoice/{installment}', 'generateInstallmentInvoice')
             ->name('admin.payments.installments.invoice');
     });
 
@@ -699,6 +699,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::middleware('permission:pay fees')->group(function () {
         Route::controller(AdminPaymentController::class)->group(function () {
             Route::get('make-payments', 'index')->name('admin.payment.pay');
+
+            //! HERE IS WHERE WE MANAGE MANUAL CONFIRMATION OF PAYMENTS
             Route::get('make-payments/transfer/{invoice}', 'payTransfer')->name('admin.payment.pay_manual');
 
             Route::get('payments', 'payments')->name('admin.payments.show');
@@ -753,7 +755,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::controller(ProofOfPaymentController::class)->group(function () {
         Route::get('cancel-invoice/{invoice}', 'destroy')->name('admin.invoice.cancel');
 
-        Route::post('process-invoice-manual', 'processManualPayment')->name('admin.payments.process-manual');
+        //! verify installment payments manually
+        Route::post('process-invoice-manual', 'verifyManualInstallment')->name('admin.payments.process-manual');
+
+        Route::post('process-fullpayment-manual', 'verifyManualPayment')->name('admin.payments.processFullPayment-manual');
 
         Route::get('/payments/prove/{paymentId?}', 'showConfirmationProve')->name('admin.payments.showConfirmation_prove');
 

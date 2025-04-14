@@ -480,12 +480,7 @@ class StudentFeesController extends Controller
 
 
             if ($result['success']) {
-                // if ($payment->is_installment) {
-                //     $this->handleInstallmentVerification($payment, $result['amount']);
-                // } else {
-                //     $this->handleFullPaymentVerification($payment, $admin);
-                // }
-
+               
                 // Generate receipt and send notifications
                 $receipt = $this->generateReceipt($payment);
 

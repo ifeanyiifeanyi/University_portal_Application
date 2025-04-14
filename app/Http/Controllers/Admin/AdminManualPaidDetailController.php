@@ -16,7 +16,9 @@ class AdminManualPaidDetailController extends Controller
         $currentSemester = Semester::where('is_current', true)->first();
 
         $manualProcessedPayments = Payment::where('is_manual', true)
+            ->where('admin_id','!=', null)
             ->where('academic_session_id', $currentSession->id)
+
             ->where('semester_id', $currentSemester->id)
             ->with([
                 'receipt',
@@ -30,6 +32,7 @@ class AdminManualPaidDetailController extends Controller
                 'processedBy'
             ])
             ->latest()
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.payments.manualPayment.manual_proof_of_payment', compact('manualProcessedPayments'));
@@ -45,8 +48,7 @@ class AdminManualPaidDetailController extends Controller
                 'processedBy',
                 'academicSession',
                 'semester',
-                'invoice.proveOfPayment'  // Added this relationship
-
+                'invoice.proveOfPayment' 
             ])
             ->findOrFail($id);
         // dd($payment);

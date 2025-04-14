@@ -53,20 +53,15 @@ class AdminAssignStudentCourseController extends Controller
         $currentAcademicSession = AcademicSession::where('is_current', true)->firstOrFail();
         $currentSemester = Semester::where('is_current', true)->firstOrFail();
 
-        // Fetch the max credit hours from the department_semester pivot table
-        // $maxCreditHours = $student->department->semesters()
-        //     ->where('semester_id', $currentSemester->id)
-        //     ->where('level', $student->current_level)
-        //     ->first()
-        //     ->pivot
-        //     ->max_credit_hours;
+
 
         $maxCreditHours = DB::table('department_semester')
             ->where('department_id', $student->department_id)
             ->where('semester_id', $currentSemester->id)
-            ->where('level', $student->current_level)
+            ->where('level', $student->department->getLevelNumber($student->current_level))
             ->value('max_credit_hours'); // This will return just the max_credit_hours value
 
+            // dd($maxCreditHours);
 
         if (!$maxCreditHours) {
             return redirect()->back()->with('error', 'No semester configuration found for this student\'s level.');
@@ -106,7 +101,7 @@ class AdminAssignStudentCourseController extends Controller
             'totalCreditHours'
         ));
     }
-  
+
 
     public function registerCourses(Request $request, $studentId)
     {
