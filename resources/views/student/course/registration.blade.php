@@ -47,7 +47,7 @@
                                 <tr>
                                     <td>{{$reghistory->AcademicSession->name}}</td>
                                     <td>{{$reghistory->semester->name}}</td>
-                                    <td>{{$reghistory->level}}</td>
+                                    <td>{{$student->department->getDisplayLevel($reghistory->level)}}</td>
                                     <td><a href="{{route('student.view.courseregistered',['id'=>$reghistory->id])}}" class="btn w-50 text-white" style="background: #AE152D;">View</a></td>
                                 </tr>
                                 @empty

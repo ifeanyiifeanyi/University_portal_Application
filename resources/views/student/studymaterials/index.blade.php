@@ -5,13 +5,13 @@
 <div class="container-xxl mt-3">
     <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
         <div class="flex-grow-1">
-            <h4 class="fs-18 fw-semibold m-0">Results</h4>
+            <h4 class="fs-18 fw-semibold m-0">Study Materials for courses</h4>
         </div>
 
         <div class="text-end">
             <ol class="breadcrumb m-0 py-0">
                 <li class="breadcrumb-item"><a href="javascript: void(0);">Components</a></li>
-                <li class="breadcrumb-item active">Results</li>
+                <li class="breadcrumb-item active">Study Materials for courses</li>
             </ol>
         </div>
     </div>
@@ -30,29 +30,24 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Session</th>
-                                    <th scope="col">Semester</th>
-                                    <th scope="col">CGPA</th>
-                                    <th scope="col"></th>
+                                    <th scope="col">Course Name</th>
+                                    <th scope="col">Course Code</th>
+                                    <th scope="col">Action</th>
                                     
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($availableResults as $result)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $result['session'] }}</td>
-                        <td>{{ $result['semester'] }}</td>
-                        <td>{{$result['gpa']}}</td>
-                        <td>
-                            <a href="{{ route('student.view.result',[
-                                'session' => $result['sessionid'],
-                                'semester' => $result['semesterid'],
-                                'teacherid'=> $result['teacher']
-                            ]) }}" class="btn w-50 text-white btn-success">View</a>
-                        </td>
-                    </tr>
-                    @endforeach
+                                @foreach ($courses as $course)
+                                <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{$course->course->title}}</td>
+                                <td>{{$course->course->code}}</td>
+                                <td>
+                                    <a href="{{route('student.studymaterials.course.view',['id'=>$course->course->id])}}" class="btn w-50 text-white btn-success">View</a>
+                                </td>
+                            </tr>
+                                @endforeach
+              
                                 
                          
                                

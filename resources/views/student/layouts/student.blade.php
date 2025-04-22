@@ -38,10 +38,22 @@
             font-size: 1.5em;
         }
 
-        /* Initially show the preloader */
-        body.loading #preloader {
-            display: block;
-        }
+                /* Hide the preloader once the page is fully loaded */
+                body:not(.loading) #preloader {
+                    display: none;
+                }
+                .nav-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.nav-active {
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+}
+    
 
         /* Hide the preloader once the page is fully loaded */
         body:not(.loading) #preloader {
@@ -107,9 +119,11 @@
             <!-- end Footer -->
 
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page content -->
-        <!-- ============================================================== -->
+        <!-- END wrapper -->
+
+      
+
+      
 
 
     </div>
@@ -140,6 +154,7 @@
     <script src="{{ asset('student/assets/js/app.js') }}"></script>
 
     <script>
+
         document.addEventListener("DOMContentLoaded", function() {
             const preloader = document.getElementById('preloader');
             const form = document.getElementById('requestForm');

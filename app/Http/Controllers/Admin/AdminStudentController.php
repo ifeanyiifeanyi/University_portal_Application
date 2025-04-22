@@ -41,9 +41,6 @@ class AdminStudentController extends Controller
         $this->studentBatchService = $studentBatchService;
         $this->studentService = $studentService;
     }
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $studentsWithUsers = Student::with(['user', 'department'])->latest()->get();
@@ -53,12 +50,92 @@ class AdminStudentController extends Controller
             return $student->user !== null;
         });
 
-        // If you want to see what's going on, you can dd here:
-        // dd($studentsWithUsers);
-
         $departments = Department::all();
 
-        return view('admin.student.index', compact('students', 'departments'));
+        // Get analytics data
+        $studentStats = $this->getStudentStats($students);
+        $chartData = $this->getChartData($students, $departments);
+
+        return view('admin.student.index', compact('students', 'departments', 'studentStats', 'chartData'));
+    }
+
+
+    /**
+     * Generate statistics for student dashboard
+     */
+    private function getStudentStats($students)
+    {
+        $now = now();
+        $startOfMonth = $now->copy()->startOfMonth();
+
+        return [
+            'total' => $students->count(),
+            'active' => $students->count(), // Assuming all returned students are active
+            'newThisMonth' => $students->filter(function ($student) use ($startOfMonth) {
+                return $student->created_at >= $startOfMonth;
+            })->count(),
+            'departments' => Department::count()
+        ];
+    }
+
+    /**
+     * Generate chart data for student analytics
+     */
+    private function getChartData($students, $departments)
+    {
+        // Department distribution
+        $departmentCounts = [];
+        $departmentLabels = [];
+
+        foreach ($departments as $department) {
+            $count = $students->where('department_id', $department->id)->count();
+            if ($count > 0) {
+                $departmentLabels[] = $department->name;
+                $departmentCounts[] = $count;
+            }
+        }
+
+        // Level distribution
+        $levelCounts = [];
+        $levelLabels = [];
+
+        $studentsByLevel = $students->groupBy('current_level');
+        foreach ($studentsByLevel as $level => $levelStudents) {
+            // Try to get a display format for the level
+            $displayLevel = $level;
+            if ($levelStudents->first() && $levelStudents->first()->department) {
+                $displayLevel = $levelStudents->first()->department->getDisplayLevel($level);
+            }
+
+            $levelLabels[] = $displayLevel;
+            $levelCounts[] = $levelStudents->count();
+        }
+
+        // Admission trends (past 5 years)
+        $currentYear = now()->year;
+        $admissionYears = [];
+        $admissionCounts = [];
+
+        for ($i = 4; $i >= 0; $i--) {
+            $year = $currentYear - $i;
+            $admissionYears[] = $year;
+            $admissionCounts[] = $students->where('year_of_admission', $year)->count();
+        }
+
+        return [
+            'departments' => [
+                'labels' => $departmentLabels,
+                'data' => $departmentCounts
+            ],
+            'levels' => [
+                'labels' => $levelLabels,
+                'data' => $levelCounts
+            ],
+            'admissionTrends' => [
+                'labels' => $admissionYears,
+                'data' => $admissionCounts
+            ]
+        ];
     }
 
     /**
@@ -116,22 +193,22 @@ class AdminStudentController extends Controller
      * Show the form for editing the specified resource.
      */
 
-     public function getDepartment(Department $department)
-     {
-         $levels = $department->levels;
-         $levelMap = [];
+    public function getDepartment(Department $department)
+    {
+        $levels = $department->levels;
+        $levelMap = [];
 
-         foreach ($levels as $level) {
-             $levelMap[$level] = $department->getLevelNumber($level);
-         }
+        foreach ($levels as $level) {
+            $levelMap[$level] = $department->getLevelNumber($level);
+        }
 
-         return response()->json([
-             'levels' => $levels,
-             'levelMap' => $levelMap,
-             'level_format' => $department->level_format,
-             'duration' => $department->duration
-         ]);
-     }
+        return response()->json([
+            'levels' => $levels,
+            'levelMap' => $levelMap,
+            'level_format' => $department->level_format,
+            'duration' => $department->duration
+        ]);
+    }
     public function edit(Student $student)
     {
         $countries = Country::all();

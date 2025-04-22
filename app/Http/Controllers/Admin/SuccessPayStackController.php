@@ -37,7 +37,7 @@ class SuccessPayStackController extends Controller
             }
 
             $transactions = collect($response->json()['data']);
-            dd($transactions->count());
+            // dd($transactions->count());
 
             return view('admin.payments.paystack-transactions', compact('transactions', 'from', 'to'));
         } catch (\Exception $e) {

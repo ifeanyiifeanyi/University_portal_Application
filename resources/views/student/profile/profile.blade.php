@@ -70,53 +70,6 @@
             <div class="row">
 
                 <div class="col-xl-6">
-                    {{-- <div class="card student-profile-card">
-                <div class="card-header text-white" style="background: #157020; color : #ffffff">
-                    <h3 class="mb-0">Student Profile</h3>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <img src="{{$getuser->profileImage()}}" alt="Student Picture" class="rounded-circle profile-picture">
-                        <h4 class="mt-3">{{ $getuser->first_name }} {{ $getuser->last_name }} {{ $getuser->other_name }}</h4>
-                        <p class="text-muted">Matric Number: {{ $student->matric_number }}</p>
-                    </div>
-
-                    <div class="profile-info">
-                        <h5>Personal Information</h5>
-                        <p><strong>JAMB Reg. Number:</strong> {{ $student->jamb_registration_number }}</p>
-                        <p><strong>Date of Birth:</strong> {{ $student->date_of_birth }}</p>
-                        <p><strong>Gender:</strong> {{ $student->gender }}</p>
-                        <p><strong>Phone:</strong> {{ $getuser->phone }}</p>
-                        <p><strong>Email:</strong> {{ $getuser->email }}</p>
-                        <p><strong>Marital Status:</strong> {{ $student->marital_status }}</p>
-                        <p><strong>Religion:</strong> {{ $student->religion }}</p>
-                        <p><strong>Blood Group:</strong> {{ $student->blood_group }}</p>
-                        <p><strong>Genotype:</strong> {{ $student->genotype }}</p>
-
-                        <h5>Address Information</h5>
-                        <p><strong>Nationality:</strong> {{ $student->nationality }}</p>
-                        <p><strong>State of Origin:</strong> {{ $student->state_of_origin }}</p>
-                        <p><strong>LGA/Province:</strong> {{ $student->lga_of_origin }}</p>
-                        <p><strong>Hometown:</strong> {{ $student->hometown }}</p>
-                        <p><strong>Residential Address:</strong> {{ $student->residential_address }}</p>
-                        <p><strong>Permanent Address:</strong> {{ $student->permanent_address }}</p>
-
-                        <h5>Next of Kin Information</h5>
-                        <p><strong>Name:</strong> {{ $student->next_of_kin_name }}</p>
-                        <p><strong>Relationship:</strong> {{ $student->next_of_kin_relationship }}</p>
-                        <p><strong>Phone:</strong> {{ $student->next_of_kin_phone }}</p>
-                        <p><strong>Address:</strong> {{ $student->next_of_kin_address }}</p>
-
-                        <h5>Academic Information</h5>
-                        <p><strong>Department:</strong> {{ $student->department->name }}</p>
-                        <p><strong>Year of Admission:</strong> {{ $student->year_of_admission }}</p>
-                        <p><strong>Mode of Entry:</strong> {{ $student->mode_of_entry }}</p>
-                        <p><strong>Current Level:</strong> {{ $student->current_level }}</p>
-
-                    </div>
-                </div>
-            </div> --}}
-
                     <div class="card student-profile-card">
                         <div class="card-header text-white" style="background: #0d382e; color : #ffffff">
                             <h3 class="mb-0">Student Profile</h3>
@@ -156,24 +109,17 @@
                                 <p><strong>Phone:</strong> {{ $student->next_of_kin_phone }}</p>
                                 <p><strong>Address:</strong> {{ $student->next_of_kin_address }}</p>
 
-                                <h5>Academic Information</h5>
-                                <p><strong>Department:</strong> {{ $student->department->name }}</p>
-                                <p><strong>Department level:</strong>
-                                    {{ $student->department->getDisplayLevel($student->current_level) }}</p>
-                                <p><strong>Year of Admission:</strong> {{ $student->year_of_admission }}</p>
-                                <p><strong>Mode of Entry:</strong> {{ $student->mode_of_entry }}</p>
-                                <p><strong>Current Level:</strong> {{ $student->current_level }}</p>
-                            </div>
-                        </div>
+                        <h5>Academic Information</h5>
+                        <p><strong>Department:</strong> {{ $student->department->name }}</p>
+                        <p><strong>Current Level:</strong> {{ $student->department->getDisplayLevel($student->current_level) }}</p>
+                        <p><strong>Year of Admission:</strong> {{ $student->year_of_admission }}</p>
+                        <p><strong>Mode of Entry:</strong> {{ $student->mode_of_entry }}</p>
+                        {{-- <p><strong>Current Level:</strong> {{ $student->current_level }}</p> --}}
                     </div>
                 </div>
-                {{-- <div class="card">
-            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-
-              <img src="{{$getuser->profileImage()}}" alt="Profile" class="rounded-circle">
-              <h2>{{$getuser->fullName()}}</h2>
             </div>
-          </div> --}}
+                </div>
+                
 
                 <div class="col-xl-6">
 
@@ -194,8 +140,9 @@
                     </div>
 
                 </div>
-            </div>
         @endif
+            </div>
+            </div>
     </div>
 
     {{-- <script>

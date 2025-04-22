@@ -155,12 +155,6 @@
                         </li>
                     @endcan
 
-                    @can('view subaccount payments')
-                        <li> <a href="{{ route('admin.payments.getSubaccountTransactions') }}"><i
-                                    class="bx bx-right-arrow-alt"></i>Subaccount
-                                Payments</a>
-                        </li>
-                    @endcan
                     @can('view invoice manager')
                         <li> <a href="{{ route('admin.invoice.view') }}"><i class="bx bx-right-arrow-alt"></i>Invoice
                                 Manager</a>

@@ -40,7 +40,7 @@ class StudentResultController extends Controller
 
                 return [
                     'session' => $result->academicSession->name,
-                    // 'level' => $result->course->level,
+                    // 'level' => $result->level,
                     'semester' => $result->semester->name,
                     'teacher'  => $result->teacher_id,
                     'sessionid'=>$result->academicSession->id,

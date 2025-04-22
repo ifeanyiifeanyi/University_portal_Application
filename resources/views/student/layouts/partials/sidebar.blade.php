@@ -63,11 +63,25 @@
                                 </a>
                             </li>
 
+                            <li>
+                                <a href="{{route('student.recurring.payments')}}" class="text-dark nav-link {{ request()->routeIs('student.recurring.payments') ? 'nav-active' : '' }}">
+                                    <i data-feather="table"></i>
+                                    <span>Recurring Payments</span>
+                                </a>
+                            </li>
+
 
                              <li>
                                 <a href="{{ route('student.view.support-tickets') }}" class="text-dark nav-link {{ request()->routeIs('student.view.support-tickets') ? 'nav-active' : '' }}">
                                     <i data-feather="table"></i>
                                     <span>Support Ticket</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('student.studymaterials.courses') }}" class="text-dark nav-link {{ request()->routeIs('student.studymaterials.courses') ? 'nav-active' : '' }}">
+                                    <i data-feather="table"></i>
+                                    <span>Study Materials</span>
                                 </a>
                             </li>
 

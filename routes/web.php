@@ -739,8 +739,6 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             // show reciepts details
             Route::get('paid-receipts', 'paidReceipts')->name('admin.payments.paidReceipts');
 
-            // fetch all sub account transactions from paystack
-            Route::get('/payments/get-subaccount-transactions', 'getSubaccountTransactions')->name('admin.payments.getSubaccountTransactions');
 
             Route::get('get-department-levels/{department}', 'getDepartmentLevels')->name('admin.getDepartmentLevels');
 
@@ -877,7 +875,7 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
         Route::post('changepassword', 'updatepassword')->name('student.update.password');
     });
-    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees', 'check.installment.fees')->group(function () {
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees','check.installment.fees')->group(function () {
         Route::prefix('course_registration')->group(function () {
             Route::get('/', 'courseregistration')->name('student.view.courseregistration');
             Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');

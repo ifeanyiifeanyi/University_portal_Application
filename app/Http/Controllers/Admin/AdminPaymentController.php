@@ -700,7 +700,7 @@ class AdminPaymentController extends Controller
         if (empty($invoice)) {
             return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
         }
-        
+
         // Retrieve the invoice with related data
         $invoice = Invoice::with([
             'student.user',
@@ -710,15 +710,15 @@ class AdminPaymentController extends Controller
             'academicSession',
             'semester'
         ])->find($invoice);
-        
+
         // Check if the invoice was not found
         if (is_null($invoice)) {
             return redirect()->route('admin.payment.pay')->with('error', 'Invoice not found. Please try again.');
         }
-        
+
         // Find related payment if it exists
         $payment = Payment::where('invoice_number', $invoice->invoice_number)->first();
-        
+
         // Initialize variables
         $installments = collect();
         $pendingInstallments = collect();
@@ -728,22 +728,22 @@ class AdminPaymentController extends Controller
         $totalPaid = 0;
         $remainingAmount = 0;
         $nextInstallment = null;
-        
+
         // If payment exists and is an installment type, load installments with detailed information
         if ($payment && $payment->is_installment) {
             // Load all installments ordered by installment number
             $installments = PaymentInstallment::where('payment_id', $payment->id)
                 ->orderBy('installment_number')
                 ->get();
-            
+
             // Separate pending and completed installments
             $completedInstallments = $installments->where('status', 'paid');
             $pendingInstallments = $installments->whereIn('status', ['pending', 'overdue']);
-            
+
             // Calculate total paid and remaining amounts
             $totalPaid = $completedInstallments->sum('paid_amount');
             $remainingAmount = $payment->amount - $totalPaid;
-            
+
             // Determine the overall status of the installment process
             if ($pendingInstallments->isEmpty()) {
                 $currentInstallmentStatus = 'completed';
@@ -754,12 +754,12 @@ class AdminPaymentController extends Controller
                 $nextInstallmentDue = $nextInstallment ? $nextInstallment->due_date : null;
             }
         }
-        
+
         return view('admin.payments.payInvoice', compact(
-            'invoice', 
-            'payment', 
-            'installments', 
-            'pendingInstallments', 
+            'invoice',
+            'payment',
+            'installments',
+            'pendingInstallments',
             'completedInstallments',
             'totalPaid',
             'remainingAmount',
@@ -1091,49 +1091,4 @@ class AdminPaymentController extends Controller
         return view('admin.payments.paidReceiptsList', compact('receipts', 'academicSessions', 'semesters'));
     }
 
-    // TODO: This is incomplete( subccount payments)
-    // ! getting empty array from the api
-    public function getSubaccountTransactions(Request $request)
-    {
-        $paymentTypes = PaymentType::whereNotNull('paystack_subaccount_code')
-            ->where('is_active', true)
-            ->get();
-
-        $selectedPaymentType = null;
-        $transactions = [];
-        $error = null;
-
-        if ($request->has('payment_type')) {
-            $selectedPaymentType = PaymentType::findOrFail($request->payment_type);
-
-            // Log the subaccount code being used
-            Log::info('Fetching transactions for payment type', [
-                'payment_type_id' => $selectedPaymentType->id,
-                'subaccount_code' => $selectedPaymentType->paystack_subaccount_code
-            ]);
-
-            $response = $this->paymentGatewayService->getSubaccountTransactionsPaystack(
-                $selectedPaymentType->paystack_subaccount_code
-            );
-
-            // Log the response
-            Log::info('Paystack service response', [
-                'status' => $response['status'],
-                'data_count' => count($response['data']),
-                'error' => $response['error'] ?? null
-            ]);
-
-            if ($response['status']) {
-                $transactions = $response['data'];
-            } else {
-                $error = $response['error'] ?? 'Failed to fetch transactions';
-            }
-        }
-        return view('admin.payments.apiSubaccountPayments', compact(
-            'paymentTypes',
-            'selectedPaymentType',
-            'transactions',
-            'error'
-        ));
-    }
 }

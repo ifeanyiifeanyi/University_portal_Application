@@ -35,7 +35,7 @@
 @endif
           </div>
         </div>
-        <div class="row mb-3">
+        {{-- <div class="row mb-3">
           <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Select level</label>
           <div class="col-md-8 col-lg-9">
               <select id="level" name="level" class="form-control">
@@ -46,6 +46,14 @@
               @if ($errors->has('level'))
 <span class="text-danger">{{$errors->first('level')}}</span>
 @endif
+          </div>
+        </div> --}}
+
+        <div class="row mb-3">
+          <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Current level</label>
+          <div class="col-md-8 col-lg-9">
+          <output class="form-control">{{$student->current_level}}</output>
+          <input type="hidden" name="level" id="" value="{{$student->department->getLevelNumber($student->current_level)}}">
           </div>
         </div>
         <div class="row mb-3">

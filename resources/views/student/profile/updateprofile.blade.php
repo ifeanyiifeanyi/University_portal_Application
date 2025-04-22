@@ -1,12 +1,12 @@
 <form action="{{route('student.update.profile')}}" method="POST" id="requestForm" enctype="multipart/form-data">
-    @csrf
-  <div class="row mb-3">
-    <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Matric number</label>
-    <div class="col-md-8 col-lg-9">
-      <input type="text" class="form-control" value="{{$student->matric_number}}" readonly>
-    </div>
+  @csrf
+  <input type="hidden" name="" id="department_id" value="{{ $student->department_id }}">
+<div class="row mb-3">
+  <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Matric number</label>
+  <div class="col-md-8 col-lg-9">
+    <input type="text" class="form-control" value="{{$student->matric_number}}" readonly>
   </div>
-  <div class="row mb-3">
+  <div class="row mt-3">
     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Jamb registration number</label>
     <div class="col-md-8 col-lg-9">
       <input type="text" class="form-control" name="jamb_registration_number" value="{{$student->jamb_registration_number}}" readonly>
@@ -15,23 +15,24 @@
   @if ($errors->has('jamb_registration_number'))
   <span class="text-danger">{{$errors->first('jamb_registration_number')}}</span>
   @endif
+</div>
   <div class="row mb-3">
 
-    <div class="col-md-6">
-        <label for="fullName" class="col-form-label">First name</label>
-      <input type="text" class="form-control" name="firstname" id="" value="{{$student->user->first_name}}" readonly>
-      @if ($errors->has('firstname'))
-      <span class="text-danger">{{$errors->first('firstname')}}</span>
-      @endif
-    </div>
-    <div class="col-md-6">
-        <label for="fullName" class="col-form-label">Last Name</label>
-      <input type="text" class="form-control" name="lastname" value="{{$student->user->last_name}}" readonly>
-      @if ($errors->has('lastname'))
-      <span class="text-danger">{{$errors->first('lastname')}}</span>
-      @endif
-    </div>
+  <div class="col-md-6">
+      <label for="fullName" class="col-form-label">First name</label>
+    <input type="text" class="form-control" name="firstname" id="" value="{{$student->user->first_name}}" readonly>
+    @if ($errors->has('firstname'))
+    <span class="text-danger">{{$errors->first('firstname')}}</span>
+    @endif
   </div>
+  <div class="col-md-6">
+      <label for="fullName" class="col-form-label">Last Name</label>
+    <input type="text" class="form-control" name="lastname" value="{{$student->user->last_name}}" readonly>
+    @if ($errors->has('lastname'))
+    <span class="text-danger">{{$errors->first('lastname')}}</span>
+    @endif
+  </div>
+</div>
   <div class="row mb-3">
     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Other names</label>
     <div class="col-md-8 col-lg-9">
@@ -53,7 +54,7 @@
   <div class="row mb-3">
     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Date of birth</label>
     <div class="col-md-8 col-lg-9">
-      <input type="date" class="form-control" name="date_of_birth" value="{{$student->date_of_birth}}">
+      <input type="date" class="form-control" name="date_of_birth" value="{{ $student->date_of_birth ? $student->date_of_birth->format('Y-m-d') : '' }}">
       @if ($errors->has('date_of_birth'))
       <span class="text-danger">{{$errors->first('date_of_birth')}}</span>
       @endif
@@ -257,29 +258,3 @@
     <button type="submit" class="btn w-100" style="background: #0d382e;color:white">Update changes</button>
   </div>
   </form>
-  <input type="hidden" name="" id="department_id" value="{{ $student->department_id }}">
-  {{-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const departmentSelect = document.getElementById('department_id');
-        const levelSelect = document.getElementById('level');
-
-        function updateLevels() {
-            const departmentId = departmentSelect.value;
-            fetch(`/student/fees/departments/${departmentId}/levels`)
-                .then(response => response.json())
-                .then(levels => {
-                  console.log(levels);
-                    levelSelect.innerHTML = '';
-                    levels.forEach(level => {
-                        const option = document.createElement('option');
-                        option.value = level;
-                        option.textContent = level;
-                        levelSelect.appendChild(option);
-                    });
-                });
-        }
-
-        departmentSelect.addEventListener('change', updateLevels);
-        updateLevels(); // Initial population
-    });
-  </script> --}}

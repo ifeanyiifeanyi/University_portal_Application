@@ -20,9 +20,21 @@
         @include('messages')
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Payments History</h5>
-                </div><!-- end card header -->
+                    
+                    <form method="get" class="d-flex align-items-center">
+                        <select name="status" class="form-control mr-2" onchange="this.form.submit()">
+                            <option value="all">All Payments</option>
+                            @foreach($statuses as $status)
+                                <option value="{{ $status }}"
+                                    {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
 
                 <div class="card-body">
                     <div class="table-responsive">
@@ -33,11 +45,11 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-
+                                  
 
                                     <th scope="col">Payment Type</th>
                     <th scope="col">Session/Semester</th>
-                    <th scope="col">Amount</th>
+                    <th scope="col">Original Amount</th>
                     <th scope="col">Paid Amount</th>
                     <th scope="col">Status</th>
                     <th scope="col">Date</th>
@@ -45,7 +57,7 @@
 
                                 </tr>
                             </thead>
-
+                           
 
                             <tbody class="divide-y divide-gray-200">
                                 @foreach($payments as $payment)
@@ -74,11 +86,17 @@
                                     <td class="px-4 py-3">
                                         <div class="flex space-x-2">
 
-
                                             @if($payment->is_installment && $payment->status === 'partial')
-                                                <a href="{{ route('student.fees.payments.installment', $payment->id) }}"
-                                                   class="btn w-100 text-dark btn-warning">
-                                                    Pay ₦{{ number_format($payment->next_transaction_amount, 2) }}
+    <a href="{{ route('student.fees.payments.installment', $payment->id) }}" 
+       class="btn w-100 text-dark btn-warning">
+        <i class="fas fa-file-invoice-dollar mr-2"></i>
+        View/Pay Installment (₦{{ number_format($payment->next_transaction_amount, 2) }})
+    </a>
+@endif
+                                            @if($payment->status === 'pending')
+                                                <a href="{{route('student.view.fees.invoice',['id'=>$payment->invoice->id])}}" 
+                                                   class="btn w-100 text-white btn-success mt-2">
+                                                    Continue payment
                                                 </a>
                                             @endif
                                             @if($payment->status === 'pending')

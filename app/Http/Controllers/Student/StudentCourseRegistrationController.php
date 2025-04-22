@@ -39,7 +39,8 @@ class StudentCourseRegistrationController extends Controller
     $reghistorys = SemesterCourseRegistration::with(['semester','AcademicSession'])->where('student_id',$student->id)->get();
     
         return view('student.course.registration',[
-            'reghistorys'=>$reghistorys
+            'reghistorys'=>$reghistorys,
+            'student'=>$student
         ]);
     }
 
@@ -57,11 +58,19 @@ class StudentCourseRegistrationController extends Controller
           $academicsessions = AcademicSession::all();
           // load the studentprofile
           $student = Student::where('user_id',$this->authService->user()->id)->first();
+
+          $currentDepartment = Department::find($student->department_id);
+          $levels = $currentDepartment ? $currentDepartment->levels : [];
+
+          $checkdepartmentcourses = CourseAssignment::with(['course'])->where('department_id',$student->department_id)->get();
           
         return view('student.course.sessioncourse',[
             'semesters'=>$semesters,
             'academicsessions'=>$academicsessions,
-            'student'=>$student
+            'student'=>$student,
+            'checkdepartmentcourses'=>$checkdepartmentcourses,
+            'levels'=>$levels,
+            'currentDepartment'=>$currentDepartment
         ]);
     }
 
@@ -76,6 +85,7 @@ class StudentCourseRegistrationController extends Controller
         if (!$checkpayment) {
            return redirect()->route('student.view.sessioncourse')->with('error', 'You have not paid for the school fees for this session and semester');
        }
+
         $student = Student::findOrFail($proceedsession->student_id);
         $maxCreditHours = $student->department->semesters()
             ->where('semester_id', $proceedsession->semester)
@@ -101,7 +111,7 @@ class StudentCourseRegistrationController extends Controller
         // load the studentprofile
         $semesterregistration = SemesterCourseRegistration::where('id',$semesterregid)->first();
         $student = Student::where('user_id',$this->authService->user()->id)->first();
-        $selectcoursesassigned = CourseAssignment::with(['course'])->where('department_id',$student->department_id)->where('semester_id',$semester)->get();
+        $selectcoursesassigned = CourseAssignment::with(['course'])->where('department_id',$student->department_id)->where('semester_id',$semester)->where('level',$level)->get();
 
         // get all the courses for that actual section
         $getsemestercourses = CourseAssignment::with(['course'])->where('semester_id',$semester)->get();

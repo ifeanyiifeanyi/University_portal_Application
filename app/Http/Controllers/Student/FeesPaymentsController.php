@@ -20,22 +20,48 @@ class FeesPaymentsController extends Controller
 
         $this->authService = $authService;
     }
-    public function index(){
-  //   get the student id of the user
-  $student = Student::where('user_id',$this->authService->user()->id)->first();
-        // $payments = Payment::with(['student.user','academicSession','semester','paymentType','paymentMethod','receipt'])->where('student_id',$student->id)->get();
-        // dd($payments);
+//     public function index(){
+//   //   get the student id of the user
+//   $student = Student::where('user_id',$this->authService->user()->id)->first();
+//         // $payments = Payment::with(['student.user','academicSession','semester','paymentType','paymentMethod','receipt'])->where('student_id',$student->id)->get();
+//         // dd($payments);
 
-        $payments = Payment::with([
-            'paymentType',
-            'academicSession',
-            'semester',
-            'receipt',
-            'invoice'
-        ])
-        ->where('student_id', $student->id)
-        ->orderBy('created_at', 'desc')
-        ->paginate(2);
-        return view('student.payments.index',compact('payments'));
+//         $payments = Payment::with([
+//             'paymentType',
+//             'academicSession',
+//             'semester',
+//             'receipt',
+//             'invoice'
+//         ])
+//         ->where('student_id', $student->id)
+//         ->orderBy('created_at', 'desc')
+//         ->paginate(2);
+//         return view('student.payments.index',compact('payments'));
+//     }
+
+public function index(Request $request){
+    $student = Student::where('user_id', $this->authService->user()->id)->first();
+
+    $query = Payment::with([
+        'paymentType',
+        'academicSession',
+        'semester',
+        'receipt',
+        'invoice'
+    ])->where('student_id', $student->id);
+
+    // Add status filtering
+    if ($request->has('status') && $request->status !== 'all') {
+        $query->where('status', $request->status);
     }
+
+    $payments = $query->orderBy('created_at', 'desc')->paginate(2);
+    
+    // Get distinct statuses for dropdown
+    $statuses = Payment::where('student_id', $student->id)
+        ->distinct('status')
+        ->pluck('status');
+
+    return view('student.payments.index', compact('payments', 'statuses'));
+}
 }

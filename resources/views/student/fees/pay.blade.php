@@ -62,7 +62,7 @@
                   <div class="row mb-3">
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Current level</label>
                     <div class="col-md-8 col-lg-9">
-                    <output class="form-control">{{$student->current_level}}</output>
+                    <output class="form-control">{{$student->department->getDisplayLevel($student->current_level)}}</output>
                     <input type="hidden" name="level" id="" value="{{$student->department->getLevelNumber($student->current_level)}}">
                     </div>
                   </div>
@@ -77,7 +77,7 @@
                                 {{ $level }}
                             </option>
                         @endforeach
-
+                           
                         </select>
                         @if ($errors->has('level'))
     <span class="text-danger">{{$errors->first('level')}}</span>
@@ -161,7 +161,7 @@
 
 
                   <div>
-                    <button class="btn w-50 text-white btn-success" style="">Submit</button>
+                    <button class="btn w-50 text-white btn-success" style="" onclick="return confirm('Are you sure you want to proceed with this payment?')">Submit</button>
                   </div>
                 </form>
               </div>
@@ -177,7 +177,7 @@
     // document.addEventListener('DOMContentLoaded', function() {
     //     const departmentSelect = document.getElementById('department_id');
     //     const levelSelect = document.getElementById('level');
-
+  
     //     function updateLevels() {
     //         const departmentId = departmentSelect.value;
     //         fetch(`/student/fees/departments/${departmentId}/levels`)
@@ -193,7 +193,7 @@
     //                 });
     //             });
     //     }
-
+  
     //     departmentSelect.addEventListener('change', updateLevels);
     //     updateLevels(); // Initial population
     // });

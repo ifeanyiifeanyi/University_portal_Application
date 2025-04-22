@@ -62,6 +62,13 @@
                                     <td>{{$invoice->academicSession->name}}</td>
                                     <td>{{$invoice->semester->name}}</td>
                                     <td><a href="{{route('student.view.fees.invoice',['id'=>$invoice->id])}}" class="btn w-100 text-white btn-success">View</a></td>
+                                    <td>@if($invoice->status == 'pending')
+                                    <form action="{{ route('student.revoke.payment', ['id' => $invoice->id]) }}" method="POST">
+                                        @csrf 
+                                        <button class="btn w-100 text-white btn-danger" onclick="return confirm('Are you sure you want to revoke this payment?NB:payment can only be revoked once you havent made any payment yet.')">Revoke</button></form>
+                                    @endif
+                                    </td>
+                                                                        
                                 </tr>
                                 @empty
                                     
@@ -79,7 +86,7 @@
     </div>
 
     <div class="row">
-        @include('messages')
+    
         <div class="col-12">
             <div class="card">
                 <div class="card-header">

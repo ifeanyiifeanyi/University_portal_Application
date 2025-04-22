@@ -132,12 +132,6 @@ class Student extends Model
         return $this->belongsTo(Department::class);
     }
 
-    // public function courses()
-    // {
-    //     return $this->belongsToMany(Course::class, 'enrollments')
-    //         ->withPivot('assessment_score', 'exam_score', 'grade', 'semester_id')
-    //         ->withTimestamps();
-    // }
 
     public function enrollments()
     {
