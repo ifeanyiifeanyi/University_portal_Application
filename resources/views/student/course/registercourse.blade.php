@@ -22,6 +22,68 @@
             <div class="card-body">
                 @include('messages')
                 <form action="{{route('student.proceed.courseregister')}}" method="POST">
+                    <div class="table-responsive">
+                        @csrf
+                        <input type="hidden" name="session" value="{{ $session }}">
+                        <input type="hidden" name="semester" value="{{ $semester }}" id="semester">
+                        <input type="hidden" name="level" value="{{ $level }}">
+                        <input type="hidden" name="semesterregid" value="{{$semesterregid}}">
+                        <input type="hidden" name="TotalCreditLoadCount" id="TotalCreditLoadCount">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Course code</th>
+                                    <th scope="col">Course name</th>
+                                    <th scope="col">Credit load</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($courses as $course)
+                                <tr>
+                                    <td>{{$course->course->code}}</td>
+                                    <td>{{$course->course->title}}</td>
+                                    <td>{{$course->course->credit_hours}} <input type="hidden" name="credit_load" value="{{$course->course->credit_hours}}"></td>
+                                    <td>
+                                        <input type="checkbox" name="course_id[]" 
+                                               value="{{$course->course->id}}" 
+                                               data-credit-hours="{{ $course->course->credit_hours }}" 
+                                               onchange="updateCreditLoad()"
+                                               @if(in_array($course->course->id, $registeredCourses)) checked @endif>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                
+                                @if($failedCourses->count() > 0)
+                                    @foreach ($failedCourses as $failedCourse)
+                                        <tr>
+                                            <td>{{$failedCourse->course->code}}</td>
+                                            <td>{{$failedCourse->course->title}}</td>
+                                            <td>
+                                                {{$failedCourse->course->credit_hours}} 
+                                                <input type="hidden" name="carry_over_credit_load" value="{{$failedCourse->course->credit_hours}}">
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" name="carry_over_course_id[]" 
+                                                       value="{{$failedCourse->course->id}}" 
+                                                       data-credit-hours="{{ $failedCourse->course->credit_hours }}" 
+                                                       onchange="updateCreditLoad()"
+                                                       @if(in_array($failedCourse->course->id, $registeredCourses)) checked @endif>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                        <div class="mt-5">
+                            <button class="btn w-100 text-white btn-success">Submit</button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <strong>Total Credit Load: <span id="totalCreditLoad">0</span></strong>
+                    </div>
+                </form>
+                {{-- <form action="{{route('student.proceed.courseregister')}}" method="POST">
                 <div class="table-responsive">
                     
                         @csrf
@@ -50,7 +112,7 @@
                                 <td>{{$course->course->credit_hours}} <input type="hidden" name="credit_load" value="{{$course->course->credit_hours}}"></td>
                                 <td>
                                     
-                                    <input type="checkbox" name="course_id[]" value="{{$course->course->id}}" data-credit-hours="{{ $course->course->credit_hours }}" onchange="updateCreditLoad()" checked>
+                                    <input type="checkbox" name="course_id[]" value="{{$course->course->id}}" data-credit-hours="{{ $course->course->credit_hours }}" onchange="updateCreditLoad()">
                                 </td>
                              
                             </tr>
@@ -87,7 +149,7 @@
                 <div class="mt-3">
                     <strong>Total Credit Load: <span id="totalCreditLoad">0</span></strong>
                 </div>
-            </form>
+            </form> --}}
             </div>
         </div>
     </div>

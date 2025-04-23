@@ -48,6 +48,7 @@
                                     <td>{{$reghistory->AcademicSession->name}}</td>
                                     <td>{{$reghistory->semester->name}}</td>
                                     <td>{{$student->department->getDisplayLevel($reghistory->level)}}</td>
+                                    <td><a href="{{route('student.view.registercourse',['semester_regid'=>$reghistory->id,'session_id'=>$reghistory->semester_id,'semester_id'=>$reghistory->academic_session_id,'level'=>$reghistory->level])}}" class="btn w-50 text-white btn-success" style="">Continue</a></td>
                                     <td><a href="{{route('student.view.courseregistered',['id'=>$reghistory->id])}}" class="btn w-50 text-white" style="background: #AE152D;">View</a></td>
                                 </tr>
                                 @empty
