@@ -455,25 +455,36 @@ class StudentPaymentGatewayService
      */
 
 
-    private function verifyWebhookSignature($payload, $sigHeader)
-    {
-        try {
-            $verified = $this->paystack->webhook->verifySignature(
-                $payload,
-                $sigHeader,
-                env('PAYSTACK_SECRET_KEY')
-            );
-
+     private function verifyWebhookSignature($payload, $sigHeader)
+     {
+         try {
+             // $verified = $this->paystack->webhook->verifySignature(
+             //     $payload,
+             //     $sigHeader,
+             //     env('PAYSTACK_SECRET_KEY')
+             // );
+ 
+             
+             $verified = $this->paystack->verifyWebhookSignature(
+                 $payload,
+                 $sigHeader,
+                 env('PAYSTACK_SECRET_KEY')
+             );
+ 
             if (!$verified) {
-                throw new Exception('Webhook signature verification failed');
-            }
-        } catch (Exception $e) {
-            Log::error('Webhook Signature Verification Failed', [
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
+                 throw new Exception('Webhook signature verification failed');
+             } else {
+                 Log::info('Webhook signature verification successful with new code', [
+                     'verified' => $verified
+                 ]);
+             }
+         } catch (Exception $e) {
+             Log::error('Webhook Signature Verification Failed', [
+                 'error' => $e->getMessage()
+             ]);
+             throw $e;
+         }
+     }
 
     /**
      * Handle Charge Success Webhook
