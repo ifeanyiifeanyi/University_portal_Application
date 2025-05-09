@@ -39,27 +39,9 @@
         }
 
                 /* Hide the preloader once the page is fully loaded */
-                body:not(.loading) #preloader {
-                    display: none;
-                }
-                .nav-link {
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s ease;
-}
-
-.nav-active {
-    border-bottom: 2px solid #007bff;
-    color: #007bff;
-}
-    
-
-        /* Hide the preloader once the page is fully loaded */
         body:not(.loading) #preloader {
             display: none;
         }
-
         .nav-link {
             padding: 10px 15px;
             text-decoration: none;
@@ -67,10 +49,23 @@
             transition: all 0.3s ease;
         }
 
-        .nav-active {
-            border-bottom: 2px solid #007bff;
-            color: #007bff;
+
+        /* Hide the preloader once the page is fully loaded */
+        body:not(.loading) #preloader {
+            display: none;
         }
+
+        .nav-link:hover {
+            color: #ddd !important;
+            background-color: rgba(0, 128, 128, 0.788) !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-active {
+            background-color: teal !important;;
+            color: #ddd !important;
+        }
+
     </style>
 
 </head>
@@ -121,9 +116,9 @@
         </div>
         <!-- END wrapper -->
 
-      
 
-      
+
+
 
 
     </div>

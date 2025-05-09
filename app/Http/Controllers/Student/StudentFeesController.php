@@ -101,6 +101,46 @@ class StudentFeesController extends Controller
         ]);
     }
 
+    // public function pay()
+    // {
+    //     // load the semester
+    //     $semesters = Semester::get();
+    //     // load the academic sessions
+    //     $academicsessions = AcademicSession::all();
+    //     // load the studentprofile
+    //     $student = Student::where('user_id', $this->authService->user()->id)->first();
+    //     $currentDepartment = Department::find($student->department_id);
+    //     $levels = $currentDepartment ? $currentDepartment->levels : [];
+
+    //     $numericLevel = $student->department->getLevelNumber($student->current_level);
+    //     $paymentTypes = DepartmentPaymentType::with(['paymentType'])
+    //         ->where('department_id', $student->department_id)
+    //         ->where('level', $numericLevel)
+    //         ->whereNotExists(function ($query) use ($student) {
+    //             $query->select('payments.id')
+    //                 ->from('payments')
+    //                 ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
+    //                 ->where('payments.student_id', $student->id);
+    //         })
+    //         ->get();
+
+
+
+
+
+    //      $paymentMethods = PaymentMethod::where('is_active', 1)->get();
+
+    //     return view('student.fees.pay', [
+    //         'semesters' => $semesters,
+    //         'academicsessions' => $academicsessions,
+    //         'student' => $student,
+    //         'paymentMethods' => $paymentMethods,
+    //         'paymentTypes' => $paymentTypes,
+    //         'levels' => $levels,
+    //         'currentDepartment' => $currentDepartment
+    //     ]);
+    // }
+
     public function pay()
     {
         // load the semester
@@ -113,7 +153,9 @@ class StudentFeesController extends Controller
         $levels = $currentDepartment ? $currentDepartment->levels : [];
 
         $numericLevel = $student->department->getLevelNumber($student->current_level);
-        $paymentTypes = DepartmentPaymentType::with(['paymentType'])
+        $paymentTypes = DepartmentPaymentType::with(['paymentType' => function ($query) {
+            $query->where('is_active', true);
+        }])
             ->where('department_id', $student->department_id)
             ->where('level', $numericLevel)
             ->whereNotExists(function ($query) use ($student) {
@@ -122,13 +164,12 @@ class StudentFeesController extends Controller
                     ->whereColumn('department_payment_type.payment_type_id', 'payments.payment_type_id')
                     ->where('payments.student_id', $student->id);
             })
+            ->whereHas('paymentType', function ($query) {
+                $query->where('is_active', true);
+            })
             ->get();
 
-    
-   
-    
-  
-         $paymentMethods = PaymentMethod::where('is_active', 1)->get();
+        $paymentMethods = PaymentMethod::where('is_active', 1)->get();
 
         return view('student.fees.pay', [
             'semesters' => $semesters,
@@ -230,24 +271,24 @@ class StudentFeesController extends Controller
         return view('student.fees.invoice', compact('invoice', 'paymentMethods'));
     }
 
-      public function revokePayment($id)
+    public function revokePayment($id)
     {
         try {
             DB::beginTransaction();
-            
+
             // Find the invoice
             $invoice = Invoice::findOrFail($id);
-            
+
             // Only allow revoking pending payments
             if ($invoice->status !== 'pending') {
                 return redirect()->back()
                     ->with('error', 'Only pending payments can be revoked.');
             }
-            
+
             // Update invoice status
             $invoice->status = 'revoked';
             $invoice->save();
-            
+
             // Log the activity
             activity()
                 ->performedOn($invoice)
@@ -256,15 +297,14 @@ class StudentFeesController extends Controller
                     'amount' => $invoice->amount
                 ])
                 ->log('Payment revoked');
-            
+
             // Soft delete the invoice
             $invoice->delete();
-            
+
             DB::commit();
-            
+
             return redirect()->back()
                 ->with('success', 'Payment has been successfully revoked.');
-                
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -422,7 +462,7 @@ class StudentFeesController extends Controller
             'status' => 'pending',
             'paid_at' => null
         ]);
-        
+
 
         // Create remaining installment records
         $dueDate = now();
@@ -523,7 +563,7 @@ class StudentFeesController extends Controller
 
 
             if ($result['success']) {
-               
+
                 // Generate receipt and send notifications
                 $receipt = $this->generateReceipt($payment);
 
@@ -685,83 +725,82 @@ class StudentFeesController extends Controller
     }
 
 
-public function processInstallmentPayment(Request $request, $paymentId)
-{
-    DB::beginTransaction();
-    $student = Student::where('user_id', $this->authService->user()->id)->first();
-    $currentDepartment = Department::find($student->department_id);
-    $levels = $currentDepartment ? $currentDepartment->levels : [];
-    $numericLevel = $student->department->getLevelNumber($student->current_level);
+    public function processInstallmentPayment(Request $request, $paymentId)
+    {
+        DB::beginTransaction();
+        $student = Student::where('user_id', $this->authService->user()->id)->first();
+        $currentDepartment = Department::find($student->department_id);
+        $levels = $currentDepartment ? $currentDepartment->levels : [];
+        $numericLevel = $student->department->getLevelNumber($student->current_level);
 
-    try {
-        $payment = Payment::with(['installments', 'paymentType', 'student', 'academicSession', 'semester'])
-            ->findOrFail($paymentId);
+        try {
+            $payment = Payment::with(['installments', 'paymentType', 'student', 'academicSession', 'semester'])
+                ->findOrFail($paymentId);
 
-        if (!$payment->is_installment) {
-            throw new \Exception('This is not an installment payment');
+            if (!$payment->is_installment) {
+                throw new \Exception('This is not an installment payment');
+            }
+
+            // Get next pending installment
+            $nextInstallment = $payment->installments()
+                ->where('status', 'pending')
+                ->orderBy('installment_number')
+                ->first();
+
+            if (!$nextInstallment) {
+                throw new \Exception('No pending installments found');
+            }
+
+            // Calculate amount including any late fees
+            $installmentAmount = $nextInstallment->amount;
+            if (now()->isAfter($nextInstallment->due_date)) {
+                $installmentAmount += $nextInstallment->calculatePenalty();
+            }
+
+            // Generate new unique transaction reference
+            $newReference = 'PAY-INST-' . uniqid() . '-' . $nextInstallment->installment_number;
+
+            // Update payment tracking fields
+            $payment->update([
+                'next_transaction_amount' => $installmentAmount,
+                'next_installment_date' => $nextInstallment->due_date,
+                'transaction_reference' => $newReference
+            ]);
+
+            // Always create a NEW invoice for this installment
+            $invoice = Invoice::create([
+                'student_id' => $payment->student_id,
+                'payment_type_id' => $payment->payment_type_id,
+                'academic_session_id' => $payment->academic_session_id,
+                'semester_id' => $payment->semester_id,
+                'is_installment' => true,
+                'amount' => $installmentAmount,
+                'payment_method_id' => $payment->payment_method_id,
+                'status' => 'pending',
+                'invoice_number' => 'INV-INST-' . time() . '-' . $nextInstallment->installment_number,
+                'department_id' => $payment->student->department_id,
+                'level' => $numericLevel,
+                'next_transaction_amount' => $installmentAmount,
+                'due_date' => $nextInstallment->due_date,
+                'installment_number' => $nextInstallment->installment_number // Track which installment this is
+            ]);
+
+            // Link the payment to the new invoice (without affecting previous invoices)
+            $payment->invoice()->associate($invoice);
+            $payment->save();
+
+            DB::commit();
+
+            return redirect()->route('student.view.fees.invoice', $invoice->id);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Installment payment processing failed', [
+                'payment_id' => $paymentId,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->back()->with('error', 'Failed to process installment payment: ' . $e->getMessage());
         }
-
-        // Get next pending installment
-        $nextInstallment = $payment->installments()
-            ->where('status', 'pending')
-            ->orderBy('installment_number')
-            ->first();
-
-        if (!$nextInstallment) {
-            throw new \Exception('No pending installments found');
-        }
-
-        // Calculate amount including any late fees
-        $installmentAmount = $nextInstallment->amount;
-        if (now()->isAfter($nextInstallment->due_date)) {
-            $installmentAmount += $nextInstallment->calculatePenalty();
-        }
-
-        // Generate new unique transaction reference
-        $newReference = 'PAY-INST-' . uniqid() . '-' . $nextInstallment->installment_number;
-
-        // Update payment tracking fields
-        $payment->update([
-            'next_transaction_amount' => $installmentAmount,
-            'next_installment_date' => $nextInstallment->due_date,
-            'transaction_reference' => $newReference
-        ]);
-
-        // Always create a NEW invoice for this installment
-        $invoice = Invoice::create([
-            'student_id' => $payment->student_id,
-            'payment_type_id' => $payment->payment_type_id,
-            'academic_session_id' => $payment->academic_session_id,
-            'semester_id' => $payment->semester_id,
-            'is_installment' => true,
-            'amount' => $installmentAmount,
-            'payment_method_id' => $payment->payment_method_id,
-            'status' => 'pending',
-            'invoice_number' => 'INV-INST-' . time() . '-' . $nextInstallment->installment_number,
-            'department_id' => $payment->student->department_id,
-            'level' => $numericLevel,
-            'next_transaction_amount' => $installmentAmount,
-            'due_date' => $nextInstallment->due_date,
-            'installment_number' => $nextInstallment->installment_number // Track which installment this is
-        ]);
-
-        // Link the payment to the new invoice (without affecting previous invoices)
-        $payment->invoice()->associate($invoice);
-        $payment->save();
-
-        DB::commit();
-        
-        return redirect()->route('student.view.fees.invoice', $invoice->id);
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Installment payment processing failed', [
-            'payment_id' => $paymentId,
-            'error' => $e->getMessage()
-        ]);
-        return redirect()->back()->with('error', 'Failed to process installment payment: ' . $e->getMessage());
     }
-}
 
     public function checkPaymentStatus()
     {
