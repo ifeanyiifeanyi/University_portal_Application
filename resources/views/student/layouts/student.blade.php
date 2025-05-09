@@ -20,53 +20,83 @@
     <!-- Icons -->
     <link href="{{ asset('student/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     @yield('css')
-    <style>
-        /* Basic styling for the preloader and greyed background */
-        #preloader {
-            display: none;
-            /* Hidden by default */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            text-align: center;
-            padding-top: 20%;
-            color: #fff;
-            font-size: 1.5em;
-        }
+   <style>
+    /* Basic styling for the preloader and greyed background */
+#preloader {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    text-align: center;
+    padding-top: 20%;
+    color: #fff;
+    font-size: 1.5em;
+}
 
-                /* Hide the preloader once the page is fully loaded */
-        body:not(.loading) #preloader {
-            display: none;
-        }
-        .nav-link {
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-            transition: all 0.3s ease;
-        }
+/* Hide the preloader once the page is fully loaded */
+body:not(.loading) #preloader {
+    display: none;
+}
 
+/* Basic styling for all nav links */
+.nav-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
 
-        /* Hide the preloader once the page is fully loaded */
-        body:not(.loading) #preloader {
-            display: none;
-        }
+/* Ensuring the nested menu items have proper styling */
+.nav-second-level a {
+    padding: 8px 15px 8px 30px;
+    display: block;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
 
-        .nav-link:hover {
-            color: #ddd !important;
-            background-color: rgba(0, 128, 128, 0.788) !important;
-            transition: all 0.3s ease;
-        }
+/* Hover state for all nav links including nested ones */
+.nav-link:hover,
+.nav-second-level a:hover {
+    color: #ddd !important;
+    background-color: rgba(0, 128, 128, 0.788) !important;
+    transition: all 0.3s ease;
+}
 
-        .nav-active {
-            background-color: teal !important;;
-            color: #ddd !important;
-        }
+/* Active state for all nav links including nested ones */
+.nav-active,
+.nav-second-level a.nav-active {
+    background-color: teal !important;
+    color: #ddd !important;
+}
 
-    </style>
+/* Making sure active links maintain styling on hover */
+.nav-active:hover,
+.nav-second-level a.nav-active:hover {
+    background-color: teal !important;
+    color: #ddd !important;
+}
+
+/* Ensure proper spacing and visibility in the sidebar */
+.collapse.show {
+    display: block;
+}
+
+.nav-second-level {
+    padding-left: 0;
+    list-style: none;
+}
+
+/* Add a slight indent to nested menu items */
+.nav-second-level li {
+    margin-left: 0;
+    position: relative;
+}
+   </style>
 
 </head>
 
