@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use Exception;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Receipt;
@@ -14,15 +15,15 @@ use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
 use App\Services\AuthService;
 use App\Models\AcademicSession;
+use App\Models\PaymentInstallment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\DepartmentPaymentType;
-use App\Services\StudentPaymentGatewayService;
-use App\Models\PaymentInstallment;
 use App\Models\PaymentInstallmentConfig;
-use App\Http\Requests\SubmitPaymentFormRequest;
 use App\Http\Requests\ProcessPaymentRequest;
+use App\Services\StudentPaymentGatewayService;
+use App\Http\Requests\SubmitPaymentFormRequest;
 
 class StudentFeesController extends Controller
 {
@@ -271,7 +272,7 @@ class StudentFeesController extends Controller
         return view('student.fees.invoice', compact('invoice', 'paymentMethods'));
     }
 
-    public function revokePayment($id)
+  public function revokePayment($id)
     {
         try {
             DB::beginTransaction();
@@ -279,39 +280,33 @@ class StudentFeesController extends Controller
             // Find the invoice
             $invoice = Invoice::findOrFail($id);
 
+
+
             // Only allow revoking pending payments
             if ($invoice->status !== 'pending') {
                 return redirect()->back()
                     ->with('error', 'Only pending payments can be revoked.');
             }
+            // check for invoice on the payments table
 
-            // Update invoice status
-            $invoice->status = 'revoked';
-            $invoice->save();
+            $payment = Payment::where('invoice_number',$invoice->invoice_number)->first();
+            $payment->delete();
 
-            // Log the activity
-            activity()
-                ->performedOn($invoice)
-                ->withProperties([
-                    'invoice_number' => $invoice->invoice_number,
-                    'amount' => $invoice->amount
-                ])
-                ->log('Payment revoked');
 
-            // Soft delete the invoice
             $invoice->delete();
+
 
             DB::commit();
 
             return redirect()->back()
                 ->with('success', 'Payment has been successfully revoked.');
+
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()
                 ->with('error', 'An error occurred while revoking the payment.');
         }
     }
-
 
 
     public function levels(Department $department)

@@ -202,6 +202,7 @@
                     ]
                 });
 
+
                 // Payment status check
                 checkPaymentStatus();
 

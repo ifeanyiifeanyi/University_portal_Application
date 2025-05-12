@@ -64,9 +64,10 @@ use App\Http\Controllers\Admin\AdminTeacherAssignmentController;
 use App\Http\Controllers\Admin\RecurringPaymentReportController;
 use App\Http\Controllers\Student\StudentSupportTicketController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
+use App\Http\Controllers\Student\StudentRecurringPaymentsController;
 use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
-use App\Http\Controllers\Student\StudentCourseRegistrationController;
 
+use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
@@ -875,7 +876,7 @@ Route::prefix('student')->middleware('student')->group(function () {
         Route::post('updateprofile', 'updateprofile')->name('student.update.profile');
         Route::post('changepassword', 'updatepassword')->name('student.update.password');
     });
-    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees','check.installment.fees')->group(function () {
+    Route::controller(StudentCourseRegistrationController::class)->middleware('checkforfees', 'check.installment.fees')->group(function () {
         Route::prefix('course_registration')->group(function () {
             Route::get('/', 'courseregistration')->name('student.view.courseregistration');
             Route::get('/view/{id}', 'viewregistered')->name('student.view.courseregistered');
@@ -969,7 +970,22 @@ Route::prefix('parent')->middleware('parent')->group(function () {
 
 //! the Lecturer routes
 Route::prefix('teacher')->middleware('teacher')->group(function () {
+    Route::controller(StudentRecurringPaymentsController::class)->group(function () {
+        Route::prefix('/recurringpayments')->group(function () {
+            Route::get('/', 'index')->name('student.recurring.payments');
+            Route::get('/makepayment/{plan}', 'showPaymentPage')->name('student.recurring.subscribe');
 
+            Route::post('/processpayment', 'processpayment')->name('student.recurring.processpayment');
+
+            Route::get('/recurring/callback', 'handleCallback')->name('student.recurring.callback');
+
+            Route::get('receipt/{id}', 'receipt')->name('student.recurring.receipt');
+
+            Route::get('/student/recurring/continue-payment/{id}', 'continuePayment')->name('student.recurring.continue-payment');
+
+            Route::post('/calculate-payment', 'calculatePayment')->name('student.recurring.calculate.payment');
+        });
+    });
     Route::controller(TeacherController::class)->group(function () {
         Route::get('dashboard', 'index')->name('teacher.view.dashboard');
         Route::get('profile', 'profile')->name('teacher.view.profile');
