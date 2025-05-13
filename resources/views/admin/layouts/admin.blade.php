@@ -75,38 +75,39 @@
             height: 3rem;
         }
     </style>
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+ <link href="{{ asset('assets/plugins/vectormap/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
 
  <!--plugins-->
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
 
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
 
 
  <!-- loader-->
- <link href="https://portal.stcharlesborromeocon.com/assets/css/pace.min.css" rel="stylesheet" />
+ <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet" />
  <!-- Bootstrap CSS -->
- <link href="https://portal.stcharlesborromeocon.com/assets/css/bootstrap.min.css" rel="stylesheet">
- <link href="https://portal.stcharlesborromeocon.com/assets/css/app.css" rel="stylesheet">
- <link href="https://portal.stcharlesborromeocon.com/assets/css/icons.css" rel="stylesheet">
+ <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
+ <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
+ <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
  <!-- Theme Style CSS -->
- <link rel="stylesheet" href="https://portal.stcharlesborromeocon.com/assets/css/dark-theme.css" />
- <link rel="stylesheet" href="https://portal.stcharlesborromeocon.com/assets/css/semi-dark.css" />
- <link rel="stylesheet" href="https://portal.stcharlesborromeocon.com/assets/css/header-colors.css" />
+ <link rel="stylesheet" href="{{ asset('assets/css/dark-theme.css') }}" />
+ <link rel="stylesheet" href="{{ asset('assets/css/semi-dark.css') }}" />
+ <link rel="stylesheet" href="{{ asset('assets/css/header-colors.css') }}" />
 
  <title>COLLEGE OF NURSING SCIENCES, ST CHARLES BORROMEO SPECIALIST HOSPITAL, ONITSHA. - Dashboard</title>
 
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
- <link href="https://portal.stcharlesborromeocon.com/assets/plugins/select2/css/select2-bootstrap4.css" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
+ <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
 </head>
 
 

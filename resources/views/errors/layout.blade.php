@@ -18,46 +18,75 @@
         body {
             font-family: 'Nunito', sans-serif;
             background-color: #f8f9fa;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px 0;
         }
         .error-container {
-            max-width: 500px;
-            padding: 2rem;
+            width: 100%;
+            padding: 1.5rem;
             background: white;
             border-radius: 0.5rem;
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
         .error-icon {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             margin: 0 auto 1.5rem auto;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .error-btn {
-            min-width: 120px;
+            margin: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .error-icon {
+                width: 80px;
+                height: 80px;
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            .btn-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .error-btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+        @media (min-width: 576px) {
+            .btn-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
+            <div class="col-sm-10 col-md-8 col-lg-6">
                 <div class="error-container text-center">
                     <div class="error-icon @yield('icon-bg')">
                         @yield('icon')
                     </div>
 
-                    <h1 class="display-6 fw-bold mb-2">@yield('code') | @yield('title')</h1>
+                    <h1 class="fw-bold mb-2">@yield('code') | @yield('title')</h1>
                     <p class="text-muted mb-4">@yield('message')</p>
 
-                    <div class="d-flex justify-content-center gap-2">
+                    <div class="btn-container">
                         <a href="{{ url('/') }}" class="btn btn-primary error-btn">
                             <i class="fas fa-home me-2"></i> Home
                         </a>

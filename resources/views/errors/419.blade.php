@@ -9,7 +9,7 @@
 @endsection
 
 @section('logout-button')
-    <form method="GET" action="{{ route('logout') }}">
+    <form method="GET" action="{{ route('logout') }}" style="display: inline;">
         @csrf
         <button type="submit" class="btn btn-danger error-btn">
             <i class="fas fa-sign-out-alt me-2"></i> Logout
