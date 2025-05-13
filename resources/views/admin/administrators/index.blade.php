@@ -60,7 +60,7 @@
                                                             @method('DELETE')
                                                             <button class="dropdown-item bg-danger" type="submit">
                                                                 <i class="bx bx-trash-alt me-0"></i> Delete
-                                                            </button>
+                                                             </button>
                                                         </form>
                                                     </li>
                                                 </ul>
