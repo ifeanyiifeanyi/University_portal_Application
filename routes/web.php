@@ -4,6 +4,7 @@ use App\Models\Receipt;
 use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\AdminController;
@@ -65,14 +66,14 @@ use App\Http\Controllers\Admin\RecurringPaymentReportController;
 use App\Http\Controllers\Student\StudentSupportTicketController;
 use App\Http\Controllers\Admin\AdminAssignStudentCourseController;
 use App\Http\Controllers\Student\StudentRecurringPaymentsController;
-use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
 
+use App\Http\Controllers\Admin\AdminPayRecurringForStudentController;
 use App\Http\Controllers\Student\StudentCourseRegistrationController;
 use App\Http\Controllers\Admin\AdminStudentRegisteredCoursesController;
 use App\Http\Controllers\Admin\TeacherController as AdminTeacherController;
 
 
-
+// artisan commands for migrations and seeding
 Route::get('/migrate-and-seed', function () {
     try {
         // Run database migrations
@@ -104,20 +105,32 @@ Route::get('/migrate-and-seed', function () {
     }
 });
 
+
+// Telegram integration routes
+Route::post('telegram/webhook', [TelegramController::class, 'webhook']) ->withoutMiddleware([VerifyCsrfToken::class]);
+
+Route::get('telegram/set-webhook', [TelegramController::class, 'setWebhook'])->middleware(['auth']);
+Route::get('telegram/auth', [TelegramController::class, 'auth'])->name('telegram.auth');
+// Route::get('/materials/download/{id}', [TelegramController::class, 'downloadMaterial'])->name('materials.download');
+
+
 // Route::middleware(['guest', 'security.headers'])->controller(AuthController::class)->group(function () {
 
+// guest authentication routes
 Route::controller(AuthController::class)->group(function () {
-
+    // Route::get('/', 'login')->name('login');
     Route::get('/', 'login')->name('login.view');
     Route::post('/', 'postLogin')->name('login.post');
     Route::get('logout', 'logout')->name('logout');
 });
 
 
+//manage payment receipt qrcode details(details, payment details, etc)
 Route::get('receipt-details/{receipt}', function (Receipt $receipt) {
     return view('admin.show_receipt', compact('receipt'));
 })->name('receipts.show');
 
+//manage id card qrcode details(details, payment details, etc)
 Route::get('student-info/{student}', function (Student $student) {
     return view('admin.student.show_student_idcard', compact('student'));
 })->name('student.show');
@@ -135,6 +148,7 @@ Route::middleware('admin')->group(function () {
 
 Route::get('/public-timetable', [AdminTimeTableController::class, 'publicView'])->name('public.timetable');
 
+// guest password recovery and reset routes
 Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'security.headers'])->group(function () {
     Route::get('password/recovery',  'showRecoveryForm')->name('password.recovery.form');
     Route::post('password/recovery/send',  'sendRecoveryCode')->name('password.recovery.send');
@@ -143,10 +157,11 @@ Route::controller(PasswordRecoveryController::class)->middleware(['guest', 'secu
 });
 
 
-// // routes/web.php or routes/api.php
-// Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handleWebhook']);
-
+// paystack payment verification webhook route
+Route::post('/webhook/paystack', [PaystackWebhookController::class, 'handleWebhook']);
+// paystack payment callback verification route
 Route::get('/payment/verify', [PaymentVerificationController::class, 'verify'])->name('payment.verify');
+
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -260,6 +275,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('manual-proof-of-payment/{payment}/show', 'show')->name('admin.manual_proof_of_payment.show');
     });
 
+    // ! needs update, or remove totally
     Route::controller(AdminStudentFeeNotPaidController::class)->group(function () {
         Route::get('owing-student', 'index')->name('admin.payments.owingStudent.index');
         Route::get('unpaid-fees/export', 'export')->name('admin.unpaid-fees.export');
@@ -463,6 +479,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('/rejected/export', 'exportRejectedScores')->name('admin.rejected.score.export');
             Route::post('/rejected/import', 'importRejectedScores')->name('admin.rejected.score.import');
         });
+
     });
 
 

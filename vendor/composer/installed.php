@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '46d6420bd799100d622906bcaf4f2b4ae2bbb751',
+        'reference' => 'cd0e489c8ef5f6375dc2dabc047e16ade36bd6b1',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -496,6 +496,15 @@
                 0 => 'v11.44.2',
             ),
         ),
+        'irazasyed/telegram-bot-sdk' => array(
+            'pretty_version' => 'v3.15.0',
+            'version' => '3.15.0.0',
+            'reference' => '07146018d173dedfd520fb8f18a50f31e27b1e60',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../irazasyed/telegram-bot-sdk',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'jaybizzle/crawler-detect' => array(
             'pretty_version' => 'v1.3.4',
             'version' => '1.3.4.0',
@@ -541,7 +550,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '46d6420bd799100d622906bcaf4f2b4ae2bbb751',
+            'reference' => 'cd0e489c8ef5f6375dc2dabc047e16ade36bd6b1',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -616,6 +625,15 @@
             'reference' => 'afc109aa11f3086b8be8dfffa04ac31480b36b76',
             'type' => 'library',
             'install_path' => __DIR__ . '/../league/csv',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'league/event' => array(
+            'pretty_version' => '3.0.3',
+            'version' => '3.0.3.0',
+            'reference' => 'ec38ff7ea10cad7d99a79ac937fbcffb9334c210',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../league/event',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -1090,8 +1108,8 @@
         'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-factory' => array(
@@ -1106,8 +1124,8 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-message' => array(
@@ -1122,8 +1140,8 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/log' => array(

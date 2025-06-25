@@ -36,6 +36,17 @@ class StudentRecurringSubscription extends Model
         $percentage = ($this->amount_paid / $this->total_amount) * 100;
         return round($percentage, 2);
     }
+
+    public function getPaymentHistoryArrayAttribute()
+    {
+        $history = $this->payment_history;
+
+        if (is_string($history)) {
+            return json_decode($history, true) ?? [];
+        }
+
+        return is_array($history) ? $history : [];
+    }
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
@@ -121,6 +132,100 @@ class StudentRecurringSubscription extends Model
         return true;
     }
 
+    public function recordPaymentForBlade($amount, $reference = null, $selectedMonths = null)
+    {
+        // Update subscription payment details
+        $this->amount_paid += $amount;
+        $this->balance = $this->total_amount - $this->amount_paid;
+        $this->number_of_payments = floor($this->amount_paid / ($this->amount_per_month ?? 35000));
+
+        // Add to payment history
+        $history = $this->payment_history ?? [];
+        $history[] = [
+            'date' => now()->toDateString(),
+            'amount' => $amount,
+            'reference' => $reference
+        ];
+        $this->payment_history = $history;
+
+        // Update selected_months if provided, or generate based on payment
+        if ($selectedMonths) {
+            // If specific months are provided (e.g., [1, 2, 3] for Jan, Feb, Mar)
+            $this->selected_months = $selectedMonths;
+        } else {
+            // Automatically assign months based on start_date and number of payments
+            $startDate = \Carbon\Carbon::parse($this->start_date);
+            $months = [];
+            for ($i = 0; $i < $this->number_of_payments; $i++) {
+                $monthDate = $startDate->copy()->addMonths($i);
+                $months[] = $monthDate->month; // Store month number (1-12)
+            }
+            $this->selected_months = $months;
+        }
+
+        $this->save();
+    }
+
+    // In StudentRecurringSubscription model
+    public function calculatePaidMonths($monthlyFee)
+    {
+        $paymentHistory = $this->payment_history ?? [];
+        $months = [];
+        $totalPaid = collect($paymentHistory)->sum('amount');
+        $monthsCount = floor($totalPaid / $monthlyFee);
+
+        if ($monthsCount <= 0) {
+            return [
+                'months_count' => 0,
+                'months' => []
+            ];
+        }
+
+        $startDate = \Carbon\Carbon::parse($this->start_date);
+        for ($i = 0; $i < $monthsCount; $i++) {
+            $monthDate = $startDate->copy()->addMonths($i);
+            $months[] = [
+                'name' => $monthDate->format('F'),
+                'year' => $monthDate->year
+            ];
+        }
+
+        return [
+            'months_count' => $monthsCount,
+            'months' => $months
+        ];
+    }
+
+    public function calculatePaidMonthsFromSelected()
+    {
+        $selectedMonths = $this->selected_months ?? [];
+        $paymentHistory = $this->payment_history ?? [];
+        $monthlyFee = $this->amount_per_month ?? 35000;
+        $startDate = \Carbon\Carbon::parse($this->start_date);
+
+        if (empty($selectedMonths)) {
+            return $this->calculatePaidMonths($monthlyFee);
+        }
+
+        $totalPaid = collect($paymentHistory)->sum('amount');
+        $monthsPaidCount = floor($totalPaid / $monthlyFee);
+
+        $paidMonths = collect($selectedMonths)->take($monthsPaidCount)->map(function ($monthNumber) use ($startDate) {
+            $monthDate = $startDate->copy()->month($monthNumber)->startOfMonth();
+            return [
+                'name' => $monthDate->format('F'),
+                'year' => $monthDate->year,
+                'full_date' => $monthDate->format('Y-m-d')
+            ];
+        })->toArray();
+
+        return [
+            'months' => $paidMonths,
+            'total_months_paid' => count($paidMonths),
+            'remaining_amount' => $totalPaid % $monthlyFee
+        ];
+    }
+
     // Get payment status
     // public function getStatusAttribute()
     // {
@@ -143,7 +248,7 @@ class StudentRecurringSubscription extends Model
         return 'pending';
     }
 
-     /**
+    /**
      * Get the covered months as a formatted string.
      */
     public function getCoveredMonthsAttribute()

@@ -181,4 +181,42 @@ class Student extends Model
     {
         return $this->hasMany(StudentRecurringSubscription::class);
     }
+
+
+
+
+    /**
+     * Alternative method if you want to use selected_months field
+     */
+   public function calculatePaidMonthsFromSelected($subscription)
+{
+    $selectedMonths = $subscription->selected_months ?? [];
+    $paymentHistory = $subscription->payment_history ?? [];
+    $monthlyFee = $subscription->amount_per_month ?? 35000;
+    $startDate = \Carbon\Carbon::parse($subscription->start_date);
+
+    if (empty($selectedMonths)) {
+        return $this->calculatePaidMonths($subscription, $monthlyFee);
+    }
+
+    $totalPaid = collect($paymentHistory)->sum('amount');
+    $monthsPaidCount = floor($totalPaid / $monthlyFee);
+
+    // Assume selected_months contains month numbers (e.g., [1, 2, 3])
+    $paidMonths = collect($selectedMonths)->take($monthsPaidCount)->map(function ($monthNumber) use ($startDate) {
+        // Convert month number to a date in the subscription's start year
+        $monthDate = $startDate->copy()->month($monthNumber)->startOfMonth();
+        return [
+            'name' => $monthDate->format('F'),
+            'year' => $monthDate->year,
+            'full_date' => $monthDate->format('Y-m-d')
+        ];
+    })->toArray();
+
+    return [
+        'months' => $paidMonths,
+        'total_months_paid' => count($paidMonths),
+        'remaining_amount' => $totalPaid % $monthlyFee
+    ];
+}
 }

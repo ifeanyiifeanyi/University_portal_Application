@@ -424,7 +424,7 @@
                                 style="width: 100%; height: 100%; object-fit: contain;">
                         @endif
                     </div>
-                    <div class="signature-title">Vice Chancellor</div>
+                    <div class="signature-title">Administrator</div>
                 </div>
 
                 <div class="terms">

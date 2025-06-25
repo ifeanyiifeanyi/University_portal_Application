@@ -226,11 +226,11 @@
                         @foreach ($registrations as $registration)
                             <tr>
                                 <th>{{ $loop->iteration }}</th>
-                                <td>{{ $registration->student->matric_number }}</td>
-                                <td>{{ $registration->student->user->full_name }}</td>
-                                <td>{{ $registration->student->department->name }}</td>
-                                <td>{{ $registration->academicSession->name }}</td>
-                                <td>{{ $registration->semester->name }}</td>
+                                <td>{{ $registration->student?->matric_number ?? 'NA' }}</td>
+                                <td>{{ $registration->student?->user?->full_name ?? 'NA' }}</td>
+                                <td>{{ $registration->student?->department?->name ?? 'NA' }}</td>
+                                <td>{{ $registration->academicSession?->name ?? 'NA' }}</td>
+                                <td>{{ $registration->semester?->name ?? 'NA' }}</td>
                                 <td>{{ ucfirst($registration->status) }}</td>
                                 <td>
                                     <a href="{{ route('admin.course-registrations.show', $registration) }}"

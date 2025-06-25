@@ -366,7 +366,7 @@
         <h4 class="fs-18 fw-semibold m-0">STUDENT ID CARD</h4>
     </div>
 
-   
+
 </div>
 
 
@@ -436,7 +436,7 @@
                             style="width: 100%; height: 100%; object-fit: contain;">
                     @endif
                 </div>
-                <div class="signature-title">Vice Chancellor</div>
+                <div class="signature-title">Administrator</div>
             </div>
 
             <div class="terms">
@@ -562,4 +562,3 @@
     </script>
 @endsection
 
-    

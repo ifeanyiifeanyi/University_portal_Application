@@ -85,12 +85,12 @@
                                     <span>Results</span>
                                 </a>
                             </li>
-                            <li>
+                            {{-- <li>
                                 <a href="{{ route('student.studymaterials.courses') }}" class="{{ request()->routeIs('student.studymaterials.courses') ? 'nav-active' : '' }}">
                                     <i data-feather="file-text"></i>
                                     <span>Study Materials</span>
                                 </a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </li>
