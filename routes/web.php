@@ -882,10 +882,18 @@ Route::prefix('student')->middleware('student')->group(function () {
     Route::controller(StudentController::class)->group(function () {
         Route::get('dashboard', 'index')->name('student.view.dashboard');
         Route::get('profile', 'profile')->name('student.view.profile');
+
+        Route::post('update-profile-picture', 'updateProfilePicture')->name('student.update.profile.image');
+        Route::get('edit-profile', 'editprofile')->name('student.edit.profile');
+
+
         Route::get('virtualid', 'virtualid')->name('student.view.virtualid');
         Route::get('/student/payments/dashboard/{student_id}', 'getStudentPaymentDashboard')->name('student.getpayment.data');
         Route::get('changepassword', 'changepassword')->name('student.change.password');
-        // Route::get('', [PaymentController::class, 'getStudentPaymentDashboard']);
+
+        //! not used yet
+        Route::get('payment-history', 'paymentHistory')->name('student.payment.history');
+
 
 
         // post requests

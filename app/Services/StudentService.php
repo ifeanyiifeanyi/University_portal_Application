@@ -26,6 +26,7 @@ class StudentService
     protected $studentBatchService;
 
 
+
     /**
      * CLASS
      * instance of our auth service class
@@ -39,25 +40,8 @@ class StudentService
 
     public function updateprofile(StudentprofileRequest $updatestudentprofile)
     {
+        // dd($updatestudentprofile);
         $student = Student::with('user')->where('user_id',$this->authService->user()->id)->first();
-
-        if ($updatestudentprofile->hasFile('profile_photo')) {
-            // Get the old image path
-            $old_image = $student->user->profile_photo;
-
-            // Delete the old image if it exists
-            if (!empty($old_image) && file_exists(public_path($old_image))) {
-                unlink(public_path($old_image));
-            }
-
-            // Handle the new image upload
-            $thumb = $updatestudentprofile->file('profile_photo');
-            $extension = $thumb->getClientOriginalExtension();
-            $profilePhoto = time() . "." . $extension;
-            $thumb->move('admin/students/profile/', $profilePhoto);
-            $student->user->profile_photo = 'admin/students/profile/' . $profilePhoto;
-            $student->user->save();
-        }
 
         Student::where('user_id', $this->authService->user()->id)->update([
             'date_of_birth' => $updatestudentprofile['date_of_birth'],
@@ -89,7 +73,7 @@ class StudentService
             'other_name' => $updatestudentprofile->othernames,
             'phone' => $updatestudentprofile->phonenumber,
         ]);
-            return redirect(route('student.view.profile'))->with('success','Profile details updated successfully');
+            return redirect()->back()->with('success','Profile details updated successfully');
 
     }
 

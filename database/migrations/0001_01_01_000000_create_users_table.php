@@ -13,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            
             $table->id();
             $table->enum('user_type', [1, 2, 3, 4])->comment('1. admin, 2. teacher, 3. student, 4. parent');
             $table->string('first_name');
